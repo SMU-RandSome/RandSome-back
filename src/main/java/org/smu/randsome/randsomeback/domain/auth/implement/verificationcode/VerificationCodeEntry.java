@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 record VerificationCodeEntry(String code, LocalDateTime expiredAt) {
 
     boolean isExpired(Clock clock) {
-        return LocalDateTime.now(clock).isAfter(expiredAt);
+        return !LocalDateTime.now(clock).isBefore(expiredAt);
     }
 
 }
