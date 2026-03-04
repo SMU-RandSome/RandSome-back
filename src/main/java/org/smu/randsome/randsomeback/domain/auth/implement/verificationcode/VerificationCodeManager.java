@@ -24,6 +24,10 @@ public class VerificationCodeManager {
         return code;
     }
 
+    public void invalidateVerificationCode(String email) {
+        codeStore.remove(email);
+    }
+
     private static String generateCode() {
         return Integer.toString(100_000 + SECURE_RANDOM.nextInt(900_000));
     }

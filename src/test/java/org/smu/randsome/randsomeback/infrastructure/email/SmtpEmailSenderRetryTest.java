@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
+import org.smu.randsome.randsomeback.domain.auth.implement.verificationcode.VerificationCodeManager;
 import org.smu.randsome.randsomeback.domain.auth.service.EmailSender;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -26,6 +27,9 @@ class SmtpEmailSenderRetryTest extends IntegrationTestSupport {
 
     @MockitoBean
     JavaMailSender javaMailSender;
+
+    @MockitoBean
+    VerificationCodeManager verificationCodeManager;
 
     @Test
     void 전송_실패_시_최대_3번_재시도한다() {
@@ -64,6 +68,35 @@ class SmtpEmailSenderRetryTest extends IntegrationTestSupport {
 
         // then
         verify(javaMailSender, times(2)).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void 최종_전송_실패_시_인증_코드가_삭제된다() {
+        // given
+        String email = "test@sangmyung.kr";
+        doThrow(new MailSendException("SMTP 오류"))
+                .when(javaMailSender).send(any(SimpleMailMessage.class));
+
+        // when & then
+        assertThatThrownBy(() -> emailSender.send(email, "제목", "본문"))
+                .isInstanceOf(CoreException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.EMAIL_SEND_FAILED);
+
+        // 3번 재시도 모두 실패 후 recover 호출 → 인증 코드 무효화 1번 호출
+        verify(verificationCodeManager, times(1)).invalidateVerificationCode(email);
+    }
+
+    @Test
+    void 전송_성공_시_인증_코드는_삭제되지_않는다() {
+        // given
+        String email = "test@sangmyung.kr";
+        // javaMailSender.send() 정상 동작 (아무것도 throw 하지 않음)
+
+        // when
+        emailSender.send(email, "제목", "본문");
+
+        // then: recover가 호출되지 않으므로 코드 무효화도 호출되지 않아야 함
+        verify(verificationCodeManager, times(0)).invalidateVerificationCode(email);
     }
 
 }
