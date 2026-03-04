@@ -49,7 +49,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 DDD 기반 레이어드 아키텍처를 따른다.
 
-```
+``` text
 src/main/java/org/smu/randsome/randsomeback/
 ├── domain/                     # 도메인별 패키지
 │   └── {도메인}/
