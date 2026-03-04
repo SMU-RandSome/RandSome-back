@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%5p]) %clr([%X{traceId:-SYSTEM}]){magenta} %clr([%thread]){blue} %clr(%-40.40logger{39}){cyan} %clr(-){faint} %m%n%wEx</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Sentry Appender (ERROR 레벨만 전송) -->
+    <appender name="SENTRY" class="io.sentry.logback.SentryAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <minimumEventLevel>ERROR</minimumEventLevel>
+        <minimumBreadcrumbLevel>INFO</minimumBreadcrumbLevel>
+    </appender>
+
+    <!-- Application -->
+    <logger name="org.kwakmunsu.haruhana" level="INFO"/>
+
+    <!-- Spring -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.springframework.security" level="WARN"/>
+    <logger name="org.springframework.web" level="INFO"/>
+
+    <!-- Hibernate -->
+    <logger name="org.hibernate.SQL" level="WARN"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="SENTRY"/>
+    </root>
+
+</configuration>
