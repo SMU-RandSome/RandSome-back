@@ -51,7 +51,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(errorType.getStatus())
-                .body(ApiResponse.error(errorType, errorType.getStatus()));
+                .body(ApiResponse.error(errorType));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -92,7 +92,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiResponse<?>> handleMethodArgumentMismatchException(MethodArgumentTypeMismatchException e) {
         ErrorType errorType = ErrorType.BAD_REQUEST;
-        String paramName = e.getParameter().getParameterName();
+        String paramName = e.getParameter().getParameterName() != null
+                ? e.getParameter().getParameterName()
+                : "unknown";
         String paramType = e.getParameter().getParameterType().getSimpleName();
         String detailMessage = e.getMessage();
         String message = "[" + paramName + "] 파라미터는 " + paramType + " 타입이어야 합니다. 상세: " + detailMessage;
