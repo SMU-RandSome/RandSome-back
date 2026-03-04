@@ -9,7 +9,7 @@
     </appender>
 
     <!-- Application -->
-    <logger name="org.kwakmunsu.haruhana" level="DEBUG"/>
+    <logger name="org.smu.randsome.randsomeback" level="DEBUG"/>
 
     <!-- Spring -->
     <logger name="org.springframework" level="INFO"/>

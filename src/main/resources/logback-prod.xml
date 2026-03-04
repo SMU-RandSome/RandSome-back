@@ -18,7 +18,7 @@
     </appender>
 
     <!-- Application -->
-    <logger name="org.kwakmunsu.haruhana" level="INFO"/>
+    <logger name="org.smu.randsome.randsomeback" level="INFO"/>
 
     <!-- Spring -->
     <logger name="org.springframework" level="WARN"/>
