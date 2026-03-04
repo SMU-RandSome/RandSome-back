@@ -15,7 +15,8 @@ class EmailSenderIntegrationTest extends IntegrationTestSupport {
     @Test
     void 이메일에_인증코드가_성공적으로_전송된다() {
         // given
-        var email = "202221033@sangmyung.kr";
+        // NOTE: 사용 시 본인 이메일을 작성하세요.
+        var email = "사용자@sangmyung.kr";
         var verificationCode = "123456";
 
         // when
