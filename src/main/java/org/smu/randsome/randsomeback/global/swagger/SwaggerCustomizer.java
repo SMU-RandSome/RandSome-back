@@ -33,6 +33,11 @@ public class SwaggerCustomizer implements OperationCustomizer {
     private void generateErrorCodeResponseExample(Operation operation, ErrorType[] errorTypes) {
         ApiResponses responses = operation.getResponses();
 
+        if (responses == null) {
+            responses = new ApiResponses();
+            operation.setResponses(responses);
+        }
+
         Map<Integer, List<ExampleHolder>> statusWithExampleHolders = Arrays.stream(errorTypes)
                 .map(errorType -> ExampleHolder.builder()
                         .holder(getSwaggerExample(errorType))
