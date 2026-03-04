@@ -37,7 +37,7 @@
   - `member_id` : Long (회원 참조)
   - `registration_status`: ENUM(`PENDING`, `APPROVED`, `REJECTED`)
   - `rejected_reason` : VARCHAR
-  - `apporved_at` : DateTime
+  - `approved_at` : DateTime
 - **행위**
   - `apply()`: 매칭 후보 등록 신청
   - `approve()`: 관리자가 후보 승인
@@ -47,7 +47,7 @@
   - 송금 내역을 확인될 경우 관리자가 승인한다.
 
 
-### **매칭 신청(matchingRequest)**
+### **매칭 신청(MatchingRequest)**
 
 - **속성**
   - `member_id`: Long
@@ -55,7 +55,7 @@
   - `requestCount`: INT (1~5)
   - `total_price`: BIG_DECIMAL
   - `rejected_reason` : String
-  - `application_status`: ENUM(`PENDING`, `APPROVED`, `REJECT`)
+  - `application_status`: ENUM(`PENDING`, `APPROVED`, `REJECTED`)
 - **행위**
   - `apply()`: 매칭 신청
   - `cancel()`: 신청 취소
@@ -84,7 +84,7 @@
   - `member_id`: Long
   - `amount`: INT
   - `ref_id`: Long
-  - `type` : ENUM(CANDIDATE, MATHING)
+  - `type` : ENUM(`CANDIDATE`, `MATCHING`)
   - `status`: ENUM(`WAITING`, `CONFIRMED`, `FAILED`)
 - **행위**
   - `create()`: 결제 요청 생성
