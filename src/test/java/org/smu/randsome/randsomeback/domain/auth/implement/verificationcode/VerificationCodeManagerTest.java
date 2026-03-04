@@ -16,7 +16,8 @@ class VerificationCodeManagerTest extends UnitTestSupport {
 
     @BeforeEach
     void setUp() {
-        verificationCodeManager = new VerificationCodeManager(Clock.systemDefaultZone(), new VerificationCodeStore());
+        Clock clock = Clock.systemDefaultZone();
+        verificationCodeManager = new VerificationCodeManager(clock, new VerificationCodeStore(clock));
     }
 
     @Test
@@ -71,4 +72,5 @@ class VerificationCodeManagerTest extends UnitTestSupport {
         @Override public Clock withZone(ZoneId zone) { return this; }
         @Override public Instant instant() { return now; }
     }
+
 }

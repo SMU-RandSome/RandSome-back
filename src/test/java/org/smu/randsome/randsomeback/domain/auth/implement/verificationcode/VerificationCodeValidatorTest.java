@@ -20,7 +20,7 @@ class VerificationCodeValidatorTest extends UnitTestSupport {
     @BeforeEach
     void setUp() {
         clock = new MutableClock();
-        VerificationCodeStore store = new VerificationCodeStore();
+        VerificationCodeStore store = new VerificationCodeStore(clock);
         manager = new VerificationCodeManager(clock, store);
         validator = new VerificationCodeValidator(clock, store);
     }
@@ -61,6 +61,20 @@ class VerificationCodeValidatorTest extends UnitTestSupport {
         assertThatThrownBy(() -> validator.verifyCode(email, code))
                 .isInstanceOf(CoreException.class)
                 .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_EXPIRED);
+    }
+
+    @Test
+    void 오입력_후_재시도하면_코드가_폐기되어_예외가_발생한다() {
+        var email = "test@sangmyung.kr";
+        var code = manager.generateVerificationCode(email);
+
+        assertThatThrownBy(() -> validator.verifyCode(email, "000000"))
+                .isInstanceOf(CoreException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_MISMATCH);
+
+        assertThatThrownBy(() -> validator.verifyCode(email, code))
+                .isInstanceOf(CoreException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_NOT_FOUND);
     }
 
     @Test

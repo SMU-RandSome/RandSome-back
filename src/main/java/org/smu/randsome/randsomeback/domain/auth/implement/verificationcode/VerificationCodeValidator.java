@@ -24,10 +24,13 @@ public class VerificationCodeValidator {
             throw new CoreException(ErrorType.VERIFICATION_CODE_EXPIRED);
         }
         if (!entry.code().equals(inputCode)) {
+            codeStore.removeIfPresent(email, entry);
             throw new CoreException(ErrorType.VERIFICATION_CODE_MISMATCH);
         }
 
-        codeStore.remove(email);
+        if (!codeStore.removeIfPresent(email, entry)) {
+            throw new CoreException(ErrorType.VERIFICATION_CODE_NOT_FOUND);
+        }
     }
 
 }
