@@ -25,6 +25,13 @@ public enum ErrorType {
     NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN (HttpStatus.NOT_FOUND, "요청하신 Refresh Token 으로 활성화 된 회원을 찾을 수 없습니다.", LogLevel.INFO),
     DUPLICATE_EMAIL                          (HttpStatus.CONFLICT, "이미 사용 중인 Email 입니다.", LogLevel.INFO),
 
+    // AUTH
+    INVALID_EMAIL_DOMAIN        (HttpStatus.BAD_REQUEST, "상명대학교 이메일(@sangmyung.kr)만 사용 가능합니다.", LogLevel.INFO),
+    EMAIL_SEND_FAILED           (HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
+    VERIFICATION_CODE_NOT_FOUND (HttpStatus.BAD_REQUEST, "인증 코드를 먼저 요청해주세요.", LogLevel.INFO),
+    VERIFICATION_CODE_EXPIRED   (HttpStatus.BAD_REQUEST, "인증 코드가 만료되었습니다. 다시 요청해주세요.", LogLevel.INFO),
+    VERIFICATION_CODE_MISMATCH  (HttpStatus.BAD_REQUEST, "인증 코드가 일치하지 않습니다.", LogLevel.INFO),
+
     // JWT
     EMPTY_TOKEN                        (HttpStatus.UNAUTHORIZED, "JWT 토큰이 존재하지 않습니다.", LogLevel.WARN),
     INVALID_TOKEN                      (HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다.", LogLevel.WARN),
