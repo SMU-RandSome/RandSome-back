@@ -16,7 +16,7 @@ class VerificationCodeManagerTest extends UnitTestSupport {
 
     @BeforeEach
     void setUp() {
-        Clock clock = Clock.systemDefaultZone();
+        Clock clock = Clock.system(ZoneId.of("Asia/Seoul"));
         verificationCodeManager = new VerificationCodeManager(clock, new VerificationCodeStore(clock));
     }
 
