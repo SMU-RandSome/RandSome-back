@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationCodeVerifyRequest;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationRequest;
+import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.LoginRequest;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.response.EmailVerificationTokenResponse;
+import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
@@ -44,5 +46,20 @@ public abstract class AuthControllerDocs {
     public abstract ResponseEntity<ApiResponse<EmailVerificationTokenResponse>> verifyEmailVerificationCode(
             @RequestBody @Valid EmailVerificationCodeVerifyRequest request
     );
+
+
+    @Operation(summary = "로그인 JWT - [X]",
+            description = """
+                    ### 사용자가 이메일과 비밀번호로 로그인하는 API입니다.
+                    - 요청 시 이메일 형식이 유효한지 검증합니다.
+                    - 로그인 성공 시 액세스 토큰과 리프레시 토큰을 발급합니다.
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.BAD_REQUEST,
+            ErrorType.INVALID_ACCOUNT,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ResponseEntity<ApiResponse<TokenResponse>> login(@RequestBody @Valid LoginRequest request);
 
 }

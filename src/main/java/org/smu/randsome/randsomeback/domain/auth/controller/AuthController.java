@@ -42,4 +42,12 @@ public class AuthController extends AuthControllerDocs {
         return ResponseEntity.ok(ApiResponse.success(new EmailVerificationTokenResponse(token)));
     }
 
+    @Override
+    @PostMapping("/v1/auth/login")
+    public ResponseEntity<ApiResponse<TokenResponse>> login(@RequestBody @Valid LoginRequest request) {
+        TokenResponse response = authService.login(request.email(), request.password());
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
 }

@@ -2,20 +2,19 @@ package org.smu.randsome.randsomeback.domain.auth.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
-import org.smu.randsome.randsomeback.domain.auth.enums.EMAIL;
-import org.smu.randsome.randsomeback.domain.auth.implement.verificationcode.VerificationCodeManager;
-import org.smu.randsome.randsomeback.domain.auth.implement.verificationcode.VerificationCodeValidator;
+import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.Role;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.global.jwt.JwtProvider;
+import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 
@@ -25,93 +24,65 @@ class AuthServiceTest extends UnitTestSupport {
     AuthService authService;
 
     @Mock
-    EmailSender emailSender;
+    MemberReader memberReader;
 
     @Mock
-    VerificationCodeManager verificationCodeManager;
-
-    @Mock
-    VerificationCodeValidator verificationCodeValidator;
+    MemberManager memberManager;
 
     @Mock
     JwtProvider jwtProvider;
 
+    @Mock
+    Member member;
+
     @Test
-    void 인증_코드를_생성하고_해당_이메일로_전송한다() {
+    void 로그인_성공_시_리프레시_토큰을_업데이트한다() {
         // given
         var email = "student@sangmyung.kr";
-        var code = "123456";
-        given(verificationCodeManager.generateVerificationCode(email)).willReturn(code);
+        var password = "password123!";
+        var accessToken = "access.token";
+        var refreshToken = "refresh.token";
+
+        given(memberReader.findByAccount(email, password)).willReturn(member);
+        given(member.getId()).willReturn(1L);
+        given(member.getRole()).willReturn(Role.ROLE_MEMBER);
+        given(jwtProvider.createTokens(1L, Role.ROLE_MEMBER))
+                .willReturn(TokenResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build());
 
         // when
-        authService.sendVerificationCodeAsync(email);
+        TokenResponse response = authService.login(email, password);
 
         // then
-        verify(verificationCodeManager).generateVerificationCode(email);
-        verify(emailSender).send(
-                eq(email),
-                eq(EMAIL.EMAIL_SUBJECT.getValue()),
-                contains(code)
+        assertThat(response).extracting(
+                TokenResponse::accessToken,
+                TokenResponse::refreshToken
+        ).containsExactly(
+                accessToken,
+                refreshToken
         );
+        verify(memberReader).findByAccount(email, password);
+        verify(jwtProvider).createTokens(1L, Role.ROLE_MEMBER);
+        verify(memberManager).updateRefreshToken(member, refreshToken);
     }
 
     @Test
-    void 인증_코드_검증_성공_시_이메일_인증_JWT를_반환한다() {
+    void 계정정보가_일치하지_않을_경우_예외를_반환한다() {
         // given
         var email = "student@sangmyung.kr";
-        var code = "123456";
-        var expectedToken = "email.verification.jwt";
-        given(jwtProvider.generateEmailVerificationToken(email)).willReturn(expectedToken);
+        var password = "password123!";
+
+        given(memberReader.findByAccount(email, password))
+                .willThrow(new CoreException(ErrorType.INVALID_ACCOUNT));
 
         // when
-        String result = authService.verifyEmailCode(email, code);
-
+        assertThatThrownBy(() -> authService.login(email, password))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.INVALID_ACCOUNT.getMessage());
         // then
-        verify(verificationCodeValidator).verifyCode(email, code);
-        verify(jwtProvider).generateEmailVerificationToken(email);
-        assertThat(result).isEqualTo(expectedToken);
-    }
-
-    @Test
-    void 만료된_코드로_검증_시_예외를_반환한다() {
-        // given
-        var email = "student@sangmyung.kr";
-        var code = "123456";
-        willThrow(new CoreException(ErrorType.VERIFICATION_CODE_EXPIRED))
-                .given(verificationCodeValidator).verifyCode(email, code);
-
-        // when & then
-        assertThatThrownBy(() -> authService.verifyEmailCode(email, code))
-                .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_EXPIRED);
-    }
-
-    @Test
-    void 인증_코드_요청_없이_검증_시_예외를_반환한다() {
-        // given
-        var email = "student@sangmyung.kr";
-        var code = "123456";
-        willThrow(new CoreException(ErrorType.VERIFICATION_CODE_NOT_FOUND))
-                .given(verificationCodeValidator).verifyCode(email, code);
-
-        // when & then
-        assertThatThrownBy(() -> authService.verifyEmailCode(email, code))
-                .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_NOT_FOUND);
-    }
-
-    @Test
-    void 인증_코드_불일치_시_예외를_반환한다() {
-        // given
-        var email = "student@sangmyung.kr";
-        var code = "000000";
-        willThrow(new CoreException(ErrorType.VERIFICATION_CODE_MISMATCH))
-                .given(verificationCodeValidator).verifyCode(email, code);
-
-        // when & then
-        assertThatThrownBy(() -> authService.verifyEmailCode(email, code))
-                .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_MISMATCH);
+        verify(memberReader).findByAccount(email, password);
     }
 
 }
