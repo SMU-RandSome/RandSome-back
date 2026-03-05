@@ -33,7 +33,7 @@ class MemberManagerUnitTest extends UnitTestSupport {
     @Test
     void 회원을_생성한다() {
         // given
-        given(memberJpaRepository.existsByEmailAndStatus(any(String.class), any(EntityStatus.class)))
+        given(memberJpaRepository.existsByEmail_AddressAndStatus(any(String.class), any(EntityStatus.class)))
                 .willReturn(false);
         String encodedPassword = "encoded-password";
         given(passwordEncoder.encode(MemberFixture.DEFAULT_RAW_PASSWORD)).willReturn(encodedPassword);
@@ -70,7 +70,7 @@ class MemberManagerUnitTest extends UnitTestSupport {
     @Test
     void 이미_존재하는_이메일이면_예외가_발생한다() {
         // given
-        given(memberJpaRepository.existsByEmailAndStatus(any(String.class), any(EntityStatus.class)))
+        given(memberJpaRepository.existsByEmail_AddressAndStatus(any(String.class), any(EntityStatus.class)))
                 .willReturn(true);
 
         // when // then
