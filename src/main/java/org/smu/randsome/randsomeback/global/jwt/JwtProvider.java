@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.global.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -16,6 +17,8 @@ import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.jwt.enums.TokenExpiration;
 import org.smu.randsome.randsomeback.global.jwt.enums.TokenType;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,8 +30,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtProvider {
 
-    private final SecretKey secretKey;
     private static final String CATEGORY_KEY = "category";
+    private final SecretKey secretKey;
 
     public JwtProvider(@Value("${spring.jwt.secretKey}") String key) {
         this.secretKey = new SecretKeySpec(
@@ -38,6 +41,36 @@ public class JwtProvider {
                         .build()
                         .getAlgorithm()
         );
+    }
+
+    public String generateEmailVerificationToken(String email) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + TokenExpiration.VERIFICATION_TOKEN.getExpirationTime());
+
+        return Jwts.builder()
+                .subject(email)
+                .claim(CATEGORY_KEY, TokenType.VERIFICATION.getValue())
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public String extractEmailFromVerificationToken(String token) {
+        try {
+            Claims claims = getClaimsFromToken(token);
+            String purpose = claims.get(CATEGORY_KEY, String.class);
+            if (!TokenType.VERIFICATION.getValue().equals(purpose)) {
+                throw new CoreException(ErrorType.INVALID_TOKEN);
+            }
+            return claims.getSubject();
+        } catch (ExpiredJwtException e) {
+            log.info("[Expired JWT], 이메일 인증 토큰이 만료되었습니다. Token prefix: {}", maskToken(token));
+            throw new CoreException(ErrorType.INVALID_TOKEN, "이메일 인증 토큰이 만료되었습니다.");
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("[Invalid JWT], 이메일 인증 토큰이 유효하지 않습니다. Token prefix: {}", maskToken(token));
+            throw new CoreException(ErrorType.INVALID_TOKEN);
+        }
     }
 
     public TokenResponse createTokens(Long memberId, Role role) {

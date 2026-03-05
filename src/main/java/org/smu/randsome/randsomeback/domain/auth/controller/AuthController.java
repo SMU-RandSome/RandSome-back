@@ -2,7 +2,9 @@ package org.smu.randsome.randsomeback.domain.auth.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.domain.auth.controller.dto.EmailVerificationRequest;
+import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationCodeVerifyRequest;
+import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationRequest;
+import org.smu.randsome.randsomeback.domain.auth.controller.dto.response.EmailVerificationTokenResponse;
 import org.smu.randsome.randsomeback.domain.auth.service.AuthService;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,16 @@ public class AuthController extends AuthControllerDocs {
         authService.sendVerificationCodeAsync(request.email());
 
         return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @Override
+    @PostMapping("/v1/auth/email/verification-codes/verify")
+    public ResponseEntity<ApiResponse<EmailVerificationTokenResponse>> verifyEmailVerificationCode(
+            @RequestBody @Valid EmailVerificationCodeVerifyRequest request
+    ) {
+        String token = authService.verifyEmailCode(request.email(), request.code());
+
+        return ResponseEntity.ok(ApiResponse.success(new EmailVerificationTokenResponse(token)));
     }
 
 }
