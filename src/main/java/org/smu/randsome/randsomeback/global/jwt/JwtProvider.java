@@ -42,7 +42,7 @@ public class JwtProvider {
 
     public TokenResponse createTokens(Long memberId, Role role) {
         String accessToken = createAccessToken(memberId, role);
-        String refreshToken = createRefreshToken();
+        String refreshToken = createRefreshToken(role);
 
         return TokenResponse.builder()
                 .accessToken(accessToken)
@@ -100,11 +100,12 @@ public class JwtProvider {
         return new Date(date.getTime() + expiration.getExpirationTime());
     }
 
-    private String createRefreshToken() {
+    private String createRefreshToken(Role role) {
         Date validity = getTokenExpirationTime(TokenExpiration.REFRESH_TOKEN);
 
         return Jwts.builder()
                 .claim(CATEGORY_KEY, TokenType.REFRESH.getValue())
+                .claim(TokenType.AUTHORIZATION_HEADER.getValue(), role)
                 .issuedAt(new Date())
                 .expiration(validity)
                 .signWith(secretKey)
