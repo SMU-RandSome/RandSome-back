@@ -9,27 +9,32 @@
 ### **회원(Member)**
 
 - 속성
-  - `nickname` : VARCHAR
-  - `email`  : VARCHAR
-  - `student_id`  : VARCHAR
-  - `gender`: ENUM(`MALE`,`FEMALE`)
-  - `self_introduction`  VARCHAR
-  - `role`: ENUM( `MEMBER`, `CANDIDATE`, `ADMIN`)
+  - `nickname` : VARCHAR (unique)
+  - `legalName`: VARCHAR (실명)
+  - `email` : VO(`Email`) — `address` (unique, `@sangmyung.kr` 형식 강제)
+  - `password` : VO(`Password`) — `hashedValue` (BCrypt 해시)
+  - `student_id` : VO(`StudentId`) — `number` (이메일에서 추출, 9자리 숫자, 연도 범위 검증)
+  - `gender`: ENUM(`MALE`, `FEMALE`)
+  - `role`: ENUM(`ROLE_MEMBER`, `ROLE_CANDIDATE`, `ROLE_ADMIN`)
   - `mbti`: ENUM(16가지 MBTI)
-  - `ideal_description`: VARCHAR
-  - `instagram_id`: VARCHAR
+  - `socialProfile` : VO(`SocialProfile`) — `instagramId` (unique), `selfIntroduction`, `idealDescription`
+  - `refreshToken`: VARCHAR
 - 행위
-  - `register()`: 회원 등록
-  - `verifyPassword()` : 비밀번호를 검증한다
+  - `create()`: 회원 생성
+  - `isPasswordCorrect()` : 비밀번호 검증
   - `updateRole()` : 역할 변경
+  - `updateRefreshToken()` : 리프레시 토큰 갱신
+  - `revokeRefreshToken()` : 리프레시 토큰 폐기
+  - `updateSocialProfile()` : 소셜 프로필 수정
+  - `updateMbti()` : MBTI 수정
 
 - 규칙
-  - @sangmyung.kr 형식이 아니면 등록 불가이다.
+  - `@sangmyung.kr` 형식이 아니면 등록 불가이다.
   - 이메일은 중복 불가이다.
-  - 학번은 이메일에서 추출하여 저장한다
+  - 학번은 이메일 `@` 앞자리에서 추출하여 저장한다. (9자리 숫자, 2021년 ~ 현재 연도)
   - 닉네임은 랜덤 생성 된다.
-  - 비밀번호는 해시화 되어야 한다.
-  - 관리자가 승인 해야지만 후보자로 역할 변경 된다.
+  - 비밀번호는 BCrypt로 해시화 되어야 한다.
+  - 관리자가 승인 해야지만 후보자(`ROLE_CANDIDATE`)로 역할 변경 된다.
 
 ### 후보 등록 신청(**CandidateRegistration)**
 
