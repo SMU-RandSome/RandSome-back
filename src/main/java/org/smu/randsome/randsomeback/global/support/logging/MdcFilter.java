@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.global.logging;
+package org.smu.randsome.randsomeback.global.support.logging;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
