@@ -31,7 +31,7 @@ class AuthServiceTest extends UnitTestSupport {
         given(verificationCodeManager.generateVerificationCode(email)).willReturn(code);
 
         // when
-        authService.sendVerificationCode(email);
+        authService.sendVerificationCodeAsync(email);
 
         // then
         verify(verificationCodeManager).generateVerificationCode(email);

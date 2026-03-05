@@ -21,7 +21,7 @@ public class AuthController extends AuthControllerDocs {
     public ResponseEntity<ApiResponse<?>> sendVerificationCode(
             @RequestBody @Valid EmailVerificationRequest request
     ) {
-        authService.sendVerificationCode(request.email());
+        authService.sendVerificationCodeAsync(request.email());
 
         return ResponseEntity.ok(ApiResponse.success());
     }
