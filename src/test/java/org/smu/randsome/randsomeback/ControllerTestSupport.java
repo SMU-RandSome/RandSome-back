@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.smu.randsome.randsomeback.domain.auth.controller.AuthController;
 import org.smu.randsome.randsomeback.domain.auth.service.AuthService;
+import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationService;
 import org.smu.randsome.randsomeback.domain.candidate.controller.CandidateController;
 import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
 import org.smu.randsome.randsomeback.domain.matching.controller.MatchingController;
@@ -39,6 +40,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected AuthService authService;
+
+    @MockitoBean
+    protected EmailVerificationService emailVerificationService;
 
     @MockitoBean
     protected CandidateService candidateService;
