@@ -7,7 +7,7 @@ import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 
 @Embeddable
 public record Email(
-        @Column(name = "email", nullable = false, unique = true)
+        @Column(name = "email", nullable = false)
         String address
 ) {
 
