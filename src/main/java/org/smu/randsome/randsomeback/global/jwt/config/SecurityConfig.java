@@ -3,7 +3,6 @@ package org.smu.randsome.randsomeback.global.jwt.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.global.jwt.JwtAccessDeniedHandler;
 import org.smu.randsome.randsomeback.global.jwt.JwtAuthenticationEntryPoint;
 import org.smu.randsome.randsomeback.global.jwt.JwtFilter;

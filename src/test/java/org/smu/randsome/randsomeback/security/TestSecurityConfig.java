@@ -1,7 +1,6 @@
 package org.smu.randsome.randsomeback.security;
 
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
