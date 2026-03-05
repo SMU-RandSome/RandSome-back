@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.security.jwt;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.jsonwebtoken.Jwts;
 import java.nio.charset.StandardCharsets;
@@ -13,12 +14,16 @@ import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.global.jwt.JwtProvider;
 import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
+import org.smu.randsome.randsomeback.global.jwt.enums.TokenType;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 
 class JwtProviderTest extends UnitTestSupport {
 
-    JwtProvider jwtProvider;
     static final String TEST_SECRET_KEY = "dGhpcy1pcy1hLXN1cGVyLWxvbmctYW5kLXNlY3VyZS1zZWNyZXQta2V5LWZvci10ZXN0aW5nLWhzNTEyLWFsdG9yaXRobS0xMjM0NQ==";
     static final String WRONG_SECRET_KEY = "dGhpcy1pcy1hLXN1cGVyLWxvbmctYW5kaaaaaaaaaaaaWNyZXQta2V5LWZvci10ZXN0aW5nLWhzNTEyLWFsdG9yaXRobS0xMjM0NQ==";
+
+    JwtProvider jwtProvider;
 
     @BeforeEach
     void setUp() {
@@ -160,6 +165,63 @@ class JwtProviderTest extends UnitTestSupport {
 
         // then
         assertThat(result).isTrue();
+    }
+
+    @Test
+    void 이메일_인증_토큰을_생성하고_email을_추출한다() {
+        // given
+        var email = "student@sangmyung.kr";
+
+        // when
+        String token = jwtProvider.generateEmailVerificationToken(email);
+        String extractedEmail = jwtProvider.extractEmailFromVerificationToken(token);
+
+        // then
+        assertThat(extractedEmail).isEqualTo(email);
+    }
+
+    @Test
+    void 만료된_이메일_인증_토큰으로_파싱_시_INVALID_TOKEN_예외가_발생한다() {
+        // given - 이미 만료된 이메일 인증 토큰 직접 생성
+        SecretKey key = new SecretKeySpec(
+                TEST_SECRET_KEY.getBytes(StandardCharsets.UTF_8),
+                Jwts.SIG.HS256.key().build().getAlgorithm()
+        );
+        String expiredToken = Jwts.builder()
+                .subject("student@sangmyung.kr")
+                .claim("category", TokenType.VERIFICATION.getValue())
+                .issuedAt(new Date(System.currentTimeMillis() - 10000))
+                .expiration(new Date(System.currentTimeMillis() - 5000))
+                .signWith(key)
+                .compact();
+
+        // when & then
+        assertThatThrownBy(() -> jwtProvider.extractEmailFromVerificationToken(expiredToken))
+                .isInstanceOf(CoreException.class)
+                .satisfies(e -> assertThat(((CoreException) e).getErrorType()).isEqualTo(ErrorType.INVALID_TOKEN));
+    }
+
+    @Test
+    void category가_VERIFICATION이_아닌_토큰으로_파싱_시_INVALID_TOKEN_예외가_발생한다() {
+        // given - purpose 없는 일반 Access Token
+        var tokens = jwtProvider.createTokens(1L, Role.ROLE_MEMBER);
+
+        // when & then
+        assertThatThrownBy(() -> jwtProvider.extractEmailFromVerificationToken(tokens.accessToken()))
+                .isInstanceOf(CoreException.class)
+                .satisfies(e -> assertThat(((CoreException) e).getErrorType()).isEqualTo(ErrorType.INVALID_TOKEN));
+    }
+
+    @Test
+    void 서명이_위조된_토큰으로_파싱_시_INVALID_TOKEN_예외가_발생한다() {
+        // given
+        var wrongProvider = new JwtProvider(WRONG_SECRET_KEY);
+        String forgotToken = wrongProvider.generateEmailVerificationToken("student@sangmyung.kr");
+
+        // when & then
+        assertThatThrownBy(() -> jwtProvider.extractEmailFromVerificationToken(forgotToken))
+                .isInstanceOf(CoreException.class)
+                .satisfies(e -> assertThat(((CoreException) e).getErrorType()).isEqualTo(ErrorType.INVALID_TOKEN));
     }
 
 }
