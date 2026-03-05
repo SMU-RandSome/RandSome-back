@@ -27,7 +27,7 @@ class JwtProviderTest {
     @Test
     void JWT_토큰을_생성한다() {
         // when
-        var tokens = jwtProvider.createTokens(1L, Role.MEMBER);
+        var tokens = jwtProvider.createTokens(1L, Role.ROLE_MEMBER);
 
         // then
         assertThat(tokens).extracting(
@@ -39,7 +39,7 @@ class JwtProviderTest {
     @Test
     void 유효한_JWT_토큰이면_true를_반환한다() {
         // given
-        var tokens = jwtProvider.createTokens(1L, Role.MEMBER);
+        var tokens = jwtProvider.createTokens(1L, Role.ROLE_MEMBER);
 
         // when
         boolean result = jwtProvider.isTokenValid(tokens.accessToken());
@@ -52,7 +52,7 @@ class JwtProviderTest {
     void 잘못된_서명의_JWT_토큰이면_false를_반환한다_SignatureException() {
         // given - 다른 SecretKey로 생성한 토큰
         var wrongProvider = new JwtProvider(WRONG_SECRET_KEY);
-        var tokens = wrongProvider.createTokens(1L, Role.MEMBER);
+        var tokens = wrongProvider.createTokens(1L, Role.ROLE_MEMBER);
         var tokenWithWrongSignature = tokens.accessToken();
 
         // when - 정상 Provider로 검증
@@ -139,7 +139,7 @@ class JwtProviderTest {
     void JWT로부터_Authentication_객체를_가져온다() {
         // given
         Long memberId = 1L;
-        var tokens = jwtProvider.createTokens(memberId, Role.MEMBER);
+        var tokens = jwtProvider.createTokens(memberId, Role.ROLE_MEMBER);
 
         // when
         var authentication = jwtProvider.getAuthentication(tokens.accessToken());
@@ -152,7 +152,7 @@ class JwtProviderTest {
     @Test
     void Refresh_토큰_유효성_검증한다() {
         // given
-        TokenResponse tokens = jwtProvider.createTokens(1L, Role.MEMBER);
+        TokenResponse tokens = jwtProvider.createTokens(1L, Role.ROLE_MEMBER);
 
         // when
         boolean result = jwtProvider.isTokenValid(tokens.refreshToken());

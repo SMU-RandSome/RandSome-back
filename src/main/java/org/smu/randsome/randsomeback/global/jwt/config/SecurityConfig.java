@@ -48,11 +48,11 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v1/auth/login", "/v1/auth/reissue","/v1/auth/email/verification-codes").permitAll()
-                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/v1/auth/login", "/v1/auth/reissue", "/v1/auth/email/verification-codes").permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/swagger/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/v1/admin/**").hasRole(Role.ADMIN.name())
-                        .anyRequest().hasAnyRole(Role.MEMBER.name(), Role.ADMIN.name())
+                        .requestMatchers("/v1/admin/**", "/actuator/**").hasRole("ADMIN")
+                        .anyRequest().hasAnyRole("MEMBER", "ADMIN")
                 );
 
         http

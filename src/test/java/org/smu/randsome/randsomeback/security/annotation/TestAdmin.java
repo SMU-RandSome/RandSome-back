@@ -15,6 +15,6 @@ public @interface TestAdmin {
 
     long id() default 1L;
 
-    String role() default "ADMIN";
+    String role() default "ROLE_ADMIN";
 
 }

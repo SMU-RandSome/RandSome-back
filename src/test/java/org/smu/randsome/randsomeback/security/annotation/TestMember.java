@@ -15,6 +15,6 @@ public @interface TestMember {
 
     long id() default 1L;
 
-    String role() default "MEMBER";
+    String role() default "ROLE_MEMBER";
 
 }
