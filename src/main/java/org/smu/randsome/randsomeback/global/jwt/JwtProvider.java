@@ -8,6 +8,8 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
 import javax.crypto.SecretKey;
@@ -43,15 +45,25 @@ public class JwtProvider {
         );
     }
 
+    public TokenResponse createTokens(Long memberId, Role role) {
+        String accessToken = createAccessToken(memberId, role);
+        String refreshToken = createRefreshToken(role);
+
+        return TokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
     public String generateEmailVerificationToken(String email) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + TokenExpiration.VERIFICATION_TOKEN.getExpirationTime());
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiry = getTokenExpirationTime(now, TokenExpiration.VERIFICATION_TOKEN);
 
         return Jwts.builder()
                 .subject(email)
                 .claim(CATEGORY_KEY, TokenType.VERIFICATION.getValue())
-                .issuedAt(now)
-                .expiration(expiry)
+                .issuedAt(toDate(now))
+                .expiration(toDate(expiry))
                 .signWith(secretKey)
                 .compact();
     }
@@ -63,7 +75,14 @@ public class JwtProvider {
             if (!TokenType.VERIFICATION.getValue().equals(purpose)) {
                 throw new CoreException(ErrorType.INVALID_TOKEN);
             }
-            return claims.getSubject();
+
+            String email = claims.getSubject();
+
+            if (email == null || email.isBlank()) {
+                throw new CoreException(ErrorType.INVALID_TOKEN);
+            }
+
+            return email;
         } catch (ExpiredJwtException e) {
             log.info("[Expired JWT], 이메일 인증 토큰이 만료되었습니다. Token prefix: {}", maskToken(token));
             throw new CoreException(ErrorType.INVALID_TOKEN, "이메일 인증 토큰이 만료되었습니다.");
@@ -71,16 +90,6 @@ public class JwtProvider {
             log.warn("[Invalid JWT], 이메일 인증 토큰이 유효하지 않습니다. Token prefix: {}", maskToken(token));
             throw new CoreException(ErrorType.INVALID_TOKEN);
         }
-    }
-
-    public TokenResponse createTokens(Long memberId, Role role) {
-        String accessToken = createAccessToken(memberId, role);
-        String refreshToken = createRefreshToken(role);
-
-        return TokenResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
     }
 
     public Authentication getAuthentication(String token) {
@@ -116,31 +125,32 @@ public class JwtProvider {
     }
 
     private String createAccessToken(Long memberId, Role role) {
-        Date validity = getTokenExpirationTime(TokenExpiration.ACCESS_TOKEN);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiry = getTokenExpirationTime(now, TokenExpiration.ACCESS_TOKEN);
 
         return Jwts.builder()
                 .subject(String.valueOf(memberId))
                 .claim(CATEGORY_KEY, TokenType.ACCESS.getValue())
                 .claim(TokenType.AUTHORIZATION_HEADER.getValue(), role)
-                .issuedAt(new Date())
-                .expiration(validity)
+                .issuedAt(toDate(now))
+                .expiration(toDate(expiry))
                 .signWith(secretKey)
                 .compact();
     }
 
-    private Date getTokenExpirationTime(TokenExpiration expiration) {
-        Date date = new Date();
-        return new Date(date.getTime() + expiration.getExpirationTime());
+    private LocalDateTime getTokenExpirationTime(LocalDateTime now, TokenExpiration expiration) {
+        return now.plusSeconds(expiration.getExpirationTime() / 1000);
     }
 
     private String createRefreshToken(Role role) {
-        Date validity = getTokenExpirationTime(TokenExpiration.REFRESH_TOKEN);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiry = getTokenExpirationTime(now, TokenExpiration.REFRESH_TOKEN);
 
         return Jwts.builder()
                 .claim(CATEGORY_KEY, TokenType.REFRESH.getValue())
                 .claim(TokenType.AUTHORIZATION_HEADER.getValue(), role)
-                .issuedAt(new Date())
-                .expiration(validity)
+                .issuedAt(toDate(now))
+                .expiration(toDate(expiry))
                 .signWith(secretKey)
                 .compact();
     }
@@ -162,6 +172,10 @@ public class JwtProvider {
             return "***";
         }
         return token.substring(0, 10) + "..." + token.substring(token.length() - 5);
+    }
+
+    private Date toDate(LocalDateTime localDateTime) {
+        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 
 }
