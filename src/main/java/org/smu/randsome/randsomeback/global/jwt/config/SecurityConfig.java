@@ -3,7 +3,6 @@ package org.smu.randsome.randsomeback.global.jwt.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.global.jwt.JwtAccessDeniedHandler;
 import org.smu.randsome.randsomeback.global.jwt.JwtAuthenticationEntryPoint;
 import org.smu.randsome.randsomeback.global.jwt.JwtFilter;
@@ -48,7 +47,7 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v1/auth/login", "/v1/auth/reissue", "/v1/auth/email/verification-codes").permitAll()
+                        .requestMatchers("/v1/auth/login", "/v1/auth/reissue", "/v1/auth/email/**", "/v1/members/sign-up").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/swagger/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/v1/admin/**", "/actuator/**").hasRole("ADMIN")

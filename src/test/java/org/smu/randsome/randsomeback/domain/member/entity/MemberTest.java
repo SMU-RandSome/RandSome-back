@@ -1,0 +1,125 @@
+package org.smu.randsome.randsomeback.domain.member.entity;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.smu.randsome.randsomeback.UnitTestSupport;
+import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
+import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
+import org.smu.randsome.randsomeback.domain.member.enums.Role;
+import org.smu.randsome.randsomeback.fixture.MemberFixture;
+
+class MemberTest extends UnitTestSupport {
+
+    Member member;
+
+    @BeforeEach
+    void setUp() {
+        member = MemberFixture.create();
+    }
+
+    @Test
+    void 회원을_생성하면_이메일과_기본_정보가_설정된다() {
+        assertThat(member).isNotNull().extracting(
+                Member::getEmail,
+                Member::getLegalName,
+                Member::getRole
+        ).containsExactly(
+                MemberFixture.email(),
+                MemberFixture.DEFAULT_LEGAL_NAME,
+                Role.ROLE_MEMBER
+        );
+        assertThat(member.getMbti()).isNotNull();
+    }
+
+    @Test
+    void 회원_생성_시_비밀번호가_해시화된다() {
+        assertThat(member.isPasswordCorrect(MemberFixture.DEFAULT_RAW_PASSWORD, MemberFixture.ENCODER)).isTrue();
+    }
+
+    @Test
+    void 회원_생성_시_소셜_프로필이_설정된다() {
+        SocialProfile socialProfile = member.getSocialProfile();
+
+        assertThat(socialProfile).isNotNull().extracting(
+                SocialProfile::instagramId,
+                SocialProfile::selfIntroduction,
+                SocialProfile::idealDescription
+        ).containsExactly(
+                MemberFixture.DEFAULT_INSTAGRAM_ID,
+                MemberFixture.DEFAULT_SELF_INTRODUCTION,
+                MemberFixture.DEFAULT_IDEAL_DESCRIPTION
+        );
+    }
+
+    @Test
+    void MEMBER에서_ADMIN으로_역할_전환이_가능하다() {
+        member.updateRole(Role.ROLE_ADMIN);
+
+        assertThat(member.getRole()).isEqualTo(Role.ROLE_ADMIN);
+    }
+
+    @Test
+    void 리프레시_토큰을_갱신한다() {
+        member.updateRefreshToken("refresh-token");
+
+        assertThat(member.getRefreshToken()).isEqualTo("refresh-token");
+    }
+
+    @Test
+    void revokeRefreshToken_호출_시_토큰이_null로_초기화된다() {
+        member.updateRefreshToken("some-token");
+
+        member.revokeRefreshToken();
+
+        assertThat(member.getRefreshToken()).isNull();
+    }
+
+    @Test
+    void 소셜_프로필을_업데이트한다() {
+        // given
+        var newInstagramId = "new_instagram_id";
+        var selfIntroduction = "새 자기소개";
+        var idealDescription = "새 이상형";
+        SocialProfile newProfile = SocialProfile.create(newInstagramId, selfIntroduction, idealDescription);
+
+        // when
+        member.updateSocialProfile(newProfile);
+
+        // then
+        SocialProfile socialProfile = member.getSocialProfile();
+        assertThat(socialProfile).isNotNull().extracting(
+                SocialProfile::instagramId,
+                SocialProfile::selfIntroduction,
+                SocialProfile::idealDescription
+        ).containsExactly(
+                newInstagramId,
+                selfIntroduction,
+                idealDescription
+        );
+    }
+
+    @Test
+    void MBTI를_업데이트한다() {
+        // given
+        assertThat(member.getMbti()).isEqualTo(MemberFixture.DEFAULT_MBTI);
+
+        // when
+        member.updateMbti(Mbti.ENFP);
+
+        // then
+        assertThat(member.getMbti()).isEqualTo(Mbti.ENFP);
+    }
+
+    @Test
+    void 올바른_비밀번호_검증_시_true를_반환한다() {
+        assertThat(member.isPasswordCorrect(MemberFixture.DEFAULT_RAW_PASSWORD, MemberFixture.ENCODER)).isTrue();
+    }
+
+    @Test
+    void 틀린_비밀번호_검증_시_false를_반환한다() {
+        assertThat(member.isPasswordCorrect("wrongPassword!", MemberFixture.ENCODER)).isFalse();
+    }
+
+}
