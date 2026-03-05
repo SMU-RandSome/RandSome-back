@@ -34,12 +34,11 @@ public abstract class AuthControllerDocs {
             description = """
                     ### 사용자가 이메일로 받은 6자리 인증 코드를 검증하는 API입니다.
                     - 요청 시 이메일 형식이 유효한지 검증합니다.
-                    - 인증 코드는 발송 후 10분간 유효하며, 검증 성공 시 유효기간이 10분인 회원가입 토큰을 발급합니다.
+                    - 인증 코드는 발송 후 5분간 유효하며, 검증 성공 시 유효기간이 10분인 회원가입 토큰을 발급합니다.
                     """
     )
     @ApiExceptions(values = {
             ErrorType.BAD_REQUEST,
-            ErrorType.EMAIL_SEND_FAILED,
             ErrorType.DEFAULT_ERROR
     })
     public abstract ResponseEntity<ApiResponse<EmailVerificationTokenResponse>> verifyEmailVerificationCode(
