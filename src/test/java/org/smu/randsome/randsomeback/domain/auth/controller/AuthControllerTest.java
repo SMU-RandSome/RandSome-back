@@ -23,7 +23,7 @@ class AuthControllerTest extends ControllerTestSupport {
                 .content(objectMapper.writeValueAsString(request)))
                 .hasStatusOk();
 
-        verify(authService).sendVerificationCode("student@sangmyung.kr");
+        verify(authService).sendVerificationCodeAsync("student@sangmyung.kr");
     }
 
     @Test
