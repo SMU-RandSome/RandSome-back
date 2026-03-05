@@ -113,9 +113,16 @@ public class Member extends BaseEntity {
         return password.matches(rawPassword, encoder);
     }
 
+    /**
+     * Generates a unique nickname composed of the gender's display value, a '#' separator, and an 8-character uppercase suffix.
+     *
+     * @param gender the Gender whose display value is used as the nickname prefix
+     * @return the nickname formatted as "{genderValue}#{8-character uppercase suffix}"
+     */
     private static String createRandomNickname(Gender gender) {
         String suffix = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
 
         return gender.getValue() + "#" + suffix;
     }
+
 }

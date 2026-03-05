@@ -4,8 +4,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationCodeVerifyRequest;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationRequest;
+import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.LoginRequest;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.response.EmailVerificationTokenResponse;
 import org.smu.randsome.randsomeback.domain.auth.service.AuthService;
+import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationService;
+import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,25 +20,52 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController extends AuthControllerDocs {
 
     private final AuthService authService;
+    private final EmailVerificationService emailVerificationService;
 
+    /**
+     * Sends an email verification code to the address in the request.
+     *
+     * @param request the request containing the recipient email address
+     * @return a ResponseEntity containing a successful ApiResponse with no payload
+     */
     @Override
     @PostMapping("/v1/auth/email/verification-codes")
     public ResponseEntity<ApiResponse<?>> sendVerificationCode(
             @RequestBody @Valid EmailVerificationRequest request
     ) {
-        authService.sendVerificationCodeAsync(request.email());
+        emailVerificationService.sendVerificationCodeAsync(request.email());
 
         return ResponseEntity.ok(ApiResponse.success());
     }
 
+    /**
+     * Verify an email verification code and issue a verification token.
+     *
+     * @param request request payload containing the email address and the verification code to verify
+     * @return an ApiResponse containing an EmailVerificationTokenResponse with the issued verification token
+     */
     @Override
     @PostMapping("/v1/auth/email/verification-codes/verify")
     public ResponseEntity<ApiResponse<EmailVerificationTokenResponse>> verifyEmailVerificationCode(
             @RequestBody @Valid EmailVerificationCodeVerifyRequest request
     ) {
-        String token = authService.verifyEmailCode(request.email(), request.code());
+        String token = emailVerificationService.verifyEmailCode(request.email(), request.code());
 
         return ResponseEntity.ok(ApiResponse.success(new EmailVerificationTokenResponse(token)));
+    }
+
+    /**
+     * Authenticate a user using the provided email and password and return authentication tokens.
+     *
+     * @param request login credentials containing an email and password
+     * @return an ApiResponse wrapping a TokenResponse with the issued authentication tokens
+     */
+    @Override
+    @PostMapping("/v1/auth/login")
+    public ResponseEntity<ApiResponse<TokenResponse>> login(@RequestBody @Valid LoginRequest request) {
+        TokenResponse response = authService.login(request.email(), request.password());
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
 }

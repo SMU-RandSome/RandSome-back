@@ -19,6 +19,15 @@ public class MemberManager {
     private final MemberJpaRepository memberJpaRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Create and persist a new Member from the given credentials, basic information, and social profile.
+     *
+     * @param credentials   the member's authentication credentials (email and password)
+     * @param basicInfo     the member's basic profile information (legal name, gender, MBTI)
+     * @param socialProfile the member's social profile information (Instagram ID, self-introduction, ideal description)
+     * @return the persisted Member entity
+     * @throws CoreException if an ACTIVE member already exists with the provided email (error type DUPLICATE_EMAIL)
+     */
     public Member create(MemberCredentials credentials, MemberBasicInfo basicInfo, MemberSocialProfile socialProfile) {
         if (memberJpaRepository.existsByEmail_AddressAndStatus(credentials.email(), EntityStatus.ACTIVE)) {
             throw new CoreException(ErrorType.DUPLICATE_EMAIL);
@@ -39,6 +48,16 @@ public class MemberManager {
                 socialProfile.selfIntroduction(),
                 socialProfile.idealDescription()
         ));
+    }
+
+    /**
+     * Updates the stored refresh token for the given member.
+     *
+     * @param member the Member whose refresh token will be replaced
+     * @param refreshToken the new refresh token value to store
+     */
+    public void updateRefreshToken(Member member, String refreshToken) {
+        member.updateRefreshToken(refreshToken);
     }
 
 }

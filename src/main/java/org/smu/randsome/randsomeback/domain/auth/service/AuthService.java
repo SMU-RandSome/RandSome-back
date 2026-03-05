@@ -1,33 +1,43 @@
 package org.smu.randsome.randsomeback.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.domain.auth.enums.EMAIL;
-import org.smu.randsome.randsomeback.domain.auth.implement.verificationcode.VerificationCodeManager;
-import org.smu.randsome.randsomeback.domain.auth.implement.verificationcode.VerificationCodeValidator;
+import lombok.extern.slf4j.Slf4j;
+import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.global.jwt.JwtProvider;
-import org.springframework.scheduling.annotation.Async;
+import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AuthService {
 
-    private final EmailSender emailSender;
-    private final VerificationCodeManager verificationCodeManager;
-    private final VerificationCodeValidator verificationCodeValidator;
+    private final MemberReader memberReader;
+    private final MemberManager memberManager;
     private final JwtProvider jwtProvider;
 
-    @Async
-    public void sendVerificationCodeAsync(String email) {
-        String code = verificationCodeManager.generateVerificationCode(email);
+    /**
+     * Authenticate the member with the given email and password and issue JWT tokens.
+     *
+     * Persists the newly generated refresh token to the member record and logs the successful login.
+     *
+     * @param email   the member's email address
+     * @param password the member's password
+     * @return the issued TokenResponse containing an access token and a refresh token
+     */
+    @Transactional
+    public TokenResponse login(String email, String password) {
+        Member member = memberReader.findByAccount(email, password);
 
-        emailSender.send(email, EMAIL.EMAIL_SUBJECT.getValue(), EMAIL.EMAIL_BODY_TEMPLATE.getValue().formatted(code));
-    }
+        TokenResponse tokenResponse = jwtProvider.createTokens(member.getId(), member.getRole());
+        memberManager.updateRefreshToken(member, tokenResponse.refreshToken());
 
-    public String verifyEmailCode(String email, String code) {
-        verificationCodeValidator.verifyCode(email, code);
+        log.info("[AuthService] 로그인 성공. memberId: {}", member.getId());
 
-        return jwtProvider.generateEmailVerificationToken(email);
+        return tokenResponse;
     }
 
 }
