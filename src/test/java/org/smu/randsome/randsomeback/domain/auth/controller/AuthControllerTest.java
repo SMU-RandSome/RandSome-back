@@ -28,7 +28,7 @@ class AuthControllerTest extends ControllerTestSupport {
                 .content(objectMapper.writeValueAsString(request)))
                 .hasStatusOk();
 
-        verify(authService).sendVerificationCodeAsync("student@sangmyung.kr");
+        verify(emailVerificationService).sendVerificationCodeAsync("student@sangmyung.kr");
     }
 
     @Test
@@ -42,7 +42,7 @@ class AuthControllerTest extends ControllerTestSupport {
                 .content(objectMapper.writeValueAsString(request)))
                 .hasStatus(HttpStatus.BAD_REQUEST.value());
 
-        verifyNoInteractions(authService);
+        verifyNoInteractions(emailVerificationService);
     }
 
     @Test
@@ -56,7 +56,7 @@ class AuthControllerTest extends ControllerTestSupport {
                 .content(objectMapper.writeValueAsString(request)))
                 .hasStatus(HttpStatus.BAD_REQUEST.value());
 
-        verifyNoInteractions(authService);
+        verifyNoInteractions(emailVerificationService);
     }
 
     @Test
@@ -70,14 +70,14 @@ class AuthControllerTest extends ControllerTestSupport {
                 .content(objectMapper.writeValueAsString(request)))
                 .hasStatus(HttpStatus.BAD_REQUEST.value());
 
-        verifyNoInteractions(authService);
+        verifyNoInteractions(emailVerificationService);
     }
 
     @Test
     void 인증_코드_검증_성공_시_200과_이메일_인증_토큰을_반환한다() throws Exception {
         // given
         var request = new EmailVerificationCodeVerifyRequest("student@sangmyung.kr", "123456");
-        given(authService.verifyEmailCode("student@sangmyung.kr", "123456"))
+        given(emailVerificationService.verifyEmailCode("student@sangmyung.kr", "123456"))
                 .willReturn("email.verification.jwt");
 
         // when & then
@@ -86,7 +86,7 @@ class AuthControllerTest extends ControllerTestSupport {
                 .content(objectMapper.writeValueAsString(request)))
                 .hasStatusOk();
 
-        verify(authService).verifyEmailCode("student@sangmyung.kr", "123456");
+        verify(emailVerificationService).verifyEmailCode("student@sangmyung.kr", "123456");
     }
 
     @Test
@@ -100,7 +100,7 @@ class AuthControllerTest extends ControllerTestSupport {
                 .content(objectMapper.writeValueAsString(request)))
                 .hasStatus(HttpStatus.BAD_REQUEST.value());
 
-        verifyNoInteractions(authService);
+        verifyNoInteractions(emailVerificationService);
     }
 
     @Test
@@ -114,7 +114,7 @@ class AuthControllerTest extends ControllerTestSupport {
                 .content(objectMapper.writeValueAsString(request)))
                 .hasStatus(HttpStatus.BAD_REQUEST.value());
 
-        verifyNoInteractions(authService);
+        verifyNoInteractions(emailVerificationService);
     }
 
     @Test
@@ -122,7 +122,7 @@ class AuthControllerTest extends ControllerTestSupport {
         // given
         var request = new EmailVerificationCodeVerifyRequest("student@sangmyung.kr", "000000");
         willThrow(new CoreException(ErrorType.VERIFICATION_CODE_MISMATCH))
-                .given(authService).verifyEmailCode("student@sangmyung.kr", "000000");
+                .given(emailVerificationService).verifyEmailCode("student@sangmyung.kr", "000000");
 
         // when & then
         assertThat(mvcTester.post().uri("/v1/auth/email/verification-codes/verify")
