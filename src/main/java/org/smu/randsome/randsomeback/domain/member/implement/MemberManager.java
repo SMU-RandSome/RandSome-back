@@ -41,4 +41,8 @@ public class MemberManager {
         ));
     }
 
+    public void updateRefreshToken(Member member, String refreshToken) {
+        member.updateRefreshToken(refreshToken);
+    }
+
 }
