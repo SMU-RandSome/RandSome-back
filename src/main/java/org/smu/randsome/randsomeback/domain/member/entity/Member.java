@@ -118,4 +118,5 @@ public class Member extends BaseEntity {
 
         return gender.getValue() + "#" + suffix;
     }
+
 }
