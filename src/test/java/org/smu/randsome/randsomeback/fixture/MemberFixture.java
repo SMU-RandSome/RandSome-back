@@ -7,6 +7,9 @@ import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.StudentId;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
+import org.smu.randsome.randsomeback.domain.member.service.command.MemberBasicInfo;
+import org.smu.randsome.randsomeback.domain.member.service.command.MemberCredentials;
+import org.smu.randsome.randsomeback.domain.member.service.command.MemberSocialProfile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -26,15 +29,27 @@ public class MemberFixture {
     public static Member create() {
         return Member.create(
                 DEFAULT_EMAIL,
-                DEFAULT_LEGAL_NAME,
                 DEFAULT_RAW_PASSWORD,
                 ENCODER,
+                DEFAULT_LEGAL_NAME,
                 DEFAULT_GENDER,
                 DEFAULT_MBTI,
                 DEFAULT_INSTAGRAM_ID,
                 DEFAULT_SELF_INTRODUCTION,
                 DEFAULT_IDEAL_DESCRIPTION
         );
+    }
+
+    public static MemberCredentials createCredentials() {
+        return new MemberCredentials(DEFAULT_EMAIL, DEFAULT_RAW_PASSWORD);
+    }
+
+    public static MemberBasicInfo createBasicInfo() {
+        return new MemberBasicInfo(DEFAULT_LEGAL_NAME, DEFAULT_GENDER, DEFAULT_MBTI);
+    }
+
+    public static MemberSocialProfile createMemberSocialProfile() {
+        return new MemberSocialProfile(DEFAULT_INSTAGRAM_ID, DEFAULT_SELF_INTRODUCTION, DEFAULT_IDEAL_DESCRIPTION);
     }
 
     public static Email email() {

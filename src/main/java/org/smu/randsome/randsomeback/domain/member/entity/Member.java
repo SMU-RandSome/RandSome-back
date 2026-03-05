@@ -60,9 +60,9 @@ public class Member extends BaseEntity {
 
     public static Member create(
             String email,
-            String legalName,
             String rawPassword,
             PasswordEncoder encoder,
+            String legalName,
             Gender gender,
             Mbti mbti,
             String instagramId,
