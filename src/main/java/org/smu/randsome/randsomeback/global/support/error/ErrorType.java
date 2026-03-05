@@ -20,6 +20,8 @@ public enum ErrorType {
     DEFAULT_ERROR      (HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
 
     // MEMBER
+    INVALID_STUDENT_ID_FORMAT                (HttpStatus.BAD_REQUEST, "학번 형식이 올바르지 않습니다. (숫자 9자리)", LogLevel.INFO),
+    INVALID_STUDENT_ID_YEAR                  (HttpStatus.BAD_REQUEST, "서비스를 이용하실 수 없는 학번입니다", LogLevel.INFO),
     INVALID_ACCOUNT                          (HttpStatus.UNAUTHORIZED, "계정 정보가 일치하지 않습니다.", LogLevel.WARN),
     NOT_FOUND_MEMBER                         (HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다.", LogLevel.INFO),
     NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN (HttpStatus.NOT_FOUND, "요청하신 Refresh Token 으로 활성화 된 회원을 찾을 수 없습니다.", LogLevel.INFO),
@@ -27,10 +29,10 @@ public enum ErrorType {
 
     // AUTH
     INVALID_EMAIL_DOMAIN        (HttpStatus.BAD_REQUEST, "상명대학교 이메일(@sangmyung.kr)만 사용 가능합니다.", LogLevel.INFO),
-    EMAIL_SEND_FAILED           (HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
     VERIFICATION_CODE_NOT_FOUND (HttpStatus.BAD_REQUEST, "인증 코드를 먼저 요청해주세요.", LogLevel.INFO),
     VERIFICATION_CODE_EXPIRED   (HttpStatus.BAD_REQUEST, "인증 코드가 만료되었습니다. 다시 요청해주세요.", LogLevel.INFO),
     VERIFICATION_CODE_MISMATCH  (HttpStatus.BAD_REQUEST, "인증 코드가 일치하지 않습니다.", LogLevel.INFO),
+    EMAIL_SEND_FAILED           (HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
 
     // JWT
     EMPTY_TOKEN                        (HttpStatus.UNAUTHORIZED, "JWT 토큰이 존재하지 않습니다.", LogLevel.WARN),
