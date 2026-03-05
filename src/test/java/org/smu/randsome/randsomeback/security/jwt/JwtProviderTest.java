@@ -9,11 +9,12 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.global.jwt.JwtProvider;
 import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 
-class JwtProviderTest {
+class JwtProviderTest extends UnitTestSupport {
 
     JwtProvider jwtProvider;
     static final String TEST_SECRET_KEY = "dGhpcy1pcy1hLXN1cGVyLWxvbmctYW5kLXNlY3VyZS1zZWNyZXQta2V5LWZvci10ZXN0aW5nLWhzNTEyLWFsdG9yaXRobS0xMjM0NQ==";
@@ -87,7 +88,7 @@ class JwtProviderTest {
 
         String expiredToken = Jwts.builder()
                 .subject("1")
-                .claim("role", "MEMBER")
+                .claim("role", "ROLE_MEMBER")
                 .issuedAt(new Date(System.currentTimeMillis() - 10000))  // 10초 전
                 .expiration(new Date(System.currentTimeMillis() - 5000))  // 5초 전 만료
                 .signWith(key)
