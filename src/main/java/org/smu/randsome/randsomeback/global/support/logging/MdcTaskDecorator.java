@@ -28,6 +28,7 @@ public class MdcTaskDecorator implements TaskDecorator {
         Map<String, String> contextMap = MDC.getCopyOfContextMap();
 
         return () -> {
+            Map<String, String> previousContext = MDC.getCopyOfContextMap();
             try {
                 // 자식 스레드에 MDC 컨텍스트 설정
                 if (contextMap != null) {
@@ -36,7 +37,11 @@ public class MdcTaskDecorator implements TaskDecorator {
                 // 원래 작업 실행
                 runnable.run();
             } finally {
-                MDC.clear();
+                if (previousContext != null) {
+                    MDC.setContextMap(previousContext);
+                } else {
+                    MDC.clear();
+                }
             }
         };
     }
