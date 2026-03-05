@@ -15,7 +15,10 @@ public record StudentId(
     private static final String STUDENT_ID_REGEX = "^\\d{9}$";
     private static final String DELIMITER = "@";
     private static final int MIN_YEAR = 2021;
-    private static final int MAX_YEAR = LocalDate.now().getYear();
+
+    private static int getMaxYear() {
+        return LocalDate.now().getYear();
+    }
 
     public StudentId {
         if (number == null || !number.matches(STUDENT_ID_REGEX)) {
@@ -40,7 +43,7 @@ public record StudentId(
     private static void validateYear(String number) {
         int year = Integer.parseInt(number.substring(0, 4));
 
-        if (year < MIN_YEAR || year > MAX_YEAR) {
+        if (year < MIN_YEAR || year > getMaxYear()) {
             throw new CoreException(ErrorType.INVALID_STUDENT_ID_YEAR);
         }
     }
