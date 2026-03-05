@@ -11,13 +11,17 @@ import org.smu.randsome.randsomeback.domain.member.controller.MemberController;
 import org.smu.randsome.randsomeback.domain.member.service.MemberService;
 import org.smu.randsome.randsomeback.domain.payment.controller.PaymentController;
 import org.smu.randsome.randsomeback.domain.payment.service.PaymentService;
+import org.smu.randsome.randsomeback.security.TestSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 
 @ActiveProfiles("test")
+@Import({TestSecurityConfig.class, MethodValidationPostProcessor.class})
 @WebMvcTest(controllers = {
         AuthController.class,
         CandidateController.class,
