@@ -2,10 +2,12 @@ package org.smu.randsome.randsomeback.domain.member.controller.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import org.smu.randsome.randsomeback.domain.bankaccount.service.command.BankAccountInfo;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.service.command.MemberBasicInfo;
@@ -52,7 +54,19 @@ public record MemberCreateRequest(
 
         @Schema(description = "이상형 소개", example = "최명재 같은 사람 말고 다 좋아요!!.")
         @Size(max = 1000, message = "이상형 소개는 1000자 이하여야 합니다.")
-        String idealDescription
+        String idealDescription,
+
+        @Schema(description = "약관 전체 동의 여부", example = "true")
+        @AssertTrue(message = "약관에 동의해야 합니다.")
+        boolean agreedToTerms,
+
+        @Schema(description = "은행명", example = "국민은행")
+        @NotBlank(message = "은행명은 필수입니다.")
+        String bankName,
+
+        @Schema(description = "계좌번호", example = "123456789012")
+        @NotBlank(message = "계좌번호는 필수입니다.")
+        String accountNumber
 ) {
 
     public MemberCredentials toCredentials() {
@@ -65,6 +79,10 @@ public record MemberCreateRequest(
 
     public MemberSocialProfile toSocialProfile() {
         return new MemberSocialProfile(instagramId, selfIntroduction, idealDescription);
+    }
+
+    public BankAccountInfo toBankAccountInfo() {
+        return new BankAccountInfo(bankName, accountNumber, legalName);
     }
 
 }
