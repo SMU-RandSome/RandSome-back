@@ -23,7 +23,8 @@ class MemberControllerTest extends ControllerTestSupport {
                 eq(request.emailVerificationToken()),
                 eq(request.toCredentials()),
                 eq(request.toBasicInfo()),
-                eq(request.toSocialProfile())
+                eq(request.toSocialProfile()),
+                eq(request.toBankAccountInfo())
         )).willReturn(1L);
 
         // when & then
@@ -50,7 +51,10 @@ class MemberControllerTest extends ControllerTestSupport {
                 Mbti.ISTP,
                 "my_insta",
                 "안녕하세요",
-                "착한 사람"
+                "착한 사람",
+                true,
+                "국민은행",
+                "123456789012"
         );
 
         // when & then
@@ -73,7 +77,10 @@ class MemberControllerTest extends ControllerTestSupport {
                 Mbti.ISTP,
                 "my_insta",
                 "안녕하세요",
-                "착한 사람"
+                "착한 사람",
+                true,
+                "국민은행",
+                "123456789012"
         );
 
         // when & then
@@ -82,7 +89,84 @@ class MemberControllerTest extends ControllerTestSupport {
                 .content(objectMapper.writeValueAsString(request)))
                 .apply(print())
                 .hasStatus(HttpStatus.BAD_REQUEST.value());
+    }
 
+    @Test
+    void 약관에_동의하지_않으면_400을_반환한다() throws Exception {
+        // given
+        var request = new MemberCreateRequest(
+                "email.verification.token",
+                "202312345@sangmyung.kr",
+                "password123!",
+                "홍길동",
+                Gender.MALE,
+                Mbti.ISTP,
+                "my_insta",
+                "안녕하세요",
+                "착한 사람",
+                false,
+                "국민은행",
+                "123456789012"
+        );
+
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/members/sign-up")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void 은행명이_비어있으면_400을_반환한다() throws Exception {
+        // given
+        var request = new MemberCreateRequest(
+                "email.verification.token",
+                "202312345@sangmyung.kr",
+                "password123!",
+                "홍길동",
+                Gender.MALE,
+                Mbti.ISTP,
+                "my_insta",
+                "안녕하세요",
+                "착한 사람",
+                true,
+                "",
+                "123456789012"
+        );
+
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/members/sign-up")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void 계좌번호가_비어있으면_400을_반환한다() throws Exception {
+        // given
+        var request = new MemberCreateRequest(
+                "email.verification.token",
+                "202312345@sangmyung.kr",
+                "password123!",
+                "홍길동",
+                Gender.MALE,
+                Mbti.ISTP,
+                "my_insta",
+                "안녕하세요",
+                "착한 사람",
+                true,
+                "국민은행",
+                ""
+        );
+
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/members/sign-up")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
     }
 
     private MemberCreateRequest createValidRequest() {
@@ -95,7 +179,10 @@ class MemberControllerTest extends ControllerTestSupport {
                 Mbti.ISTP,
                 "my_insta",
                 "안녕하세요",
-                "착한 사람"
+                "착한 사람",
+                true,
+                "국민은행",
+                "123456789012"
         );
     }
 

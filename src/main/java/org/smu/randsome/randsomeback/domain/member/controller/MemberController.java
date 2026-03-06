@@ -18,13 +18,15 @@ public class MemberController extends MemberControllerDocs {
 
     private final MemberService memberService;
 
+    @Override
     @PostMapping("/v1/members/sign-up")
     public ResponseEntity<ApiResponse<Long>> signUp(@RequestBody @Valid MemberCreateRequest request) {
         Long memberId = memberService.create(
                 request.emailVerificationToken(),
                 request.toCredentials(),
                 request.toBasicInfo(),
-                request.toSocialProfile()
+                request.toSocialProfile(),
+                request.toBankAccountInfo()
         );
 
         return ResponseEntity

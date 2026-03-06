@@ -19,6 +19,9 @@ public enum ErrorType {
     DUPLICATE          (HttpStatus.CONFLICT, "이미 존재하는 리소스입니다.", LogLevel.INFO),
     DEFAULT_ERROR      (HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
 
+    // TERMS
+    REQUIRED_TERMS_NOT_AGREED (HttpStatus.BAD_REQUEST, "필수 약관에 모두 동의해야 합니다.", LogLevel.INFO),
+
     // MEMBER
     INVALID_STUDENT_ID_FORMAT                (HttpStatus.BAD_REQUEST, "학번 형식이 올바르지 않습니다. (숫자 9자리)", LogLevel.INFO),
     INVALID_STUDENT_ID_YEAR                  (HttpStatus.BAD_REQUEST, "서비스를 이용하실 수 없는 학번입니다", LogLevel.INFO),
