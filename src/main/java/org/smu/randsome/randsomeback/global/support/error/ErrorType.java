@@ -30,6 +30,13 @@ public enum ErrorType {
     NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN (HttpStatus.NOT_FOUND, "요청하신 Refresh Token 으로 활성화 된 회원을 찾을 수 없습니다.", LogLevel.INFO),
     DUPLICATE_EMAIL                          (HttpStatus.CONFLICT, "이미 사용 중인 Email 입니다.", LogLevel.INFO),
 
+    // CANDIDATE
+    NOT_FOUND_CANDIDATE (HttpStatus.NOT_FOUND, "후보자를 찾을 수 없습니다.", LogLevel.INFO),
+    DUPLICATE_CANDIDATE (HttpStatus.CONFLICT, "이미 등록된 후보자 입니다.", LogLevel.INFO),
+
+    // PAYMENT
+    INVALID_PERSON_COUNT (HttpStatus.BAD_REQUEST, "인원 수가 유효하지 않습니다.", LogLevel.INFO),
+
     // AUTH
     INVALID_EMAIL_DOMAIN        (HttpStatus.BAD_REQUEST, "상명대학교 이메일(@sangmyung.kr)만 사용 가능합니다.", LogLevel.INFO),
     VERIFICATION_CODE_NOT_FOUND (HttpStatus.BAD_REQUEST, "인증 코드를 먼저 요청해주세요.", LogLevel.INFO),
