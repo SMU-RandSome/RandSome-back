@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.domain.payment.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistrati
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
+import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 
 class CandidatePaymentTest extends UnitTestSupport {
 
@@ -19,9 +21,10 @@ class CandidatePaymentTest extends UnitTestSupport {
         // given
         var member = mock(Member.class);
         var registration = mock(CandidateRegistration.class);
+        given(registration.getMember()).willReturn(member);
 
         // when
-        CandidatePayment payment = CandidatePayment.register(member, registration);
+        CandidatePayment payment = CandidatePayment.register(registration);
 
         // then
         assertThat(payment.getMember()).isEqualTo(member);
@@ -38,17 +41,14 @@ class CandidatePaymentTest extends UnitTestSupport {
         var registration = mock(CandidateRegistration.class);
 
         // when & then
-        assertThatThrownBy(() -> CandidatePayment.register(null, registration))
+        assertThatThrownBy(() -> CandidatePayment.register(registration))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void candidateRegistration이_null이면_예외가_발생한다() {
-        // given
-        var member = mock(Member.class);
-
         // when & then
-        assertThatThrownBy(() -> CandidatePayment.register(member, null))
+        assertThatThrownBy(() -> CandidatePayment.register(null))
                 .isInstanceOf(NullPointerException.class);
     }
 
@@ -57,10 +57,12 @@ class CandidatePaymentTest extends UnitTestSupport {
         // given
         var member = mock(Member.class);
         var registration = mock(CandidateRegistration.class);
-        var payment = CandidatePayment.register(member, registration);
+        given(registration.getMember()).willReturn(member);
+
+        var payment = CandidatePayment.register(registration);
 
         // when
-        payment.approve();
+        payment.approve(TestDateTimeUtils.now());
 
         // then
         assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.APPROVED);
@@ -71,7 +73,9 @@ class CandidatePaymentTest extends UnitTestSupport {
         // given
         var member = mock(Member.class);
         var registration = mock(CandidateRegistration.class);
-        var payment = CandidatePayment.register(member, registration);
+        given(registration.getMember()).willReturn(member);
+
+        var payment = CandidatePayment.register(registration);
         var reason = "결제 정보 불일치";
 
         // when
@@ -87,7 +91,9 @@ class CandidatePaymentTest extends UnitTestSupport {
         // given
         var member = mock(Member.class);
         var registration = mock(CandidateRegistration.class);
-        var payment = CandidatePayment.register(member, registration);
+        given(registration.getMember()).willReturn(member);
+
+        var payment = CandidatePayment.register(registration);
 
         // when & then
         assertThatThrownBy(() -> payment.reject(null))
