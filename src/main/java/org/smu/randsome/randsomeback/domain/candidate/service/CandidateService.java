@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
+import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateValidator;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

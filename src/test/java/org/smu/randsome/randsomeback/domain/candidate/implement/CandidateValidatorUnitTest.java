@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.domain.candidate.service;
+package org.smu.randsome.randsomeback.domain.candidate.implement;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

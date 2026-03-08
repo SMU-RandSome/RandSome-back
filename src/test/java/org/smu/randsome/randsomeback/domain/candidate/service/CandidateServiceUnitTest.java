@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
+import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateValidator;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
