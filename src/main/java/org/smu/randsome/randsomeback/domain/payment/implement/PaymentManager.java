@@ -1,19 +1,25 @@
 package org.smu.randsome.randsomeback.domain.payment.implement;
 
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
-import org.smu.randsome.randsomeback.domain.payment.entity.CandidatePayment;
-import org.smu.randsome.randsomeback.domain.payment.repository.CandidatePaymentJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.payment.entity.Payment;
+import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
+import org.smu.randsome.randsomeback.domain.payment.repository.PaymentJpaRepository;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
 public class PaymentManager {
 
-    private final CandidatePaymentJpaRepository candidatePaymentJpaRepository;
+    private final PaymentJpaRepository paymentJpaRepository;
 
-    public void register(CandidateRegistration candidateRegistration) {
-        candidatePaymentJpaRepository.save(CandidatePayment.register(candidateRegistration));
+    public void register(Member member, PaymentType paymentType, Long referenceId, int amount) {
+        paymentJpaRepository.save(Payment.register(
+                member,
+                paymentType,
+                referenceId,
+                amount
+        ));
     }
 
 }
