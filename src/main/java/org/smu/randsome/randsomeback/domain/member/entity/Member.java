@@ -86,11 +86,10 @@ public class Member extends BaseEntity {
         member.refreshToken = null;
 
         return member;
-
     }
 
     public void updateRole(Role newRole) {
-        this.role = newRole;
+        this.role = requireNonNull(newRole);
     }
 
     public void updateRefreshToken(String refreshToken) {
