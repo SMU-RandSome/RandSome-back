@@ -6,6 +6,8 @@ import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepositor
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +32,10 @@ public class MemberReader {
     public Member find(Long memberId) {
         return memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
+    }
+
+    public Page<Member> findAll(Pageable pageable) {
+        return memberJpaRepository.findAllByStatus(EntityStatus.ACTIVE, pageable);
     }
 
 }
