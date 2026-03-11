@@ -27,5 +27,9 @@ public class MemberReader {
         throw new CoreException(ErrorType.INVALID_ACCOUNT);
     }
 
+    public Member find(Long memberId) {
+        return memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
+    }
 
 }
