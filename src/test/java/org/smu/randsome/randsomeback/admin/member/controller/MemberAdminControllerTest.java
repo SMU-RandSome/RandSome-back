@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.admin.member.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -32,7 +33,7 @@ class MemberAdminControllerTest extends ControllerTestSupport {
                 Role.ROLE_MEMBER
         );
 
-        given(memberAdminService.getMembers(org.mockito.ArgumentMatchers.any()))
+        given(memberAdminService.getMembers(any()))
                 .willReturn(new PageImpl<>(List.of(response)));
 
         // when & then
@@ -43,7 +44,7 @@ class MemberAdminControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
                 .hasPath("$.data.content");
 
-        then(memberAdminService).should().getMembers(org.mockito.ArgumentMatchers.any());
+        then(memberAdminService).should().getMembers(any());
     }
 
     @TestMember
