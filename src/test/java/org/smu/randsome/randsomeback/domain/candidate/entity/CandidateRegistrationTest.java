@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.UnitTestSupport;
@@ -16,7 +15,7 @@ class CandidateRegistrationTest extends UnitTestSupport {
     @Test
     void 지원하면_PENDING_상태로_생성된다() {
         // given
-        Member member = mock(Member.class);
+        var member = mock(Member.class);
 
         // when
         CandidateRegistration registration = CandidateRegistration.apply(member);
@@ -37,9 +36,9 @@ class CandidateRegistrationTest extends UnitTestSupport {
     @Test
     void 승인하면_APPROVED_상태로_변경되고_승인시간이_기록된다() {
         // given
-        Member member = mock(Member.class);
-        CandidateRegistration registration = CandidateRegistration.apply(member);
-        LocalDateTime now = LocalDateTime.of(2026, 3, 8, 12, 0);
+        var member = mock(Member.class);
+        var registration = CandidateRegistration.apply(member);
+        var now = LocalDateTime.of(2026, 3, 8, 12, 0);
 
         // when
         registration.approve(now);
@@ -50,14 +49,32 @@ class CandidateRegistrationTest extends UnitTestSupport {
     }
 
     @Test
-    void 거절하면_REJECTED_상태로_변경되고_사유가_기록된다() {
+    void 이미_승인된_신청을_다시_승인할경우_아무_일도_일어나지_않는다() {
         // given
-        Member member = mock(Member.class);
-        CandidateRegistration registration = CandidateRegistration.apply(member);
-        String reason = "조건 미달";
+        var member = mock(Member.class);
+        var registration = CandidateRegistration.apply(member);
+        var now = LocalDateTime.of(2026, 3, 8, 12, 0);
+
+        registration.approve(now);
 
         // when
-        registration.reject(reason, LocalDate.now());
+        registration.approve(now.plusDays(1));
+
+        // then
+        // 승인시간이 변경되지 않아야 한다.
+        assertThat(registration.getApprovedAt()).isEqualTo(now);
+
+    }
+
+    @Test
+    void 거절하면_REJECTED_상태로_변경되고_사유가_기록된다() {
+        // given
+        var member = mock(Member.class);
+        var registration = CandidateRegistration.apply(member);
+        var reason = "조건 미달";
+
+        // when
+        registration.reject(reason);
 
         // then
         assertThat(registration.getRegistrationStatus()).isEqualTo(RegistrationStatus.REJECTED);
@@ -67,11 +84,11 @@ class CandidateRegistrationTest extends UnitTestSupport {
     @Test
     void 거절_사유가_null이면_예외가_발생한다() {
         // given
-        Member member = mock(Member.class);
-        CandidateRegistration registration = CandidateRegistration.apply(member);
+        var member = mock(Member.class);
+        var registration = CandidateRegistration.apply(member);
 
         // when & then
-        assertThatThrownBy(() -> registration.reject(null, LocalDate.now()))
+        assertThatThrownBy(() -> registration.reject(null))
                 .isInstanceOf(NullPointerException.class);
     }
 
