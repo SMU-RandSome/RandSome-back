@@ -54,30 +54,38 @@
   - 이미 `APPROVED` 상태인 신청은 `reject()` 불가
   - 관리자가 승인하면 회원 역할을 `ROLE_CANDIDATE`로 변경
 
-### 매칭 신청(`MatchingRequest`)
+### 매칭 신청(`MatchingApplication`)
 
 - **속성**
   - `memberId`: Long
-  - `type`: ENUM(`RANDOM`, `IDEAL`)
-  - `requestCount`: INT (1~5)
+  - `matchingType`: ENUM(`RANDOM`, `IDEAL`)
+  - `applicationCount`: INT (1~5)
   - `totalPrice`: BIG_DECIMAL
   - `rejectedReason`: VARCHAR
-  - `applicationStatus`: ENUM(`PENDING`, `APPROVED`, `REJECTED`)
+  - `applicationStatus`: ENUM(`PENDING`, `APPROVED`, `REJECTED`, `WITHDRAWN`)
+  - `approvedAt`: DateTime
+  - `rejectedAt`: DateTime
+  - `withdrawnAt`: DateTime
 - **행위**
-  - `apply()`: 매칭 신청
-  - `cancel()`: 신청 취소
-  - `approve()`: 관리자 승인 후 매칭 실행
-  - `reject()`: 관리자 거절
+  - `apply()`: 매칭 신청 생성
+  - `withdraw(withdrawnAt)`: 신청 철회
+  - `approve(approvedAt)`: 관리자 승인
+  - `reject(rejectedAt, rejectedReason)`: 관리자 거절
 - **규칙**
-  - 관리자가 최종 승인 후 매칭 실행
-  - `requestCount`에 따라 가격 차등
+  - `Member` : `MatchingApplication` = `1:N` (신청 이력 보관)
+  - `applicationCount`는 1~5 범위여야 하며, 범위 이탈 시 신청 불가
+  - `totalPrice`는 `matchingType.calculateFee(applicationCount)`로 계산
   - `RANDOM`: 인당 1000원
   - `IDEAL`: 인당 1500원
+  - `approve()`는 이미 `APPROVED` 상태면 멱등(idempotent)하게 종료
+  - 이미 `APPROVED` 상태인 신청은 `reject()` 불가
+  - 이미 `APPROVED` 또는 `REJECTED` 상태인 신청은 `withdraw()` 불가
+  - 이미 `WITHDRAWN` 상태인 신청에 `withdraw()`가 다시 호출되면 멱등하게 종료
 
 ### 매칭 결과(`MatchingResult`)
 
 - **속성**
-  - `matchingRequestId`: 매칭 신청 ID
+  - `matchingApplicationId`: 매칭 신청 ID
   - `candidateMemberId`: 매칭된 후보 회원 ID
 - **행위**
   - `create()`: 결과 생성
@@ -104,6 +112,9 @@
   - `CANDIDATE_REGISTRATION`: 1명 고정(2000원)
   - `RANDOM_MATCHING`: 1~5명, 인당 1000원
   - `IDEAL_TYPE_MATCHING`: 1~5명, 인당 1500원
+  - 매칭 신청 결제는 `PaymentType.from(matchingType)`으로 결제 타입 자동 변환
+    - `RANDOM -> RANDOM_MATCHING`
+    - `IDEAL -> IDEAL_TYPE_MATCHING`
   - 인원 수가 허용 범위를 벗어나면 결제 생성 불가
   - 결제는 `PENDING`으로 시작
   - `confirm()`은 이미 `COMPLETED` 상태면 멱등하게 종료
@@ -114,7 +125,7 @@
 - **구성**
   - `PaymentManager`가 `paymentType`에 맞는 핸들러를 선택해 승인/거절 후속 로직 실행
   - `CandidatePaymentHandler`: 후보 등록 신청 승인/거절 처리
-  - `MatchingPaymentHandler`: 매칭 도메인 연동 예정(TODO)
+  - `MatchingPaymentHandler`: 매칭 결제 타입(`RANDOM_MATCHING`, `IDEAL_TYPE_MATCHING`) 처리
 - **규칙**
   - 지원 핸들러가 없으면 결제 승인/거절 처리 실패
 

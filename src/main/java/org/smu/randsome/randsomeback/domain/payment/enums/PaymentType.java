@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.domain.payment.enums;
 import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 
@@ -25,4 +26,10 @@ public enum PaymentType {
         return feePerPerson.multiply(BigDecimal.valueOf(personCount));
     }
 
+    public static PaymentType from(MatchingType matchingType) {
+        return switch (matchingType) {
+            case RANDOM -> RANDOM_MATCHING;
+            case IDEAL -> IDEAL_TYPE_MATCHING;
+        };
+    }
 }
