@@ -38,6 +38,8 @@ public class CandidateRegistration extends BaseEntity {
 
     private LocalDateTime rejectedAt;
 
+    private LocalDateTime withdrawnAt;
+
     public static CandidateRegistration apply(Member member) {
         CandidateRegistration candidateRegistration = new CandidateRegistration();
 
@@ -46,12 +48,16 @@ public class CandidateRegistration extends BaseEntity {
         candidateRegistration.approvedAt = null;
         candidateRegistration.rejectedReason = null;
         candidateRegistration.rejectedAt = null;
+        candidateRegistration.withdrawnAt = null;
 
         return candidateRegistration;
     }
 
     public void approve(LocalDateTime approvedAt) {
-        if (registrationStatus.equals(RegistrationStatus.APPROVED)) return;
+        if (registrationStatus.equals(RegistrationStatus.APPROVED)) {
+            return;
+        }
+        checkWithdraw();
 
         this.registrationStatus = RegistrationStatus.APPROVED;
         this.approvedAt = requireNonNull(approvedAt);
@@ -63,10 +69,28 @@ public class CandidateRegistration extends BaseEntity {
         if (registrationStatus.equals(RegistrationStatus.APPROVED)) {
             throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_REGISTRATION);
         }
+        checkWithdraw();
 
         this.registrationStatus = RegistrationStatus.REJECTED;
         this.rejectedAt = requireNonNull(rejectedAt);
         this.rejectedReason = requireNonNull(rejectedReason);
+    }
+
+    public void withdraw(LocalDateTime withdrawnAt) {
+        // NOTE: 중복 검증이지만 다른 경로에서 호출될 가능성이 있음으로 한번 더 검증
+        if (!registrationStatus.equals(RegistrationStatus.APPROVED)) {
+            throw new CoreException(ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED);
+        }
+
+        this.registrationStatus = RegistrationStatus.WITHDRAWN;
+        this.withdrawnAt = requireNonNull(withdrawnAt);
+        // NOTE: 철회 시엔 승인 시각을 지우지 않음.
+    }
+
+    private void checkWithdraw() {
+        if (registrationStatus.equals(RegistrationStatus.WITHDRAWN)) {
+            throw new CoreException(ErrorType.ALREADY_WITHDRAWN_CANDIDATE);
+        }
     }
 
 }

@@ -68,4 +68,29 @@ class CandidateServiceUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.DUPLICATE_CANDIDATE.getMessage());
     }
 
+    @Test
+    void 후보자_철회에_성공한다() {
+        // given
+        var memberId = 1L;
+
+        // when
+        candidateService.withdraw(memberId);
+
+        // then
+        verify(candidateManager).withdraw(memberId);
+    }
+
+    @Test
+    void 승인된_후보자가_없으면_철회_시_예외가_발생한다() {
+        // given
+        var memberId = 999L;
+        willThrow(new CoreException(ErrorType.NOT_FOUND_CANDIDATE))
+                .given(candidateManager).withdraw(memberId);
+
+        // when & then
+        assertThatThrownBy(() -> candidateService.withdraw(memberId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_CANDIDATE.getMessage());
+    }
+
 }

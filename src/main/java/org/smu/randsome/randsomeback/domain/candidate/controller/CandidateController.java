@@ -22,4 +22,12 @@ public class CandidateController extends CandidateControllerDocs {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
+    @Override
+    @PostMapping("/v1/candidate-registrations/withdraw")
+    public ResponseEntity<ApiResponse<?>> withdraw(@LoginMember Long memberId) {
+        candidateService.withdraw(memberId);
+
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
 }
