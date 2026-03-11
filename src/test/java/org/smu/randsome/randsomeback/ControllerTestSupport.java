@@ -1,6 +1,8 @@
 package org.smu.randsome.randsomeback;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.smu.randsome.randsomeback.admin.payment.controller.PaymentAdminController;
+import org.smu.randsome.randsomeback.admin.payment.service.PaymentAdminService;
 import org.smu.randsome.randsomeback.domain.auth.controller.AuthController;
 import org.smu.randsome.randsomeback.domain.auth.service.AuthService;
 import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationService;
@@ -29,6 +31,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
         MatchingController.class,
         MemberController.class,
         PaymentController.class,
+        PaymentAdminController.class,
 })
 public abstract class ControllerTestSupport {
 
@@ -55,5 +58,8 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected PaymentService paymentService;
+
+    @MockitoBean
+    protected PaymentAdminService paymentAdminService;
 
 }

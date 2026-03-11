@@ -35,9 +35,10 @@ public enum ErrorType {
     DUPLICATE_CANDIDATE (HttpStatus.CONFLICT, "이미 등록된 후보자 입니다.", LogLevel.INFO),
 
     // PAYMENT
-    INVALID_PERSON_COUNT (HttpStatus.BAD_REQUEST, "인원 수가 유효하지 않습니다.", LogLevel.INFO),
+    INVALID_PERSON_COUNT                (HttpStatus.BAD_REQUEST, "인원 수가 유효하지 않습니다.", LogLevel.INFO),
     NOT_ALLOW_ALREADY_CONFIRMED_PAYMENT (HttpStatus.BAD_REQUEST, "이미 확정된 결제는 거절이 불가능합니다.", LogLevel.INFO),
-    NOT_ALLOW_ALREADY_APPROVED_PAYMENT (HttpStatus.BAD_REQUEST, "이미 승인된 후보자 등록은 거절이 불가능합니다.", LogLevel.INFO),
+    NOT_ALLOW_ALREADY_APPROVED_REGISTRATION  (HttpStatus.BAD_REQUEST, "이미 승인된 후보자 등록은 거절이 불가능합니다.", LogLevel.INFO),
+    NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND, "결제를 찾을 수 없습니다.", LogLevel.INFO),
 
     // AUTH
     INVALID_EMAIL_DOMAIN        (HttpStatus.BAD_REQUEST, "상명대학교 이메일(@sangmyung.kr)만 사용 가능합니다.", LogLevel.INFO),

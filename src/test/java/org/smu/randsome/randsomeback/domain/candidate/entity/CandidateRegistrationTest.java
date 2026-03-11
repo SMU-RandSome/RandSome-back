@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 
 class CandidateRegistrationTest extends UnitTestSupport {
 
@@ -63,7 +66,19 @@ class CandidateRegistrationTest extends UnitTestSupport {
         // then
         // 승인시간이 변경되지 않아야 한다.
         assertThat(registration.getApprovedAt()).isEqualTo(now);
+    }
 
+    @Test
+    void 이미_승인된_신청을_거절하면_예외가_발생한다() {
+        // given
+        var member = mock(Member.class);
+        var registration = CandidateRegistration.apply(member);
+        registration.approve(TestDateTimeUtils.now());
+
+        // when & then
+        assertThatThrownBy(() -> registration.reject("사유", TestDateTimeUtils.now()))
+                .isInstanceOf(CoreException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.NOT_ALLOW_ALREADY_APPROVED_REGISTRATION);
     }
 
     @Test
@@ -74,11 +89,28 @@ class CandidateRegistrationTest extends UnitTestSupport {
         var reason = "조건 미달";
 
         // when
-        registration.reject(reason);
+        registration.reject(reason, TestDateTimeUtils.now());
 
         // then
         assertThat(registration.getRegistrationStatus()).isEqualTo(RegistrationStatus.REJECTED);
         assertThat(registration.getRejectedReason()).isEqualTo(reason);
+    }
+
+    @Test
+    void 이미_거절된_신청을_다시_거절하면_사유가_업데이트된다() {
+        // given
+        var member = mock(Member.class);
+        var registration = CandidateRegistration.apply(member);
+        registration.reject("기존 사유", TestDateTimeUtils.now());
+
+        var newReason = "변경된 사유";
+
+        // when
+        registration.reject(newReason, TestDateTimeUtils.now());
+
+        // then
+        assertThat(registration.getRegistrationStatus()).isEqualTo(RegistrationStatus.REJECTED);
+        assertThat(registration.getRejectedReason()).isEqualTo(newReason);
     }
 
     @Test
@@ -88,8 +120,7 @@ class CandidateRegistrationTest extends UnitTestSupport {
         var registration = CandidateRegistration.apply(member);
 
         // when & then
-        assertThatThrownBy(() -> registration.reject(null))
+        assertThatThrownBy(() -> registration.reject(null, TestDateTimeUtils.now()))
                 .isInstanceOf(NullPointerException.class);
     }
-
 }
