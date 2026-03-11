@@ -1,7 +1,6 @@
 package org.smu.randsome.randsomeback.domain.payment.implement;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -9,10 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
-import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.payment.entity.CandidatePayment;
-import org.smu.randsome.randsomeback.domain.payment.repository.CandidatePaymentJpaRepository;
+import org.smu.randsome.randsomeback.domain.payment.entity.Payment;
+import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
+import org.smu.randsome.randsomeback.domain.payment.repository.PaymentJpaRepository;
 
 class PaymentManagerUnitTest extends UnitTestSupport {
 
@@ -20,22 +19,18 @@ class PaymentManagerUnitTest extends UnitTestSupport {
     PaymentManager paymentManager;
 
     @Mock
-    CandidatePaymentJpaRepository candidatePaymentJpaRepository;
+    PaymentJpaRepository paymentJpaRepository;
 
     @Test
     void 결제를_등록한다() {
         // given
         var member = mock(Member.class);
-        var registration = mock(CandidateRegistration.class);
-        given(registration.getMember()).willReturn(member);
-        given(candidatePaymentJpaRepository.save(any(CandidatePayment.class)))
-                .willAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        paymentManager.register(registration);
+        paymentManager.register(member, PaymentType.CANDIDATE_REGISTRATION, 1L, 1);
 
         // then
-        verify(candidatePaymentJpaRepository).save(any(CandidatePayment.class));
+        verify(paymentJpaRepository).save(any(Payment.class));
     }
 
 }

@@ -9,13 +9,13 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
@@ -23,22 +23,27 @@ import org.smu.randsome.randsomeback.global.entity.BaseEntity;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 
+@Table(
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_payment_reference",
+                columnNames = {"paymentType", "referenceId"}
+        )
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class CandidatePayment extends BaseEntity {
+public class Payment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private Member member;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false, unique = true)
-    private CandidateRegistration candidateRegistration;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentType paymentType;
+
+    @Column(nullable = false)
+    private Long referenceId;
 
     @Column(nullable = false)
     private BigDecimal amount;
@@ -47,38 +52,38 @@ public class CandidatePayment extends BaseEntity {
     @Column(nullable = false)
     private PaymentStatus paymentStatus;
 
-    private String rejectedReason;
+    private LocalDateTime confirmedAt;
 
-    private LocalDateTime approvedAt;
+    private LocalDateTime rejectedAt;
 
-    public static CandidatePayment register(CandidateRegistration candidateRegistration) {
-        PaymentType paymentType = PaymentType.CANDIDATE_REGISTRATION;
+    public static Payment register(Member member, PaymentType paymentType, Long referenceId, int amount) {
+        Payment payment = new Payment();
 
-        CandidatePayment payment = new CandidatePayment();
-
-        payment.member = requireNonNull(candidateRegistration.getMember());
-        payment.candidateRegistration = requireNonNull(candidateRegistration);
-        payment.paymentType = paymentType;
-        payment.amount = paymentType.calculateFee(1);
+        payment.member = requireNonNull(member);
+        payment.paymentType = requireNonNull(paymentType);
+        payment.referenceId = requireNonNull(referenceId);
+        payment.amount = paymentType.calculateFee(amount);
         payment.paymentStatus = PaymentStatus.PENDING;
-        payment.approvedAt = null;
+        payment.confirmedAt = null;
+        payment.rejectedAt = null;
 
         return payment;
     }
 
-    public void approve(LocalDateTime approvedAt) {
-        this.paymentStatus = PaymentStatus.APPROVED;
-        this.approvedAt = requireNonNull(approvedAt);
-        this.rejectedReason = null; // 이전 거절 사유 초기화
+    public void confirm(LocalDateTime confirmedAt) {
+        if (this.paymentStatus == PaymentStatus.COMPLETED) return;
+
+        this.paymentStatus = PaymentStatus.COMPLETED;
+        this.confirmedAt = requireNonNull(confirmedAt);
     }
 
-    public void reject(String rejectedReason) {
-        if (this.paymentStatus == PaymentStatus.APPROVED) {
-            throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_PAYMENT);
+    public void reject(LocalDateTime rejectedAt) {
+        if (this.paymentStatus == PaymentStatus.COMPLETED) {
+            throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_CONFIRMED_PAYMENT);
         }
 
-        this.rejectedReason = requireNonNull(rejectedReason);
         this.paymentStatus = PaymentStatus.REJECTED;
+        this.rejectedAt = requireNonNull(rejectedAt);
     }
 
 }
