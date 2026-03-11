@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 public interface CandidateJpaRepository extends JpaRepository<CandidateRegistration, Long> {
 
     boolean existsByMemberIdAndRegistrationStatusAndStatus(Long memberId, RegistrationStatus registrationStatus, EntityStatus status);
+    boolean existsByMemberIdAndStatus(Long memberId, EntityStatus status);
     Optional<CandidateRegistration> findByIdAndStatus(Long id, EntityStatus status);
     Optional<CandidateRegistration> findByMemberIdAndRegistrationStatusAndStatus(Long memberId, RegistrationStatus registrationStatus, EntityStatus status);
     @Query("""

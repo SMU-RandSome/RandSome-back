@@ -90,7 +90,8 @@ class CandidateManagerIntegrationTest extends IntegrationTestSupport {
         // given
         var member = memberJpaRepository.save(MemberFixture.create());
         var registration = candidateJpaRepository.save(CandidateRegistration.apply(member));
-        registration.approve(TestDateTimeUtils.now());
+        var approvedAt = TestDateTimeUtils.now();
+        candidateManager.approve(registration.getId(), approvedAt);
 
         // when
         candidateManager.withdraw(member.getId());
@@ -105,7 +106,7 @@ class CandidateManagerIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void 승인된_후보자_등록이_없으면_철회_시_NOT_FOUND_CANDIDATE를_던진다() {
+    void 활성_신청이_없으면_철회_시_NOT_FOUND_CANDIDATE를_던진다() {
         // given
         var nonExistentMemberId = 999L;
 
@@ -113,6 +114,18 @@ class CandidateManagerIntegrationTest extends IntegrationTestSupport {
         assertThatThrownBy(() -> candidateManager.withdraw(nonExistentMemberId))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_CANDIDATE.getMessage());
+    }
+
+    @Test
+    void 활성_신청은_있지만_승인되지_않은_상태면_철회_시_NOT_ALLOW_WITHDRAW_NON_APPROVED를_던진다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        candidateJpaRepository.save(CandidateRegistration.apply(member)); // PENDING 상태
+
+        // when & then
+        assertThatThrownBy(() -> candidateManager.withdraw(member.getId()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED.getMessage());
     }
 
 }

@@ -109,8 +109,12 @@ class CandidateManagerUnitTest extends UnitTestSupport {
         var registration = CandidateRegistration.apply(member);
         registration.approve(TestDateTimeUtils.now());
 
+        given(candidateJpaRepository.existsByMemberIdAndStatus(memberId, EntityStatus.ACTIVE))
+                .willReturn(true);
         given(candidateJpaRepository.findByMemberIdAndRegistrationStatusAndStatus(
-                memberId, RegistrationStatus.APPROVED, EntityStatus.ACTIVE
+                memberId,
+                RegistrationStatus.APPROVED,
+                EntityStatus.ACTIVE
         )).willReturn(Optional.of(registration));
 
         // when
@@ -123,17 +127,34 @@ class CandidateManagerUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 철회할_승인된_후보자가_없으면_NOT_FOUND_CANDIDATE를_던진다() {
+    void 철회할_활성_후보자_신청이_없으면_NOT_FOUND_CANDIDATE를_던진다() {
         // given
         var memberId = 999L;
-        given(candidateJpaRepository.findByMemberIdAndRegistrationStatusAndStatus(
-                memberId, RegistrationStatus.APPROVED, EntityStatus.ACTIVE
-        )).willReturn(Optional.empty());
+        given(candidateJpaRepository.existsByMemberIdAndStatus(memberId, EntityStatus.ACTIVE))
+                .willReturn(false);
 
         // when & then
         assertThatThrownBy(() -> candidateManager.withdraw(memberId))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_CANDIDATE.getMessage());
+    }
+
+    @Test
+    void 활성화된_신청은_있지만_승인된_신청이_없으면_NOT_ALLOW_WITHDRAW_NON_APPROVED를_던진다() {
+        // given
+        var memberId = 2L;
+        given(candidateJpaRepository.existsByMemberIdAndStatus(memberId, EntityStatus.ACTIVE))
+                .willReturn(true);
+        given(candidateJpaRepository.findByMemberIdAndRegistrationStatusAndStatus(
+                memberId,
+                RegistrationStatus.APPROVED,
+                EntityStatus.ACTIVE
+        )).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> candidateManager.withdraw(memberId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED.getMessage());
     }
 
 }

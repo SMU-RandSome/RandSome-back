@@ -51,11 +51,19 @@ public class CandidateManager {
 
     @Transactional
     public void withdraw(Long memberId) {
+        // 회원의 활성화된 신청이 존재하는지 확인 (APPROVED 여부 무관)
+        boolean hasActiveRegistration = candidateJpaRepository.existsByMemberIdAndStatus(memberId, EntityStatus.ACTIVE);
+
+        if (!hasActiveRegistration) {
+            throw new CoreException(ErrorType.NOT_FOUND_CANDIDATE);
+        }
+
+        // APPROVED 상태의 활성 신청만 조회
         CandidateRegistration registration = candidateJpaRepository.findByMemberIdAndRegistrationStatusAndStatus(
                 memberId,
                 RegistrationStatus.APPROVED,
                 EntityStatus.ACTIVE
-        ).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_CANDIDATE));
+        ).orElseThrow(() -> new CoreException(ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED));
 
         registration.withdraw(LocalDateTime.now());
 

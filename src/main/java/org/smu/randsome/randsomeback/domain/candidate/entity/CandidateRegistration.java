@@ -54,7 +54,10 @@ public class CandidateRegistration extends BaseEntity {
     }
 
     public void approve(LocalDateTime approvedAt) {
-        if (registrationStatus.equals(RegistrationStatus.APPROVED)) return;
+        if (registrationStatus.equals(RegistrationStatus.APPROVED)) {
+            return;
+        }
+        checkWithdraw();
 
         this.registrationStatus = RegistrationStatus.APPROVED;
         this.approvedAt = requireNonNull(approvedAt);
@@ -66,6 +69,7 @@ public class CandidateRegistration extends BaseEntity {
         if (registrationStatus.equals(RegistrationStatus.APPROVED)) {
             throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_REGISTRATION);
         }
+        checkWithdraw();
 
         this.registrationStatus = RegistrationStatus.REJECTED;
         this.rejectedAt = requireNonNull(rejectedAt);
@@ -77,9 +81,16 @@ public class CandidateRegistration extends BaseEntity {
         if (!registrationStatus.equals(RegistrationStatus.APPROVED)) {
             throw new CoreException(ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED);
         }
+
         this.registrationStatus = RegistrationStatus.WITHDRAWN;
         this.withdrawnAt = requireNonNull(withdrawnAt);
         // NOTE: 철회 시엔 승인 시각을 지우지 않음.
+    }
+
+    private void checkWithdraw() {
+        if (registrationStatus.equals(RegistrationStatus.WITHDRAWN)) {
+            throw new CoreException(ErrorType.ALREADY_WITHDRAWN_CANDIDATE);
+        }
     }
 
 }
