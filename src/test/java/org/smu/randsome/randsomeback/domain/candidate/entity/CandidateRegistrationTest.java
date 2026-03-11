@@ -123,4 +123,61 @@ class CandidateRegistrationTest extends UnitTestSupport {
         assertThatThrownBy(() -> registration.reject(null, TestDateTimeUtils.now()))
                 .isInstanceOf(NullPointerException.class);
     }
+
+    @Test
+    void 승인된_신청을_철회하면_WITHDRAWN_상태로_변경되고_철회시간이_기록된다() {
+        // given
+        var member = mock(Member.class);
+        var registration = CandidateRegistration.apply(member);
+        var approvedAt = LocalDateTime.of(2026, 3, 8, 12, 0);
+        var withdrawnAt = LocalDateTime.of(2026, 3, 11, 12, 0);
+        registration.approve(approvedAt);
+
+        // when
+        registration.withdraw(withdrawnAt);
+
+        // then
+        assertThat(registration.getRegistrationStatus()).isEqualTo(RegistrationStatus.WITHDRAWN);
+        assertThat(registration.getWithdrawnAt()).isEqualTo(withdrawnAt);
+    }
+
+    @Test
+    void 철회_시_승인_시각은_유지된다() {
+        // given
+        var member = mock(Member.class);
+        var registration = CandidateRegistration.apply(member);
+        var approvedAt = LocalDateTime.of(2026, 3, 8, 12, 0);
+        registration.approve(approvedAt);
+
+        // when
+        registration.withdraw(TestDateTimeUtils.now());
+
+        // then
+        assertThat(registration.getApprovedAt()).isEqualTo(approvedAt);
+    }
+
+    @Test
+    void 승인되지_않은_신청을_철회하면_예외가_발생한다() {
+        // given
+        var member = mock(Member.class);
+        var registration = CandidateRegistration.apply(member); // PENDING 상태
+
+        // when & then
+        assertThatThrownBy(() -> registration.withdraw(TestDateTimeUtils.now()))
+                .isInstanceOf(CoreException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED);
+    }
+
+    @Test
+    void 철회_시각이_null이면_예외가_발생한다() {
+        // given
+        var member = mock(Member.class);
+        var registration = CandidateRegistration.apply(member);
+        registration.approve(TestDateTimeUtils.now());
+
+        // when & then
+        assertThatThrownBy(() -> registration.withdraw(null))
+                .isInstanceOf(NullPointerException.class);
+    }
+
 }

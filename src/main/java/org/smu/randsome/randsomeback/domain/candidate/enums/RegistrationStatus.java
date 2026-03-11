@@ -4,6 +4,7 @@ public enum RegistrationStatus {
 
     PENDING,
     APPROVED,
-    REJECTED
-
+    REJECTED,
+    WITHDRAWN, // 후보자 등록 신청 철회
+    ;
 }

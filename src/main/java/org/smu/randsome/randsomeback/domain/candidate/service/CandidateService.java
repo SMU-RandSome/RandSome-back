@@ -37,4 +37,10 @@ public class CandidateService {
         log.info("[CandidateService] 매칭 후보자 등록 신청 완료 - memberId: {}", memberId);
     }
 
+    public void withdraw(Long memberId) {
+        candidateManager.withdraw(memberId);
+
+        log.info("[CandidateService] 매칭 후보자 등록 철회 완료 - memberId: {}", memberId);
+    }
+
 }

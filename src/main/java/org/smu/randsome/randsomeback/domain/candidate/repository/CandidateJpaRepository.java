@@ -12,7 +12,7 @@ public interface CandidateJpaRepository extends JpaRepository<CandidateRegistrat
 
     boolean existsByMemberIdAndRegistrationStatusAndStatus(Long memberId, RegistrationStatus registrationStatus, EntityStatus status);
     Optional<CandidateRegistration> findByIdAndStatus(Long id, EntityStatus status);
-
+    Optional<CandidateRegistration> findByMemberIdAndRegistrationStatusAndStatus(Long memberId, RegistrationStatus registrationStatus, EntityStatus status);
     @Query("""
             SELECT cr FROM CandidateRegistration cr
             JOIN FETCH cr.member m

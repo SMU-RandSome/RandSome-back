@@ -31,8 +31,9 @@ public enum ErrorType {
     DUPLICATE_EMAIL                          (HttpStatus.CONFLICT, "이미 사용 중인 Email 입니다.", LogLevel.INFO),
 
     // CANDIDATE
-    NOT_FOUND_CANDIDATE (HttpStatus.NOT_FOUND, "후보자를 찾을 수 없습니다.", LogLevel.INFO),
-    DUPLICATE_CANDIDATE (HttpStatus.CONFLICT, "이미 등록된 후보자 입니다.", LogLevel.INFO),
+    NOT_FOUND_CANDIDATE                  (HttpStatus.NOT_FOUND, "후보자를 찾을 수 없습니다.", LogLevel.INFO),
+    DUPLICATE_CANDIDATE                  (HttpStatus.CONFLICT, "이미 등록된 후보자 입니다.", LogLevel.INFO),
+    NOT_ALLOW_WITHDRAW_NON_APPROVED      (HttpStatus.BAD_REQUEST, "승인된 후보자만 철회할 수 있습니다.", LogLevel.INFO),
 
     // PAYMENT
     INVALID_PERSON_COUNT                (HttpStatus.BAD_REQUEST, "인원 수가 유효하지 않습니다.", LogLevel.INFO),
