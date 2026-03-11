@@ -75,6 +75,7 @@ public class Payment extends BaseEntity {
 
         this.paymentStatus = PaymentStatus.COMPLETED;
         this.confirmedAt = requireNonNull(confirmedAt);
+        this.rejectedAt = null;
     }
 
     public void reject(LocalDateTime rejectedAt) {

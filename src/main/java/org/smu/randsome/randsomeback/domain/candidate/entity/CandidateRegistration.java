@@ -36,6 +36,8 @@ public class CandidateRegistration extends BaseEntity {
 
     private LocalDateTime approvedAt;
 
+    private LocalDateTime rejectedAt;
+
     public static CandidateRegistration apply(Member member) {
         CandidateRegistration candidateRegistration = new CandidateRegistration();
 
@@ -43,24 +45,27 @@ public class CandidateRegistration extends BaseEntity {
         candidateRegistration.registrationStatus = RegistrationStatus.PENDING;
         candidateRegistration.approvedAt = null;
         candidateRegistration.rejectedReason = null;
+        candidateRegistration.rejectedAt = null;
 
         return candidateRegistration;
     }
 
-    public void approve(LocalDateTime now) {
+    public void approve(LocalDateTime approvedAt) {
         if (registrationStatus.equals(RegistrationStatus.APPROVED)) return;
 
         this.registrationStatus = RegistrationStatus.APPROVED;
-        this.approvedAt = requireNonNull(now);
-        this.rejectedReason = null; // 이전 거절 사유 초기화
+        this.approvedAt = requireNonNull(approvedAt);
+        this.rejectedReason = null;
+        this.rejectedAt = null;
     }
 
-    public void reject(String rejectedReason) {
+    public void reject(String rejectedReason, LocalDateTime rejectedAt) {
         if (registrationStatus.equals(RegistrationStatus.APPROVED)) {
-            throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_PAYMENT);
+            throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_REGISTRATION);
         }
 
         this.registrationStatus = RegistrationStatus.REJECTED;
+        this.rejectedAt = requireNonNull(rejectedAt);
         this.rejectedReason = requireNonNull(rejectedReason);
     }
 

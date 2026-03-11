@@ -42,14 +42,16 @@
   - `registrationStatus`: ENUM(`PENDING`, `APPROVED`, `REJECTED`)
   - `rejectedReason`: VARCHAR
   - `approvedAt`: DateTime
+  - `rejectedAt`: DateTime
 - **행위**
   - `apply()`: 후보 등록 신청 생성
-  - `approve()`: 관리자 승인
-  - `reject()`: 관리자 거절
+  - `approve(approvedAt)`: 관리자 승인
+  - `reject(rejectedReason, rejectedAt)`: 관리자 거절
 - **규칙**
   - `Member` : `CandidateRegistration` = `1:N` (신청 이력 보관)
-  - 한 회원은 동시에 `PENDING` 상태 신청 1건만 가능
-  - `approve`/`reject`는 `PENDING` 상태에서만 가능
+  - 이미 `APPROVED` 상태의 활성 신청 이력이 있으면 신규 신청 불가
+  - `approve()`는 이미 승인된 경우 멱등(idempotent)하게 종료
+  - 이미 `APPROVED` 상태인 신청은 `reject()` 불가
   - 관리자가 승인하면 회원 역할을 `ROLE_CANDIDATE`로 변경
 
 ### 매칭 신청(`MatchingRequest`)
@@ -82,41 +84,39 @@
 - **규칙**
   - 열람은 결제 확인 + 관리자 승인 이후 가능
 
-### 후보자 등록 결제(`CandidatePayment`)
+### 결제(`Payment`)
 
 - **속성**
   - `memberId`: Long (`Member` 참조)
-  - `candidateRegistrationId`: Long (`CandidateRegistration` 참조)
-  - `paymentType`: ENUM(`CANDIDATE_REGISTRATION`)
+  - `paymentType`: ENUM(`CANDIDATE_REGISTRATION`, `RANDOM_MATCHING`, `IDEAL_TYPE_MATCHING`)
+  - `referenceId`: Long (결제 대상 도메인 엔티티 ID)
   - `amount`: BIG_DECIMAL
-  - `paymentStatus`: ENUM(`PENDING`, `APPROVED`, `REJECTED`)
-  - `rejectedReason`: VARCHAR
+  - `paymentStatus`: ENUM(`PENDING`, `COMPLETED`, `REJECTED`)
+  - `confirmedAt`: DateTime
+  - `rejectedAt`: DateTime
 - **행위**
-  - `register(member, candidateRegistration)`: 후보자 등록 결제 생성
-  - `approve()`: 결제 승인
-  - `reject(rejectedReason)`: 결제 거절
+  - `register(member, paymentType, referenceId, personCount)`: 결제 생성
+  - `confirm(confirmedAt)`: 결제 승인
+  - `reject(rejectedAt)`: 결제 거절
 - **규칙**
-  - 후보자 등록 신청 건당 결제 1건을 생성
-  - 결제 금액은 `PaymentType.CANDIDATE_REGISTRATION` 정책(2000원)으로 계산
-  - 결제는 `PENDING`으로 시작하며 관리자 승인/거절로 상태 전이
-
-### 매칭 결제(`MatchingPayment`)
-
-- **속성**
-  - `memberId`: Long (`Member` 참조)
-  - `matchingRequestId`: Long (`MatchingRequest` 참조)
-  - `paymentType`: ENUM(`RANDOM_MATCHING`, `IDEAL_TYPE_MATCHING`)
-  - `amount`: BIG_DECIMAL
-  - `paymentStatus`: ENUM(`PENDING`, `APPROVED`, `REJECTED`)
-  - `rejectedReason`: VARCHAR
-- **행위**
-  - `register(member, matchingRequest, paymentType, personCount)`: 매칭 결제 생성
-  - `approve()`: 결제 승인
-  - `reject(rejectedReason)`: 결제 거절
-- **규칙**
-  - `paymentType`은 매칭 결제 타입(`RANDOM_MATCHING`, `IDEAL_TYPE_MATCHING`)만 허용
+  - `(paymentType, referenceId)` 유니크 제약으로 동일 결제 중복 생성 방지
   - 결제 금액은 `PaymentType.calculateFee(personCount)` 정책으로 계산
-  - 결제는 `PENDING`으로 시작하며 관리자 승인/거절로 상태 전이
+  - `CANDIDATE_REGISTRATION`: 1명 고정(2000원)
+  - `RANDOM_MATCHING`: 1~5명, 인당 1000원
+  - `IDEAL_TYPE_MATCHING`: 1~5명, 인당 1500원
+  - 인원 수가 허용 범위를 벗어나면 결제 생성 불가
+  - 결제는 `PENDING`으로 시작
+  - `confirm()`은 이미 `COMPLETED` 상태면 멱등하게 종료
+  - 이미 `COMPLETED` 상태의 결제는 `reject()` 불가
+
+### 결제 후속 처리(`PaymentHandler`)
+
+- **구성**
+  - `PaymentManager`가 `paymentType`에 맞는 핸들러를 선택해 승인/거절 후속 로직 실행
+  - `CandidatePaymentHandler`: 후보 등록 신청 승인/거절 처리
+  - `MatchingPaymentHandler`: 매칭 도메인 연동 예정(TODO)
+- **규칙**
+  - 지원 핸들러가 없으면 결제 승인/거절 처리 실패
 
 ### 약관(`Terms`)
 
