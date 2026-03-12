@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
+import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingJpaRepository;
@@ -14,6 +15,7 @@ import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepositor
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -38,13 +40,25 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
 
         // then
         var saved = matchingJpaRepository.findById(result.getId()).orElseThrow();
-        assertThat(saved.getMember().getId()).isEqualTo(member.getId());
-        assertThat(saved.getMatchingType()).isEqualTo(MatchingType.RANDOM);
-        assertThat(saved.getApplicationCount()).isEqualTo(3);
-        assertThat(saved.getApplicationStatus()).isEqualTo(ApplicationStatus.PENDING);
-        assertThat(saved.getApprovedAt()).isNull();
-        assertThat(saved.getRejectedAt()).isNull();
-        assertThat(saved.getWithdrawnAt()).isNull();
+        assertThat(saved).extracting(
+                MatchingApplication::getId,
+                MatchingApplication::getMember,
+                MatchingApplication::getMatchingType,
+                MatchingApplication::getApplicationCount,
+                MatchingApplication::getApplicationStatus,
+                MatchingApplication::getApprovedAt,
+                MatchingApplication::getRejectedAt,
+                MatchingApplication::getWithdrawnAt
+        ).containsExactly(
+                result.getId(),
+                member,
+                MatchingType.RANDOM,
+                3,
+                ApplicationStatus.PENDING,
+                null,
+                null,
+                null
+        );
     }
 
     @Test
@@ -60,6 +74,88 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
         assertThatThrownBy(() -> matchingManager.apply(newMatching, nonExistentMemberId))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+    }
+
+    @Test
+    void 매칭_신청을_승인하면_APPROVED_상태와_승인_시각이_저장된다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(3)
+                .build();
+        var application = matchingManager.apply(newMatching, member.getId());
+        var approvedAt = TestDateTimeUtils.now();
+
+        // when
+        matchingManager.approve(application.getId(), approvedAt);
+
+        // then
+        var result = matchingJpaRepository.findById(application.getId()).orElseThrow();
+        assertThat(result).extracting(
+                MatchingApplication::getApplicationStatus,
+                MatchingApplication::getApprovedAt,
+                MatchingApplication::getRejectedAt,
+                MatchingApplication::getRejectedReason
+        ).containsExactly(
+                ApplicationStatus.APPROVED,
+                approvedAt,
+                null,
+                null
+        );
+    }
+
+    @Test
+    void 존재하지_않는_매칭을_승인하면_NOT_FOUND_MATCHING을_던진다() {
+        // given
+        var nonExistentId = 999L;
+
+        // when & then
+        assertThatThrownBy(() -> matchingManager.approve(nonExistentId, TestDateTimeUtils.now()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
+    }
+
+    @Test
+    void 매칭_신청을_거절하면_REJECTED_상태와_거절_사유_및_거절_시각이_저장된다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.IDEAL)
+                .applicationCount(2)
+                .build();
+        var application = matchingManager.apply(newMatching, member.getId());
+        var reason = "서류 미비";
+        var rejectedAt = TestDateTimeUtils.now();
+
+        // when
+        matchingManager.reject(application.getId(), reason, rejectedAt);
+
+        // then
+        MatchingApplication result = matchingJpaRepository.findById(application.getId()).orElseThrow();
+
+        assertThat(result).extracting(
+                MatchingApplication::getApplicationStatus,
+                MatchingApplication::getRejectedReason,
+                MatchingApplication::getRejectedAt,
+                MatchingApplication::getApprovedAt
+        ).containsExactly(
+                ApplicationStatus.REJECTED,
+                reason,
+                rejectedAt,
+                null
+        );
+    }
+
+    @Test
+    void 존재하지_않는_매칭을_거절하면_NOT_FOUND_MATCHING을_던진다() {
+        // given
+        var nonExistentId = 999L;
+
+        // when & then
+        assertThatThrownBy(() -> matchingManager.reject(nonExistentId, "사유", TestDateTimeUtils.now()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
     }
 
 }

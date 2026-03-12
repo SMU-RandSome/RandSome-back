@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -17,8 +18,10 @@ import org.smu.randsome.randsomeback.domain.matching.repository.MatchingJpaRepos
 import org.smu.randsome.randsomeback.domain.matching.service.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
+import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 
 class MatchingManagerUnitTest extends UnitTestSupport {
 
@@ -49,11 +52,17 @@ class MatchingManagerUnitTest extends UnitTestSupport {
         MatchingApplication result = matchingManager.apply(newMatching, memberId);
 
         // then
-        assertThat(result).isNotNull();
-        assertThat(result.getMember()).isEqualTo(member);
-        assertThat(result.getMatchingType()).isEqualTo(MatchingType.RANDOM);
-        assertThat(result.getApplicationCount()).isEqualTo(3);
-        assertThat(result.getApplicationStatus()).isEqualTo(ApplicationStatus.PENDING);
+        assertThat(result).isNotNull().extracting(
+                MatchingApplication::getMember,
+                MatchingApplication::getMatchingType,
+                MatchingApplication::getApplicationCount,
+                MatchingApplication::getApplicationStatus
+        ).containsExactly(
+                member,
+                MatchingType.RANDOM,
+                3,
+                ApplicationStatus.PENDING
+        );
     }
 
     @Test
@@ -71,6 +80,87 @@ class MatchingManagerUnitTest extends UnitTestSupport {
         assertThatThrownBy(() -> matchingManager.apply(newMatching, memberId))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+    }
+
+    @Test
+    void 매칭_신청을_승인한다() {
+        // given
+        var id = 1L;
+        var member = mock(Member.class);
+        var application = MatchingApplication.apply(member, MatchingType.RANDOM, 2);
+        var approvedAt = TestDateTimeUtils.now();
+        given(matchingJpaRepository.findByIdAndStatus(id, EntityStatus.ACTIVE))
+                .willReturn(Optional.of(application));
+
+        // when
+        matchingManager.approve(id, approvedAt);
+
+        // then
+        assertThat(application).extracting(
+                MatchingApplication::getApplicationStatus,
+                MatchingApplication::getApprovedAt,
+                MatchingApplication::getRejectedAt,
+                MatchingApplication::getRejectedReason
+        ).containsExactly(
+                ApplicationStatus.APPROVED,
+                approvedAt,
+                null,
+                null
+        );
+    }
+
+    @Test
+    void 승인할_매칭이_없으면_NOT_FOUND_MATCHING을_던진다() {
+        // given
+        var id = 999L;
+        given(matchingJpaRepository.findByIdAndStatus(id, EntityStatus.ACTIVE))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> matchingManager.approve(id, TestDateTimeUtils.now()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
+    }
+
+    @Test
+    void 매칭_신청을_거절한다() {
+        // given
+        var id = 1L;
+        var reason = "서류 미비";
+        var member = mock(Member.class);
+        var application = MatchingApplication.apply(member, MatchingType.RANDOM, 2);
+        var rejectedAt = TestDateTimeUtils.now();
+        given(matchingJpaRepository.findByIdAndStatus(id, EntityStatus.ACTIVE))
+                .willReturn(Optional.of(application));
+
+        // when
+        matchingManager.reject(id, reason, rejectedAt);
+
+        // then
+        assertThat(application).extracting(
+                MatchingApplication::getApplicationStatus,
+                MatchingApplication::getRejectedReason,
+                MatchingApplication::getRejectedAt,
+                MatchingApplication::getApprovedAt
+        ).containsExactly(
+                ApplicationStatus.REJECTED,
+                reason,
+                rejectedAt,
+                null
+        );
+    }
+
+    @Test
+    void 거절할_매칭이_없으면_NOT_FOUND_MATCHING을_던진다() {
+        // given
+        var id = 999L;
+        given(matchingJpaRepository.findByIdAndStatus(id, EntityStatus.ACTIVE))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> matchingManager.reject(id, "사유", TestDateTimeUtils.now()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
     }
 
 }
