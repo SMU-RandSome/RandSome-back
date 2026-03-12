@@ -18,6 +18,12 @@ public class MatchingService {
     private final MatchingManager matchingManager;
     private final PaymentManager paymentManager;
 
+    /**
+     * 매칭 신청을 생성하고 결제 등록까지 수행한다.
+     *
+     * @param newMatching 매칭 신청 커맨드
+     * @param memberId 신청자 식별자
+     */
     @Transactional
     public void apply(NewMatching newMatching, Long memberId) {
         MatchingApplication matchingApplication = matchingManager.apply(newMatching, memberId);
