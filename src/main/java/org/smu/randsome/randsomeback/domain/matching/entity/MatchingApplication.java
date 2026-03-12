@@ -78,6 +78,8 @@ public class MatchingApplication extends BaseEntity {
         if (applicationStatus.equals(ApplicationStatus.APPROVED)) {
             return;
         }
+        checkWithdraw();
+
         this.applicationStatus = ApplicationStatus.APPROVED;
         this.approvedAt = requireNonNull(approvedAt);
         this.rejectedReason = null;
@@ -88,6 +90,7 @@ public class MatchingApplication extends BaseEntity {
         if (applicationStatus.equals(ApplicationStatus.APPROVED)) {
             throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING);
         }
+        checkWithdraw();
 
         this.applicationStatus = ApplicationStatus.REJECTED;
         this.rejectedAt = requireNonNull(rejectedAt);
@@ -114,6 +117,12 @@ public class MatchingApplication extends BaseEntity {
     private static void validateApplicationCount(int applicationCount) {
         if (applicationCount < 1 || applicationCount > 5) {
             throw new CoreException(ErrorType.INVALID_PERSON_COUNT);
+        }
+    }
+
+    private void checkWithdraw() {
+        if (applicationStatus.equals(ApplicationStatus.WITHDRAWN)) {
+            throw new CoreException(ErrorType.ALREADY_WITHDRAWN_MATCHING);
         }
     }
 
