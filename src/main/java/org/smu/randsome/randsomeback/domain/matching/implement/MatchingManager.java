@@ -108,8 +108,8 @@ public class MatchingManager {
                 .filter(s -> s.getSupportedType() == matchingType)
                 .findFirst()
                 .orElseThrow(() -> {
-                    log.warn("[MatchingManager] 매칭 전략 조회 실패 - matchingType: {}", matchingType);
-                    return new CoreException(ErrorType.DEFAULT_ERROR);
+                    log.error("[MatchingManager] 지원하지 않는 매칭 타입 - matchingType: {}", matchingType);
+                    return new CoreException(ErrorType.UNSUPPORTED_MATCHING_TYPE);
                 });
     }
 

@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,13 +26,13 @@ public class IdealMatchingStrategy implements MatchingStrategy {
      *
      * @param matchingApplication 승인된 매칭 신청
      * @return 이상형 매칭 결과 목록
-     * @throws UnsupportedOperationException 아직 구현되지 않은 경우
+     * @throws CoreException 아직 구현되지 않은 경우
      */
     @Override
     public List<MatchingResult> execute(MatchingApplication matchingApplication) {
         log.warn("[IdealMatchingStrategy] 이상형 매칭 전략 미구현 - matchingApplicationId: {}",
                 matchingApplication.getId());
-        throw new UnsupportedOperationException("이상형 매칭 로직 미구현");
+        throw new CoreException(ErrorType.IDEAL_MATCHING_NOT_IMPLEMENTED);
     }
 
 }
