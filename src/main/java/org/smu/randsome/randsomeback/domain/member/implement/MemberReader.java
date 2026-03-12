@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.domain.member.implement;
 
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -35,7 +36,7 @@ public class MemberReader {
     }
 
     public Page<Member> findAll(Pageable pageable) {
-        return memberJpaRepository.findAllByStatus(EntityStatus.ACTIVE, pageable);
+        return memberJpaRepository.findAllByStatusAndRoleNot(EntityStatus.ACTIVE, Role.ROLE_ADMIN, pageable);
     }
 
 }
