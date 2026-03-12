@@ -35,8 +35,8 @@ public class CandidatePaymentHandler implements PaymentHandler {
     public void reject(Long referenceId, String rejectedReason, LocalDateTime rejectedAt) {
         candidateManager.reject(referenceId, rejectedReason, rejectedAt);
 
-        log.info("[CandidatePaymentHandler] 후보자 등록 결제 거절 완료 - candidateRegistrationId={}, reason={}. handler={}",
-                referenceId, rejectedReason, candidateManager.getClass().getSimpleName());
+        log.info("[CandidatePaymentHandler] 후보자 등록 결제 거절 완료 - candidateRegistrationId={}, handler={}",
+                referenceId, candidateManager.getClass().getSimpleName());
     }
 
 }
