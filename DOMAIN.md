@@ -71,6 +71,7 @@
   - `withdraw(withdrawnAt)`: 신청 철회
   - `approve(approvedAt)`: 관리자 승인
   - `reject(rejectedAt, rejectedReason)`: 관리자 거절
+  - `getTargetGender()`: 신청자 성별의 반대 성별 반환 (매칭 대상 성별 결정)
 - **규칙**
   - `Member` : `MatchingApplication` = `1:N` (신청 이력 보관)
   - `applicationCount`는 1~5 범위여야 하며, 범위 이탈 시 신청 불가
@@ -85,12 +86,14 @@
 ### 매칭 결과(`MatchingResult`)
 
 - **속성**
-  - `matchingApplicationId`: 매칭 신청 ID
-  - `candidateMemberId`: 매칭된 후보 회원 ID
+  - `matchingApplication`: `MatchingApplication` 참조
+  - `candidate`: 매칭된 후보 `Member` 참조
 - **행위**
-  - `create()`: 결과 생성
+  - `create(matchingApplication, candidate)`: 결과 생성
 - **규칙**
   - 열람은 결제 확인 + 관리자 승인 이후 가능
+  - 한 매칭 신청에 대해 `applicationCount`개의 결과가 생성됨
+  - 후보자 수가 `applicationCount`보다 적으면 가능한 수만큼만 생성됨
 
 ### 결제(`Payment`)
 
@@ -119,15 +122,6 @@
   - 결제는 `PENDING`으로 시작
   - `confirm()`은 이미 `COMPLETED` 상태면 멱등하게 종료
   - 이미 `COMPLETED` 상태의 결제는 `reject()` 불가
-
-### 결제 후속 처리(`PaymentHandler`)
-
-- **구성**
-  - `PaymentManager`가 `paymentType`에 맞는 핸들러를 선택해 승인/거절 후속 로직 실행
-  - `CandidatePaymentHandler`: 후보 등록 신청 승인/거절 처리
-  - `MatchingPaymentHandler`: 매칭 결제 타입(`RANDOM_MATCHING`, `IDEAL_TYPE_MATCHING`) 처리
-- **규칙**
-  - 지원 핸들러가 없으면 결제 승인/거절 처리 실패
 
 ### 약관(`Terms`)
 
