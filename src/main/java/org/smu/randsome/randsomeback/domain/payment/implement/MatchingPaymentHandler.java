@@ -35,8 +35,8 @@ public class MatchingPaymentHandler implements PaymentHandler {
     public void reject(Long referenceId, String rejectedReason, LocalDateTime rejectedAt) {
         matchingManager.reject(referenceId, rejectedReason, rejectedAt);
 
-        log.info("[MatchingPaymentHandler] 매칭 결제 거절 완료 - matchingApplicationId={}, reason={}, handler={}",
-                referenceId, rejectedReason, matchingManager.getClass().getSimpleName());
+        log.info("[MatchingPaymentHandler] 매칭 결제 거절 완료 - matchingApplicationId={}, handler={}",
+                referenceId, matchingManager.getClass().getSimpleName());
     }
 
 }
