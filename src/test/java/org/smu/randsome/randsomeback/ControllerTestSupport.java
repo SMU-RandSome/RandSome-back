@@ -16,6 +16,8 @@ import org.smu.randsome.randsomeback.domain.member.controller.MemberController;
 import org.smu.randsome.randsomeback.domain.member.service.MemberService;
 import org.smu.randsome.randsomeback.domain.payment.controller.PaymentController;
 import org.smu.randsome.randsomeback.domain.payment.service.PaymentService;
+import org.smu.randsome.randsomeback.domain.statistics.controller.StatisticsController;
+import org.smu.randsome.randsomeback.domain.statistics.service.StatisticsService;
 import org.smu.randsome.randsomeback.security.TestSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -35,6 +37,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
         MemberAdminController.class,
         PaymentController.class,
         PaymentAdminController.class,
+        StatisticsController.class,
 })
 public abstract class ControllerTestSupport {
 
@@ -67,5 +70,8 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected PaymentAdminService paymentAdminService;
+
+    @MockitoBean
+    protected StatisticsService statisticsService;
 
 }
