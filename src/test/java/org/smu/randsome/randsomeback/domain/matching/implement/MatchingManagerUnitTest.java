@@ -6,15 +6,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
+import org.smu.randsome.randsomeback.domain.matching.implement.strategy.MatchingStrategy;
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingJpaRepository;
+import org.smu.randsome.randsomeback.domain.matching.repository.MatchingResultJpaRepository;
 import org.smu.randsome.randsomeback.domain.matching.service.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
@@ -25,14 +28,32 @@ import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 
 class MatchingManagerUnitTest extends UnitTestSupport {
 
-    @InjectMocks
     MatchingManager matchingManager;
 
     @Mock
     MatchingJpaRepository matchingJpaRepository;
 
     @Mock
+    MatchingResultJpaRepository matchingResultJpaRepository;
+
+    @Mock
     MemberReader memberReader;
+
+    @Mock
+    MatchingStrategy randomStrategy;
+
+    @Mock
+    MatchingStrategy idealStrategy;
+
+    @BeforeEach
+    void setUp() {
+        matchingManager = new MatchingManager(
+                matchingJpaRepository,
+                matchingResultJpaRepository,
+                memberReader,
+                List.of(randomStrategy, idealStrategy)
+        );
+    }
 
     @Test
     void 매칭_신청을_저장하고_반환한다() {
@@ -83,14 +104,17 @@ class MatchingManagerUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 매칭_신청을_승인한다() {
+    void 매칭_신청을_승인하면_전략을_통해_매칭_결과를_저장한다() {
         // given
         var id = 1L;
         var member = mock(Member.class);
         var application = MatchingApplication.apply(member, MatchingType.RANDOM, 2);
         var approvedAt = TestDateTimeUtils.now();
-        given(matchingJpaRepository.findByIdAndStatus(id, EntityStatus.ACTIVE))
+
+        given(matchingJpaRepository.findByIdAndStatusWithMember(id, EntityStatus.ACTIVE))
                 .willReturn(Optional.of(application));
+        given(randomStrategy.getSupportedType()).willReturn(MatchingType.RANDOM);
+        given(randomStrategy.execute(application)).willReturn(List.of());
 
         // when
         matchingManager.approve(id, approvedAt);
@@ -113,7 +137,7 @@ class MatchingManagerUnitTest extends UnitTestSupport {
     void 승인할_매칭이_없으면_NOT_FOUND_MATCHING을_던진다() {
         // given
         var id = 999L;
-        given(matchingJpaRepository.findByIdAndStatus(id, EntityStatus.ACTIVE))
+        given(matchingJpaRepository.findByIdAndStatusWithMember(id, EntityStatus.ACTIVE))
                 .willReturn(Optional.empty());
 
         // when & then

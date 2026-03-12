@@ -7,6 +7,7 @@ import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.StudentId;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
+import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.service.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.service.command.MemberCredentials;
 import org.smu.randsome.randsomeback.domain.member.service.command.MemberSocialProfile;
@@ -68,6 +69,27 @@ public class MemberFixture {
         return StudentId.create(DEFAULT_EMAIL);
     }
 
+
+    public static Member createWithGender(String email, Gender gender) {
+        String instagramId = email.substring(0, email.indexOf('@'));
+        return Member.create(
+                email,
+                DEFAULT_RAW_PASSWORD,
+                ENCODER,
+                DEFAULT_LEGAL_NAME,
+                gender,
+                DEFAULT_MBTI,
+                instagramId,
+                DEFAULT_SELF_INTRODUCTION,
+                DEFAULT_IDEAL_DESCRIPTION
+        );
+    }
+
+    public static Member createCandidate(String email, Gender gender) {
+        Member member = createWithGender(email, gender);
+        member.updateRole(Role.ROLE_CANDIDATE);
+        return member;
+    }
 
     public static SocialProfile socialProfile() {
         return SocialProfile.create(DEFAULT_INSTAGRAM_ID, DEFAULT_SELF_INTRODUCTION, DEFAULT_IDEAL_DESCRIPTION);

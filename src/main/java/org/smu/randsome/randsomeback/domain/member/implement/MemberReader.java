@@ -1,7 +1,9 @@
 package org.smu.randsome.randsomeback.domain.member.implement;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
@@ -37,6 +39,10 @@ public class MemberReader {
 
     public Page<Member> findAll(Pageable pageable) {
         return memberJpaRepository.findAllByStatusAndRoleNot(EntityStatus.ACTIVE, Role.ROLE_ADMIN, pageable);
+    }
+
+    public List<Member> findCandidatesByGender(Gender gender) {
+        return memberJpaRepository.findAllByGenderAndRoleAndStatus(gender, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE);
     }
 
 }

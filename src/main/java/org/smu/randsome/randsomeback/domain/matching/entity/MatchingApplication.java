@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.global.entity.BaseEntity;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -112,6 +113,10 @@ public class MatchingApplication extends BaseEntity {
         this.applicationStatus = ApplicationStatus.WITHDRAWN;
         this.withdrawnAt = requireNonNull(withdrawnAt);
         // NOTE: 철회 시엔 승인 시각을 지우지 않음.
+    }
+
+    public Gender getTargetGender() {
+        return this.getMember().getGender() == Gender.MALE ? Gender.FEMALE : Gender.MALE;
     }
 
     private static void validateApplicationCount(int applicationCount) {
