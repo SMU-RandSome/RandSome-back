@@ -1,10 +1,8 @@
 package org.smu.randsome.randsomeback.domain.payment.implement;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
-import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -30,7 +28,7 @@ class MatchingPaymentHandlerUnitTest extends UnitTestSupport {
         matchingPaymentHandler.approve(referenceId, now);
 
         // then
-        verify(matchingManager).approve(eq(referenceId), any(LocalDateTime.class));
+        verify(matchingManager).approve(referenceId, now);
     }
 
     @Test
@@ -44,7 +42,7 @@ class MatchingPaymentHandlerUnitTest extends UnitTestSupport {
         matchingPaymentHandler.reject(referenceId, reason, now);
 
         // then
-        verify(matchingManager).reject(eq(referenceId), eq(reason), any(LocalDateTime.class));
+        verify(matchingManager).reject(referenceId, reason, now);
     }
 
 }
