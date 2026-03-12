@@ -1,6 +1,5 @@
 package org.smu.randsome.randsomeback.domain.payment.implement;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
