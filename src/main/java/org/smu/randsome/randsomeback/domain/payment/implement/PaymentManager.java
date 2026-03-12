@@ -59,9 +59,6 @@ public class PaymentManager {
 
         PaymentHandler paymentHandler = resolveHandler(payment.getPaymentType());
         paymentHandler.approve(payment.getReferenceId(), now);
-
-        log.info("[Payment] 결제 승인 완료 - paymentId={}, paymentType={}, referenceId={}",
-                paymentId, payment.getPaymentType(), payment.getReferenceId());
     }
 
     /**
@@ -79,9 +76,6 @@ public class PaymentManager {
 
         PaymentHandler paymentHandler = resolveHandler(payment.getPaymentType());
         paymentHandler.reject(payment.getReferenceId(), reason, now);
-
-        log.info("[Payment] 결제 거절 완료 - paymentId={}, paymentType={}, referenceId={}",
-                paymentId, payment.getPaymentType(), payment.getReferenceId());
     }
 
     /**

@@ -26,11 +26,17 @@ public class CandidatePaymentHandler implements PaymentHandler {
     @Override
     public void approve(Long referenceId, LocalDateTime approvedAt) {
         candidateManager.approve(referenceId, approvedAt);
+
+        log.info("[CandidatePaymentHandler] 후보자 등록 결제 승인 완료 - candidateRegistrationId={}, handler={}",
+                referenceId, candidateManager.getClass().getSimpleName());
     }
 
     @Override
     public void reject(Long referenceId, String rejectedReason, LocalDateTime rejectedAt) {
         candidateManager.reject(referenceId, rejectedReason, rejectedAt);
+
+        log.info("[CandidatePaymentHandler] 후보자 등록 결제 거절 완료 - candidateRegistrationId={}, reason={}. handler={}",
+                referenceId, rejectedReason, candidateManager.getClass().getSimpleName());
     }
 
 }
