@@ -39,7 +39,7 @@ public class SmtpEmailSender implements EmailSender {
     }
 
     @Recover
-    public void recover(MailException e, String to, String subject) {
+    public void recover(Exception e, String to, String subject) {
         log.error("[SmtpEmailSender] 이메일 전송 최종 실패 - to: {}, subject: {}", to, subject, e);
         // 발송이 최종 실패하면 사용자는 코드를 받지 못했는데 코드는 유효한 상태로 남아있게 되므로, 코드 무효화 처리
         verificationCodeManager.invalidateVerificationCode(to /*email*/);
