@@ -23,7 +23,7 @@ public class SmtpEmailSender implements EmailSender {
     private final VerificationCodeManager verificationCodeManager;
 
     @Retryable(
-            retryFor = MailException.class,
+            retryFor = Exception.class,
             maxAttempts = 3,
             backoff = @Backoff(delayExpression = "${mail.retry.delay:10000}", multiplier = 2)
     )
