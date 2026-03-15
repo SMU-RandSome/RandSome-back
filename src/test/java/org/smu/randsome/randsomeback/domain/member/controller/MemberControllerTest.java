@@ -194,7 +194,7 @@ class MemberControllerTest extends ControllerTestSupport {
         given(memberService.getMyProfile(any())).willReturn(member);
 
         // when & then
-        assertThat(mvcTester.get().uri("/v1/members/me"))
+        assertThat(mvcTester.get().uri("/v1/members"))
                 .apply(print())
                 .hasStatus(HttpStatus.OK.value())
                 .bodyJson()
@@ -205,7 +205,7 @@ class MemberControllerTest extends ControllerTestSupport {
 
     @Test
     void 인증되지_않은_사용자는_403을_반환한다() {
-        assertThat(mvcTester.get().uri("/v1/members/me"))
+        assertThat(mvcTester.get().uri("/v1/members"))
                 .apply(print())
                 .hasStatus(HttpStatus.FORBIDDEN.value());
     }
@@ -218,7 +218,7 @@ class MemberControllerTest extends ControllerTestSupport {
                 .given(memberService).getMyProfile(any());
 
         // when & then
-        assertThat(mvcTester.get().uri("/v1/members/me"))
+        assertThat(mvcTester.get().uri("/v1/members"))
                 .apply(print())
                 .hasStatus(HttpStatus.NOT_FOUND.value())
                 .bodyJson()

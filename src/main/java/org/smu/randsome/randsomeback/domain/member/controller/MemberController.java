@@ -39,7 +39,7 @@ public class MemberController extends MemberControllerDocs {
     }
 
     @Override
-    @GetMapping("/v1/members/me")
+    @GetMapping("/v1/members")
     public ResponseEntity<ApiResponse<MemberProfileResponse>> getMyProfile(@LoginMember Long memberId) {
         Member member = memberService.getMyProfile(memberId);
 
