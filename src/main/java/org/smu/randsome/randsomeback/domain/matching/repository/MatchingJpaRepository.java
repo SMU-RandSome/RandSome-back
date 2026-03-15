@@ -1,8 +1,10 @@
 package org.smu.randsome.randsomeback.domain.matching.repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
+import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,5 +25,19 @@ public interface MatchingJpaRepository extends JpaRepository<MatchingApplication
             """
     )
     Optional<MatchingApplication> findByIdAndStatusWithMember(@Param("id") Long id, @Param("status") EntityStatus status);
+
+    @Query("""
+            SELECT ma FROM MatchingApplication ma
+            JOIN FETCH ma.member m
+            WHERE ma.member.id = :memberId
+              AND ma.applicationStatus = :applicationStatus
+              AND ma.status = :entityStatus
+            ORDER BY ma.createdAt DESC
+            """)
+    List<MatchingApplication> findAllByMemberIdAndApplicationStatusAndStatus(
+            @Param("memberId") Long memberId,
+            @Param("applicationStatus") ApplicationStatus applicationStatus,
+            @Param("entityStatus") EntityStatus entityStatus
+    );
 
 }

@@ -1,5 +1,6 @@
 package org.smu.randsome.randsomeback.domain.matching.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -9,13 +10,16 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
+import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
+import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
 import org.smu.randsome.randsomeback.domain.matching.service.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
@@ -30,6 +34,9 @@ class MatchingServiceUnitTest extends UnitTestSupport {
 
     @Mock
     MatchingManager matchingManager;
+
+    @Mock
+    MatchingReader matchingReader;
 
     @Mock
     PaymentManager paymentManager;
@@ -74,6 +81,32 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         assertThatThrownBy(() -> matchingService.apply(newMatching, memberId))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+    }
+
+    @Test
+    void 상태별_신청_내역을_조회한다() {
+        // given
+        var memberId = 1L;
+        var application = mock(MatchingApplication.class);
+        given(matchingReader.findByMemberAndStatus(memberId, ApplicationStatus.PENDING))
+                .willReturn(List.of(application));
+        given(application.getMatchingType()).willReturn(MatchingType.RANDOM);
+        given(application.getApplicationStatus()).willReturn(ApplicationStatus.PENDING);
+
+        // when
+        List<MatchingApplication> result = matchingService.getMyApplications(memberId, ApplicationStatus.PENDING);
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst()).extracting(
+                MatchingApplication::getMatchingType,
+                MatchingApplication::getApplicationStatus
+        ).containsExactly(
+                application.getMatchingType(),
+                application.getApplicationStatus()
+        );
+
+        verify(matchingReader).findByMemberAndStatus(memberId, ApplicationStatus.PENDING);
     }
 
 }

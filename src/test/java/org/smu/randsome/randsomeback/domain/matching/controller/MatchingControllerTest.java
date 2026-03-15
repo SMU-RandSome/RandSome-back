@@ -2,9 +2,11 @@ package org.smu.randsome.randsomeback.domain.matching.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.controller.dto.MatchingApplyRequest;
@@ -92,6 +94,38 @@ class MatchingControllerTest extends ControllerTestSupport {
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
                 .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_MEMBER.getMessage()));
+    }
+
+    @Test
+    @TestMember
+    void 내_신청_내역_조회에_성공하면_200과_목록을_반환한다() {
+        // given
+        given(matchingService.getMyApplications(any(), any())).willReturn(List.of());
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/matching/applications?status=PENDING"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data", v -> v.assertThat().isNotNull());
+    }
+
+    @Test
+    void 내_신청_내역_조회에서_인증되지_않은_사용자는_403을_반환한다() {
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/matching/applications?status=PENDING"))
+                .apply(print())
+                .hasStatus(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    @TestMember
+    void 내_신청_내역_조회에서_잘못된_status는_400을_반환한다() {
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/matching/applications?status=INVALID"))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
     }
 
 }
