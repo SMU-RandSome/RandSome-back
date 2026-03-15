@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.smu.randsome.randsomeback.domain.member.controller.dto.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.controller.dto.MemberProfileResponse;
+import org.smu.randsome.randsomeback.domain.member.controller.dto.request.MemberUpdateRequest;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
@@ -47,5 +48,25 @@ public abstract class MemberControllerDocs {
             ErrorType.DEFAULT_ERROR
     })
     public abstract ResponseEntity<ApiResponse<MemberProfileResponse>> getMyProfile(@LoginMember Long memberId);
+
+    @Operation(
+            summary = "내 프로필 수정 JWT - [O]",
+            description = """
+                    ### 로그인한 회원의 프로필 정보를 수정하는 API입니다.
+                    - JWT 인증이 필요합니다.
+                    - 실명, MBTI는 필수 값입니다.
+                    - 인스타그램 ID, 자기소개, 이상형 소개는 선택 값입니다.
+                    - 성공 시 응답 바디 없이 200을 반환합니다.
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.BAD_REQUEST,
+            ErrorType.NOT_FOUND_MEMBER,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ResponseEntity<Void> updateProfile(
+            @RequestBody @Valid MemberUpdateRequest request,
+            @LoginMember Long memberId
+    );
 
 }

@@ -10,6 +10,7 @@ import org.smu.randsome.randsomeback.domain.member.implement.MemberValidator;
 import org.smu.randsome.randsomeback.domain.member.service.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.service.command.MemberCredentials;
 import org.smu.randsome.randsomeback.domain.member.service.command.MemberSocialProfile;
+import org.smu.randsome.randsomeback.domain.member.service.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.terms.implement.TermsAgreementManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +54,10 @@ public class MemberService {
     @Transactional(readOnly = true)
     public Member getMyProfile(Long memberId) {
         return memberReader.find(memberId);
+    }
+
+    public void updateProfile(Long memberId, UpdateProfile updateProfile) {
+        memberManager.updateProfile(memberId, updateProfile);
     }
 
 }

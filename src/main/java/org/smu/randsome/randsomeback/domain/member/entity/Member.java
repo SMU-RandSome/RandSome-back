@@ -100,16 +100,20 @@ public class Member extends BaseEntity {
         this.refreshToken = null;
     }
 
-    public void updateSocialProfile(SocialProfile profile) {
-        this.socialProfile = profile;
-    }
-
-    public void updateMbti(Mbti mbti) {
-        this.mbti = mbti;
-    }
-
     public boolean isPasswordCorrect(String rawPassword, PasswordEncoder encoder) {
         return password.matches(rawPassword, encoder);
+    }
+
+    public void updateProfile(
+            String legalName,
+            Mbti mbti,
+            String instagramId,
+            String selfIntroduction,
+            String idealDescription
+    ) {
+        this.legalName = requireNonNull(legalName);
+        this.mbti = requireNonNull(mbti);
+        this.socialProfile = SocialProfile.create(instagramId, selfIntroduction, idealDescription);
     }
 
     private static String createRandomNickname(Gender gender) {

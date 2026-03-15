@@ -6,11 +6,13 @@ import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepositor
 import org.smu.randsome.randsomeback.domain.member.service.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.service.command.MemberCredentials;
 import org.smu.randsome.randsomeback.domain.member.service.command.MemberSocialProfile;
+import org.smu.randsome.randsomeback.domain.member.service.command.UpdateProfile;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
@@ -43,6 +45,20 @@ public class MemberManager {
 
     public void updateRefreshToken(Member member, String refreshToken) {
         member.updateRefreshToken(refreshToken);
+    }
+
+    @Transactional
+    public void updateProfile(Long memberId, UpdateProfile updateProfile) {
+        Member member = memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
+
+        member.updateProfile(
+                updateProfile.legalName(),
+                updateProfile.mbti(),
+                updateProfile.instagramId(),
+                updateProfile.selfIntroduction(),
+                updateProfile.idealDescription()
+        );
     }
 
 }

@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.domain.member.controller.dto.MemberCreateRequest;
+import org.smu.randsome.randsomeback.domain.member.controller.dto.request.MemberUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
@@ -224,6 +225,82 @@ class MemberControllerTest extends ControllerTestSupport {
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
                 .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_MEMBER.getMessage()));
+    }
+
+    @Test
+    @TestMember
+    void 프로필_업데이트에_성공하면_200을_반환한다() throws Exception {
+        // given
+        var request = createValidUpdateRequest();
+
+        // when & then
+        assertThat(mvcTester.patch().uri("/v1/members")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value());
+    }
+
+    @Test
+    @TestMember
+    void 프로필_업데이트_시_실명이_없으면_400을_반환한다() throws Exception {
+        // given
+        var request = MemberUpdateRequest.builder()
+                .legalName("")
+                .mbti(Mbti.ENFP)
+                .build();
+
+        // when & then
+        assertThat(mvcTester.patch().uri("/v1/members")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @TestMember
+    void 프로필_업데이트_시_MBTI가_없으면_400을_반환한다() throws Exception {
+        // given
+        var request = MemberUpdateRequest.builder()
+                .legalName("김철수")
+                .mbti(null)
+                .build();
+
+        // when & then
+        assertThat(mvcTester.patch().uri("/v1/members")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @TestMember
+    void 프로필_업데이트_시_존재하지_않는_회원이면_404를_반환한다() throws Exception {
+        // given
+        willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
+                .given(memberService).updateProfile(any(), any());
+
+        // when & then
+        assertThat(mvcTester.patch().uri("/v1/members")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createValidUpdateRequest())))
+                .apply(print())
+                .hasStatus(HttpStatus.NOT_FOUND.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
+                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_MEMBER.getMessage()));
+    }
+
+    private MemberUpdateRequest createValidUpdateRequest() {
+        return MemberUpdateRequest.builder()
+                .legalName("김철수")
+                .mbti(Mbti.ENFP)
+                .instagramId("new_insta")
+                .selfIntroduction("새 자기소개")
+                .idealDescription("새 이상형")
+                .build();
     }
 
     private MemberCreateRequest createValidRequest() {

@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.member.controller.dto.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.controller.dto.MemberProfileResponse;
+import org.smu.randsome.randsomeback.domain.member.controller.dto.request.MemberUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.service.MemberService;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
@@ -12,6 +13,7 @@ import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,6 +46,17 @@ public class MemberController extends MemberControllerDocs {
         Member member = memberService.getMyProfile(memberId);
 
         return ResponseEntity.ok(ApiResponse.success(MemberProfileResponse.from(member)));
+    }
+
+    @Override
+    @PatchMapping("/v1/members")
+    public ResponseEntity<Void> updateProfile(
+            @RequestBody @Valid MemberUpdateRequest request,
+            @LoginMember Long memberId
+    ) {
+        memberService.updateProfile(memberId, request.toUpdateProfile());
+
+        return ResponseEntity.ok().build();
     }
 
 }
