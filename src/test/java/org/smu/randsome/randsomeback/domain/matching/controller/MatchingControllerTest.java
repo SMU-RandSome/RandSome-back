@@ -128,4 +128,44 @@ class MatchingControllerTest extends ControllerTestSupport {
                 .hasStatus(HttpStatus.BAD_REQUEST.value());
     }
 
+    @Test
+    @TestMember
+    void 승인된_신청_상세_조회에_성공하면_200과_목록을_반환한다() {
+        // given
+        given(matchingService.getApprovedApplication(any(), any())).willReturn(List.of());
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/matching/applications/1/approved"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data", v -> v.assertThat().isNotNull());
+    }
+
+    @Test
+    void 승인된_신청_상세_조회에서_인증되지_않은_사용자는_403을_반환한다() {
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/matching/applications/1/approved"))
+                .apply(print())
+                .hasStatus(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    @TestMember
+    void 승인되지_않은_신청_조회시_400을_반환한다() {
+        // given
+        willThrow(new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING))
+                .given(matchingService).getApprovedApplication(any(), any());
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/matching/applications/1/approved"))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
+                .hasPathSatisfying("$.error.message",
+                        v -> v.assertThat().isEqualTo(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING.getMessage()));
+    }
+
 }

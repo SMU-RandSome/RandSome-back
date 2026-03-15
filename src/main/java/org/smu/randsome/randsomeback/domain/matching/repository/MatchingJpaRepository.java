@@ -40,4 +40,11 @@ public interface MatchingJpaRepository extends JpaRepository<MatchingApplication
             @Param("entityStatus") EntityStatus entityStatus
     );
 
+    boolean existsByIdAndMemberIdAndApplicationStatusAndStatus(
+            Long applicationId,
+            Long memberId,
+            ApplicationStatus applicationStatus,
+            EntityStatus status
+    );
+
 }
