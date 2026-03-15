@@ -10,13 +10,14 @@ import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 @AllArgsConstructor
 public enum MatchingType {
 
-    RANDOM (BigDecimal.valueOf(1000), 1, 5),
-    IDEAL (BigDecimal.valueOf(1500), 1, 5),
+    RANDOM (BigDecimal.valueOf(1000), 1, 5, "무작위 매칭"),
+    IDEAL (BigDecimal.valueOf(1500), 1, 5, "이상형 매칭"),
     ;
 
     private final BigDecimal feePerPerson;
     private final int minCount;
     private final int maxCount;
+    private final String label;
 
     public BigDecimal calculateFee(int personCount) {
         if (personCount < minCount || personCount > maxCount) {
