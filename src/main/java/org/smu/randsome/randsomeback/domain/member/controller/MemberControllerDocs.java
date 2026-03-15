@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.smu.randsome.randsomeback.domain.member.controller.dto.MemberCreateRequest;
+import org.smu.randsome.randsomeback.domain.member.controller.dto.MemberProfileResponse;
+import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
@@ -31,5 +33,19 @@ public abstract class MemberControllerDocs {
             ErrorType.DEFAULT_ERROR
     })
     public abstract ResponseEntity<ApiResponse<Long>> signUp(@RequestBody @Valid MemberCreateRequest request);
+
+    @Operation(
+            summary = "내 프로필 조회 JWT - [O]",
+            description = """
+                    ### 로그인한 회원의 프로필 정보를 조회하는 API입니다.
+                    - JWT 인증이 필요합니다.
+                    - 성공 시 회원 프로필 정보를 반환합니다.
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.NOT_FOUND_MEMBER,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ResponseEntity<ApiResponse<MemberProfileResponse>> getMyProfile(@LoginMember Long memberId);
 
 }

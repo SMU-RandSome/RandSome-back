@@ -27,6 +27,7 @@
   - `revokeRefreshToken()`: 리프레시 토큰 폐기
   - `updateSocialProfile()`: 소셜 프로필 수정
   - `updateMbti()`: MBTI 수정
+  - `getMyProfile()`: 내 프로필 조회
 - **규칙**
   - `@sangmyung.kr` 형식이 아니면 등록 불가
   - 이메일 중복 불가
@@ -146,6 +147,20 @@
 - **규칙**
   - 회원-약관 버전 조합 단위로 동의 이력 관리
   - 필수 약관은 최신 버전 기준 동의 필요
+
+### 통계(`Statistics`)
+
+- **행위**
+  - `getDashboard()`: 대시보드 통계 조회
+- **응답 데이터**
+  - `candidateCount`: 승인된 매칭 후보 수
+  - `todayMatchingCount`: 오늘 생성된 매칭 신청 수
+  - `totalMatchingCount`: 전체 매칭 신청 수
+- **규칙**
+  - 읽기 전용 조회 (상태 변경 없음)
+  - `candidateCount`는 `registrationStatus = APPROVED`인 활성 후보만 집계
+  - `todayMatchingCount`는 오늘 자정 ~ 익일 자정 범위의 활성 신청만 집계
+  - 모든 집계는 `status = ACTIVE`인 데이터만 포함 (소프트 삭제 인식)
 
 ### 계좌(`BankAccount`)
 
