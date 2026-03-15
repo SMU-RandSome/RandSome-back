@@ -5,14 +5,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Password;
+import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
+import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.service.command.UpdateProfile;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -80,6 +84,53 @@ class MemberManagerUnitTest extends UnitTestSupport {
                 MemberFixture.createMemberSocialProfile()))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.DUPLICATE_EMAIL.getMessage());
+    }
+
+    @Test
+    void 프로필을_업데이트한다() {
+        // given
+        Member member = MemberFixture.create();
+        given(memberJpaRepository.findById(1L)).willReturn(Optional.of(member));
+
+        var updateProfile = UpdateProfile.builder()
+                .legalName("김철수")
+                .mbti(Mbti.ENFP)
+                .instagramId("new_insta")
+                .selfIntroduction("새 자기소개")
+                .idealDescription("새 이상형")
+                .build();
+
+        // when
+        memberManager.updateProfile(1L, updateProfile);
+
+        // then
+        assertThat(member.getLegalName()).isEqualTo("김철수");
+        assertThat(member.getMbti()).isEqualTo(Mbti.ENFP);
+        assertThat(member.getSocialProfile()).extracting(
+                SocialProfile::instagramId,
+                SocialProfile::selfIntroduction,
+                SocialProfile::idealDescription
+        ).containsExactly(
+                "new_insta",
+                "새 자기소개",
+                "새 이상형"
+        );
+    }
+
+    @Test
+    void 프로필_업데이트_시_존재하지_않는_회원이면_예외가_발생한다() {
+        // given
+        given(memberJpaRepository.findById(any())).willReturn(Optional.empty());
+
+        var updateProfile = UpdateProfile.builder()
+                .legalName("김철수")
+                .mbti(Mbti.ENFP)
+                .build();
+
+        // when // then
+        assertThatThrownBy(() -> memberManager.updateProfile(999L, updateProfile))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
     }
 
 }

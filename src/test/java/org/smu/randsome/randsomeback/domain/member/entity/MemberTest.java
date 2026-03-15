@@ -77,39 +77,25 @@ class MemberTest extends UnitTestSupport {
     }
 
     @Test
-    void 소셜_프로필을_업데이트한다() {
+    void 프로필을_업데이트한다() {
         // given
-        var newInstagramId = "new_instagram_id";
-        var selfIntroduction = "새 자기소개";
-        var idealDescription = "새 이상형";
-        SocialProfile newProfile = SocialProfile.create(newInstagramId, selfIntroduction, idealDescription);
+        var newLegalName = "김철수";
+        var newMbti = Mbti.ENFP;
+        var newInstagramId = "new_insta";
+        var newSelfIntroduction = "새 자기소개";
+        var newIdealDescription = "새 이상형";
 
         // when
-        member.updateSocialProfile(newProfile);
+        member.updateProfile(newLegalName, newMbti, newInstagramId, newSelfIntroduction, newIdealDescription);
 
         // then
-        SocialProfile socialProfile = member.getSocialProfile();
-        assertThat(socialProfile).isNotNull().extracting(
+        assertThat(member.getLegalName()).isEqualTo(newLegalName);
+        assertThat(member.getMbti()).isEqualTo(newMbti);
+        assertThat(member.getSocialProfile()).isNotNull().extracting(
                 SocialProfile::instagramId,
                 SocialProfile::selfIntroduction,
                 SocialProfile::idealDescription
-        ).containsExactly(
-                newInstagramId,
-                selfIntroduction,
-                idealDescription
-        );
-    }
-
-    @Test
-    void MBTI를_업데이트한다() {
-        // given
-        assertThat(member.getMbti()).isEqualTo(MemberFixture.DEFAULT_MBTI);
-
-        // when
-        member.updateMbti(Mbti.ENFP);
-
-        // then
-        assertThat(member.getMbti()).isEqualTo(Mbti.ENFP);
+        ).containsExactly(newInstagramId, newSelfIntroduction, newIdealDescription);
     }
 
     @Test

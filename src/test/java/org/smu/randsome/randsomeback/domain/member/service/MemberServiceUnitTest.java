@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.domain.member.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
@@ -15,9 +16,11 @@ import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountManager;
 import org.smu.randsome.randsomeback.domain.bankaccount.service.command.BankAccountInfo;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberValidator;
+import org.smu.randsome.randsomeback.domain.member.service.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.terms.implement.TermsAgreementManager;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -106,6 +109,41 @@ class MemberServiceUnitTest extends UnitTestSupport {
 
         // when & then
         assertThatThrownBy(() -> memberService.getMyProfile(999L))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+    }
+
+    @Test
+    void 프로필_업데이트에_성공한다() {
+        // given
+        var updateProfile = UpdateProfile.builder()
+                .legalName("김철수")
+                .mbti(Mbti.ENFP)
+                .instagramId("new_insta")
+                .selfIntroduction("새 자기소개")
+                .idealDescription("새 이상형")
+                .build();
+
+        // when
+        memberService.updateProfile(1L, updateProfile);
+
+        // then
+        verify(memberManager).updateProfile(eq(1L), eq(updateProfile));
+    }
+
+    @Test
+    void 프로필_업데이트_시_존재하지_않는_회원이면_예외가_발생한다() {
+        // given
+        var updateProfile = UpdateProfile.builder()
+                .legalName("김철수")
+                .mbti(Mbti.ENFP)
+                .build();
+
+        willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
+                .given(memberManager).updateProfile(any(), any());
+
+        // when & then
+        assertThatThrownBy(() -> memberService.updateProfile(999L, updateProfile))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
     }
