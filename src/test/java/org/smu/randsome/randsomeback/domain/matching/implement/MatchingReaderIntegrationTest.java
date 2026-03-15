@@ -135,7 +135,7 @@ class MatchingReaderIntegrationTest extends IntegrationTestSupport {
         // when & then
         assertThatThrownBy(() -> matchingReader.findApprovedByApplication(application.getId(), member.getId()))
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING.getMessage());
+                .hasMessage(ErrorType.NOT_FOUND_APPROVED_MATCHING.getMessage());
     }
 
     @Test
@@ -149,7 +149,7 @@ class MatchingReaderIntegrationTest extends IntegrationTestSupport {
         // when & then
         assertThatThrownBy(() -> matchingReader.findApprovedByApplication(application.getId(), member.getId()))
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING.getMessage());
+                .hasMessage(ErrorType.NOT_FOUND_APPROVED_MATCHING.getMessage());
     }
 
 }
