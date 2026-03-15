@@ -46,7 +46,6 @@ public abstract class MatchingControllerDocs {
                     ### 내 신청 내역 조회 API입니다.
                     - `status` 파라미터로 `PENDING`, `APPROVED`, `REJECTED` 중 하나를 전달합니다.
                     - 탭 진입 시마다 해당 상태의 신청 내역만 조회됩니다.
-                    - `APPROVED` 상태에서는 매칭된 후보자 정보(`candidates`)가 함께 반환됩니다.
                     - 성공 시 200 OK 와 함께 신청 내역 목록이 반환됩니다.
                     """
     )
