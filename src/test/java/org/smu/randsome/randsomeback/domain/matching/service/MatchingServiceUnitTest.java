@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
+import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
@@ -107,6 +108,37 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         );
 
         verify(matchingReader).findByMemberAndStatus(memberId, ApplicationStatus.PENDING);
+    }
+
+    @Test
+    void 승인된_신청의_매칭_결과를_조회한다() {
+        // given
+        var applicationId = 1L;
+        var memberId = 1L;
+        var matchingResult = mock(MatchingResult.class);
+        given(matchingReader.findApprovedByApplication(applicationId, memberId))
+                .willReturn(List.of(matchingResult));
+
+        // when
+        var result = matchingService.getApprovedApplication(applicationId, memberId);
+
+        // then
+        assertThat(result).hasSize(1);
+        verify(matchingReader).findApprovedByApplication(applicationId, memberId);
+    }
+
+    @Test
+    void 승인되지_않은_신청_조회시_예외가_전파된다() {
+        // given
+        var applicationId = 1L;
+        var memberId = 1L;
+        willThrow(new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING))
+                .given(matchingReader).findApprovedByApplication(applicationId, memberId);
+
+        // when & then
+        assertThatThrownBy(() -> matchingService.getApprovedApplication(applicationId, memberId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING.getMessage());
     }
 
 }

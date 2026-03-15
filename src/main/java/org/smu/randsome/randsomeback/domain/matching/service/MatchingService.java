@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
+import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
@@ -43,9 +44,26 @@ public class MatchingService {
                 memberId, matchingApplication.getMatchingType(), matchingApplication.getApplicationCount());
     }
 
-    @Transactional(readOnly = true)
+    /**
+     * 회원의 매칭 신청 내역을 조회한다.
+     * @param memberId 회원 식별자
+     * @param status 조회할 신청 상태 (예: PENDING, APPROVED, REJECTED)
+     *
+     * @return 해당 회원의 매칭 신청 내역 리스트
+     * */
     public List<MatchingApplication> getMyApplications(Long memberId, ApplicationStatus status) {
         return matchingReader.findByMemberAndStatus(memberId, status);
+    }
+
+    /**
+     * 특정 매칭 신청에 대해 승인된 매칭 결과를 조회한다.
+     * @param applicationId 매칭 신청 식별자
+     * @param memberId 신청자 식별자 (보안 검증용)
+     *
+     * @return 해당 매칭 신청에 승인된 매칭 결과 리스트
+     * */
+    public List<MatchingResult> getApprovedApplication(Long applicationId, Long memberId) {
+        return matchingReader.findApprovedByApplication(applicationId, memberId);
     }
 
 }

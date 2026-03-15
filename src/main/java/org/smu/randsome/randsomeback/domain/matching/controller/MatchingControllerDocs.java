@@ -1,6 +1,8 @@
 package org.smu.randsome.randsomeback.domain.matching.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -13,7 +15,6 @@ import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "Matching Docs", description = "매칭 관련 API 문서")
 public abstract class MatchingControllerDocs {
@@ -55,7 +56,37 @@ public abstract class MatchingControllerDocs {
             ErrorType.DEFAULT_ERROR
     })
     public abstract ResponseEntity<ApiResponse<List<MatchingHistoryItem>>> getMyApplications(
-            @RequestParam ApplicationStatus status,
+            @Parameter(
+                    description = "조회할 신청 상태 (PENDING, APPROVED, REJECTED)",
+                    in = ParameterIn.QUERY
+            )
+            ApplicationStatus status,
+            @LoginMember Long memberId
+    );
+
+    @Operation(
+            summary = "승인된 신청 내역 조회 API - JWT [O]",
+            description = """
+                    ### 승인된 신청 내역 조회 API입니다.
+                    - `applicationId` 경로 변수로 신청 ID를 전달합니다.
+                    - 해당 신청이 승인된 상태여야만 매칭 결과를 조회할 수 있습니다.
+                    - 성공 시 200 OK 와 함께 매칭 결과 목록이 반환됩니다.
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.BAD_REQUEST,
+            ErrorType.UNAUTHORIZED_ERROR,
+            ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ResponseEntity<ApiResponse<?>> getApprovedApplication(
+            @Parameter(
+                    description = "신청 ID",
+                    required = true,
+                    in = ParameterIn.PATH,
+                    example = "1"
+            )
+            Long applicationId,
             @LoginMember Long memberId
     );
 
