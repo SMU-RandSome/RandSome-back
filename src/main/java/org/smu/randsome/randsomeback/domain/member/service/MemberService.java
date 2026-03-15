@@ -5,6 +5,7 @@ import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountMan
 import org.smu.randsome.randsomeback.domain.bankaccount.service.command.BankAccountInfo;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberValidator;
 import org.smu.randsome.randsomeback.domain.member.service.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.service.command.MemberCredentials;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberManager memberManager;
+    private final MemberReader memberReader;
     private final MemberValidator memberValidator;
     private final TermsAgreementManager termsAgreementManager;
     private final BankAccountManager bankAccountManager;
@@ -46,6 +48,11 @@ public class MemberService {
         bankAccountManager.create(member.getId(), bankAccountInfo);
 
         return member.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public Member getMyProfile(Long memberId) {
+        return memberReader.find(memberId);
     }
 
 }

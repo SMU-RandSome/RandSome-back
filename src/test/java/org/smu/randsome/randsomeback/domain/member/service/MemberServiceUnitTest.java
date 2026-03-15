@@ -16,6 +16,7 @@ import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountMan
 import org.smu.randsome.randsomeback.domain.bankaccount.service.command.BankAccountInfo;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberValidator;
 import org.smu.randsome.randsomeback.domain.terms.implement.TermsAgreementManager;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
@@ -29,6 +30,9 @@ class MemberServiceUnitTest extends UnitTestSupport {
 
     @Mock
     MemberManager memberManager;
+
+    @Mock
+    MemberReader memberReader;
 
     @Mock
     MemberValidator memberValidator;
@@ -79,6 +83,31 @@ class MemberServiceUnitTest extends UnitTestSupport {
                 createBankAccountInfo()
         )).isInstanceOf(CoreException.class)
           .hasMessage(ErrorType.INVALID_SIGNUP_REQUEST.getMessage());
+    }
+
+    @Test
+    void 내_프로필_조회에_성공하면_Member를_반환한다() {
+        // given
+        Member member = mock(Member.class);
+        given(memberReader.find(1L)).willReturn(member);
+
+        // when
+        Member result = memberService.getMyProfile(1L);
+
+        // then
+        assertThat(result).isEqualTo(member);
+    }
+
+    @Test
+    void 존재하지_않는_회원이면_예외가_발생한다() {
+        // given
+        willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
+                .given(memberReader).find(any());
+
+        // when & then
+        assertThatThrownBy(() -> memberService.getMyProfile(999L))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
     }
 
     private BankAccountInfo createBankAccountInfo() {
