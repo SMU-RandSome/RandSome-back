@@ -38,7 +38,7 @@ public class MatchingReader {
                 ApplicationStatus.APPROVED,
                 EntityStatus.ACTIVE
         )) {
-            throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING);
+            throw new CoreException(ErrorType.NOT_FOUND_APPROVED_MATCHING);
         }
 
         return matchingResultJpaRepository.findAllByApplicationAndStatus(
