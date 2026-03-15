@@ -6,7 +6,6 @@ import org.smu.randsome.randsomeback.domain.auth.implement.verificationcode.Veri
 import org.smu.randsome.randsomeback.domain.auth.service.EmailSender;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
-import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.retry.annotation.Backoff;
