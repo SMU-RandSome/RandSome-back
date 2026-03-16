@@ -1,8 +1,10 @@
 package org.smu.randsome.randsomeback.admin.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.smu.randsome.randsomeback.admin.member.controller.dto.response.MemberAdminResponse;
+import org.smu.randsome.randsomeback.admin.member.controller.dto.response.MemberDetailResponse;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.support.response.PageResponse;
@@ -30,6 +32,26 @@ public abstract class MemberAdminControllerDocs {
     })
     public abstract ApiResponse<PageResponse<MemberAdminResponse>> getMembers(
             @ParameterObject Pageable pageable
+    );
+
+    @Operation(
+            summary = "회원 상세 조회",
+            description = """
+                    #### 관리자 회원 상세 조회 API입니다.
+                    - 특정 회원의 상세 정보를 반환합니다.
+                    - 해당 회원의 은행 계좌 정보까지 포함됩니다.
+                    
+                    **요청 경로 파라미터**
+                    - id : 조회할 회원의 고유 ID
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.NOT_FOUND_MEMBER,
+            ErrorType.NOT_FOUND_BANK_ACCOUNT,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ApiResponse<MemberDetailResponse> getMemberDetail(
+            @Parameter(name = "memberId", description = "조회할 회원의 고유 ID", required = true) Long memberId
     );
 
 }
