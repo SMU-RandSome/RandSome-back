@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationCodeVerifyRequest;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationRequest;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.LoginRequest;
+import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.TokenReissueRequest;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.response.EmailVerificationTokenResponse;
 import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -61,5 +62,21 @@ public abstract class AuthControllerDocs {
             ErrorType.DEFAULT_ERROR
     })
     public abstract ResponseEntity<ApiResponse<TokenResponse>> login(@RequestBody @Valid LoginRequest request);
+
+    @Operation(
+            summary = "토큰 재발급 요청 - JWT [X]",
+            description = """
+                    ### 토큰 재발급 API 입니다.
+                    - 토큰 재발급에 성공하면 access token과 refresh token을 발급합니다.
+                    - 발급된 토큰은 이후 인증이 필요한 API 요청 시 사용됩니다.
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.BAD_REQUEST,
+            ErrorType.NOT_FOUND_MEMBER,
+            ErrorType.NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ResponseEntity<ApiResponse<TokenResponse>> reissueToken(@RequestBody @Valid TokenReissueRequest request);
 
 }

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -83,6 +84,74 @@ class AuthServiceTest extends UnitTestSupport {
                 .hasMessage(ErrorType.INVALID_ACCOUNT.getMessage());
         // then
         verify(memberReader).findByAccount(email, password);
+    }
+
+    @Test
+    void 토큰_재발급_성공_시_리프레시_토큰을_업데이트한다() {
+        // given
+        var oldRefreshToken = "old.refresh.token";
+        var newAccessToken = "new.access.token";
+        var newRefreshToken = "new.refresh.token";
+
+        given(memberReader.findByRefreshToken(oldRefreshToken)).willReturn(member);
+        given(jwtProvider.isTokenValid(oldRefreshToken)).willReturn(true);
+        given(member.getId()).willReturn(1L);
+        given(member.getRole()).willReturn(Role.ROLE_MEMBER);
+        given(jwtProvider.createTokens(1L, Role.ROLE_MEMBER))
+                .willReturn(TokenResponse.builder()
+                        .accessToken(newAccessToken)
+                        .refreshToken(newRefreshToken)
+                        .build());
+
+        // when
+        TokenResponse response = authService.reissue(oldRefreshToken);
+
+        // then
+        assertThat(response).extracting(
+                TokenResponse::accessToken,
+                TokenResponse::refreshToken
+        ).containsExactly(
+                newAccessToken,
+                newRefreshToken
+        );
+        verify(memberReader).findByRefreshToken(oldRefreshToken);
+        verify(jwtProvider).isTokenValid(oldRefreshToken);
+        verify(jwtProvider).createTokens(1L, Role.ROLE_MEMBER);
+        verify(memberManager).updateRefreshToken(member, newRefreshToken);
+    }
+
+    @Test
+    void 토큰_재발급_시_유효하지_않은_리프레시_토큰이면_예외를_반환한다() {
+        // given
+        var expiredRefreshToken = "expired.refresh.token";
+
+        given(memberReader.findByRefreshToken(expiredRefreshToken)).willReturn(member);
+        given(jwtProvider.isTokenValid(expiredRefreshToken)).willReturn(false);
+
+        // when // then
+        assertThatThrownBy(() -> authService.reissue(expiredRefreshToken))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.INVALID_TOKEN.getMessage());
+
+        verify(memberReader).findByRefreshToken(expiredRefreshToken);
+        verify(jwtProvider).isTokenValid(expiredRefreshToken);
+        verifyNoInteractions(memberManager);
+    }
+
+    @Test
+    void 토큰_재발급_시_활성_회원이_없으면_예외를_반환한다() {
+        // given
+        var refreshToken = "invalid.refresh.token";
+        given(memberReader.findByRefreshToken(refreshToken))
+                .willThrow(new CoreException(ErrorType.NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN));
+
+        // when // then
+        assertThatThrownBy(() -> authService.reissue(refreshToken))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN.getMessage());
+
+        verify(memberReader).findByRefreshToken(refreshToken);
+        verifyNoInteractions(jwtProvider, memberManager);
     }
 
 }
