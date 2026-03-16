@@ -94,6 +94,7 @@ class AuthServiceTest extends UnitTestSupport {
         var newRefreshToken = "new.refresh.token";
 
         given(memberReader.findByRefreshToken(oldRefreshToken)).willReturn(member);
+        given(jwtProvider.isTokenValid(oldRefreshToken)).willReturn(true);
         given(member.getId()).willReturn(1L);
         given(member.getRole()).willReturn(Role.ROLE_MEMBER);
         given(jwtProvider.createTokens(1L, Role.ROLE_MEMBER))
@@ -114,8 +115,27 @@ class AuthServiceTest extends UnitTestSupport {
                 newRefreshToken
         );
         verify(memberReader).findByRefreshToken(oldRefreshToken);
+        verify(jwtProvider).isTokenValid(oldRefreshToken);
         verify(jwtProvider).createTokens(1L, Role.ROLE_MEMBER);
         verify(memberManager).updateRefreshToken(member, newRefreshToken);
+    }
+
+    @Test
+    void 토큰_재발급_시_유효하지_않은_리프레시_토큰이면_예외를_반환한다() {
+        // given
+        var expiredRefreshToken = "expired.refresh.token";
+
+        given(memberReader.findByRefreshToken(expiredRefreshToken)).willReturn(member);
+        given(jwtProvider.isTokenValid(expiredRefreshToken)).willReturn(false);
+
+        // when // then
+        assertThatThrownBy(() -> authService.reissue(expiredRefreshToken))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.INVALID_TOKEN.getMessage());
+
+        verify(memberReader).findByRefreshToken(expiredRefreshToken);
+        verify(jwtProvider).isTokenValid(expiredRefreshToken);
+        verifyNoInteractions(memberManager);
     }
 
     @Test
