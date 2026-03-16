@@ -18,7 +18,7 @@ public abstract class FeedControllerDocs {
             description = """
                     ### 최신 피드 조회 API입니다.
                     - 관리자가 승인한 매칭 신청 이벤트를 최신순으로 조회합니다.
-                    - `lastId`를 전달하면 해당 ID 이전의 피드를 커서 기반으로 페이징합니다.
+                    - `lastId`를 전달하면 해당 ID 이후의 피드를 커서 기반으로 페이징합니다.
                     - `lastId`를 생략하면 가장 최신 피드부터 조회합니다.
                     - 성공 시 200 OK 와 함께 피드 목록이 반환됩니다.
                     """

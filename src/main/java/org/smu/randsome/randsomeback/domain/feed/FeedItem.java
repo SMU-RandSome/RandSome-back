@@ -8,7 +8,7 @@ public record FeedItem(
         @Schema(description = "피드 이벤트 ID", example = "123")
         Long id,
 
-        @Schema(description = "이벤트 타입", example = "MATCHING_CREATED")
+        @Schema(description = "이벤트 타입", example = "MATCH_REQUESTED")
         EventType eventType,
 
         @Schema(description = "닉네임", example = "홍길동")
