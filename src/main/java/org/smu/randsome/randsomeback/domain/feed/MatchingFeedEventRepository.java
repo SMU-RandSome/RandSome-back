@@ -8,6 +8,6 @@ public interface MatchingFeedEventRepository extends JpaRepository<MatchingFeedE
 
     List<MatchingFeedEvent> findTop10ByStatusOrderByIdDesc(EntityStatus status);
 
-    List<MatchingFeedEvent> findByIdGreaterThanAndStatusOrderByIdDesc(Long lastId, EntityStatus status);
+    List<MatchingFeedEvent> findTop10ByIdGreaterThanAndStatusOrderByIdDesc(Long lastId, EntityStatus status);
 
 }

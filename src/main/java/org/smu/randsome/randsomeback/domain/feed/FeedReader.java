@@ -19,7 +19,7 @@ public class FeedReader {
 
     @Transactional(readOnly = true)
     public List<MatchingFeedEvent> getAfter(Long lastId) {
-        return matchingFeedEventRepository.findByIdGreaterThanAndStatusOrderByIdDesc(lastId, EntityStatus.ACTIVE);
+        return matchingFeedEventRepository.findTop10ByIdGreaterThanAndStatusOrderByIdDesc(lastId, EntityStatus.ACTIVE);
     }
 
 }
