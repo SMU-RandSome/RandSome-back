@@ -39,7 +39,7 @@ public class MatchingFeedEvent extends BaseEntity {
 
     public static MatchingFeedEvent recordCandidateRegister(String nickname) {
         return MatchingFeedEvent.builder()
-                .eventType(EventType.MATCH_REQUESTED)
+                .eventType(EventType.CANDIDATE_REGISTERED)
                 .nickname(requireNonNull(nickname))
                 .build();
     }
