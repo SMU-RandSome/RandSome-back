@@ -28,7 +28,7 @@ public class CandidateManager {
     }
 
     @Transactional
-    public void approve(Long registrationId, LocalDateTime approvedAt) {
+    public CandidateRegistration approve(Long registrationId, LocalDateTime approvedAt) {
         CandidateRegistration registration = candidateJpaRepository.findByIdAndStatusWithMember(
                 registrationId,
                 EntityStatus.ACTIVE
@@ -39,6 +39,8 @@ public class CandidateManager {
         // NOTE: #1 회원 역할을 변경을 어디서 하는 게 좋을까? 근데 여긴 후보자 관리하는 곳이니까 여기서 하는게 맞는 것 같기도 하고... MemberManager에게 넘겨야할까..?
         Member member = registration.getMember();
         member.updateRole(Role.ROLE_CANDIDATE);
+
+        return registration;
     }
 
     @Transactional

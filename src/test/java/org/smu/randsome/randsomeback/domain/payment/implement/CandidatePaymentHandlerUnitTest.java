@@ -2,6 +2,8 @@ package org.smu.randsome.randsomeback.domain.payment.implement;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDateTime;
@@ -9,7 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
+import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
+import org.smu.randsome.randsomeback.domain.feed.FeedManager;
+import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 
 class CandidatePaymentHandlerUnitTest extends UnitTestSupport {
@@ -20,17 +25,28 @@ class CandidatePaymentHandlerUnitTest extends UnitTestSupport {
     @Mock
     CandidateManager candidateManager;
 
+    @Mock
+    FeedManager feedManager;
+
     @Test
-    void approve_호출_시_candidateManager_approve를_호출한다() {
+    void approve_호출_시_candidateManager_approve와_feedManager_recordCandidateRegistration을_호출한다() {
         // given
         var referenceId = 1L;
         var now = TestDateTimeUtils.now();
+        var nickname = "여성#XYZ98765";
+
+        var candidateRegistration = mock(CandidateRegistration.class);
+        var member = mock(Member.class);
+        given(candidateManager.approve(eq(referenceId), any(LocalDateTime.class))).willReturn(candidateRegistration);
+        given(candidateRegistration.getMember()).willReturn(member);
+        given(member.getNickname()).willReturn(nickname);
 
         // when
         candidatePaymentHandler.approve(referenceId, now);
 
         // then
         verify(candidateManager).approve(eq(referenceId), any(LocalDateTime.class));
+        verify(feedManager).recordCandidateRegistration(nickname);
     }
 
     @Test

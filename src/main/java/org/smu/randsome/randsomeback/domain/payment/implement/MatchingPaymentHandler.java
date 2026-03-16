@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.smu.randsome.randsomeback.domain.feed.FeedManager;
+import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class MatchingPaymentHandler implements PaymentHandler {
 
     private final MatchingManager matchingManager;
+    private final FeedManager feedManager;
 
     @Override
     public Set<PaymentType> supports() {
@@ -25,10 +28,12 @@ public class MatchingPaymentHandler implements PaymentHandler {
 
     @Override
     public void approve(Long referenceId, LocalDateTime approvedAt) {
-        matchingManager.approve(referenceId, approvedAt);
+        MatchingApplication matchingApplication = matchingManager.approve(referenceId, approvedAt);
 
         log.info("[MatchingPaymentHandler] 매칭 결제 승인 완료 - matchingApplicationId={}, handler={}",
                 referenceId, matchingManager.getClass().getSimpleName());
+
+        feedManager.recordMatchRequest(matchingApplication.getMember().getNickname(), matchingApplication.getApplicationCount());
     }
 
     @Override
