@@ -42,7 +42,7 @@ public abstract class MemberAdminControllerDocs {
                     - 해당 회원의 은행 계좌 정보까지 포함됩니다.
                     
                     **요청 경로 파라미터**
-                    - id : 조회할 회원의 고유 ID
+                    - memberId : 조회할 회원의 고유 ID
                     """
     )
     @ApiExceptions(values = {
