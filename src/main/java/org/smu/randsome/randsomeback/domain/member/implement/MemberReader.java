@@ -45,4 +45,9 @@ public class MemberReader {
         return memberJpaRepository.findAllByGenderAndRoleAndStatus(gender, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE);
     }
 
+    public Member findByRefreshToken(String refreshToken) {
+        return memberJpaRepository.findByRefreshTokenAndStatus(refreshToken, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN));
+    }
+
 }

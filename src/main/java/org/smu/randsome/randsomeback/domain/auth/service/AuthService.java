@@ -1,5 +1,6 @@
 package org.smu.randsome.randsomeback.domain.auth.service;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
@@ -27,6 +28,18 @@ public class AuthService {
         memberManager.updateRefreshToken(member, tokenResponse.refreshToken());
 
         log.info("[AuthService] 로그인 성공. memberId: {}", member.getId());
+
+        return tokenResponse;
+    }
+
+    @Transactional
+    public TokenResponse reissue(String refreshToken) {
+        Member member = memberReader.findByRefreshToken(refreshToken);
+
+        TokenResponse tokenResponse = jwtProvider.createTokens(member.getId(), member.getRole());
+        memberManager.updateRefreshToken(member, tokenResponse.refreshToken());
+
+        log.info("[AuthService] 토큰 재발급 성공. memberId: {}", member.getId());
 
         return tokenResponse;
     }

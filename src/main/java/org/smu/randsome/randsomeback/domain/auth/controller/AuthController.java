@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationCodeVerifyRequest;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationRequest;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.LoginRequest;
+import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.TokenReissueRequest;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.response.EmailVerificationTokenResponse;
 import org.smu.randsome.randsomeback.domain.auth.service.AuthService;
 import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationService;
@@ -48,6 +49,15 @@ public class AuthController extends AuthControllerDocs {
         TokenResponse response = authService.login(request.email(), request.password());
 
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @Override
+    @PostMapping("/v1/auth/reissue")
+    public ResponseEntity<ApiResponse<TokenResponse>> reissueToken(@RequestBody @Valid TokenReissueRequest request) {
+        TokenResponse response = authService.reissue(request.refreshToken());
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+
     }
 
 }

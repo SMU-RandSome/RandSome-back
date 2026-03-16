@@ -13,6 +13,7 @@ import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationCodeVerifyRequest;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationRequest;
 import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.LoginRequest;
+import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.TokenReissueRequest;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -160,6 +161,60 @@ class AuthControllerTest extends ControllerTestSupport {
                 .bodyJson()
                 .hasPathSatisfying("$.data.accessToken", v -> v.assertThat().isEqualTo(tokenResponse.accessToken()))
                 .hasPathSatisfying("$.data.refreshToken", v -> v.assertThat().isEqualTo(tokenResponse.refreshToken()));
+    }
+
+    @Test
+    void 토큰_재발급_성공시_AccessToken과RefreshToken을_발급한다() throws JsonProcessingException {
+        // given
+        var request = new TokenReissueRequest("old.refresh.token");
+        var tokenResponse = new TokenResponse("new.access.token", "new.refresh.token");
+        given(authService.reissue("old.refresh.token"))
+                .willReturn(tokenResponse);
+
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/auth/reissue")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatusOk()
+                .bodyJson()
+                .hasPathSatisfying("$.data.accessToken", v -> v.assertThat().isEqualTo(tokenResponse.accessToken()))
+                .hasPathSatisfying("$.data.refreshToken", v -> v.assertThat().isEqualTo(tokenResponse.refreshToken()));
+
+        verify(authService).reissue("old.refresh.token");
+    }
+
+    @Test
+    void 토큰_재발급_요청시_리프레시_토큰이_빈값이면_400을_반환한다() throws JsonProcessingException {
+        // given
+        var request = new TokenReissueRequest("");
+
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/auth/reissue")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+
+        verifyNoInteractions(authService);
+    }
+
+    @Test
+    void 토큰_재발급_시_활성_회원이_없으면_404를_반환한다() throws JsonProcessingException {
+        // given
+        var request = new TokenReissueRequest("unknown.refresh.token");
+        willThrow(new CoreException(ErrorType.NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN))
+                .given(authService).reissue("unknown.refresh.token");
+
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/auth/reissue")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.NOT_FOUND.value())
+                .bodyJson()
+                .hasPathSatisfying("$.error.message",
+                        v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN.getMessage()));
     }
 
 }
