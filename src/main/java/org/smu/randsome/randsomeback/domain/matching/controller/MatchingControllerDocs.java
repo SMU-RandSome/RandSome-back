@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import org.smu.randsome.randsomeback.domain.matching.controller.dto.MatchingApplyRequest;
 import org.smu.randsome.randsomeback.domain.matching.controller.dto.response.MatchingHistoryItem;
+import org.smu.randsome.randsomeback.domain.matching.controller.dto.response.MatchingResultDetailItem;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -45,7 +46,7 @@ public abstract class MatchingControllerDocs {
             summary = "내 신청 내역 조회 API - JWT [O]",
             description = """
                     ### 내 신청 내역 조회 API입니다.
-                    - `status` 파라미터로 `PENDING`, `APPROVED`, `REJECTED` 중 하나를 전달합니다.
+                    - `status` 파라미터로 `PENDING`, `APPROVED`, `REJECTED`, `WITHDRAWN` 중 하나를 전달합니다.
                     - 탭 진입 시마다 해당 상태의 신청 내역만 조회됩니다.
                     - 성공 시 200 OK 와 함께 신청 내역 목록이 반환됩니다.
                     """
@@ -57,7 +58,7 @@ public abstract class MatchingControllerDocs {
     })
     public abstract ResponseEntity<ApiResponse<List<MatchingHistoryItem>>> getMyApplications(
             @Parameter(
-                    description = "조회할 신청 상태 (PENDING, APPROVED, REJECTED)",
+                    description = "조회할 신청 상태 (PENDING, APPROVED, REJECTED, WITHDRAWN)",
                     in = ParameterIn.QUERY
             )
             ApplicationStatus status,
@@ -76,10 +77,10 @@ public abstract class MatchingControllerDocs {
     @ApiExceptions(values = {
             ErrorType.BAD_REQUEST,
             ErrorType.UNAUTHORIZED_ERROR,
-            ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING,
+            ErrorType.NOT_FOUND_APPROVED_MATCHING,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<?>> getApprovedApplication(
+    public abstract ResponseEntity<ApiResponse<List<MatchingResultDetailItem>>> getApprovedApplication(
             @Parameter(
                     description = "신청 ID",
                     required = true,
@@ -87,6 +88,32 @@ public abstract class MatchingControllerDocs {
                     example = "1"
             )
             Long applicationId,
+            @LoginMember Long memberId
+    );
+
+    @Operation(
+            summary = "매칭 신청 철회 API - JWT [O]",
+            description = """
+                    ### 매칭 신청 철회 API입니다.
+                    - PENDING 상태의 매칭 신청만 철회할 수 있습니다.
+                    - 승인(APPROVED) 또는 거절(REJECTED)된 신청은 철회할 수 없습니다.
+                    - 성공 시 200 OK 응답이 반환됩니다.
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.UNAUTHORIZED_ERROR,
+            ErrorType.NOT_FOUND_MATCHING,
+            ErrorType.NOT_ALLOW_WITHDRAW_APPROVED,
+            ErrorType.NOT_ALLOW_WITHDRAW_REJECTED,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ResponseEntity<ApiResponse<?>> withdraw(
+            @Parameter(
+                    description = "신청 ID",
+                    required = true,
+                    in = ParameterIn.PATH,
+                    example = "1"
+            ) Long applicationId,
             @LoginMember Long memberId
     );
 

@@ -33,7 +33,7 @@ public class MatchingManager {
      * 매칭 신청을 생성한다.
      *
      * @param newMatching 매칭 신청 커맨드
-     * @param memberId 신청자 식별자
+     * @param memberId    신청자 식별자
      * @return 저장된 매칭 신청 엔티티
      */
     public MatchingApplication apply(NewMatching newMatching, Long memberId) {
@@ -54,7 +54,7 @@ public class MatchingManager {
     /**
      * 결제 승인 완료된 매칭 신청을 승인 상태로 전이하고, 타입별 전략으로 매칭 결과를 생성한다.
      *
-     * @param id 매칭 신청 식별자
+     * @param id         매칭 신청 식별자
      * @param approvedAt 승인 시각
      * @throws CoreException 매칭 신청을 찾을 수 없거나 지원 전략이 없는 경우
      */
@@ -77,15 +77,14 @@ public class MatchingManager {
                 id, matchingApplication.getMatchingType(), matchingApplication.getApplicationCount(), results.size());
 
         return matchingApplication;
-
     }
 
     /**
      * 결제 거절된 매칭 신청을 거절 상태로 전이한다.
      *
-     * @param id 매칭 신청 식별자
+     * @param id             매칭 신청 식별자
      * @param rejectedReason 거절 사유
-     * @param rejectedAt 거절 시각
+     * @param rejectedAt     거절 시각
      * @throws CoreException 매칭 신청을 찾을 수 없는 경우
      */
     @Transactional
@@ -97,6 +96,24 @@ public class MatchingManager {
 
         log.info("[MatchingManager] 매칭 거절 처리 완료 - matchingApplicationId: {}, rejectedAt: {}",
                 id, rejectedAt);
+    }
+
+    /**
+     * 매칭 신청을 철회한다. 승인된 신청은 철회할 수 없으며, 거절된 신청은 이미 매칭 결과가 생성되어 있을 수 있으므로 철회할 수 없다.
+     * @param applicationId 매칭 신청 식별자
+     * @param memberId 신청자 식별자 (보안 검증용)
+     * @throws CoreException 매칭 신청을 찾을 수 없거나, 승인된 신청이거나, 거절된 신청인 경우
+     * */
+    @Transactional
+    public void withdraw(Long applicationId, Long memberId) {
+        MatchingApplication matchingApplication = matchingJpaRepository.findByIdAndMemberIdAndStatus(
+                applicationId,
+                memberId,
+                EntityStatus.ACTIVE
+        ).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MATCHING));
+
+        LocalDateTime withdrawnAt = LocalDateTime.now();
+        matchingApplication.withdraw(withdrawnAt);
     }
 
     /**
@@ -115,5 +132,4 @@ public class MatchingManager {
                     return new CoreException(ErrorType.UNSUPPORTED_MATCHING_TYPE);
                 });
     }
-
 }

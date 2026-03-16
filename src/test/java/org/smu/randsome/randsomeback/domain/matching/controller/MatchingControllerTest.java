@@ -30,7 +30,7 @@ class MatchingControllerTest extends ControllerTestSupport {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .apply(print())
-                .hasStatus(HttpStatus.OK.value())
+                .hasStatusOk()
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
                 .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
@@ -105,7 +105,7 @@ class MatchingControllerTest extends ControllerTestSupport {
         // when & then
         assertThat(mvcTester.get().uri("/v1/matching/applications?status=PENDING"))
                 .apply(print())
-                .hasStatus(HttpStatus.OK.value())
+                .hasStatusOk()
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
                 .hasPathSatisfying("$.data", v -> v.assertThat().isNotNull());
@@ -137,7 +137,7 @@ class MatchingControllerTest extends ControllerTestSupport {
         // when & then
         assertThat(mvcTester.get().uri("/v1/matching/applications/1/approved"))
                 .apply(print())
-                .hasStatus(HttpStatus.OK.value())
+                .hasStatusOk()
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
                 .hasPathSatisfying("$.data", v -> v.assertThat().isNotNull());
@@ -166,6 +166,77 @@ class MatchingControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
                 .hasPathSatisfying("$.error.message",
                         v -> v.assertThat().isEqualTo(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING.getMessage()));
+    }
+
+    @Test
+    @TestMember
+    void 매칭_신청_철회에_성공하면_200을_반환한다() {
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/matching/applications/1/withdraw"))
+                .apply(print())
+                .hasStatusOk()
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
+    }
+
+    @Test
+    void 철회_요청에서_인증되지_않은_사용자는_403을_반환한다() {
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/matching/applications/1/withdraw"))
+                .apply(print())
+                .hasStatus(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    @TestMember
+    void 철회_요청에서_존재하지_않는_신청이면_404를_반환한다() {
+        // given
+        willThrow(new CoreException(ErrorType.NOT_FOUND_MATCHING))
+                .given(matchingService).withdraw(any(), any());
+
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/matching/applications/1/withdraw"))
+                .apply(print())
+                .hasStatus(HttpStatus.NOT_FOUND.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
+                .hasPathSatisfying("$.error.message",
+                        v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_MATCHING.getMessage()));
+    }
+
+    @Test
+    @TestMember
+    void 승인된_매칭_신청을_철회하면_400을_반환한다() {
+        // given
+        willThrow(new CoreException(ErrorType.NOT_ALLOW_WITHDRAW_APPROVED))
+                .given(matchingService).withdraw(any(), any());
+
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/matching/applications/1/withdraw"))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
+                .hasPathSatisfying("$.error.message",
+                        v -> v.assertThat().isEqualTo(ErrorType.NOT_ALLOW_WITHDRAW_APPROVED.getMessage()));
+    }
+
+    @Test
+    @TestMember
+    void 거절된_매칭_신청을_철회하면_400을_반환한다() {
+        // given
+        willThrow(new CoreException(ErrorType.NOT_ALLOW_WITHDRAW_REJECTED))
+                .given(matchingService).withdraw(any(), any());
+
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/matching/applications/1/withdraw"))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
+                .hasPathSatisfying("$.error.message",
+                        v -> v.assertThat().isEqualTo(ErrorType.NOT_ALLOW_WITHDRAW_REJECTED.getMessage()));
     }
 
 }

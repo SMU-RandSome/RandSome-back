@@ -66,4 +66,15 @@ public class MatchingService {
         return matchingReader.findApprovedByApplication(applicationId, memberId);
     }
 
+    /**
+     * 매칭 신청을 철회한다.
+     * @param applicationId 매칭 신청 식별자
+     * @param memberId 신청자 식별자 (보안 검증용)
+     *
+     * */
+    public void withdraw(Long applicationId, Long memberId) {
+        matchingManager.withdraw(applicationId, memberId);
+        log.info("[MatchingService] 매칭 신청 철회 완료 - applicationId: {}, memberId: {}", applicationId, memberId);
+    }
+
 }

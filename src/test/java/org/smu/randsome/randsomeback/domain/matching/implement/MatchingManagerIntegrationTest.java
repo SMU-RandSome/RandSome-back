@@ -158,4 +158,86 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
                 .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
     }
 
+    @Test
+    void PENDING_신청을_철회하면_WITHDRAWN_상태와_철회_시각이_저장된다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(2)
+                .build();
+        var application = matchingManager.apply(newMatching, member.getId());
+
+        // when
+        matchingManager.withdraw(application.getId(), member.getId());
+
+        // then
+        var result = matchingJpaRepository.findById(application.getId()).orElseThrow();
+        assertThat(result.getApplicationStatus()).isEqualTo(ApplicationStatus.WITHDRAWN);
+        assertThat(result.getWithdrawnAt()).isNotNull();
+    }
+
+    @Test
+    void 존재하지_않는_신청을_철회하면_NOT_FOUND_MATCHING을_던진다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var nonExistentId = 999L;
+
+        // when & then
+        assertThatThrownBy(() -> matchingManager.withdraw(nonExistentId, member.getId()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
+    }
+
+    @Test
+    void 다른_사용자의_신청을_철회하면_NOT_FOUND_MATCHING을_던진다() {
+        // given
+        var owner = memberJpaRepository.save(MemberFixture.create());
+        var other = memberJpaRepository.save(MemberFixture.createWithGender("202300000@sangmyung.kr", owner.getGender()));
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(1)
+                .build();
+        var application = matchingManager.apply(newMatching, owner.getId());
+
+        // when & then
+        assertThatThrownBy(() -> matchingManager.withdraw(application.getId(), other.getId()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
+    }
+
+    @Test
+    void APPROVED_신청을_철회하면_NOT_ALLOW_WITHDRAW_APPROVED를_던진다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(3)
+                .build();
+        var application = matchingManager.apply(newMatching, member.getId());
+        matchingManager.approve(application.getId(), TestDateTimeUtils.now());
+
+        // when & then
+        assertThatThrownBy(() -> matchingManager.withdraw(application.getId(), member.getId()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_ALLOW_WITHDRAW_APPROVED.getMessage());
+    }
+
+    @Test
+    void REJECTED_신청을_철회하면_NOT_ALLOW_WITHDRAW_REJECTED를_던진다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(2)
+                .build();
+        var application = matchingManager.apply(newMatching, member.getId());
+        matchingManager.reject(application.getId(), "사유", TestDateTimeUtils.now());
+
+        // when & then
+        assertThatThrownBy(() -> matchingManager.withdraw(application.getId(), member.getId()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_ALLOW_WITHDRAW_REJECTED.getMessage());
+    }
+
 }
