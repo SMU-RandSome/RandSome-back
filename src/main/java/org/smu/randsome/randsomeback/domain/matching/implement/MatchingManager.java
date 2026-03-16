@@ -59,7 +59,7 @@ public class MatchingManager {
      * @throws CoreException 매칭 신청을 찾을 수 없거나 지원 전략이 없는 경우
      */
     @Transactional
-    public void approve(Long id, LocalDateTime approvedAt) {
+    public MatchingApplication approve(Long id, LocalDateTime approvedAt) {
         MatchingApplication matchingApplication = matchingJpaRepository.findByIdAndStatusWithMember(id, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MATCHING));
 
@@ -75,6 +75,9 @@ public class MatchingManager {
 
         log.info("[MatchingManager] 매칭 완료 - matchingApplicationId: {}, matchingType: {}, applicationCount: {}, resultCount: {}",
                 id, matchingApplication.getMatchingType(), matchingApplication.getApplicationCount(), results.size());
+
+        return matchingApplication;
+
     }
 
     /**

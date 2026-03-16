@@ -172,7 +172,7 @@ ApiResponse.error(ErrorType.X); // 실패 — GlobalExceptionHandler가 자동 �
 
 ## 주의 사항
 
-- **Spring Security는 현재 비활성화** 상태다 (`build.gradle` 주석 처리). 인증/인가 로직 추가 시 반드시 활성화한다.
+- **Spring Security는 활성화** 상태다. 인증 없이 접근 가능한 경로: `/v1/auth/**`, `/v1/members/sign-up`, `/v1/feed`, Swagger UI(`/swagger/**`, `/v3/api-docs/**`), Actuator health/info. `/v1/admin/**`은 `ROLE_ADMIN` 전용, 나머지는 `ROLE_MEMBER` 또는 `ROLE_ADMIN` 필요.
 - **MySQL 드라이버도 현재 비활성화** 상태다. `dev`/`prod` 프로파일 적용 전에 활성화하고 `application-dev.yml`, `application-prod.yml`을 작성한다.
 - **`application-test.yml`에 테스트용 시크릿 키가 포함**되어 있다. 실제 운영 키를 절대 커밋하지 않는다.
 - **QueryDSL Q클래스**는 `./gradlew compileJava` 후 `build/generated` 에 생성된다. IDE에서 해당 경로를 소스 루트로 등록해야 한다.

@@ -10,6 +10,8 @@ import org.smu.randsome.randsomeback.domain.auth.service.AuthService;
 import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationService;
 import org.smu.randsome.randsomeback.domain.candidate.controller.CandidateController;
 import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
+import org.smu.randsome.randsomeback.domain.feed.FeedController;
+import org.smu.randsome.randsomeback.domain.feed.FeedService;
 import org.smu.randsome.randsomeback.domain.matching.controller.MatchingController;
 import org.smu.randsome.randsomeback.domain.matching.service.MatchingService;
 import org.smu.randsome.randsomeback.domain.member.controller.MemberController;
@@ -32,6 +34,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
 @WebMvcTest(controllers = {
         AuthController.class,
         CandidateController.class,
+        FeedController.class,
         MatchingController.class,
         MemberController.class,
         MemberAdminController.class,
@@ -46,6 +49,9 @@ public abstract class ControllerTestSupport {
 
     @Autowired
     protected ObjectMapper objectMapper;
+
+    @MockitoBean
+    protected FeedService feedService;
 
     @MockitoBean
     protected AuthService authService;

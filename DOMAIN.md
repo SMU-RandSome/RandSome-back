@@ -162,6 +162,21 @@
   - `todayMatchingCount`는 오늘 자정 ~ 익일 자정 범위의 활성 신청만 집계
   - 모든 집계는 `status = ACTIVE`인 데이터만 포함 (소프트 삭제 인식)
 
+### 매칭 피드 이벤트(`MatchingFeedEvent`)
+
+- **속성**
+  - `eventType`: ENUM(`CANDIDATE_REGISTERED`, `MATCH_REQUESTED`)
+  - `nickname`: VARCHAR (이벤트 주체 닉네임)
+  - `requestCount`: INT (매칭 신청 이벤트일 경우 신청 인원 수, 후보 등록 이벤트이면 NULL)
+- **행위**
+  - `recordMatchRequest(nickname, requestCount)`: 매칭 신청 피드 이벤트 기록
+  - `recordCandidateRegister(nickname)`: 후보 등록 피드 이벤트 기록
+- **규칙**
+  - 관리자가 매칭 신청 또는 후보 등록을 승인할 때 자동 기록됨
+  - 최신 피드는 최대 10건 조회 (`lastId` 없을 때)
+  - 커서 기반 페이지네이션: `lastId` 이후의 피드 조회 가능
+  - 비회원도 열람 가능 (`GET /v1/feed`)
+
 ### 계좌(`BankAccount`)
 
 - **속성**
