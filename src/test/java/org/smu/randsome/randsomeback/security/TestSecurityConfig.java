@@ -23,6 +23,7 @@ public class TestSecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v1/auth/login", "/v1/auth/reissue", "/v1/auth/email/**", "/v1/members/sign-up").permitAll()
+                        .requestMatchers("/v1/feed").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/swagger/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/v1/admin/**", "/actuator/**").hasRole("ADMIN")

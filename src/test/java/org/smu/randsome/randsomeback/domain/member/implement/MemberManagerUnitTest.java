@@ -90,7 +90,7 @@ class MemberManagerUnitTest extends UnitTestSupport {
     void 프로필을_업데이트한다() {
         // given
         Member member = MemberFixture.create();
-        given(memberJpaRepository.findById(1L)).willReturn(Optional.of(member));
+        given(memberJpaRepository.findByIdAndStatus(1L, EntityStatus.ACTIVE)).willReturn(Optional.of(member));
 
         var updateProfile = UpdateProfile.builder()
                 .legalName("김철수")
@@ -120,7 +120,7 @@ class MemberManagerUnitTest extends UnitTestSupport {
     @Test
     void 프로필_업데이트_시_존재하지_않는_회원이면_예외가_발생한다() {
         // given
-        given(memberJpaRepository.findById(any())).willReturn(Optional.empty());
+        given(memberJpaRepository.findByIdAndStatus(any(), any())).willReturn(Optional.empty());
 
         var updateProfile = UpdateProfile.builder()
                 .legalName("김철수")
