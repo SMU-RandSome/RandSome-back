@@ -112,7 +112,6 @@ public class MatchingApplication extends BaseEntity {
 
         this.applicationStatus = ApplicationStatus.WITHDRAWN;
         this.withdrawnAt = requireNonNull(withdrawnAt);
-        // NOTE: 철회 시엔 승인 시각을 지우지 않음.
     }
 
     public Gender getTargetGender() {

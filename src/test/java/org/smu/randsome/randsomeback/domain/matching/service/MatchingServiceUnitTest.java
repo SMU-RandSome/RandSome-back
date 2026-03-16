@@ -141,4 +141,17 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING.getMessage());
     }
 
+    @Test
+    void 매칭_신청_철회에_성공한다() {
+        // given
+        var applicationId = 1L;
+        var memberId = 1L;
+
+        // when
+        matchingService.withdraw(applicationId, memberId);
+
+        // then
+        verify(matchingManager).withdraw(applicationId, memberId);
+    }
+
 }

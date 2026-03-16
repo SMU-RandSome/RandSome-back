@@ -51,7 +51,7 @@ public class MatchingController extends MatchingControllerDocs {
 
     @Override
     @GetMapping("/v1/matching/applications/{applicationId}/approved")
-    public ResponseEntity<ApiResponse<?>> getApprovedApplication(
+    public ResponseEntity<ApiResponse<List<MatchingResultDetailItem>>> getApprovedApplication(
             @PathVariable Long applicationId,
             @LoginMember Long memberId
     ) {
@@ -62,5 +62,17 @@ public class MatchingController extends MatchingControllerDocs {
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    @Override
+    @PostMapping("/v1/matching/applications/{applicationId}/withdraw")
+    public ResponseEntity<ApiResponse<?>> withdraw(
+            @PathVariable Long applicationId,
+            @LoginMember Long memberId
+    ) {
+        matchingService.withdraw(applicationId, memberId);
+
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
 
 }
