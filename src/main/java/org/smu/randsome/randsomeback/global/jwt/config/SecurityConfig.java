@@ -10,6 +10,7 @@ import org.smu.randsome.randsomeback.global.jwt.JwtProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -48,7 +49,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v1/auth/login", "/v1/auth/reissue", "/v1/auth/email/**", "/v1/members/sign-up").permitAll()
-                        .requestMatchers("/v1/feed").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/v1/feed").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/swagger/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/v1/admin/**", "/actuator/**").hasRole("ADMIN")
