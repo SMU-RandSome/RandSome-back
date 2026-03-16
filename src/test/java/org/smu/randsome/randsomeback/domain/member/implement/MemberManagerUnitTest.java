@@ -120,7 +120,7 @@ class MemberManagerUnitTest extends UnitTestSupport {
     @Test
     void 프로필_업데이트_시_존재하지_않는_회원이면_예외가_발생한다() {
         // given
-        given(memberJpaRepository.findByIdAndStatus(any(), any())).willReturn(Optional.empty());
+        given(memberJpaRepository.findByIdAndStatus(999L, EntityStatus.ACTIVE)).willReturn(Optional.empty());
 
         var updateProfile = UpdateProfile.builder()
                 .legalName("김철수")
