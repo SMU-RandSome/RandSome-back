@@ -10,18 +10,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@RequestMapping("/v1/admin/members")
 @RestController
 public class MemberAdminController extends MemberAdminControllerDocs {
 
     private final MemberAdminService memberAdminService;
 
     @Override
-    @GetMapping
+    @GetMapping("/v1/admin/members")
     public ApiResponse<PageResponse<MemberAdminResponse>> getMembers(
             @PageableDefault(size = 10) Pageable pageable
     ) {
@@ -31,7 +29,7 @@ public class MemberAdminController extends MemberAdminControllerDocs {
     }
 
     @Override
-    @GetMapping("/{memberId}")
+    @GetMapping("/v1/admin/members/{memberId}")
     public ApiResponse<MemberDetailResponse> getMemberDetail(@PathVariable Long memberId) {
         return ApiResponse.success(
                 memberAdminService.getMemberDetail(memberId)
