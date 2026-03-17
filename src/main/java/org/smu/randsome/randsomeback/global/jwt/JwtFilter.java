@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.global.jwt;
 
 import static org.smu.randsome.randsomeback.global.jwt.enums.TokenType.AUTHORIZATION_HEADER;
 import static org.smu.randsome.randsomeback.global.jwt.enums.TokenType.BEARER_PREFIX;
+import static org.smu.randsome.randsomeback.global.support.error.ErrorType.EMPTY_TOKEN;
 import static org.smu.randsome.randsomeback.global.support.error.ErrorType.INVALID_TOKEN;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
@@ -27,6 +30,20 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        String method = request.getMethod();
+        return Arrays.stream(SecurityPaths.permitAll()) // PermitAll
+                .anyMatch(pattern -> pathMatcher.match(pattern, path))
+                || Arrays.stream(SecurityPaths.actuatorPermit()) // PermitAll
+                .anyMatch(pattern -> pathMatcher.match(pattern, path))
+                || SecurityPaths.methodPermitAll().stream() // MethodPermitAll
+                .anyMatch(endpoint -> endpoint.method().matches(method)
+                        && pathMatcher.match(endpoint.pathPattern(), path));
+    }
 
     @Override
     protected void doFilterInternal(
@@ -36,13 +53,11 @@ public class JwtFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         Optional<String> tokenOpt = getTokenFromHeader(request);
 
-        // 토큰이 없는 경우
         if (tokenOpt.isEmpty()) {
-            filterChain.doFilter(request, response);
+            sendErrorResponse(response, EMPTY_TOKEN);
             return;
         }
 
-        // 토큰이 존재하지만 유효하지 않은 경우
         String token = tokenOpt.get();
         if (!jwtProvider.isTokenValid(token)) {
             sendErrorResponse(response, INVALID_TOKEN);

@@ -1,9 +1,9 @@
 package org.smu.randsome.randsomeback.security;
 
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.global.jwt.SecurityPaths;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,14 +22,15 @@ public class TestSecurityConfig {
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v1/auth/login", "/v1/auth/reissue", "/v1/auth/email/**", "/v1/members/sign-up").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/v1/feed").permitAll()
-                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
-                        .requestMatchers("/swagger/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/v1/admin/**", "/actuator/**").hasRole("ADMIN")
-                        .anyRequest().hasAnyRole("MEMBER", "ADMIN")
-                );
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers(SecurityPaths.actuatorPermit()).permitAll();
+                    auth.requestMatchers("/actuator/**").denyAll();
+                    auth.requestMatchers(SecurityPaths.permitAll()).permitAll();
+                    SecurityPaths.methodPermitAll().forEach(endpoint ->
+                            auth.requestMatchers(endpoint.method(), endpoint.pathPattern()).permitAll());
+                    auth.requestMatchers(SecurityPaths.admin()).hasRole("ADMIN");
+                    auth.anyRequest().hasAnyRole("MEMBER", "ADMIN");
+                });
 
         return http.build();
     }
