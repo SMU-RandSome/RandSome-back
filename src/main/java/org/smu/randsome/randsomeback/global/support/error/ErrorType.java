@@ -53,6 +53,9 @@ public enum ErrorType {
     NOT_ALLOW_ALREADY_CONFIRMED_PAYMENT (HttpStatus.BAD_REQUEST, "이미 확정된 결제는 거절이 불가능합니다.", LogLevel.INFO),
     NOT_FOUND_PAYMENT                   (HttpStatus.NOT_FOUND, "결제를 찾을 수 없습니다.", LogLevel.INFO),
 
+    //BANK_ACCOUNT
+    NOT_FOUND_BANK_ACCOUNT      (HttpStatus.NOT_FOUND, "연결된 은행 계좌를 찾을 수 없습니다.", LogLevel.INFO),
+
     // AUTH
     INVALID_EMAIL_DOMAIN        (HttpStatus.BAD_REQUEST, "상명대학교 이메일(@sangmyung.kr)만 사용 가능합니다.", LogLevel.INFO),
     VERIFICATION_CODE_NOT_FOUND (HttpStatus.BAD_REQUEST, "인증 코드를 먼저 요청해주세요.", LogLevel.INFO),

@@ -4,19 +4,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.admin.member.controller.dto.response.MemberAdminResponse;
+import org.smu.randsome.randsomeback.admin.member.controller.dto.response.MemberDetailResponse;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
+import org.smu.randsome.randsomeback.fixture.BankAccountFixture;
+import org.smu.randsome.randsomeback.fixture.MemberFixture;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
+
+import java.util.List;
 
 class MemberAdminControllerTest extends ControllerTestSupport {
 
@@ -47,11 +55,80 @@ class MemberAdminControllerTest extends ControllerTestSupport {
         then(memberAdminService).should().getMembers(any());
     }
 
+    @TestAdmin
+    @Test
+    void 관리자가_회원_상세_조회에_성공하면_200을_반환한다() {
+        // given
+        var member = MemberFixture.create();
+        var bankAccount = BankAccountFixture.create();
+        var response = MemberDetailResponse.of(member, bankAccount);
+
+        given(memberAdminService.getMemberDetail(1L)).willReturn(response);
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/members/1"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data.id", v -> v.assertThat().isEqualTo(response.id()))
+                .hasPathSatisfying("$.data.bankName", v -> v.assertThat().isEqualTo(response.bankName()));
+
+        then(memberAdminService).should().getMemberDetail(1L);
+    }
+
+    @TestAdmin
+    @Test
+    void 회원을_찾을_수_없으면_404를_반환한다() {
+        // given
+        doThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
+                .when(memberAdminService).getMemberDetail(2L);
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/members/2"))
+                .apply(print())
+                .hasStatus(HttpStatus.NOT_FOUND.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
+                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_MEMBER.getMessage()));
+
+        then(memberAdminService).should().getMemberDetail(2L);
+    }
+
+    @TestAdmin
+    @Test
+    void 은행_계좌를_찾을_수_없으면_404를_반환한다() {
+        // given
+        doThrow(new CoreException(ErrorType.NOT_FOUND_BANK_ACCOUNT))
+                .when(memberAdminService).getMemberDetail(3L);
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/members/3"))
+                .apply(print())
+                .hasStatus(HttpStatus.NOT_FOUND.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
+                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_BANK_ACCOUNT.getMessage()));
+
+        then(memberAdminService).should().getMemberDetail(3L);
+    }
+
     @TestMember
     @Test
     void 일반_회원이_관리자_회원_API를_호출하면_403을_반환한다() {
         // when & then
         assertThat(mvcTester.get().uri("/v1/admin/members"))
+                .apply(print())
+                .hasStatus(HttpStatus.FORBIDDEN.value());
+
+        then(memberAdminService).shouldHaveNoInteractions();
+    }
+
+    @TestMember
+    @Test
+    void 일반_회원이_관리자_회원_상세_API를_호출하면_403을_반환한다() {
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/members/1"))
                 .apply(print())
                 .hasStatus(HttpStatus.FORBIDDEN.value());
 
