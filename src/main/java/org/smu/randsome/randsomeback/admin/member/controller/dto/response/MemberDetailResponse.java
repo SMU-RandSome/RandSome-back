@@ -46,7 +46,7 @@ public record MemberDetailResponse(
         String accountNumber
 ) {
 
-    public static MemberDetailResponse from(Member member, BankAccount bankAccount) {
+    public static MemberDetailResponse of(Member member, BankAccount bankAccount) {
         return new MemberDetailResponse(
                 member.getId(),
                 member.getNickname(),

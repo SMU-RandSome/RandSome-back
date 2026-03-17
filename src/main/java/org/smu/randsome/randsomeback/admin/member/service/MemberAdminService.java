@@ -30,7 +30,7 @@ public class MemberAdminService {
         Member member = memberReader.find(memberId);
         BankAccount bankAccount = bankAccountReader.findByMemberId(memberId);
 
-        return MemberDetailResponse.from(member, bankAccount);
+        return MemberDetailResponse.of(member, bankAccount);
     }
 
 }

@@ -61,7 +61,7 @@ class MemberAdminControllerTest extends ControllerTestSupport {
         // given
         var member = MemberFixture.create();
         var bankAccount = BankAccountFixture.create();
-        var response = MemberDetailResponse.from(member, bankAccount);
+        var response = MemberDetailResponse.of(member, bankAccount);
 
         given(memberAdminService.getMemberDetail(1L)).willReturn(response);
 
