@@ -7,6 +7,7 @@ import org.smu.randsome.randsomeback.global.jwt.JwtAccessDeniedHandler;
 import org.smu.randsome.randsomeback.global.jwt.JwtAuthenticationEntryPoint;
 import org.smu.randsome.randsomeback.global.jwt.JwtFilter;
 import org.smu.randsome.randsomeback.global.jwt.JwtProvider;
+import org.smu.randsome.randsomeback.global.jwt.SecurityPaths;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,11 +49,11 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v1/auth/login", "/v1/auth/reissue", "/v1/auth/email/**", "/v1/members/sign-up").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/v1/feed").permitAll()
-                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
-                        .requestMatchers("/swagger/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/v1/admin/**", "/actuator/**").hasRole("ADMIN")
+                        .requestMatchers(SecurityPaths.actuatorPermit()).permitAll()
+                        .requestMatchers("/actuator/**").denyAll()
+                        .requestMatchers(SecurityPaths.permitAll()).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/feed").permitAll()
+                        .requestMatchers(SecurityPaths.admin()).hasRole("ADMIN")
                         .anyRequest().hasAnyRole("MEMBER", "ADMIN")
                 );
 
