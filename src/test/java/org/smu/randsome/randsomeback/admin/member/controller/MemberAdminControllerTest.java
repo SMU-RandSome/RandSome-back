@@ -71,8 +71,8 @@ class MemberAdminControllerTest extends ControllerTestSupport {
                 .hasStatus(HttpStatus.OK.value())
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
-                .hasPath("$.data.id")
-                .hasPath("$.data.bankName");
+                .hasPathSatisfying("$.data.id", v -> v.assertThat().isEqualTo(response.id()))
+                .hasPathSatisfying("$.data.bankName", v -> v.assertThat().isEqualTo(response.bankName()));
 
         then(memberAdminService).should().getMemberDetail(1L);
     }
