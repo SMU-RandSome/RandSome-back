@@ -21,6 +21,7 @@ import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
@@ -29,13 +30,19 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-
-        return Arrays.stream(SecurityPaths.permitAll()).anyMatch(path::startsWith)
-                || Arrays.asList(SecurityPaths.actuatorPermit()).contains(path);
+        String path = request.getServletPath();
+        String method = request.getMethod();
+        return Arrays.stream(SecurityPaths.permitAll()) // PermitAll
+                .anyMatch(pattern -> pathMatcher.match(pattern, path))
+                || Arrays.stream(SecurityPaths.actuatorPermit()) // PermitAll
+                .anyMatch(pattern -> pathMatcher.match(pattern, path))
+                || SecurityPaths.methodPermitAll().stream() // MethodPermitAll
+                .anyMatch(endpoint -> endpoint.method().matches(method)
+                        && pathMatcher.match(endpoint.pathPattern(), path));
     }
 
     @Override

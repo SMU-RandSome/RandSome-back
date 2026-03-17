@@ -1,7 +1,9 @@
 package org.smu.randsome.randsomeback.global.jwt;
 
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpMethod;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SecurityPaths {
@@ -27,6 +29,10 @@ public final class SecurityPaths {
             "/v1/admin/**",
     };
 
+    private static final List<MethodPermitPath> METHOD_PERMIT_ALL = List.of(
+            new MethodPermitPath(HttpMethod.GET, "/v1/feed")
+    );
+
     public static String[] permitAll() {
         return PERMIT_ALL.clone();
     }
@@ -37,6 +43,13 @@ public final class SecurityPaths {
 
     public static String[] admin() {
         return ADMIN.clone();
+    }
+
+    public static List<MethodPermitPath> methodPermitAll() {
+        return METHOD_PERMIT_ALL;
+    }
+
+    public record MethodPermitPath(HttpMethod method, String pathPattern) {
     }
 
 }

@@ -11,7 +11,6 @@ import org.smu.randsome.randsomeback.global.jwt.SecurityPaths;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -48,14 +47,15 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(SecurityPaths.actuatorPermit()).permitAll()
-                        .requestMatchers("/actuator/**").denyAll()
-                        .requestMatchers(SecurityPaths.permitAll()).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/v1/feed").permitAll()
-                        .requestMatchers(SecurityPaths.admin()).hasRole("ADMIN")
-                        .anyRequest().hasAnyRole("MEMBER", "ADMIN")
-                );
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers(SecurityPaths.actuatorPermit()).permitAll();
+                    auth.requestMatchers("/actuator/**").denyAll();
+                    auth.requestMatchers(SecurityPaths.permitAll()).permitAll();
+                    SecurityPaths.methodPermitAll().forEach(endpoint ->
+                            auth.requestMatchers(endpoint.method(), endpoint.pathPattern()).permitAll());
+                    auth.requestMatchers(SecurityPaths.admin()).hasRole("ADMIN");
+                    auth.anyRequest().hasAnyRole("MEMBER", "ADMIN");
+                });
 
         http
                 .addFilterBefore(new JwtFilter(jwtProvider, objectMapper), UsernamePasswordAuthenticationFilter.class);
