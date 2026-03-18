@@ -15,6 +15,18 @@ public interface CandidateJpaRepository extends JpaRepository<CandidateRegistrat
     Optional<CandidateRegistration> findByIdAndStatus(Long id, EntityStatus status);
     Optional<CandidateRegistration> findByMemberIdAndRegistrationStatusAndStatus(Long memberId, RegistrationStatus registrationStatus, EntityStatus status);
 
+    @Query("""
+            SELECT cr.registrationStatus FROM CandidateRegistration cr
+            WHERE cr.member.id = :memberId AND cr.status = :status
+            ORDER BY cr.createdAt DESC
+            LIMIT 1
+            """
+    )
+    Optional<RegistrationStatus> findLatestRegistrationStatusByMemberId(
+            @Param("memberId") Long memberId,
+            @Param("status") EntityStatus status
+    );
+
     long countByRegistrationStatusAndStatus(RegistrationStatus registrationStatus, EntityStatus status);
     @Query("""
             SELECT cr FROM CandidateRegistration cr

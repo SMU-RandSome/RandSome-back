@@ -39,10 +39,13 @@ public record MemberProfileResponse(
         String selfIntroduction,
 
         @Schema(description = "이상형 소개", example = "성실하고 배려심 있는 사람이 좋아요.", nullable = true)
-        String idealDescription
+        String idealDescription,
+
+        @Schema(description = "후보자 신청 상태", example = "NOT_APPLIED")
+        CandidateRegistrationStatusView candidateRegistrationStatus
 ) {
 
-    public static MemberProfileResponse from(Member member) {
+    public static MemberProfileResponse of(Member member, CandidateRegistrationStatusView candidateRegistrationStatus) {
         return new MemberProfileResponse(
                 member.getId(),
                 member.getNickname(),
@@ -53,7 +56,8 @@ public record MemberProfileResponse(
                 member.getRole(),
                 member.getSocialProfile().instagramId(),
                 member.getSocialProfile().selfIntroduction(),
-                member.getSocialProfile().idealDescription()
+                member.getSocialProfile().idealDescription(),
+                candidateRegistrationStatus
         );
     }
 

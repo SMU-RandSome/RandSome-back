@@ -8,8 +8,10 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
+import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.member.controller.dto.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.controller.dto.request.MemberUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
@@ -193,6 +195,7 @@ class MemberControllerTest extends ControllerTestSupport {
         given(member.getRole()).willReturn(Role.ROLE_MEMBER);
         given(member.getSocialProfile()).willReturn(MemberFixture.socialProfile());
         given(memberService.getMyProfile(any())).willReturn(member);
+        given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.empty());
 
         // when & then
         assertThat(mvcTester.get().uri("/v1/members"))
@@ -201,7 +204,56 @@ class MemberControllerTest extends ControllerTestSupport {
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
                 .hasPathSatisfying("$.data.id", v -> v.assertThat().isEqualTo(1))
+                .hasPathSatisfying("$.data.candidateRegistrationStatus", v -> v.assertThat().isEqualTo("NOT_APPLIED"))
                 .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
+    }
+
+    @Test
+    @TestMember
+    void 후보자_신청_중이면_프로필_조회_시_PENDING을_반환한다() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getId()).willReturn(1L);
+        given(member.getNickname()).willReturn("남자#ABC12345");
+        given(member.getLegalName()).willReturn(MemberFixture.DEFAULT_LEGAL_NAME);
+        given(member.getEmail()).willReturn(MemberFixture.email());
+        given(member.getGender()).willReturn(MemberFixture.DEFAULT_GENDER);
+        given(member.getMbti()).willReturn(MemberFixture.DEFAULT_MBTI);
+        given(member.getRole()).willReturn(Role.ROLE_MEMBER);
+        given(member.getSocialProfile()).willReturn(MemberFixture.socialProfile());
+        given(memberService.getMyProfile(any())).willReturn(member);
+        given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.of(RegistrationStatus.PENDING));
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/members"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.data.candidateRegistrationStatus", v -> v.assertThat().isEqualTo("PENDING"));
+    }
+
+    @Test
+    @TestMember
+    void 후보자_승인_완료이면_프로필_조회_시_APPROVED를_반환한다() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getId()).willReturn(1L);
+        given(member.getNickname()).willReturn("남자#ABC12345");
+        given(member.getLegalName()).willReturn(MemberFixture.DEFAULT_LEGAL_NAME);
+        given(member.getEmail()).willReturn(MemberFixture.email());
+        given(member.getGender()).willReturn(MemberFixture.DEFAULT_GENDER);
+        given(member.getMbti()).willReturn(MemberFixture.DEFAULT_MBTI);
+        given(member.getRole()).willReturn(Role.ROLE_MEMBER);
+        given(member.getSocialProfile()).willReturn(MemberFixture.socialProfile());
+        given(memberService.getMyProfile(any())).willReturn(member);
+        given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.of(RegistrationStatus.APPROVED));
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/members"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.data.candidateRegistrationStatus", v -> v.assertThat().isEqualTo("APPROVED"));
     }
 
     @Test

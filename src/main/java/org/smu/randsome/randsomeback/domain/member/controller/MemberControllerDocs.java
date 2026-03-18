@@ -41,6 +41,8 @@ public abstract class MemberControllerDocs {
                     ### 로그인한 회원의 프로필 정보를 조회하는 API입니다.
                     - JWT 인증이 필요합니다.
                     - 성공 시 회원 프로필 정보를 반환합니다.
+                    - 후보자 신청 이력이 없으면 `candidateRegistrationStatus`는 `NOT_APPLIED`로 반환됩니다.
+                    - 신청 이력이 있으면 가장 최근 신청의 상태(`PENDING`, `APPROVED`, `REJECTED`, `WITHDRAWN`)를 반환합니다.
                     """
     )
     @ApiExceptions(values = {
