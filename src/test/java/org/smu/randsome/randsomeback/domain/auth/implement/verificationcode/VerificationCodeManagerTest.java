@@ -46,6 +46,7 @@ class VerificationCodeManagerTest extends UnitTestSupport {
 
         assertThat(codeA).matches("[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}");
         assertThat(codeB).matches("[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}");
+        assertThat(codeA).isNotEqualTo(codeB);
     }
 
     // -----------------------------------------------------------------------
