@@ -116,6 +116,10 @@ public class Member extends BaseEntity {
         this.socialProfile = SocialProfile.create(instagramId, selfIntroduction, idealDescription);
     }
 
+    public boolean isAdmin() {
+        return role.equals(Role.ROLE_ADMIN);
+    }
+
     private static String createRandomNickname(Gender gender) {
         String suffix = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
 
