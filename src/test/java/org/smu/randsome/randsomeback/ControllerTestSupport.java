@@ -1,6 +1,8 @@
 package org.smu.randsome.randsomeback;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.smu.randsome.randsomeback.admin.announcement.controller.AnnouncementAdminController;
+import org.smu.randsome.randsomeback.admin.announcement.service.AnnouncementAdminService;
 import org.smu.randsome.randsomeback.admin.member.controller.MemberAdminController;
 import org.smu.randsome.randsomeback.admin.member.service.MemberAdminService;
 import org.smu.randsome.randsomeback.admin.payment.controller.PaymentAdminController;
@@ -32,6 +34,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
 @ActiveProfiles("test")
 @Import({TestSecurityConfig.class, MethodValidationPostProcessor.class})
 @WebMvcTest(controllers = {
+        AnnouncementAdminController.class,
         AuthController.class,
         CandidateController.class,
         FeedController.class,
@@ -79,5 +82,8 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected StatisticsService statisticsService;
+
+    @MockitoBean
+    protected AnnouncementAdminService announcementAdminService;
 
 }
