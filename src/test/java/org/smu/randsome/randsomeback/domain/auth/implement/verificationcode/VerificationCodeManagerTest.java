@@ -21,18 +21,11 @@ class VerificationCodeManagerTest extends UnitTestSupport {
     }
 
     @Test
-    void 인증_코드는_6자리_숫자다() {
+    void 인증_코드는_6자리_영숫자다() {
         var code = verificationCodeManager.generateVerificationCode("test@sangmyung.kr");
 
         assertThat(code).hasSize(6);
-        assertThat(code).matches("\\d{6}");
-    }
-
-    @Test
-    void 인증_코드는_100000_이상_999999_이하다() {
-        var code = verificationCodeManager.generateVerificationCode("test@sangmyung.kr");
-
-        assertThat(Integer.parseInt(code)).isBetween(100_000, 999_999);
+        assertThat(code).matches("[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}");
     }
 
     @Test
@@ -43,7 +36,7 @@ class VerificationCodeManagerTest extends UnitTestSupport {
         var newCode = verificationCodeManager.generateVerificationCode(email);
 
         assertThat(newCode).hasSize(6);
-        assertThat(newCode).matches("\\d{6}");
+        assertThat(newCode).matches("[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}");
     }
 
     @Test
@@ -51,8 +44,9 @@ class VerificationCodeManagerTest extends UnitTestSupport {
         var codeA = verificationCodeManager.generateVerificationCode("student1@sangmyung.kr");
         var codeB = verificationCodeManager.generateVerificationCode("student2@sangmyung.kr");
 
-        assertThat(codeA).matches("\\d{6}");
-        assertThat(codeB).matches("\\d{6}");
+        assertThat(codeA).matches("[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}");
+        assertThat(codeB).matches("[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}");
+        assertThat(codeA).isNotEqualTo(codeB);
     }
 
     // -----------------------------------------------------------------------

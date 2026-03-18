@@ -5,9 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.admin.member.controller.dto.response.MemberAdminResponse;
@@ -23,8 +23,6 @@ import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
-
-import java.util.List;
 
 class MemberAdminControllerTest extends ControllerTestSupport {
 

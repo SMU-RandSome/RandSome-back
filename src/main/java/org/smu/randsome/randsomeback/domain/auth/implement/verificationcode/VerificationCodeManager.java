@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 public class VerificationCodeManager {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final String CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    private static final int CODE_LENGTH = 6;
     private static final int EXPIRY_MINUTES = 5;
 
     private final Clock clock;
@@ -29,7 +31,11 @@ public class VerificationCodeManager {
     }
 
     private static String generateCode() {
-        return Integer.toString(100_000 + SECURE_RANDOM.nextInt(900_000));
+        StringBuilder sb = new StringBuilder(CODE_LENGTH);
+        for (int i = 0; i < CODE_LENGTH; i++) {
+            sb.append(CODE_CHARS.charAt(SECURE_RANDOM.nextInt(CODE_CHARS.length())));
+        }
+        return sb.toString();
     }
 
 }

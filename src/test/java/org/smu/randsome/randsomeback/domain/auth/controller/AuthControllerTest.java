@@ -115,21 +115,6 @@ class AuthControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void 인증_코드_검증_시_코드가_6자리_숫자가_아니면_400을_반환한다() throws Exception {
-        // given
-        var request = new EmailVerificationCodeVerifyRequest(MemberFixture.DEFAULT_EMAIL, "12345");
-
-        // when & then
-        assertThat(mvcTester.post().uri("/v1/auth/email/verification-codes/verify")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-
-        verifyNoInteractions(emailVerificationService);
-    }
-
-    @Test
     void 인증_코드_불일치_시_400을_반환한다() throws Exception {
         // given
         var request = new EmailVerificationCodeVerifyRequest(MemberFixture.DEFAULT_EMAIL, "000000");
