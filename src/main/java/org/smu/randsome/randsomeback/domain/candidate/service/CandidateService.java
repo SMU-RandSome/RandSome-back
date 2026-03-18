@@ -1,9 +1,12 @@
 package org.smu.randsome.randsomeback.domain.candidate.service;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
+import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
+import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateReader;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateValidator;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
@@ -19,6 +22,7 @@ public class CandidateService {
 
     private final CandidateValidator candidateValidator;
     private final CandidateManager candidateManager;
+    private final CandidateReader candidateReader;
     private final PaymentManager paymentManager;
 
     @Transactional
@@ -41,6 +45,17 @@ public class CandidateService {
         candidateManager.withdraw(memberId);
 
         log.info("[CandidateService] 매칭 후보자 등록 철회 완료 - memberId: {}", memberId);
+    }
+
+    /**
+     * 회원의 최신 매칭 후보자 등록 상태를 조회하는 서비스 메서드입니다.
+     *
+     * @param memberId 회원 ID
+     * @return 회원의 최신 매칭 후보자 등록 상태
+     *
+     */
+    public Optional<RegistrationStatus> getMyRegistrationStatus(Long memberId) {
+        return candidateReader.findLatestRegistrationStatus(memberId);
     }
 
 }

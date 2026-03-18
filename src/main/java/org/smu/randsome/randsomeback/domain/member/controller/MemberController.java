@@ -2,7 +2,11 @@ package org.smu.randsome.randsomeback.domain.member.controller;
 
 
 import jakarta.validation.Valid;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
+import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
+import org.smu.randsome.randsomeback.domain.member.controller.dto.CandidateRegistrationStatusView;
 import org.smu.randsome.randsomeback.domain.member.controller.dto.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.controller.dto.MemberProfileResponse;
 import org.smu.randsome.randsomeback.domain.member.controller.dto.request.MemberUpdateRequest;
@@ -23,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController extends MemberControllerDocs {
 
     private final MemberService memberService;
+    private final CandidateService candidateService;
 
     @Override
     @PostMapping("/v1/members/sign-up")
@@ -44,8 +49,14 @@ public class MemberController extends MemberControllerDocs {
     @GetMapping("/v1/members")
     public ResponseEntity<ApiResponse<MemberProfileResponse>> getMyProfile(@LoginMember Long memberId) {
         Member member = memberService.getMyProfile(memberId);
+        Optional<RegistrationStatus> myRegistrationStatus = candidateService.getMyRegistrationStatus(memberId);
 
-        return ResponseEntity.ok(ApiResponse.success(MemberProfileResponse.from(member)));
+        MemberProfileResponse response = MemberProfileResponse.of(
+                member,
+                CandidateRegistrationStatusView.from(myRegistrationStatus)
+        );
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @Override
