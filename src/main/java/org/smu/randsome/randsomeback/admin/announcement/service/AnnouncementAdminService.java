@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
 import org.smu.randsome.randsomeback.domain.announcement.implement.AnnouncementManager;
 import org.smu.randsome.randsomeback.domain.announcement.service.command.NewAnnouncement;
+import org.smu.randsome.randsomeback.global.config.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ public class AnnouncementAdminService {
      *
      */
     @Transactional
+    @CacheEvict(cacheNames = CacheConfig.ANNOUNCEMENTS, allEntries = true)
     public Announcement registerAnnouncement(Long adminId, NewAnnouncement newAnnouncement) {
         return announcementManager.register(adminId, newAnnouncement);
         // TODO: 공지사항 알림 전송
