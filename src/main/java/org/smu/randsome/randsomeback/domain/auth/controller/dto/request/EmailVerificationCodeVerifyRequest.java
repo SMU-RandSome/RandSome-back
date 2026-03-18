@@ -18,7 +18,7 @@ public record EmailVerificationCodeVerifyRequest(
         String email,
 
         @NotBlank(message = "인증 코드를 입력해주세요.")
-        @Schema(description = "6자리 영숫자 인증 코드", example = "A3KM9Z")
+        @Schema(description = "이메일 인증 코드")
         String code
 ) {
 
