@@ -14,7 +14,7 @@ import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
 import org.smu.randsome.randsomeback.domain.announcement.repository.AnnouncementJpaRepository;
 import org.smu.randsome.randsomeback.domain.announcement.service.command.NewAnnouncement;
-import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -35,6 +35,8 @@ class AnnouncementManagerUnitTest extends UnitTestSupport {
     void 공지사항을_등록하면_저장된_Announcement를_반환한다() {
         // given
         var admin = MemberFixture.create();
+        admin.updateRole(Role.ROLE_ADMIN);
+
         given(memberReader.find(1L)).willReturn(admin);
         given(announcementJpaRepository.save(any(Announcement.class)))
                 .willAnswer(invocation -> invocation.getArgument(0));
@@ -70,6 +72,22 @@ class AnnouncementManagerUnitTest extends UnitTestSupport {
         assertThatThrownBy(() -> announcementManager.register(999L, newAnnouncement))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+    }
+
+    @Test
+    void 관리자가_아닐_경우_예외를_반환한다() {
+        var admin = MemberFixture.create();
+        given(memberReader.find(1L)).willReturn(admin);
+
+        var newAnnouncement = NewAnnouncement.builder()
+                .title("공지사항 제목")
+                .content("공지사항 내용")
+                .build();
+
+        // when
+        assertThatThrownBy(() -> announcementManager.register(1L, newAnnouncement))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.FORBIDDEN_ERROR.getMessage());
     }
 
 }
