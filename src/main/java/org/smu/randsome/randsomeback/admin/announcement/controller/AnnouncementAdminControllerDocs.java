@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public abstract class AnnouncementAdminControllerDocs {
 
     @Operation(summary = "공지사항 등록", description = "관리자가 새로운 공지사항을 등록합니다.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "공지사항이 성공적으로 등록되었습니다.")
     public abstract ResponseEntity<ApiResponse<Long>> registerAnnouncement(
             @RequestBody @Valid AnnouncementRegisterRequest request,
             @LoginMember Long adminId
