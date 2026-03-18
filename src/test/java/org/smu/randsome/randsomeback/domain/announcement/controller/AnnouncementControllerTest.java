@@ -49,11 +49,11 @@ class AnnouncementControllerTest extends ControllerTestSupport {
                 .hasStatus(HttpStatus.OK.value())
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
-                .hasPathSatisfying("$.data.length()", v -> v.assertThat().isEqualTo("0"));
+                .hasPathSatisfying("$.data.length()", v -> v.assertThat().isEqualTo(0));
     }
 
     @Test
-    void 인증되지_않은_사용자가_공지사항을_조회하면_403을_반환한다() {
+    void 권한이_없는_사용자가_공지사항을_조회하면_403을_반환한다() {
         assertThat(mvcTester.get().uri("/v1/announcements"))
                 .apply(print())
                 .hasStatus(HttpStatus.FORBIDDEN.value());
