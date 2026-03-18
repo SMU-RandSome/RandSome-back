@@ -7,6 +7,8 @@ import org.smu.randsome.randsomeback.admin.member.controller.MemberAdminControll
 import org.smu.randsome.randsomeback.admin.member.service.MemberAdminService;
 import org.smu.randsome.randsomeback.admin.payment.controller.PaymentAdminController;
 import org.smu.randsome.randsomeback.admin.payment.service.PaymentAdminService;
+import org.smu.randsome.randsomeback.domain.announcement.controller.AnnouncementController;
+import org.smu.randsome.randsomeback.domain.announcement.service.AnnouncementService;
 import org.smu.randsome.randsomeback.domain.auth.controller.AuthController;
 import org.smu.randsome.randsomeback.domain.auth.service.AuthService;
 import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationService;
@@ -35,6 +37,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
 @Import({TestSecurityConfig.class, MethodValidationPostProcessor.class})
 @WebMvcTest(controllers = {
         AnnouncementAdminController.class,
+        AnnouncementController.class,
         AuthController.class,
         CandidateController.class,
         FeedController.class,
@@ -85,5 +88,8 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected AnnouncementAdminService announcementAdminService;
+
+    @MockitoBean
+    protected AnnouncementService announcementService;
 
 }
