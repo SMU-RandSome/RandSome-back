@@ -2,11 +2,11 @@ package org.smu.randsome.randsomeback.domain.auth.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationCodeVerifyRequest;
-import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationRequest;
-import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.LoginRequest;
-import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.TokenReissueRequest;
-import org.smu.randsome.randsomeback.domain.auth.controller.dto.response.EmailVerificationTokenResponse;
+import org.smu.randsome.randsomeback.domain.auth.dto.request.EmailVerificationCodeVerifyRequest;
+import org.smu.randsome.randsomeback.domain.auth.dto.request.EmailVerificationRequest;
+import org.smu.randsome.randsomeback.domain.auth.dto.request.LoginRequest;
+import org.smu.randsome.randsomeback.domain.auth.dto.request.TokenReissueRequest;
+import org.smu.randsome.randsomeback.domain.auth.dto.response.EmailVerificationTokenResponse;
 import org.smu.randsome.randsomeback.domain.auth.service.AuthService;
 import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationService;
 import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
