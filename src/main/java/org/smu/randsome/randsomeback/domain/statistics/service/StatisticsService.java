@@ -1,7 +1,7 @@
 package org.smu.randsome.randsomeback.domain.statistics.service;
 
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.domain.statistics.controller.dto.response.DashboardResponse;
+import org.smu.randsome.randsomeback.domain.statistics.dto.response.DashboardResponse;
 import org.smu.randsome.randsomeback.domain.statistics.implement.CandidateStatsReader;
 import org.smu.randsome.randsomeback.domain.statistics.implement.MatchingStatsReader;
 import org.springframework.stereotype.Service;
