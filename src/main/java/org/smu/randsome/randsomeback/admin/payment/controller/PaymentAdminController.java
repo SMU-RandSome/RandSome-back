@@ -2,7 +2,7 @@ package org.smu.randsome.randsomeback.admin.payment.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.admin.payment.controller.dto.request.PaymentRejectRequest;
+import org.smu.randsome.randsomeback.admin.payment.dto.request.PaymentRejectRequest;
 import org.smu.randsome.randsomeback.admin.payment.service.PaymentAdminService;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.http.ResponseEntity;

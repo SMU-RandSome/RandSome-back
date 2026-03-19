@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.smu.randsome.randsomeback.admin.payment.controller.dto.request.PaymentRejectRequest;
+import org.smu.randsome.randsomeback.admin.payment.dto.request.PaymentRejectRequest;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;

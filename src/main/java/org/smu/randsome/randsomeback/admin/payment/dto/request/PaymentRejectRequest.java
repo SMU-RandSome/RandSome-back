@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.admin.payment.controller.dto.request;
+package org.smu.randsome.randsomeback.admin.payment.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
