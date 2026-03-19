@@ -2,7 +2,6 @@ package org.smu.randsome.randsomeback.domain.announcement.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
@@ -10,9 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
-import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
 import org.smu.randsome.randsomeback.domain.announcement.implement.AnnouncementReader;
-import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.announcement.implement.dto.AnnouncementItem;
 
 class AnnouncementServiceUnitTest extends UnitTestSupport {
 
@@ -25,15 +23,14 @@ class AnnouncementServiceUnitTest extends UnitTestSupport {
     @Test
     void 공지사항_목록을_조회하면_AnnouncementReader에_위임한다() {
         // given
-        var admin = mock(Member.class);
-        List<Announcement> announcements = List.of(
-                Announcement.register(admin, "제목1", "내용1"),
-                Announcement.register(admin, "제목2", "내용2")
+        List<AnnouncementItem> announcements = List.of(
+                AnnouncementItem.builder().id(1L).title("제목1").content("내용1").build(),
+                AnnouncementItem.builder().id(2L).title("제목2").content("내용2").build()
         );
         given(announcementReader.findAnnouncements()).willReturn(announcements);
 
         // when
-        List<Announcement> result = announcementService.findAnnouncements();
+        List<AnnouncementItem> result = announcementService.findAnnouncements();
 
         // then
         assertThat(result).hasSize(2);
@@ -46,7 +43,7 @@ class AnnouncementServiceUnitTest extends UnitTestSupport {
         given(announcementReader.findAnnouncements()).willReturn(List.of());
 
         // when
-        List<Announcement> result = announcementService.findAnnouncements();
+        List<AnnouncementItem> result = announcementService.findAnnouncements();
 
         // then
         assertThat(result).isEmpty();

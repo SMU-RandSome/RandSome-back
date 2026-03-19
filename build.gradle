@@ -73,6 +73,13 @@ dependencies {
     // Sentry
     implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.20.1'
     implementation 'io.sentry:sentry-logback:7.20.1'
+
+    // Cache
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+
+    // Monitoring: Actuator + Prometheus
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 tasks.named('test') {

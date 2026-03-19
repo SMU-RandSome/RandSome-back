@@ -16,6 +16,7 @@ import org.smu.randsome.randsomeback.domain.announcement.repository.Announcement
 import org.smu.randsome.randsomeback.domain.announcement.service.command.NewAnnouncement;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberValidator;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -30,6 +31,9 @@ class AnnouncementManagerUnitTest extends UnitTestSupport {
 
     @Mock
     AnnouncementJpaRepository announcementJpaRepository;
+
+    @Mock
+    MemberValidator memberValidator;
 
     @Test
     void 공지사항을_등록하면_저장된_Announcement를_반환한다() {
@@ -78,6 +82,7 @@ class AnnouncementManagerUnitTest extends UnitTestSupport {
     void 관리자가_아닐_경우_예외를_반환한다() {
         var admin = MemberFixture.create();
         given(memberReader.find(1L)).willReturn(admin);
+        willThrow(new CoreException(ErrorType.FORBIDDEN_ERROR)).given(memberValidator).validateAdmin(admin);
 
         var newAnnouncement = NewAnnouncement.builder()
                 .title("공지사항 제목")

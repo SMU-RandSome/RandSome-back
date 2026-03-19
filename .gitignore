@@ -212,3 +212,5 @@ bad-words.txt
 !monitoring/prometheus/prometheus.yml
 !monitoring/grafana/provisioning/**/*.yml
 
+
+/docs

@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
+import org.smu.randsome.randsomeback.domain.announcement.implement.dto.AnnouncementItem;
 import org.smu.randsome.randsomeback.domain.announcement.repository.AnnouncementJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
@@ -32,11 +33,13 @@ class AnnouncementReaderUnitTest extends UnitTestSupport {
         given(announcementJpaRepository.findAllByStatus(EntityStatus.ACTIVE)).willReturn(List.of(a1, a2));
 
         // when
-        List<Announcement> result = announcementReader.findAnnouncements();
+        List<AnnouncementItem> result = announcementReader.findAnnouncements();
 
         // then
         assertThat(result).hasSize(2);
-        assertThat(result).containsExactly(a1, a2);
+        assertThat(result.get(0).title()).isEqualTo("제목1");
+        assertThat(result.get(0).content()).isEqualTo("내용1");
+        assertThat(result.get(1).title()).isEqualTo("제목2");
         verify(announcementJpaRepository).findAllByStatus(EntityStatus.ACTIVE);
     }
 
@@ -46,7 +49,7 @@ class AnnouncementReaderUnitTest extends UnitTestSupport {
         given(announcementJpaRepository.findAllByStatus(EntityStatus.ACTIVE)).willReturn(List.of());
 
         // when
-        List<Announcement> result = announcementReader.findAnnouncements();
+        List<AnnouncementItem> result = announcementReader.findAnnouncements();
 
         // then
         assertThat(result).isEmpty();

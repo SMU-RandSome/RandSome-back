@@ -7,22 +7,29 @@ import org.smu.randsome.randsomeback.domain.announcement.repository.Announcement
 import org.smu.randsome.randsomeback.domain.announcement.service.command.NewAnnouncement;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
-import org.smu.randsome.randsomeback.global.support.error.CoreException;
-import org.smu.randsome.randsomeback.global.support.error.ErrorType;
-import org.springframework.stereotype.Service;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberValidator;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @RequiredArgsConstructor
-@Service
+@Component
 public class AnnouncementManager {
 
     private final MemberReader memberReader;
     private final AnnouncementJpaRepository announcementJpaRepository;
+    private final MemberValidator memberValidator;
 
+    /**
+     * 관리자 권한을 검증한 뒤 공지사항을 등록한다.
+     *
+     * @param adminId 공지사항을 등록하는 관리자 ID
+     * @param newAnnouncement 등록할 공지사항 정보
+     * @return 등록된 공지사항
+     */
     public Announcement register(Long adminId, NewAnnouncement newAnnouncement) {
         Member admin = memberReader.find(adminId);
 
-        validateAdmin(admin);
+        memberValidator.validateAdmin(admin);
 
         Announcement announcement = announcementJpaRepository.save(Announcement.register(
                 admin,
@@ -33,12 +40,6 @@ public class AnnouncementManager {
         log.info("[AnnouncementManager] 공지사항 등록. announcementId={}", announcement.getId());
 
         return announcement;
-    }
-
-    private void validateAdmin(Member admin) {
-        if (!admin.isAdmin()) {
-            throw new CoreException(ErrorType.FORBIDDEN_ERROR);
-        }
     }
 
 }

@@ -3,7 +3,7 @@ package org.smu.randsome.randsomeback.domain.announcement.controller;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import org.smu.randsome.randsomeback.domain.announcement.controller.dto.response.AnnouncementItem;
+import org.smu.randsome.randsomeback.domain.announcement.implement.dto.AnnouncementItem;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 
