@@ -2,8 +2,7 @@ package org.smu.randsome.randsomeback.domain.announcement.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.domain.announcement.controller.dto.response.AnnouncementItem;
-import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
+import org.smu.randsome.randsomeback.domain.announcement.implement.dto.AnnouncementItem;
 import org.smu.randsome.randsomeback.domain.announcement.service.AnnouncementService;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +18,7 @@ public class AnnouncementController extends AnnouncementControllerDocs {
     @Override
     @GetMapping("/v1/announcements")
     public ResponseEntity<ApiResponse<List<AnnouncementItem>>> findAnnouncements() {
-        List<Announcement> announcements = announcementService.findAnnouncements();
-
-        List<AnnouncementItem> responses = announcements.stream()
-                .map(AnnouncementItem::from)
-                .toList();
+        List<AnnouncementItem> responses = announcementService.findAnnouncements();
 
         return ResponseEntity.ok(ApiResponse.success(responses));
     }

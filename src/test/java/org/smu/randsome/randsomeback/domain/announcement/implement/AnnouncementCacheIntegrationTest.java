@@ -6,12 +6,14 @@ import com.github.benmanes.caffeine.cache.Cache;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.admin.announcement.service.AnnouncementAdminService;
 import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
+import org.smu.randsome.randsomeback.domain.announcement.implement.dto.AnnouncementItem;
 import org.smu.randsome.randsomeback.domain.announcement.repository.AnnouncementJpaRepository;
 import org.smu.randsome.randsomeback.domain.announcement.service.command.NewAnnouncement;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
@@ -21,9 +23,7 @@ import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.config.CacheConfig;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCache;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
 @RequiredArgsConstructor
 class AnnouncementCacheIntegrationTest extends IntegrationTestSupport {
 
@@ -40,6 +40,13 @@ class AnnouncementCacheIntegrationTest extends IntegrationTestSupport {
         memberJpaRepository.deleteAll();
     }
 
+    @AfterEach
+    void tearDown() {
+        Objects.requireNonNull(cacheManager.getCache(CacheConfig.ANNOUNCEMENTS)).clear();
+        announcementJpaRepository.deleteAll();
+        memberJpaRepository.deleteAll();
+    }
+
     @Test
     void 첫_조회_시_캐시_미스가_발생하고_결과가_캐시에_저장된다() {
         // given
@@ -51,7 +58,7 @@ class AnnouncementCacheIntegrationTest extends IntegrationTestSupport {
         long missesBefore = nativeCache.stats().missCount();
 
         // when
-        List<Announcement> result = announcementReader.findAnnouncements();
+        List<AnnouncementItem> result = announcementReader.findAnnouncements();
 
         // then
         assertThat(result).hasSize(1);
@@ -71,7 +78,7 @@ class AnnouncementCacheIntegrationTest extends IntegrationTestSupport {
         long hitsBefore = nativeCache.stats().hitCount();
 
         // when
-        List<Announcement> result = announcementReader.findAnnouncements();
+        List<AnnouncementItem> result = announcementReader.findAnnouncements();
 
         // then
         assertThat(result).hasSize(1);
@@ -84,7 +91,7 @@ class AnnouncementCacheIntegrationTest extends IntegrationTestSupport {
         Member admin = saveAdmin();
         announcementJpaRepository.save(Announcement.register(admin, "기존 공지", "기존 내용"));
 
-        List<Announcement> before = announcementReader.findAnnouncements();
+        List<AnnouncementItem> before = announcementReader.findAnnouncements();
         assertThat(before).hasSize(1);
 
         // when
@@ -95,7 +102,7 @@ class AnnouncementCacheIntegrationTest extends IntegrationTestSupport {
                         .build());
 
         // then — 캐시 evict 후 재조회
-        List<Announcement> after = announcementReader.findAnnouncements();
+        List<AnnouncementItem> after = announcementReader.findAnnouncements();
         assertThat(after).hasSize(2);
     }
 

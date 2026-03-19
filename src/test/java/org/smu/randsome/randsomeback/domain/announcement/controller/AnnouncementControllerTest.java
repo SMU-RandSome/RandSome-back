@@ -2,14 +2,12 @@ package org.smu.randsome.randsomeback.domain.announcement.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
-import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
-import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.announcement.implement.dto.AnnouncementItem;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.http.HttpStatus;
 
@@ -19,10 +17,9 @@ class AnnouncementControllerTest extends ControllerTestSupport {
     @TestMember
     void 인증된_사용자가_공지사항_목록을_조회하면_200을_반환한다() {
         // given
-        var admin = mock(Member.class);
         given(announcementService.findAnnouncements()).willReturn(List.of(
-                Announcement.register(admin, "제목1", "내용1"),
-                Announcement.register(admin, "제목2", "내용2")
+                AnnouncementItem.builder().id(1L).title("제목1").content("내용1").build(),
+                AnnouncementItem.builder().id(2L).title("제목2").content("내용2").build()
         ));
 
         // when & then

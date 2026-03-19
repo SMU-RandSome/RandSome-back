@@ -2,8 +2,8 @@ package org.smu.randsome.randsomeback.domain.announcement.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
 import org.smu.randsome.randsomeback.domain.announcement.implement.AnnouncementReader;
+import org.smu.randsome.randsomeback.domain.announcement.implement.dto.AnnouncementItem;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -12,7 +12,7 @@ public class AnnouncementService {
 
     private final AnnouncementReader announcementReader;
 
-    public List<Announcement> findAnnouncements() {
+    public List<AnnouncementItem> findAnnouncements() {
         return announcementReader.findAnnouncements();
     }
 
