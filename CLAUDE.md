@@ -56,7 +56,11 @@ org.smu.randsome.randsomeback/
 │   ├── repository/    — Repository 인터페이스
 │   ├── controller/    — HTTP 요청·응답 변환, ApiResponse 조합
 │   ├── service/       — 유스케이스 흐름 조율, 트랜잭션 경계
-│   └── implement/     — 실제 로직 실행 (Reader / Manager / Validator / ...)
+│   ├── implement/     — 실제 로직 실행 (Reader / Manager / Validator / ...)
+│   └── dto/
+│       ├── request/   — HTTP 입력 DTO (유효성 검증 포함)
+│       ├── response/  — 응답 DTO (Controller에서 생성)
+│       └── command/   — 애플리케이션 계층 입력 계약 (도메인 언어)
 ├── admin/{도메인}/    — 관리자 전용 기능, 구조 동일
 ├── global/            — config, entity(BaseEntity), jwt, support(error·response), swagger, annotation
 └── infrastructure/    — 외부 인프라 연동 (이메일 등)
@@ -87,9 +91,9 @@ org.smu.randsome.randsomeback/
 | 캐시 무효화 | `{Domain}CacheEvictor` | `AnnouncementCacheEvictor` |
 | 전략 패턴 | `{Domain}Strategy` | `RandomMatchingStrategy` |
 | 도메인 이벤트 | `{Domain}{Action}Event` | `AnnouncementRegisteredEvent` |
-| 요청 DTO | `{Action}Request` | `AnnouncementRegisterRequest` |
-| 응답 DTO | `{Domain}Response`, `{Domain}Item` | `AnnouncementItem` |
-| 내부 커맨드 DTO | `New{Domain}`, `Update{Domain}` | `NewAnnouncement` |
+| 요청 DTO (`dto/request/`) | `{Action}Request` | `AnnouncementRegisterRequest` |
+| 응답 DTO (`dto/response/`) | `{Domain}Response`, `{Domain}Item` | `AnnouncementItem` |
+| 커맨드 DTO (`dto/command/`) | `New{Domain}`, `Update{Domain}` | `NewAnnouncement` |
 | Swagger 문서 | `{Controller}Docs` | `AnnouncementControllerDocs` |
 
 ### 메서드
@@ -201,6 +205,23 @@ throw new CoreException(ErrorType.NOT_FOUND_MEMBER);
 
 ---
 
+## DTO 배치 규칙
+
+> **누가 생성하느냐**가 배치 위치를 결정한다.
+
+| DTO 종류 | 위치 | 생성 주체 | 특징 |
+|---------|------|----------|------|
+| Request | `dto/request/` | Controller | `@NotBlank` 등 HTTP 유효성 검증 포함 |
+| Response | `dto/response/` | Controller | `from(Entity)` 팩토리 메서드, `@Schema` 포함 가능 |
+| Command | `dto/command/` | Controller (Request → Command 변환 후 Service 전달) | 도메인 언어, HTTP 관심사 없음 |
+
+- Request DTO는 `toNew{Domain}()` 메서드로 Command로 변환한다.
+- **Service/Implement는 Response DTO를 생성하지 않는다** — 의존 방향 위반.
+- **implement 패키지 내부에 DTO를 두지 않는다** — 상위 계층이 하위 계층 네임스페이스를 의존하게 됨.
+- 자세한 내용: `docs/dto-placement-convention.md`
+
+---
+
 ## 안티패턴 (절대 금지)
 
 - Fat Service — Service가 비즈니스 로직을 직접 구현
@@ -208,6 +229,8 @@ throw new CoreException(ErrorType.NOT_FOUND_MEMBER);
 - God Object — 하나의 클래스가 모든 것을 담당
 - Setter 남발 — 상태 변경 의도를 숨김
 - 계층 책임 혼합 — Controller에서 비즈니스 로직, Service에서 ApiResponse 반환
+- Service/Implement가 Response DTO 생성 — 계층 의존 방향 위반
+- implement 패키지에 DTO 배치 — 상위 계층이 하위 계층에 의존하게 됨
 
 ---
 
