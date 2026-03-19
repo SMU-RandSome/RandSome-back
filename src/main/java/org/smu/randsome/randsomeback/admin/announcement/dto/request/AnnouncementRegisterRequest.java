@@ -1,8 +1,8 @@
-package org.smu.randsome.randsomeback.admin.announcement.controller.dto.request;
+package org.smu.randsome.randsomeback.admin.announcement.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import org.smu.randsome.randsomeback.domain.announcement.service.command.NewAnnouncement;
+import org.smu.randsome.randsomeback.domain.announcement.dto.command.NewAnnouncement;
 
 @Schema(description = "공지사항 등록 요청")
 public record AnnouncementRegisterRequest(

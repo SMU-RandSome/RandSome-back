@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
+import org.smu.randsome.randsomeback.domain.announcement.dto.response.AnnouncementItem;
 import org.smu.randsome.randsomeback.domain.announcement.implement.AnnouncementReader;
-import org.smu.randsome.randsomeback.domain.announcement.implement.dto.AnnouncementItem;
 
 class AnnouncementServiceUnitTest extends UnitTestSupport {
 

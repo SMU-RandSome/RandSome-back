@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.domain.announcement.implement.dto;
+package org.smu.randsome.randsomeback.domain.announcement.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

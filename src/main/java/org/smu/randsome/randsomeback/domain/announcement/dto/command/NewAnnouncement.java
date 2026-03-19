@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.domain.announcement.service.command;
+package org.smu.randsome.randsomeback.domain.announcement.dto.command;
 
 import lombok.Builder;
 
