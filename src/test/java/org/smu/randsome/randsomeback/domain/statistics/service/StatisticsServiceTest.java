@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
-import org.smu.randsome.randsomeback.domain.statistics.controller.dto.response.DashboardResponse;
+import org.smu.randsome.randsomeback.domain.statistics.dto.response.DashboardResponse;
 import org.smu.randsome.randsomeback.domain.statistics.implement.CandidateStatsReader;
 import org.smu.randsome.randsomeback.domain.statistics.implement.MatchingStatsReader;
 

@@ -2,7 +2,7 @@ package org.smu.randsome.randsomeback.admin.announcement.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.admin.announcement.controller.dto.request.AnnouncementRegisterRequest;
+import org.smu.randsome.randsomeback.admin.announcement.dto.request.AnnouncementRegisterRequest;
 import org.smu.randsome.randsomeback.admin.announcement.service.AnnouncementAdminService;
 import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;

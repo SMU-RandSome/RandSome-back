@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
-import org.smu.randsome.randsomeback.domain.matching.controller.dto.MatchingApplyRequest;
+import org.smu.randsome.randsomeback.domain.matching.dto.request.MatchingApplyRequest;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;

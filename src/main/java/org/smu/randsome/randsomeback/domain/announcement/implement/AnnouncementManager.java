@@ -2,9 +2,9 @@ package org.smu.randsome.randsomeback.domain.announcement.implement;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.smu.randsome.randsomeback.domain.announcement.dto.command.NewAnnouncement;
 import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
 import org.smu.randsome.randsomeback.domain.announcement.repository.AnnouncementJpaRepository;
-import org.smu.randsome.randsomeback.domain.announcement.service.command.NewAnnouncement;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberValidator;

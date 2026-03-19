@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
-import org.smu.randsome.randsomeback.admin.payment.controller.dto.request.PaymentRejectRequest;
+import org.smu.randsome.randsomeback.admin.payment.dto.request.PaymentRejectRequest;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.http.HttpStatus;

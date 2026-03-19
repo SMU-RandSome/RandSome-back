@@ -10,10 +10,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
-import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationCodeVerifyRequest;
-import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.EmailVerificationRequest;
-import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.LoginRequest;
-import org.smu.randsome.randsomeback.domain.auth.controller.dto.request.TokenReissueRequest;
+import org.smu.randsome.randsomeback.domain.auth.dto.request.EmailVerificationCodeVerifyRequest;
+import org.smu.randsome.randsomeback.domain.auth.dto.request.EmailVerificationRequest;
+import org.smu.randsome.randsomeback.domain.auth.dto.request.LoginRequest;
+import org.smu.randsome.randsomeback.domain.auth.dto.request.TokenReissueRequest;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;

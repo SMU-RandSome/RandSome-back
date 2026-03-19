@@ -2,8 +2,8 @@ package org.smu.randsome.randsomeback.domain.announcement.implement;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.domain.announcement.dto.response.AnnouncementItem;
 import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
-import org.smu.randsome.randsomeback.domain.announcement.implement.dto.AnnouncementItem;
 import org.smu.randsome.randsomeback.domain.announcement.repository.AnnouncementJpaRepository;
 import org.smu.randsome.randsomeback.global.config.CacheConfig;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;

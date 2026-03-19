@@ -1,10 +1,10 @@
 package org.smu.randsome.randsomeback.admin.announcement.service;
 
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.domain.announcement.dto.command.NewAnnouncement;
 import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
 import org.smu.randsome.randsomeback.domain.announcement.implement.AnnouncementManager;
 import org.smu.randsome.randsomeback.domain.announcement.implement.AnnouncementRegisteredEvent;
-import org.smu.randsome.randsomeback.domain.announcement.service.command.NewAnnouncement;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

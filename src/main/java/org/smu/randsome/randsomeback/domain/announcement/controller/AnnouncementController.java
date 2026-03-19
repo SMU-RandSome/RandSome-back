@@ -2,7 +2,7 @@ package org.smu.randsome.randsomeback.domain.announcement.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.domain.announcement.implement.dto.AnnouncementItem;
+import org.smu.randsome.randsomeback.domain.announcement.dto.response.AnnouncementItem;
 import org.smu.randsome.randsomeback.domain.announcement.service.AnnouncementService;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.http.ResponseEntity;

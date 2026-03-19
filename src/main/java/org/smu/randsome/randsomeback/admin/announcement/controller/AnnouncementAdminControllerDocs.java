@@ -3,7 +3,7 @@ package org.smu.randsome.randsomeback.admin.announcement.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.smu.randsome.randsomeback.admin.announcement.controller.dto.request.AnnouncementRegisterRequest;
+import org.smu.randsome.randsomeback.admin.announcement.dto.request.AnnouncementRegisterRequest;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.http.ResponseEntity;

@@ -2,7 +2,7 @@ package org.smu.randsome.randsomeback.domain.statistics.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.smu.randsome.randsomeback.domain.statistics.controller.dto.response.DashboardResponse;
+import org.smu.randsome.randsomeback.domain.statistics.dto.response.DashboardResponse;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;

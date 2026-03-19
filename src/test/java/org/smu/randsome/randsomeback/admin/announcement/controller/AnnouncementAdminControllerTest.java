@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
-import org.smu.randsome.randsomeback.admin.announcement.controller.dto.request.AnnouncementRegisterRequest;
+import org.smu.randsome.randsomeback.admin.announcement.dto.request.AnnouncementRegisterRequest;
 import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;

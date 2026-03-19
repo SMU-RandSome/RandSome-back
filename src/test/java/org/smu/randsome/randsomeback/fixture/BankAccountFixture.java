@@ -1,6 +1,6 @@
 package org.smu.randsome.randsomeback.fixture;
 
-import org.smu.randsome.randsomeback.domain.bankaccount.BankAccount;
+import org.smu.randsome.randsomeback.domain.bankaccount.entity.BankAccount;
 
 public class BankAccountFixture {
 
