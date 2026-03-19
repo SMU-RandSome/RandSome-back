@@ -3,7 +3,7 @@ package org.smu.randsome.randsomeback.admin.member.service;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberAdminResponse;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailResponse;
-import org.smu.randsome.randsomeback.domain.bankaccount.BankAccount;
+import org.smu.randsome.randsomeback.domain.bankaccount.entity.BankAccount;
 import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountReader;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;

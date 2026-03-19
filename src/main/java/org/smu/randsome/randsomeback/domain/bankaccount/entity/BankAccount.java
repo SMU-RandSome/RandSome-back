@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.domain.bankaccount;
+package org.smu.randsome.randsomeback.domain.bankaccount.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

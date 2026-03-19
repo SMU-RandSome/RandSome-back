@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.domain.bankaccount.service.command;
+package org.smu.randsome.randsomeback.domain.bankaccount.dto.command;
 
 public record BankAccountInfo(
         String bankName,

@@ -1,8 +1,8 @@
 package org.smu.randsome.randsomeback.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.BankAccountInfo;
 import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountManager;
-import org.smu.randsome.randsomeback.domain.bankaccount.service.command.BankAccountInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
