@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.domain.member.controller.dto;
+package org.smu.randsome.randsomeback.domain.member.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
@@ -8,11 +8,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.smu.randsome.randsomeback.domain.bankaccount.service.command.BankAccountInfo;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
-import org.smu.randsome.randsomeback.domain.member.service.command.MemberBasicInfo;
-import org.smu.randsome.randsomeback.domain.member.service.command.MemberCredentials;
-import org.smu.randsome.randsomeback.domain.member.service.command.MemberSocialProfile;
 
 @Schema(description = "회원 가입 요청 DTO")
 public record MemberCreateRequest(

@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.admin.member.controller.dto.response;
+package org.smu.randsome.randsomeback.admin.member.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;

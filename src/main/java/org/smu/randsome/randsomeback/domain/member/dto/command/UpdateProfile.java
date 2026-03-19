@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.domain.member.service.command;
+package org.smu.randsome.randsomeback.domain.member.dto.command;
 
 import lombok.Builder;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;

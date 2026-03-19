@@ -1,11 +1,11 @@
-package org.smu.randsome.randsomeback.domain.member.controller.dto.request;
+package org.smu.randsome.randsomeback.domain.member.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
-import org.smu.randsome.randsomeback.domain.member.service.command.UpdateProfile;
 
 @Schema(name = "회원 프로필 수정 요청 DTO", description = "회원 프로필 수정 시 필요한 정보를 담는 DTO입니다.")
 @Builder

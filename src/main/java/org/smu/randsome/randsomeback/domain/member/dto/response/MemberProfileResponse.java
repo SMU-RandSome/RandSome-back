@@ -1,7 +1,8 @@
-package org.smu.randsome.randsomeback.domain.member.controller.dto;
+package org.smu.randsome.randsomeback.domain.member.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.CandidateRegistrationStatusView;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;

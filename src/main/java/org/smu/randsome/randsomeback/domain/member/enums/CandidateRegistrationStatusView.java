@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.domain.member.controller.dto;
+package org.smu.randsome.randsomeback.domain.member.enums;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Optional;

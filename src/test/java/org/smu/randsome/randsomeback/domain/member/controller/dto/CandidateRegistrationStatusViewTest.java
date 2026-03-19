@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
+import org.smu.randsome.randsomeback.domain.member.enums.CandidateRegistrationStatusView;
 
 class CandidateRegistrationStatusViewTest {
 

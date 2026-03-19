@@ -1,5 +1,8 @@
 package org.smu.randsome.randsomeback.fixture;
 
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Email;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Password;
@@ -8,9 +11,6 @@ import org.smu.randsome.randsomeback.domain.member.entity.vo.StudentId;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
-import org.smu.randsome.randsomeback.domain.member.service.command.MemberBasicInfo;
-import org.smu.randsome.randsomeback.domain.member.service.command.MemberCredentials;
-import org.smu.randsome.randsomeback.domain.member.service.command.MemberSocialProfile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 

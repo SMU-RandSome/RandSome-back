@@ -1,8 +1,8 @@
 package org.smu.randsome.randsomeback.admin.member.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.admin.member.controller.dto.response.MemberAdminResponse;
-import org.smu.randsome.randsomeback.admin.member.controller.dto.response.MemberDetailResponse;
+import org.smu.randsome.randsomeback.admin.member.dto.response.MemberAdminResponse;
+import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailResponse;
 import org.smu.randsome.randsomeback.admin.member.service.MemberAdminService;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.support.response.PageResponse;

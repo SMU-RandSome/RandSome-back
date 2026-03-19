@@ -1,12 +1,12 @@
 package org.smu.randsome.randsomeback.domain.member.implement;
 
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
+import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
-import org.smu.randsome.randsomeback.domain.member.service.command.MemberBasicInfo;
-import org.smu.randsome.randsomeback.domain.member.service.command.MemberCredentials;
-import org.smu.randsome.randsomeback.domain.member.service.command.MemberSocialProfile;
-import org.smu.randsome.randsomeback.domain.member.service.command.UpdateProfile;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
