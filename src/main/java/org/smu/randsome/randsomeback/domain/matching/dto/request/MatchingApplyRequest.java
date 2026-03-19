@@ -1,11 +1,11 @@
-package org.smu.randsome.randsomeback.domain.matching.controller.dto;
+package org.smu.randsome.randsomeback.domain.matching.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
-import org.smu.randsome.randsomeback.domain.matching.service.command.NewMatching;
 
 @Schema(name = "매칭 신청 요청 DTO")
 public record MatchingApplyRequest(

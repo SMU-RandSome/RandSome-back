@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.domain.matching.controller.dto.response;
+package org.smu.randsome.randsomeback.domain.matching.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;

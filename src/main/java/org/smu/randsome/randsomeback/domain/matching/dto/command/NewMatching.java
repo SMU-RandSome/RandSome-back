@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.domain.matching.service.command;
+package org.smu.randsome.randsomeback.domain.matching.dto.command;
 
 import lombok.Builder;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
