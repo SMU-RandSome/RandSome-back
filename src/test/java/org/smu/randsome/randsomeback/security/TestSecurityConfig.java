@@ -29,7 +29,7 @@ public class TestSecurityConfig {
                     SecurityPaths.methodPermitAll().forEach(endpoint ->
                             auth.requestMatchers(endpoint.method(), endpoint.pathPattern()).permitAll());
                     auth.requestMatchers(SecurityPaths.admin()).hasRole("ADMIN");
-                    auth.anyRequest().hasAnyRole("MEMBER", "ADMIN");
+                    auth.anyRequest().hasAnyRole("MEMBER", "CANDIDATE", "ADMIN");
                 });
 
         return http.build();
