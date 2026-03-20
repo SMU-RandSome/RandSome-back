@@ -7,6 +7,8 @@ import org.smu.randsome.randsomeback.admin.member.controller.MemberAdminControll
 import org.smu.randsome.randsomeback.admin.member.service.MemberAdminService;
 import org.smu.randsome.randsomeback.admin.payment.controller.PaymentAdminController;
 import org.smu.randsome.randsomeback.admin.payment.service.PaymentAdminService;
+import org.smu.randsome.randsomeback.admin.statistics.controller.StatisticsAdminController;
+import org.smu.randsome.randsomeback.admin.statistics.service.StatisticsAdminService;
 import org.smu.randsome.randsomeback.domain.announcement.controller.AnnouncementController;
 import org.smu.randsome.randsomeback.domain.announcement.service.AnnouncementService;
 import org.smu.randsome.randsomeback.domain.auth.controller.AuthController;
@@ -46,6 +48,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
         MemberAdminController.class,
         PaymentController.class,
         PaymentAdminController.class,
+        StatisticsAdminController.class,
         StatisticsController.class,
 })
 public abstract class ControllerTestSupport {
@@ -82,6 +85,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected PaymentAdminService paymentAdminService;
+
+    @MockitoBean
+    protected StatisticsAdminService statisticsAdminService;
 
     @MockitoBean
     protected StatisticsService statisticsService;
