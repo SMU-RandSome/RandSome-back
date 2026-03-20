@@ -73,7 +73,7 @@ public abstract class MemberAdminControllerDocs {
             ErrorType.DEFAULT_ERROR
     })
     public abstract ApiResponse<PageResponse<MemberAdminResponse>> searchMembers(
-            @Parameter(name = "query", description = "검색어 (닉네임 또는 실명)", required = true) String query,
+            @Parameter(name = "query", description = "검색어 (닉네임 또는 실명)", required = false) String query,
             @ParameterObject Pageable pageable
     );
 

@@ -35,15 +35,4 @@ public interface MemberJpaRepository extends JpaRepository<Member, Long> {
             @Param("status") EntityStatus status
     );
 
-    @Query("""
-                SELECT m
-                FROM Member m
-                WHERE m.status = 'ACTIVE'
-                  AND m.role != 'ROLE_ADMIN'
-                  AND (LOWER(m.nickname) LIKE LOWER(CONCAT('%', :query, '%'))
-                       OR LOWER(m.legalName) LIKE LOWER(CONCAT('%', :query, '%')))
-            """
-    )
-    Page<Member> searchByNicknameOrLegalName(String query, Pageable pageable);
-
 }

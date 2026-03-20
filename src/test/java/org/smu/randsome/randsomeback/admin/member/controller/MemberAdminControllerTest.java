@@ -140,6 +140,81 @@ class MemberAdminControllerTest extends ControllerTestSupport {
         then(memberAdminService).should().searchMembers(any(), any());
     }
 
+    @TestAdmin
+    @Test
+    void 관리자가_빈_검색어로_검색하면_전체_회원을_반환한다() {
+        // given
+        var response = new MemberAdminResponse(
+                1L,
+                "nickname",
+                "홍길동",
+                Gender.MALE,
+                Mbti.INTJ,
+                Role.ROLE_MEMBER
+        );
+
+        given(memberAdminService.searchMembers(any(), any()))
+                .willReturn(new PageImpl<>(List.of(response)));
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/members/search?query="))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data.totalElements", v -> v.assertThat().isEqualTo(1))
+                .hasPathSatisfying("$.data.content", v -> v.assertThat().asArray().isNotEmpty());
+
+        then(memberAdminService).should().searchMembers(any(), any());
+    }
+
+    @TestAdmin
+    @Test
+    void 관리자가_공백만_있는_검색어로_검색하면_전체_회원을_반환한다() {
+        // given
+        var response = new MemberAdminResponse(
+                1L,
+                "nickname",
+                "홍길동",
+                Gender.MALE,
+                Mbti.INTJ,
+                Role.ROLE_MEMBER
+        );
+
+        given(memberAdminService.searchMembers(any(), any()))
+                .willReturn(new PageImpl<>(List.of(response)));
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/members/search?query=   "))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data.totalElements", v -> v.assertThat().isEqualTo(1))
+                .hasPathSatisfying("$.data.content", v -> v.assertThat().asArray().isNotEmpty());
+
+        then(memberAdminService).should().searchMembers(any(), any());
+    }
+
+    @TestAdmin
+    @Test
+    void 관리자가_검색_결과가_없으면_빈_목록을_반환한다() {
+        // given
+        given(memberAdminService.searchMembers(any(), any()))
+                .willReturn(new PageImpl<>(List.of()));
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/members/search?query=존재하지않는이름"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data.totalElements", v -> v.assertThat().isEqualTo(0))
+                .hasPathSatisfying("$.data.content", v -> v.assertThat().asArray().isEmpty());
+
+        then(memberAdminService).should().searchMembers(any(), any());
+    }
+
     @TestMember
     @Test
     void 일반_회원이_관리자_회원_API를_호출하면_403을_반환한다() {

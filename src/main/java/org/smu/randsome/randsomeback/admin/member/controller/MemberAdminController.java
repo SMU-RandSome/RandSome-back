@@ -40,7 +40,7 @@ public class MemberAdminController extends MemberAdminControllerDocs {
     @Override
     @GetMapping("/v1/admin/members/search")
     public ApiResponse<PageResponse<MemberAdminResponse>> searchMembers(
-            @RequestParam String query,
+            @RequestParam(required = false) String query,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         return ApiResponse.success(
