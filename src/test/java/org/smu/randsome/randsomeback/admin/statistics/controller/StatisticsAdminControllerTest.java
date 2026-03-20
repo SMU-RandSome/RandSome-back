@@ -1,0 +1,81 @@
+package org.smu.randsome.randsomeback.admin.statistics.controller;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.smu.randsome.randsomeback.ControllerTestSupport;
+import org.smu.randsome.randsomeback.domain.member.dto.response.CandidateGenderCountItem;
+import org.smu.randsome.randsomeback.domain.member.enums.Gender;
+import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
+import org.smu.randsome.randsomeback.security.annotation.TestMember;
+import org.springframework.http.HttpStatus;
+
+class StatisticsAdminControllerTest extends ControllerTestSupport {
+
+    // ===== GET /v1/admin/statistics/candidates/gender-count =====
+
+    @TestAdmin
+    @Test
+    void 관리자가_후보자_성별_통계를_조회하면_200과_성별_카운트를_반환한다() {
+        // given
+        var items = List.of(
+                new CandidateGenderCountItem(Gender.MALE, 5),
+                new CandidateGenderCountItem(Gender.FEMALE, 3)
+        );
+        given(statisticsAdminService.findCandidateGenderCount()).willReturn(items);
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/statistics/candidates/gender-count"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data[0].gender", v -> v.assertThat().isEqualTo("MALE"))
+                .hasPathSatisfying("$.data[0].count", v -> v.assertThat().isEqualTo(5))
+                .hasPathSatisfying("$.data[1].gender", v -> v.assertThat().isEqualTo("FEMALE"))
+                .hasPathSatisfying("$.data[1].count", v -> v.assertThat().isEqualTo(3));
+    }
+
+    @TestAdmin
+    @Test
+    void 후보자가_없으면_빈_리스트와_함께_200을_반환한다() {
+        // given
+        given(statisticsAdminService.findCandidateGenderCount()).willReturn(List.of());
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/statistics/candidates/gender-count"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data", v -> v.assertThat().asArray().isEmpty());
+    }
+
+    // ===== 인가 검증 =====
+
+    @Test
+    void 인증_없이_접근하면_403을_반환한다() {
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/statistics/candidates/gender-count"))
+                .apply(print())
+                .hasStatus(HttpStatus.FORBIDDEN.value());
+
+        then(statisticsAdminService).shouldHaveNoInteractions();
+    }
+
+    @TestMember
+    @Test
+    void 일반_회원이_관리자_통계_API를_호출하면_403을_반환한다() {
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/statistics/candidates/gender-count"))
+                .apply(print())
+                .hasStatus(HttpStatus.FORBIDDEN.value());
+
+        then(statisticsAdminService).shouldHaveNoInteractions();
+    }
+
+}
