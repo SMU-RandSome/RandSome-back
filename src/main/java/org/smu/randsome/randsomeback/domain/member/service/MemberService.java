@@ -27,13 +27,15 @@ public class MemberService {
 
     /**
      * 회원 가입을 처리하는 서비스 메서드입니다.
+     *
      * @param emailVerificationToken 이메일 인증 토큰
-     * @param credentials 회원의 계정 정보 (이메일, 비밀번호)
-     * @param basicInfo 회원의 기본 정보 (이름, 생년월일 등)
-     * @param socialProfile 회원의 소셜 프로필 정보 (인스타그램 ID, 자기소개 등)
-     * @param bankAccountInfo 회원의 은행 계좌 정보
+     * @param credentials            회원의 계정 정보 (이메일, 비밀번호)
+     * @param basicInfo              회원의 기본 정보 (이름, 생년월일 등)
+     * @param socialProfile          회원의 소셜 프로필 정보 (인스타그램 ID, 자기소개 등)
+     * @param bankAccountInfo        회원의 은행 계좌 정보
      * @return 생성된 회원의 ID
-     * */
+     *
+     */
     @Transactional
     public Long create(
             String emailVerificationToken,
@@ -58,6 +60,14 @@ public class MemberService {
 
     public void updateProfile(Long memberId, UpdateProfile updateProfile) {
         memberManager.updateProfile(memberId, updateProfile);
+    }
+
+    @Transactional
+    public void updatePassword(Long memberId, String newPassword, String emailVerificationToken) {
+        Member member = memberReader.find(memberId);
+        memberValidator.validateUpdatePassword(emailVerificationToken, member.getEmail());
+
+        memberManager.updatePassword(member, newPassword);
     }
 
 }

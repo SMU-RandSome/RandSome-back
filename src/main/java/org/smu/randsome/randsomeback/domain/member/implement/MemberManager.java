@@ -74,4 +74,8 @@ public class MemberManager {
         log.info("[MemberManager] 로그아웃 처리 완료. memberId: {}", memberId);
     }
 
+    public void updatePassword(Member member, String newPassword) {
+        member.updatePassword(newPassword, passwordEncoder);
+    }
+
 }
