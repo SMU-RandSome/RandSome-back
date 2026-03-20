@@ -4,6 +4,10 @@ public enum PaymentStatus {
 
     PENDING,
     COMPLETED,
-    REJECTED
+    REJECTED;
+
+    public boolean isPending() {
+        return this == PENDING;
+    }
 
 }

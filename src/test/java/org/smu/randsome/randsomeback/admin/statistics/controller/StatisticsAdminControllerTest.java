@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.domain.member.dto.response.CandidateGenderCountItem;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
+import org.smu.randsome.randsomeback.domain.payment.dto.response.PaymentStatusCountItem;
+import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.http.HttpStatus;
@@ -53,6 +55,44 @@ class StatisticsAdminControllerTest extends ControllerTestSupport {
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
                 .hasPathSatisfying("$.data", v -> v.assertThat().asArray().isEmpty());
+    }
+
+    // ===== GET /v1/admin/statistics/payments/status-count =====
+
+    @TestAdmin
+    @Test
+    void 관리자가_결제_상태별_통계를_조회하면_200과_집계_결과를_반환한다() {
+        // given
+        var items = List.of(
+                new PaymentStatusCountItem(PaymentStatus.PENDING, 3),
+                new PaymentStatusCountItem(PaymentStatus.COMPLETED, 5),
+                new PaymentStatusCountItem(PaymentStatus.REJECTED, 2)
+        );
+        given(statisticsAdminService.findPaymentStatusCount()).willReturn(items);
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/statistics/payments/status-count"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data.pendingCount", v -> v.assertThat().isEqualTo(3))
+                .hasPathSatisfying("$.data.processedCount", v -> v.assertThat().isEqualTo(7));
+    }
+
+    @TestAdmin
+    @Test
+    void 결제_내역이_없으면_pendingCount와_processedCount가_모두_0으로_반환된다() {
+        // given
+        given(statisticsAdminService.findPaymentStatusCount()).willReturn(List.of());
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/statistics/payments/status-count"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.data.pendingCount", v -> v.assertThat().isEqualTo(0))
+                .hasPathSatisfying("$.data.processedCount", v -> v.assertThat().isEqualTo(0));
     }
 
     // ===== 인가 검증 =====

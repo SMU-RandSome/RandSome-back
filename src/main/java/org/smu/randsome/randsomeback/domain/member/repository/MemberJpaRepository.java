@@ -2,10 +2,10 @@ package org.smu.randsome.randsomeback.domain.member.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.smu.randsome.randsomeback.domain.member.dto.response.CandidateGenderCountItem;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
-import org.smu.randsome.randsomeback.domain.member.dto.response.CandidateGenderCountItem;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

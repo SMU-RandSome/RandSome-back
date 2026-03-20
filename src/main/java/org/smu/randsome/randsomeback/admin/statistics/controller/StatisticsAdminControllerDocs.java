@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.admin.statistics.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import org.smu.randsome.randsomeback.admin.statistics.dto.response.PaymentStatusStatisticsResponse;
 import org.smu.randsome.randsomeback.domain.member.dto.response.CandidateGenderCountItem;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
@@ -24,5 +25,18 @@ public abstract class StatisticsAdminControllerDocs {
             ErrorType.DEFAULT_ERROR
     })
     public abstract ApiResponse<List<CandidateGenderCountItem>> getCandidateGenderCount();
+
+    @Operation(
+            summary = "결제 상태별 건수 조회",
+            description = """
+                    #### 관리자 결제 상태별 건수 조회 API입니다.
+                    - 대기(`pendingCount`)와 처리 완료(`processedCount`, 승인+거절 합산) 건수를 반환합니다.
+                    - 결제 현황 대시보드에서 사용합니다.
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ApiResponse<PaymentStatusStatisticsResponse> getPaymentStatusCount();
 
 }
