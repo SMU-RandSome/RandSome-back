@@ -111,6 +111,35 @@ class MemberAdminControllerTest extends ControllerTestSupport {
         then(memberAdminService).should().getMemberDetail(3L);
     }
 
+    @TestAdmin
+    @Test
+    void 관리자가_회원_검색에_성공하면_200을_반환한다() {
+        // given
+        var response = new MemberAdminResponse(
+                1L,
+                "nickname",
+                "홍길동",
+                Gender.MALE,
+                Mbti.INTJ,
+                Role.ROLE_MEMBER
+        );
+
+        given(memberAdminService.searchMembers(any(), any()))
+                .willReturn(new PageImpl<>(List.of(response)));
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/members/search?query=홍길동"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data.content", v -> v.assertThat().asArray().isNotEmpty())
+                .hasPathSatisfying("$.data.content[0].id", v -> v.assertThat().isEqualTo(1))
+                .hasPathSatisfying("$.data.content[0].legalName", v -> v.assertThat().isEqualTo("홍길동"));
+
+        then(memberAdminService).should().searchMembers(any(), any());
+    }
+
     @TestMember
     @Test
     void 일반_회원이_관리자_회원_API를_호출하면_403을_반환한다() {
@@ -127,6 +156,17 @@ class MemberAdminControllerTest extends ControllerTestSupport {
     void 일반_회원이_관리자_회원_상세_API를_호출하면_403을_반환한다() {
         // when & then
         assertThat(mvcTester.get().uri("/v1/admin/members/1"))
+                .apply(print())
+                .hasStatus(HttpStatus.FORBIDDEN.value());
+
+        then(memberAdminService).shouldHaveNoInteractions();
+    }
+
+    @TestMember
+    @Test
+    void 일반_회원이_회원_검색_API를_호출하면_403을_반환한다() {
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/members/search?query=홍길동"))
                 .apply(print())
                 .hasStatus(HttpStatus.FORBIDDEN.value());
 

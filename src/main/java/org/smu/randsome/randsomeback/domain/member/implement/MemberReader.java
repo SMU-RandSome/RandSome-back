@@ -50,4 +50,8 @@ public class MemberReader {
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN));
     }
 
+    public Page<Member> search(String query, Pageable pageable) {
+        return memberJpaRepository.searchByNicknameOrLegalName(query, pageable);
+    }
+
 }
