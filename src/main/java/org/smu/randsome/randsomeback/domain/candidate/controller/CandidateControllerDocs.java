@@ -6,7 +6,6 @@ import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
-import org.springframework.http.ResponseEntity;
 
 @Tag(name = "Candidate Docs", description = "후보 등록 신청 관련 API 문서")
 public abstract class CandidateControllerDocs {
@@ -26,7 +25,7 @@ public abstract class CandidateControllerDocs {
             ErrorType.DUPLICATE_CANDIDATE,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<?>> apply(@LoginMember Long memberId);
+    public abstract ApiResponse<?> apply(@LoginMember Long memberId);
 
     @Operation(summary = "후보 등록 신청 철회 API",
             description = """
@@ -42,6 +41,6 @@ public abstract class CandidateControllerDocs {
             ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<?>> withdraw(@LoginMember Long memberId);
+    public abstract ApiResponse<?> withdraw(@LoginMember Long memberId);
 
 }

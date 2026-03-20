@@ -15,11 +15,11 @@ import org.smu.randsome.randsomeback.domain.member.service.MemberService;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -30,8 +30,9 @@ public class MemberController extends MemberControllerDocs {
     private final CandidateService candidateService;
 
     @Override
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/v1/members/sign-up")
-    public ResponseEntity<ApiResponse<Long>> signUp(@RequestBody @Valid MemberCreateRequest request) {
+    public ApiResponse<Long> signUp(@RequestBody @Valid MemberCreateRequest request) {
         Long memberId = memberService.create(
                 request.emailVerificationToken(),
                 request.toCredentials(),
@@ -40,14 +41,12 @@ public class MemberController extends MemberControllerDocs {
                 request.toBankAccountInfo()
         );
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success(memberId));
+        return ApiResponse.success(memberId);
     }
 
     @Override
     @GetMapping("/v1/members")
-    public ResponseEntity<ApiResponse<MemberProfileResponse>> getMyProfile(@LoginMember Long memberId) {
+    public ApiResponse<MemberProfileResponse> getMyProfile(@LoginMember Long memberId) {
         Member member = memberService.getMyProfile(memberId);
         Optional<RegistrationStatus> myRegistrationStatus = candidateService.getMyRegistrationStatus(memberId);
 
@@ -56,18 +55,18 @@ public class MemberController extends MemberControllerDocs {
                 CandidateRegistrationStatusView.from(myRegistrationStatus)
         );
 
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ApiResponse.success(response);
     }
 
     @Override
     @PatchMapping("/v1/members")
-    public ResponseEntity<Void> updateProfile(
+    public ApiResponse<?> updateProfile(
             @RequestBody @Valid MemberUpdateRequest request,
             @LoginMember Long memberId
     ) {
         memberService.updateProfile(memberId, request.toUpdateProfile());
 
-        return ResponseEntity.ok().build();
+        return ApiResponse.success();
     }
 
 }

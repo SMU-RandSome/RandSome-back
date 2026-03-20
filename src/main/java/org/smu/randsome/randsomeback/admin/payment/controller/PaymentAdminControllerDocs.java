@@ -13,7 +13,6 @@ import org.smu.randsome.randsomeback.global.support.response.PageResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "관리자 결제 관리 API", description = "관리자용 결제 관련 API 문서")
@@ -38,7 +37,7 @@ public abstract class PaymentAdminControllerDocs {
             ErrorType.NOT_ALLOW_ALREADY_CONFIRMED_PAYMENT,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<?>> confirm(
+    public abstract ApiResponse<?> confirm(
             @Parameter(
                     example = "1",
                     description = "승인할 결제의 ID",
@@ -61,7 +60,7 @@ public abstract class PaymentAdminControllerDocs {
             ErrorType.NOT_FOUND_PAYMENT,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<?>> reject(
+    public abstract ApiResponse<?> reject(
             @Parameter(
                     example = "1",
                     description = "거절할 결제의 ID",
@@ -85,7 +84,7 @@ public abstract class PaymentAdminControllerDocs {
             ErrorType.BAD_REQUEST,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<PageResponse<PaymentPreviewItem>>> findPayments(
+    public abstract ApiResponse<PageResponse<PaymentPreviewItem>> findPayments(
             @RequestParam PaymentFilterStatus filterStatus,
             @PageableDefault(size = 10) Pageable pageable
     );

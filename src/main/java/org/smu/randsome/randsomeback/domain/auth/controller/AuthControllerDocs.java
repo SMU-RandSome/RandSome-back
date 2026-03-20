@@ -12,7 +12,6 @@ import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "Auth", description = "인증 관련 API")
@@ -31,7 +30,7 @@ public abstract class AuthControllerDocs {
             ErrorType.EMAIL_SEND_FAILED,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<?>> sendVerificationCode(@RequestBody @Valid EmailVerificationRequest request);
+    public abstract ApiResponse<?> sendVerificationCode(@RequestBody @Valid EmailVerificationRequest request);
 
     @Operation(summary = "이메일 인증 코드 검증 JWT - [X]",
             description = """
@@ -44,7 +43,7 @@ public abstract class AuthControllerDocs {
             ErrorType.BAD_REQUEST,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<EmailVerificationTokenResponse>> verifyEmailVerificationCode(
+    public abstract ApiResponse<EmailVerificationTokenResponse> verifyEmailVerificationCode(
             @RequestBody @Valid EmailVerificationCodeVerifyRequest request
     );
 
@@ -61,7 +60,7 @@ public abstract class AuthControllerDocs {
             ErrorType.INVALID_ACCOUNT,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<TokenResponse>> login(@RequestBody @Valid LoginRequest request);
+    public abstract ApiResponse<TokenResponse> login(@RequestBody @Valid LoginRequest request);
 
     @Operation(
             summary = "토큰 재발급 요청 - JWT [X]",
@@ -77,6 +76,6 @@ public abstract class AuthControllerDocs {
             ErrorType.NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<TokenResponse>> reissueToken(@RequestBody @Valid TokenReissueRequest request);
+    public abstract ApiResponse<TokenResponse> reissueToken(@RequestBody @Valid TokenReissueRequest request);
 
 }

@@ -10,7 +10,6 @@ import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.service.MatchingService;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,18 +25,18 @@ public class MatchingController extends MatchingControllerDocs {
 
     @Override
     @PostMapping("/v1/matching")
-    public ResponseEntity<ApiResponse<?>> apply(
+    public ApiResponse<?> apply(
             @RequestBody @Valid MatchingApplyRequest request,
             @LoginMember Long memberId
     ) {
         matchingService.apply(request.toNewMatching(), memberId);
 
-        return ResponseEntity.ok(ApiResponse.success());
+        return ApiResponse.success();
     }
 
     @Override
     @GetMapping("/v1/matching/applications")
-    public ResponseEntity<ApiResponse<List<MatchingHistoryItem>>> getMyApplications(
+    public ApiResponse<List<MatchingHistoryItem>> getMyApplications(
             @RequestParam(defaultValue = "PENDING", required = false) ApplicationStatus status,
             @LoginMember Long memberId
     ) {
@@ -46,12 +45,12 @@ public class MatchingController extends MatchingControllerDocs {
                 .map(MatchingHistoryItem::from)
                 .toList();
 
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ApiResponse.success(response);
     }
 
     @Override
     @GetMapping("/v1/matching/applications/{applicationId}/approved")
-    public ResponseEntity<ApiResponse<List<MatchingResultDetailItem>>> getApprovedApplication(
+    public ApiResponse<List<MatchingResultDetailItem>> getApprovedApplication(
             @PathVariable Long applicationId,
             @LoginMember Long memberId
     ) {
@@ -60,18 +59,18 @@ public class MatchingController extends MatchingControllerDocs {
                 .map(MatchingResultDetailItem::from)
                 .toList();
 
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ApiResponse.success(response);
     }
 
     @Override
     @PostMapping("/v1/matching/applications/{applicationId}/withdraw")
-    public ResponseEntity<ApiResponse<?>> withdraw(
+    public ApiResponse<?> withdraw(
             @PathVariable Long applicationId,
             @LoginMember Long memberId
     ) {
         matchingService.withdraw(applicationId, memberId);
 
-        return ResponseEntity.ok(ApiResponse.success());
+        return ApiResponse.success();
     }
 
 

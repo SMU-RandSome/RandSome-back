@@ -14,7 +14,6 @@ import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "Matching Docs", description = "매칭 관련 API 문서")
@@ -37,7 +36,7 @@ public abstract class MatchingControllerDocs {
             ErrorType.INVALID_PERSON_COUNT,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<?>> apply(
+    public abstract ApiResponse<?> apply(
             @RequestBody @Valid MatchingApplyRequest request,
             @LoginMember Long memberId
     );
@@ -56,7 +55,7 @@ public abstract class MatchingControllerDocs {
             ErrorType.UNAUTHORIZED_ERROR,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<List<MatchingHistoryItem>>> getMyApplications(
+    public abstract ApiResponse<List<MatchingHistoryItem>> getMyApplications(
             @Parameter(
                     description = "조회할 신청 상태 (PENDING, APPROVED, REJECTED, WITHDRAWN)",
                     in = ParameterIn.QUERY
@@ -80,7 +79,7 @@ public abstract class MatchingControllerDocs {
             ErrorType.NOT_FOUND_APPROVED_MATCHING,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<List<MatchingResultDetailItem>>> getApprovedApplication(
+    public abstract ApiResponse<List<MatchingResultDetailItem>> getApprovedApplication(
             @Parameter(
                     description = "신청 ID",
                     required = true,
@@ -107,7 +106,7 @@ public abstract class MatchingControllerDocs {
             ErrorType.NOT_ALLOW_WITHDRAW_REJECTED,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<?>> withdraw(
+    public abstract ApiResponse<?> withdraw(
             @Parameter(
                     description = "신청 ID",
                     required = true,
