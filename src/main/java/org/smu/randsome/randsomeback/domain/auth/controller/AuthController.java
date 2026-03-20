@@ -9,6 +9,7 @@ import org.smu.randsome.randsomeback.domain.auth.dto.request.TokenReissueRequest
 import org.smu.randsome.randsomeback.domain.auth.dto.response.EmailVerificationTokenResponse;
 import org.smu.randsome.randsomeback.domain.auth.service.AuthService;
 import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationService;
+import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,6 +57,14 @@ public class AuthController extends AuthControllerDocs {
         TokenResponse response = authService.reissue(request.refreshToken());
 
         return ApiResponse.success(response);
+    }
+
+    @Override
+    @PostMapping("/v1/auth/logout")
+    public ApiResponse<?> logout(@LoginMember Long memberId) {
+        authService.logout(memberId);
+
+        return ApiResponse.success();
     }
 
 }

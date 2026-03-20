@@ -18,6 +18,7 @@ import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -200,6 +201,25 @@ class AuthControllerTest extends ControllerTestSupport {
                 .bodyJson()
                 .hasPathSatisfying("$.error.message",
                         v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN.getMessage()));
+    }
+
+    @Test
+    @TestMember(id = 1L)
+    void 로그아웃_성공_시_200을_반환한다() {
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/auth/logout"))
+                .apply(print())
+                .hasStatusOk();
+
+        verify(authService).logout(1L);
+    }
+
+    @Test
+    void 로그아웃_요청_시_인증되지_않으면_403을_반환한다() {
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/auth/logout"))
+                .apply(print())
+                .hasStatus(HttpStatus.FORBIDDEN.value());
     }
 
 }

@@ -133,4 +133,29 @@ class MemberManagerUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
     }
 
+    @Test
+    void 로그아웃_시_refreshToken이_null로_변경된다() {
+        // given
+        Member member = MemberFixture.create();
+        member.updateRefreshToken("existing.refresh.token");
+        given(memberJpaRepository.findByIdAndStatus(1L, EntityStatus.ACTIVE)).willReturn(Optional.of(member));
+
+        // when
+        memberManager.logout(1L);
+
+        // then
+        assertThat(member.getRefreshToken()).isNull();
+    }
+
+    @Test
+    void 로그아웃_시_존재하지_않는_회원이면_예외가_발생한다() {
+        // given
+        given(memberJpaRepository.findByIdAndStatus(999L, EntityStatus.ACTIVE)).willReturn(Optional.empty());
+
+        // when // then
+        assertThatThrownBy(() -> memberManager.logout(999L))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+    }
+
 }
