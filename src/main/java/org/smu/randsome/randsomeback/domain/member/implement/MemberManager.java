@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.domain.member.implement;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class MemberManager {
@@ -59,6 +61,17 @@ public class MemberManager {
                 updateProfile.selfIntroduction(),
                 updateProfile.idealDescription()
         );
+    }
+
+    @Transactional
+    public void logout(Long memberId) {
+        Member member = memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
+
+        // 추후 FCM 토큰 삭제 로직 추가 예정 -> 아님 API로 뺄수도?
+        member.revokeRefreshToken();
+
+        log.info("[MemberManager] 로그아웃 처리 완료. memberId: {}", memberId);
     }
 
 }

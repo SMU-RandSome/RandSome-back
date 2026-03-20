@@ -19,7 +19,7 @@ import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 
-class AuthServiceTest extends UnitTestSupport {
+class AuthServiceUnitTest extends UnitTestSupport {
 
     @InjectMocks
     AuthService authService;
@@ -152,6 +152,18 @@ class AuthServiceTest extends UnitTestSupport {
 
         verify(memberReader).findByRefreshToken(refreshToken);
         verifyNoInteractions(jwtProvider, memberManager);
+    }
+
+    @Test
+    void 로그아웃_시_memberManager의_logout을_호출한다() {
+        // given
+        var memberId = 1L;
+
+        // when
+        authService.logout(memberId);
+
+        // then
+        verify(memberManager).logout(memberId);
     }
 
 }

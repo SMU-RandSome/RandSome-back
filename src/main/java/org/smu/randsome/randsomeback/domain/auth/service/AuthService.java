@@ -47,6 +47,10 @@ public class AuthService {
         return tokenResponse;
     }
 
+    public void logout(Long memberId) {
+        memberManager.logout(memberId);
+    }
+
     private void validateRefreshToken(String refreshToken) {
         if (!jwtProvider.isTokenValid(refreshToken)) {
             throw new CoreException(ErrorType.INVALID_TOKEN);

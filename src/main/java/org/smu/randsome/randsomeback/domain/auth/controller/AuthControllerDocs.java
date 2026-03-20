@@ -8,10 +8,12 @@ import org.smu.randsome.randsomeback.domain.auth.dto.request.EmailVerificationRe
 import org.smu.randsome.randsomeback.domain.auth.dto.request.LoginRequest;
 import org.smu.randsome.randsomeback.domain.auth.dto.request.TokenReissueRequest;
 import org.smu.randsome.randsomeback.domain.auth.dto.response.EmailVerificationTokenResponse;
+import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "Auth", description = "인증 관련 API")
@@ -78,4 +80,14 @@ public abstract class AuthControllerDocs {
     })
     public abstract ApiResponse<TokenResponse> reissueToken(@RequestBody @Valid TokenReissueRequest request);
 
+    @Operation(
+            summary = "로그아웃 - JWT [O]",
+            description = """
+                    ### 로그아웃 API입니다.
+                    - 로그아웃 시 해당 회원의 리프레시 토큰을 무효화하여 이후 토큰 재발급이 불가능하도록 합니다.
+                    - 로그아웃 호출 시 프론트에서 액세스 토큰과 리프레시 토큰을 모두 삭제하도록 합니다.
+                    - 로그아웃 후에는 인증이 필요한 API 요청 시 액세스 토큰이 더 이상 유효하지 않게 됩니다.
+                    """
+    )
+    public abstract ApiResponse<?> logout(@LoginMember Long memberId);
 }
