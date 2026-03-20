@@ -36,10 +36,8 @@ class StatisticsAdminControllerTest extends ControllerTestSupport {
                 .hasStatus(HttpStatus.OK.value())
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
-                .hasPathSatisfying("$.data[0].gender", v -> v.assertThat().isEqualTo("MALE"))
-                .hasPathSatisfying("$.data[0].count", v -> v.assertThat().isEqualTo(5))
-                .hasPathSatisfying("$.data[1].gender", v -> v.assertThat().isEqualTo("FEMALE"))
-                .hasPathSatisfying("$.data[1].count", v -> v.assertThat().isEqualTo(3));
+                .hasPathSatisfying("$.data.maleCount", v -> v.assertThat().isEqualTo(5))
+                .hasPathSatisfying("$.data.femaleCount", v -> v.assertThat().isEqualTo(3));
     }
 
     @TestAdmin
@@ -54,7 +52,8 @@ class StatisticsAdminControllerTest extends ControllerTestSupport {
                 .hasStatus(HttpStatus.OK.value())
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
-                .hasPathSatisfying("$.data", v -> v.assertThat().asArray().isEmpty());
+                .hasPathSatisfying("$.data.maleCount", v -> v.assertThat().isEqualTo(0))
+                .hasPathSatisfying("$.data.femaleCount", v -> v.assertThat().isEqualTo(0));
     }
 
     // ===== GET /v1/admin/statistics/payments/status-count =====

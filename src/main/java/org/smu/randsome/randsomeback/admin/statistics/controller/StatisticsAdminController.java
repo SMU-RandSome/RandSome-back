@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.admin.statistics.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.admin.statistics.dto.response.CandidateGenderCountResponse;
 import org.smu.randsome.randsomeback.admin.statistics.dto.response.PaymentStatusStatisticsResponse;
 import org.smu.randsome.randsomeback.admin.statistics.service.StatisticsAdminService;
 import org.smu.randsome.randsomeback.domain.member.dto.response.CandidateGenderCountItem;
@@ -18,10 +19,10 @@ public class StatisticsAdminController extends StatisticsAdminControllerDocs {
 
     @Override
     @GetMapping("/v1/admin/statistics/candidates/gender-count")
-    public ApiResponse<List<CandidateGenderCountItem>> getCandidateGenderCount() {
+    public ApiResponse<CandidateGenderCountResponse> getCandidateGenderCount() {
         List<CandidateGenderCountItem> items = statisticsAdminService.findCandidateGenderCount();
 
-        return ApiResponse.success(items);
+        return ApiResponse.success(CandidateGenderCountResponse.from(items));
     }
 
     @Override
