@@ -1,8 +1,14 @@
 package org.smu.randsome.randsomeback.admin.payment.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
+import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
+import org.smu.randsome.randsomeback.domain.payment.implement.PaymentReader;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,6 +20,7 @@ import org.springframework.stereotype.Service;
 public class PaymentAdminService {
 
     private final PaymentManager paymentManager;
+    private final PaymentReader paymentReader;
 
     /**
      * 결제를 승인 처리한다.
@@ -36,6 +43,16 @@ public class PaymentAdminService {
         log.info("[PaymentAdminService] 결제 거절 요청 - paymentId={}, reason={}", paymentId, rejectedReason);
 
         paymentManager.reject(paymentId, rejectedReason);
+    }
+
+    /**
+     * 결제 상태에 따른 결제 목록을 페이징 처리하여 조회한다.
+     * @param paymentStatuses 조회할 결제 상태 목록
+     * @param pageable 페이징 정보
+     * @return 결제 상태에 따른 결제 목록 페이지
+     * */
+    public Page<PaymentWithReason> findPayments(List<PaymentStatus> paymentStatuses, Pageable pageable) {
+        return paymentReader.findPayments(paymentStatuses, pageable);
     }
 
 }
