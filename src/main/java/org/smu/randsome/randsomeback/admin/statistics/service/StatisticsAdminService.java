@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.member.dto.response.CandidateGenderCountItem;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberStatisticsReader;
+import org.smu.randsome.randsomeback.domain.payment.dto.response.PaymentStatusCountItem;
+import org.smu.randsome.randsomeback.domain.payment.implement.PaymentStatisticsReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class StatisticsAdminService {
 
     private final MemberStatisticsReader memberStatisticsReader;
+    private final PaymentStatisticsReader paymentStatisticsReader;
 
     public List<CandidateGenderCountItem> findCandidateGenderCount() {
         return memberStatisticsReader.findGenderCountByRole(Role.ROLE_CANDIDATE);
+    }
+
+    public List<PaymentStatusCountItem> findPaymentStatusCount() {
+        return paymentStatisticsReader.findAllStatusCount();
     }
 
 }
