@@ -14,4 +14,12 @@ public enum Gender {
 
     private final String value;
 
+    public boolean isMale() {
+        return this == MALE;
+    }
+
+    public boolean isFemale() {
+        return this == FEMALE;
+    }
+
 }
