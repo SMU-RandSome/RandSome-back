@@ -6,7 +6,6 @@ import org.smu.randsome.randsomeback.domain.statistics.dto.response.DashboardRes
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
-import org.springframework.http.ResponseEntity;
 
 @Tag(name = "Statistics Docs", description = "통계 관련 API 문서")
 public abstract class StatisticsControllerDocs {
@@ -21,6 +20,6 @@ public abstract class StatisticsControllerDocs {
     @ApiExceptions(values = {
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<DashboardResponse>> getDashboard();
+    public abstract ApiResponse<DashboardResponse> getDashboard();
 
 }

@@ -11,7 +11,6 @@ import org.smu.randsome.randsomeback.domain.auth.service.AuthService;
 import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationService;
 import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,39 +24,38 @@ public class AuthController extends AuthControllerDocs {
 
     @Override
     @PostMapping("/v1/auth/email/verification-codes")
-    public ResponseEntity<ApiResponse<?>> sendVerificationCode(
+    public ApiResponse<?> sendVerificationCode(
             @RequestBody @Valid EmailVerificationRequest request
     ) {
         emailVerificationService.sendVerificationCodeAsync(request.email());
 
-        return ResponseEntity.ok(ApiResponse.success());
+        return ApiResponse.success();
     }
 
     @Override
     @PostMapping("/v1/auth/email/verification-codes/verify")
-    public ResponseEntity<ApiResponse<EmailVerificationTokenResponse>> verifyEmailVerificationCode(
+    public ApiResponse<EmailVerificationTokenResponse> verifyEmailVerificationCode(
             @RequestBody @Valid EmailVerificationCodeVerifyRequest request
     ) {
         String token = emailVerificationService.verifyEmailCode(request.email(), request.code());
 
-        return ResponseEntity.ok(ApiResponse.success(new EmailVerificationTokenResponse(token)));
+        return ApiResponse.success(new EmailVerificationTokenResponse(token));
     }
 
     @Override
     @PostMapping("/v1/auth/login")
-    public ResponseEntity<ApiResponse<TokenResponse>> login(@RequestBody @Valid LoginRequest request) {
+    public ApiResponse<TokenResponse> login(@RequestBody @Valid LoginRequest request) {
         TokenResponse response = authService.login(request.email(), request.password());
 
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ApiResponse.success(response);
     }
 
     @Override
     @PostMapping("/v1/auth/reissue")
-    public ResponseEntity<ApiResponse<TokenResponse>> reissueToken(@RequestBody @Valid TokenReissueRequest request) {
+    public ApiResponse<TokenResponse> reissueToken(@RequestBody @Valid TokenReissueRequest request) {
         TokenResponse response = authService.reissue(request.refreshToken());
 
-        return ResponseEntity.ok(ApiResponse.success(response));
-
+        return ApiResponse.success(response);
     }
 
 }

@@ -8,7 +8,6 @@ import java.util.List;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
-import org.springframework.http.ResponseEntity;
 
 @Tag(name = "Feed Docs", description = "피드 관련 API 문서")
 public abstract class FeedControllerDocs {
@@ -26,7 +25,7 @@ public abstract class FeedControllerDocs {
     @ApiExceptions(values = {
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<List<FeedItem>>> getLatestFeed(
+    public abstract ApiResponse<List<FeedItem>> getLatestFeed(
             @Parameter(
                     description = "커서 기반 페이징을 위한 마지막 피드 ID (생략 시 최신순 조회)",
                     in = ParameterIn.QUERY,

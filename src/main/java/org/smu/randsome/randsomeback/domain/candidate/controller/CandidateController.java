@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,18 +15,18 @@ public class CandidateController extends CandidateControllerDocs {
 
     @Override
     @PostMapping("/v1/candidate-registrations")
-    public ResponseEntity<ApiResponse<?>> apply(@LoginMember Long memberId) {
+    public ApiResponse<?> apply(@LoginMember Long memberId) {
         candidateService.apply(memberId);
 
-        return ResponseEntity.ok(ApiResponse.success());
+        return ApiResponse.success();
     }
 
     @Override
     @PostMapping("/v1/candidate-registrations/withdraw")
-    public ResponseEntity<ApiResponse<?>> withdraw(@LoginMember Long memberId) {
+    public ApiResponse<?> withdraw(@LoginMember Long memberId) {
         candidateService.withdraw(memberId);
 
-        return ResponseEntity.ok(ApiResponse.success());
+        return ApiResponse.success();
     }
 
 }

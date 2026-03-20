@@ -10,7 +10,6 @@ import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "Member Docs", description = "회원 관련 API 문서")
@@ -33,7 +32,7 @@ public abstract class MemberControllerDocs {
             ErrorType.DUPLICATE_EMAIL,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<Long>> signUp(@RequestBody @Valid MemberCreateRequest request);
+    public abstract ApiResponse<Long> signUp(@RequestBody @Valid MemberCreateRequest request);
 
     @Operation(
             summary = "내 프로필 조회 JWT - [O]",
@@ -49,7 +48,7 @@ public abstract class MemberControllerDocs {
             ErrorType.NOT_FOUND_MEMBER,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<ApiResponse<MemberProfileResponse>> getMyProfile(@LoginMember Long memberId);
+    public abstract ApiResponse<MemberProfileResponse> getMyProfile(@LoginMember Long memberId);
 
     @Operation(
             summary = "내 프로필 수정 JWT - [O]",
@@ -58,7 +57,7 @@ public abstract class MemberControllerDocs {
                     - JWT 인증이 필요합니다.
                     - 실명, MBTI는 필수 값입니다.
                     - 인스타그램 ID, 자기소개, 이상형 소개는 선택 값입니다.
-                    - 성공 시 응답 바디 없이 200을 반환합니다.
+                    - 성공 시 200을 반환합니다.
                     """
     )
     @ApiExceptions(values = {
@@ -66,7 +65,7 @@ public abstract class MemberControllerDocs {
             ErrorType.NOT_FOUND_MEMBER,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ResponseEntity<Void> updateProfile(
+    public abstract ApiResponse<?> updateProfile(
             @RequestBody @Valid MemberUpdateRequest request,
             @LoginMember Long memberId
     );
