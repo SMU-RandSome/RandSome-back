@@ -7,7 +7,7 @@ import org.smu.randsome.randsomeback.admin.payment.dto.response.PaymentPreviewIt
 import org.smu.randsome.randsomeback.admin.payment.enums.PaymentFilterStatus;
 import org.smu.randsome.randsomeback.admin.payment.service.PaymentAdminService;
 import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
-import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearch;
+import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearchCondition;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.support.response.PageResponse;
 import org.springframework.data.domain.Page;
@@ -49,11 +49,11 @@ public class PaymentAdminController extends PaymentAdminControllerDocs {
     @GetMapping("/v1/admin/payments")
     public ApiResponse<PageResponse<PaymentPreviewItem>> findPayments(
             @RequestParam PaymentFilterStatus filterStatus,
-            @RequestParam String query,
+            @RequestParam(defaultValue = "") String query,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         Page<PaymentWithReason> payments = paymentAdminService.findPayments(
-                new PaymentSearch(filterStatus.toPaymentStatuses(), query),
+                new PaymentSearchCondition(filterStatus.toPaymentStatuses(), query),
                 pageable
         );
         Page<PaymentPreviewItem> items = payments.map(PaymentPreviewItem::from);

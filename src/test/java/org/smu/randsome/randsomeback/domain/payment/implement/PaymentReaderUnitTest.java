@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
-import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearch;
+import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearchCondition;
 import org.smu.randsome.randsomeback.domain.payment.entity.Payment;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
 import org.smu.randsome.randsomeback.domain.payment.repository.PaymentRepository;
@@ -67,11 +67,11 @@ class PaymentReaderUnitTest extends UnitTestSupport {
     @Test
     void 결제_검색_조건으로_결제_내역을_조회한다() {
         // given
-        var paymentSearch = new PaymentSearch(List.of(PaymentStatus.PENDING), "");
+        var paymentSearch = new PaymentSearchCondition(List.of(PaymentStatus.PENDING), "");
         var pageable = PageRequest.of(0, 10);
         var paymentWithReason = new PaymentWithReason(mock(Payment.class), null);
         Page<PaymentWithReason> expected = new PageImpl<>(List.of(paymentWithReason));
-        given(paymentRepository.findPaymentsWithRejectedReason(paymentSearch, pageable))
+        given(paymentRepository.findAllPaymentsWithRejectedReason(paymentSearch, pageable))
                 .willReturn(expected);
 
         // when
@@ -79,15 +79,15 @@ class PaymentReaderUnitTest extends UnitTestSupport {
 
         // then
         assertThat(result.getContent()).hasSize(1);
-        verify(paymentRepository).findPaymentsWithRejectedReason(paymentSearch, pageable);
+        verify(paymentRepository).findAllPaymentsWithRejectedReason(paymentSearch, pageable);
     }
 
     @Test
     void 결제_내역이_없으면_빈_페이지를_반환한다() {
         // given
-        var paymentSearch = new PaymentSearch(List.of(PaymentStatus.PENDING), "");
+        var paymentSearch = new PaymentSearchCondition(List.of(PaymentStatus.PENDING), "");
         var pageable = PageRequest.of(0, 10);
-        given(paymentRepository.findPaymentsWithRejectedReason(paymentSearch, pageable))
+        given(paymentRepository.findAllPaymentsWithRejectedReason(paymentSearch, pageable))
                 .willReturn(Page.empty());
 
         // when
@@ -101,16 +101,16 @@ class PaymentReaderUnitTest extends UnitTestSupport {
     @Test
     void 검색어가_있는_조건으로_조회하면_Repository에_그대로_위임한다() {
         // given
-        var paymentSearch = new PaymentSearch(List.of(PaymentStatus.PENDING), "홍길동");
+        var paymentSearch = new PaymentSearchCondition(List.of(PaymentStatus.PENDING), "홍길동");
         var pageable = PageRequest.of(0, 10);
-        given(paymentRepository.findPaymentsWithRejectedReason(paymentSearch, pageable))
+        given(paymentRepository.findAllPaymentsWithRejectedReason(paymentSearch, pageable))
                 .willReturn(Page.empty());
 
         // when
         paymentReader.findPayments(paymentSearch, pageable);
 
         // then
-        verify(paymentRepository).findPaymentsWithRejectedReason(paymentSearch, pageable);
+        verify(paymentRepository).findAllPaymentsWithRejectedReason(paymentSearch, pageable);
     }
 
 }

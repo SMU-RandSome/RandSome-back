@@ -14,7 +14,7 @@ import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
-import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearch;
+import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearchCondition;
 import org.smu.randsome.randsomeback.domain.payment.entity.Payment;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
@@ -47,8 +47,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                new PaymentSearch(List.of(PaymentStatus.PENDING), ""),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""),
                 pageable
         );
 
@@ -79,8 +79,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                new PaymentSearch(List.of(PaymentStatus.COMPLETED, PaymentStatus.REJECTED), ""),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.COMPLETED, PaymentStatus.REJECTED), ""),
                 pageable
         );
 
@@ -101,8 +101,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when: COMPLETED 상태로 조회
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                new PaymentSearch(List.of(PaymentStatus.COMPLETED), ""),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.COMPLETED), ""),
                 pageable
         );
 
@@ -127,8 +127,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                new PaymentSearch(List.of(PaymentStatus.REJECTED), ""),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.REJECTED), ""),
                 pageable
         );
 
@@ -147,8 +147,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                new PaymentSearch(List.of(PaymentStatus.PENDING), ""),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""),
                 pageable
         );
 
@@ -173,8 +173,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                new PaymentSearch(List.of(PaymentStatus.REJECTED), ""),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.REJECTED), ""),
                 pageable
         );
 
@@ -197,8 +197,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                new PaymentSearch(List.of(PaymentStatus.REJECTED), ""),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.REJECTED), ""),
                 pageable
         );
 
@@ -231,8 +231,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                new PaymentSearch(List.of(PaymentStatus.REJECTED), ""),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.REJECTED), ""),
                 pageable
         );
 
@@ -263,8 +263,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                new PaymentSearch(List.of(PaymentStatus.PENDING), ""),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""),
                 pageable
         );
 
@@ -295,10 +295,10 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var lastPage  = PageRequest.of(2, 2);
 
         // when
-        var page1 = paymentRepository.findPaymentsWithRejectedReason(
-                new PaymentSearch(List.of(PaymentStatus.PENDING), ""), firstPage);
-        var page3 = paymentRepository.findPaymentsWithRejectedReason(
-                new PaymentSearch(List.of(PaymentStatus.PENDING), ""), lastPage);
+        var page1 = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""), firstPage);
+        var page3 = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""), lastPage);
 
         // then
         assertThat(page1.getTotalElements()).isEqualTo(5);
@@ -323,8 +323,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                new PaymentSearch(List.of(PaymentStatus.PENDING), "홍"),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), "홍"),
                 pageable
         );
 
@@ -347,8 +347,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                new PaymentSearch(List.of(PaymentStatus.PENDING), ""),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""),
                 pageable
         );
 
@@ -366,8 +366,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                new PaymentSearch(List.of(PaymentStatus.PENDING), "honggildong"),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), "honggildong"),
                 pageable
         );
 

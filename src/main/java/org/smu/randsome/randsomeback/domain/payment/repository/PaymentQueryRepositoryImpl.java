@@ -8,7 +8,7 @@ import org.smu.randsome.randsomeback.domain.candidate.entity.QCandidateRegistrat
 import org.smu.randsome.randsomeback.domain.matching.entity.QMatchingApplication;
 import org.smu.randsome.randsomeback.domain.member.entity.QMember;
 import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
-import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearch;
+import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearchCondition;
 import org.smu.randsome.randsomeback.domain.payment.entity.QPayment;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
@@ -31,8 +31,8 @@ public class PaymentQueryRepositoryImpl implements PaymentQueryRepository {
     private static final QCandidateRegistration candidateRegistration = QCandidateRegistration.candidateRegistration;
 
     @Override
-    public Page<PaymentWithReason> findPaymentsWithRejectedReason(
-            PaymentSearch paymentSearch,
+    public Page<PaymentWithReason> findAllPaymentsWithRejectedReason(
+            PaymentSearchCondition paymentSearchCondition,
             Pageable pageable
     ) {
         List<PaymentWithReason> content = queryFactory
@@ -50,9 +50,9 @@ public class PaymentQueryRepositoryImpl implements PaymentQueryRepository {
                         payment.paymentType.eq(PaymentType.CANDIDATE_REGISTRATION)
                 )
                 .where(
-                        paymentStatusIn(paymentSearch.paymentStatuses()),
+                        paymentStatusIn(paymentSearchCondition.paymentStatuses()),
                         isStatusEq(EntityStatus.ACTIVE),
-                        searchByKeyword(paymentSearch.query())
+                        searchByKeyword(paymentSearchCondition.query())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -72,9 +72,9 @@ public class PaymentQueryRepositoryImpl implements PaymentQueryRepository {
                 .from(payment)
                 .join(payment.member, member)
                 .where(
-                        paymentStatusIn(paymentSearch.paymentStatuses()),
+                        paymentStatusIn(paymentSearchCondition.paymentStatuses()),
                         isStatusEq(EntityStatus.ACTIVE),
-                        searchByKeyword(paymentSearch.query())
+                        searchByKeyword(paymentSearchCondition.query())
                 )
                 .fetchOne();
 
