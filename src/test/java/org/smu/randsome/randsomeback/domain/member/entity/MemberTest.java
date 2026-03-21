@@ -108,4 +108,22 @@ class MemberTest extends UnitTestSupport {
         assertThat(member.isPasswordCorrect("wrongPassword!", MemberFixture.ENCODER)).isFalse();
     }
 
+    @Test
+    void 비밀번호를_변경하면_새_비밀번호로_인증된다() {
+        String newPassword = "newPassword123!";
+
+        member.updatePassword(newPassword, MemberFixture.ENCODER);
+
+        assertThat(member.isPasswordCorrect(newPassword, MemberFixture.ENCODER)).isTrue();
+    }
+
+    @Test
+    void 비밀번호를_변경하면_이전_비밀번호로_인증이_실패한다() {
+        String newPassword = "newPassword123!";
+
+        member.updatePassword(newPassword, MemberFixture.ENCODER);
+
+        assertThat(member.isPasswordCorrect(MemberFixture.DEFAULT_RAW_PASSWORD, MemberFixture.ENCODER)).isFalse();
+    }
+
 }

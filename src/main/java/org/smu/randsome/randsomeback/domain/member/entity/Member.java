@@ -126,4 +126,8 @@ public class Member extends BaseEntity {
         return gender.getValue() + "#" + suffix;
     }
 
+    public void updatePassword(String newPassword, PasswordEncoder passwordEncoder) {
+        this.password = Password.create(newPassword, passwordEncoder);
+    }
+
 }

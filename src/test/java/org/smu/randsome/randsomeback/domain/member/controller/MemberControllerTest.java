@@ -14,6 +14,7 @@ import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberUpdateRequest;
+import org.smu.randsome.randsomeback.domain.member.dto.request.PasswordUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
@@ -353,6 +354,100 @@ class MemberControllerTest extends ControllerTestSupport {
                 .selfIntroduction("새 자기소개")
                 .idealDescription("새 이상형")
                 .build();
+    }
+
+    @Test
+    @TestMember
+    void 비밀번호_변경_요청이_유효하면_200을_반환한다() throws Exception {
+        assertThat(mvcTester.patch().uri("/v1/members/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createValidPasswordUpdateRequest())))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
+    }
+
+    @Test
+    @TestMember
+    void 비밀번호_변경_시_인증_토큰이_비어있으면_400을_반환한다() throws Exception {
+        var request = new PasswordUpdateRequest("", "newPassword123!");
+
+        assertThat(mvcTester.patch().uri("/v1/members/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @TestMember
+    void 비밀번호_변경_시_새_비밀번호가_비어있으면_400을_반환한다() throws Exception {
+        var request = new PasswordUpdateRequest("password.verification.token", "");
+
+        assertThat(mvcTester.patch().uri("/v1/members/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @TestMember
+    void 비밀번호_변경_시_새_비밀번호가_8자_미만이면_400을_반환한다() throws Exception {
+        var request = new PasswordUpdateRequest("password.verification.token", "short1!");
+
+        assertThat(mvcTester.patch().uri("/v1/members/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void 비밀번호_변경_시_인증되지_않은_사용자면_403을_반환한다() throws Exception {
+        assertThat(mvcTester.patch().uri("/v1/members/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createValidPasswordUpdateRequest())))
+                .apply(print())
+                .hasStatus(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    @TestMember
+    void 비밀번호_변경_시_이메일_인증_토큰이_유효하지_않으면_400을_반환한다() throws Exception {
+        willThrow(new CoreException(ErrorType.INVALID_PASSWORD_UPDATE_REQUEST))
+                .given(memberService).updatePassword(any(), any(), any());
+
+        assertThat(mvcTester.patch().uri("/v1/members/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createValidPasswordUpdateRequest())))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
+                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.INVALID_PASSWORD_UPDATE_REQUEST.getMessage()));
+    }
+
+    @Test
+    @TestMember
+    void 비밀번호_변경_시_존재하지_않는_회원이면_404를_반환한다() throws Exception {
+        willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
+                .given(memberService).updatePassword(any(), any(), any());
+
+        assertThat(mvcTester.patch().uri("/v1/members/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createValidPasswordUpdateRequest())))
+                .apply(print())
+                .hasStatus(HttpStatus.NOT_FOUND.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
+                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_MEMBER.getMessage()));
+    }
+
+    private PasswordUpdateRequest createValidPasswordUpdateRequest() {
+        return new PasswordUpdateRequest("password.verification.token", "newPassword123!");
     }
 
     private MemberCreateRequest createValidRequest() {

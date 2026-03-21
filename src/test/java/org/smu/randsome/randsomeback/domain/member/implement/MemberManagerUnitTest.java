@@ -158,4 +158,19 @@ class MemberManagerUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
     }
 
+    @Test
+    void 비밀번호를_변경한다() {
+        // given
+        Member member = MemberFixture.create();
+        String newPassword = "newPassword123!";
+        String encodedNewPassword = "encoded-new-password";
+        given(passwordEncoder.encode(newPassword)).willReturn(encodedNewPassword);
+
+        // when
+        memberManager.updatePassword(member, newPassword);
+
+        // then
+        assertThat(member.getPassword()).isEqualTo(new Password(encodedNewPassword));
+    }
+
 }

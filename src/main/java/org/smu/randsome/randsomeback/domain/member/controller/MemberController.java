@@ -1,6 +1,5 @@
 package org.smu.randsome.randsomeback.domain.member.controller;
 
-
 import jakarta.validation.Valid;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +7,7 @@ import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberUpdateRequest;
+import org.smu.randsome.randsomeback.domain.member.dto.request.PasswordUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.response.MemberProfileResponse;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.CandidateRegistrationStatusView;
@@ -65,6 +65,17 @@ public class MemberController extends MemberControllerDocs {
             @LoginMember Long memberId
     ) {
         memberService.updateProfile(memberId, request.toUpdateProfile());
+
+        return ApiResponse.success();
+    }
+
+    @Override
+    @PatchMapping("/v1/members/password")
+    public ApiResponse<?> updatePassword(
+            @RequestBody @Valid PasswordUpdateRequest request,
+            @LoginMember Long memberId
+    ) {
+        memberService.updatePassword(memberId, request.newPassword(), request.emailVerificationToken());
 
         return ApiResponse.success();
     }
