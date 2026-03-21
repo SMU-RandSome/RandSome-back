@@ -35,7 +35,11 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
             throw new CoreException(ErrorType.EMPTY_SECURITY_CONTEXT);
         }
 
-        return Long.parseLong(authentication.getName());
+        try {
+            return Long.parseLong(authentication.getName());
+        } catch (NumberFormatException e) {
+            throw new CoreException(ErrorType.FAILED_TO_AUTHENTICATE);
+        }
     }
 
 }

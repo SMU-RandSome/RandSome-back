@@ -19,6 +19,9 @@ public enum ErrorType {
     DUPLICATE          (HttpStatus.CONFLICT, "이미 존재하는 리소스입니다.", LogLevel.INFO),
     DEFAULT_ERROR      (HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
 
+    // AUTH
+    FAILED_TO_AUTHENTICATE (HttpStatus.UNAUTHORIZED, "인증에 실패했습니다. 자격 증명을 확인해주세요.", LogLevel.WARN),
+
     // TERMS
     REQUIRED_TERMS_NOT_AGREED (HttpStatus.BAD_REQUEST, "필수 약관에 모두 동의해야 합니다.", LogLevel.INFO),
 
