@@ -104,6 +104,14 @@ public class Member extends BaseEntity {
         return password.matches(rawPassword, encoder);
     }
 
+    public boolean isEmailCorrect(String tokenEmail) {
+        return email.address().equals(tokenEmail);
+    }
+
+    public boolean isAdmin() {
+        return role.equals(Role.ROLE_ADMIN);
+    }
+
     public void updateProfile(
             String legalName,
             Mbti mbti,
@@ -116,8 +124,8 @@ public class Member extends BaseEntity {
         this.socialProfile = SocialProfile.create(instagramId, selfIntroduction, idealDescription);
     }
 
-    public boolean isAdmin() {
-        return role.equals(Role.ROLE_ADMIN);
+    public void updatePassword(String newPassword, PasswordEncoder passwordEncoder) {
+        this.password = Password.create(newPassword, passwordEncoder);
     }
 
     private static String createRandomNickname(Gender gender) {
@@ -125,9 +133,4 @@ public class Member extends BaseEntity {
 
         return gender.getValue() + "#" + suffix;
     }
-
-    public void updatePassword(String newPassword, PasswordEncoder passwordEncoder) {
-        this.password = Password.create(newPassword, passwordEncoder);
-    }
-
 }

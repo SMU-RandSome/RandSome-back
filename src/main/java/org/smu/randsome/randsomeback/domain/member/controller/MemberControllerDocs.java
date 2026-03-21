@@ -72,12 +72,10 @@ public abstract class MemberControllerDocs {
     );
 
     @Operation(
-            summary = "비밀번호 수정 JWT - [O]",
+            summary = "비밀번호 수정 JWT - [x]",
             description = """
                     ### 로그인한 회원의 비밀번호를 수정하는 API입니다.
-                    - JWT 인증이 필요합니다.
                     - 비밀번호를 변경하기 위해선 이메일 인증이 선행되어야 합니다.
-                    - 새 비밀번호는 8자 이상이어야 합니다.
                     - 이메일 인증 토큰이 유효한지 검증합니다.
                     - 성공 시 200을 반환합니다.
                     """
@@ -89,8 +87,7 @@ public abstract class MemberControllerDocs {
             ErrorType.DEFAULT_ERROR
     })
     public abstract ApiResponse<?> updatePassword(
-            @RequestBody @Valid PasswordUpdateRequest request,
-            @LoginMember Long memberId
+            @RequestBody @Valid PasswordUpdateRequest request
     );
 
 }

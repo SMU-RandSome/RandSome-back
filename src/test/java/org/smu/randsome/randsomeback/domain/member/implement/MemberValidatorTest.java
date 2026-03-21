@@ -2,13 +2,14 @@ package org.smu.randsome.randsomeback.domain.member.implement;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
-import org.smu.randsome.randsomeback.domain.member.entity.vo.Email;
+import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.global.jwt.JwtProvider;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -65,11 +66,12 @@ class MemberValidatorTest extends UnitTestSupport {
     void 이메일이_일치하면_비밀번호_수정_토큰_검증에_성공한다() {
         // given
         String token = "password.verification.token";
-        Email email = new Email("student@sangmyung.kr");
+        Member member = mock(Member.class);
         given(jwtProvider.extractEmailFromVerificationToken(token)).willReturn("student@sangmyung.kr");
+        given(member.isEmailCorrect("student@sangmyung.kr")).willReturn(true);
 
         // when
-        memberValidator.validateUpdatePassword(token, email);
+        memberValidator.validateUpdatePassword(token, member);
 
         // then
         verify(jwtProvider).extractEmailFromVerificationToken(token);
@@ -79,11 +81,12 @@ class MemberValidatorTest extends UnitTestSupport {
     void 이메일이_불일치하면_비밀번호_수정_요청_예외가_발생한다() {
         // given
         String token = "password.verification.token";
-        Email email = new Email("request@sangmyung.kr");
+        Member member = mock(Member.class);
         given(jwtProvider.extractEmailFromVerificationToken(token)).willReturn("other@sangmyung.kr");
+        given(member.isEmailCorrect("other@sangmyung.kr")).willReturn(false);
 
         // when & then
-        assertThatThrownBy(() -> memberValidator.validateUpdatePassword(token, email))
+        assertThatThrownBy(() -> memberValidator.validateUpdatePassword(token, member))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.INVALID_PASSWORD_UPDATE_REQUEST.getMessage());
     }
@@ -92,12 +95,12 @@ class MemberValidatorTest extends UnitTestSupport {
     void 비밀번호_수정_토큰에서_이메일_추출_실패_예외는_그대로_전파된다() {
         // given
         String token = "invalid.token";
-        Email email = new Email("student@sangmyung.kr");
+        Member member = mock(Member.class);
         CoreException invalidTokenException = new CoreException(ErrorType.INVALID_TOKEN);
         given(jwtProvider.extractEmailFromVerificationToken(token)).willThrow(invalidTokenException);
 
         // when & then
-        assertThatThrownBy(() -> memberValidator.validateUpdatePassword(token, email))
+        assertThatThrownBy(() -> memberValidator.validateUpdatePassword(token, member))
                 .isSameAs(invalidTokenException);
     }
 
