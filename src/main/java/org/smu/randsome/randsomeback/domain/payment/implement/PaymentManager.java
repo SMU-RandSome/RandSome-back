@@ -42,7 +42,7 @@ public class PaymentManager {
                 amount
         ));
 
-        log.info("[Payment] 결제 생성 완료 - memberId={}, paymentType={}, referenceId={}",
+        log.info("[PaymentManager] 결제 생성 완료 - memberId={}, paymentType={}, referenceId={}",
                 member.getId(), paymentType, referenceId);
     }
 
@@ -105,7 +105,7 @@ public class PaymentManager {
                 .filter(h -> h.supports().contains(type))
                 .findFirst()
                 .orElseThrow(() -> {
-                    log.error("[Payment] 결제 핸들러를 찾을 수 없습니다 - paymentType={}", type);
+                    log.error("[PaymentManager] 결제 핸들러를 찾을 수 없습니다 - paymentType={}", type);
                     return new CoreException(ErrorType.DEFAULT_ERROR);
                 });
     }
