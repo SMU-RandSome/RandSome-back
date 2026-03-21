@@ -76,6 +76,8 @@ public class MemberManager {
 
     public void updatePassword(Member member, String newPassword) {
         member.updatePassword(newPassword, passwordEncoder);
+
+        log.info("[MemberManager] 비밀번호 변경 완료. memberId: {}", member.getId());
     }
 
 }
