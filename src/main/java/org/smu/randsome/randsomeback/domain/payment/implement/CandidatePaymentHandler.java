@@ -28,20 +28,35 @@ public class CandidatePaymentHandler implements PaymentHandler {
 
     @Override
     public void approve(Long referenceId, LocalDateTime approvedAt) {
-        CandidateRegistration candidateRegistration = candidateManager.approve(referenceId, approvedAt);
+        try {
+            CandidateRegistration candidateRegistration = candidateManager.approve(referenceId, approvedAt);
+            feedManager.recordCandidateRegistration(candidateRegistration.getMember().getNickname());
 
-        log.info("[CandidatePaymentHandler] 후보자 등록 결제 승인 완료 - candidateRegistrationId={}, handler={}",
-                referenceId, candidateManager.getClass().getSimpleName());
-
-        feedManager.recordCandidateRegistration(candidateRegistration.getMember().getNickname());
+            log.info("[CandidatePaymentHandler] 후보자 승인 및 피드 기록 등록 처리 완료 - candidateRegistrationId={}, handler={}",
+                    referenceId,
+                    candidateManager.getClass().getSimpleName());
+        } catch (RuntimeException e) {
+            log.error("[CandidatePaymentHandler] 후보자 승인 및 피드 기록 등록 처리 실패 - candidateRegistrationId={}",
+                    referenceId,
+                    e);
+            throw e;
+        }
     }
 
     @Override
     public void reject(Long referenceId, String rejectedReason, LocalDateTime rejectedAt) {
-        candidateManager.reject(referenceId, rejectedReason, rejectedAt);
+        try {
+            candidateManager.reject(referenceId, rejectedReason, rejectedAt);
 
-        log.info("[CandidatePaymentHandler] 후보자 등록 결제 거절 완료 - candidateRegistrationId={}, handler={}",
-                referenceId, candidateManager.getClass().getSimpleName());
+            log.info("[CandidatePaymentHandler] 후보자 승인 거절 처리 완료 - candidateRegistrationId={}, handler={}",
+                    referenceId,
+                    candidateManager.getClass().getSimpleName());
+        } catch (RuntimeException e) {
+            log.error("[CandidatePaymentHandler] 후보자 승인 거절 처리 실패 - candidateRegistrationId={}",
+                    referenceId,
+                    e);
+            throw e;
+        }
     }
 
 }

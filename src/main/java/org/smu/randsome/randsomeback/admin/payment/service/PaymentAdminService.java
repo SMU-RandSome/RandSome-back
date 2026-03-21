@@ -27,8 +27,6 @@ public class PaymentAdminService {
      * @param paymentId 승인할 결제 ID
      */
     public void confirm(Long paymentId) {
-        log.info("[PaymentAdminService] 결제 승인 요청 - paymentId={}", paymentId);
-
         paymentManager.confirm(paymentId);
     }
 
@@ -39,8 +37,6 @@ public class PaymentAdminService {
      * @param rejectedReason 거절 사유
      */
     public void reject(Long paymentId, String rejectedReason) {
-        log.info("[PaymentAdminService] 결제 거절 요청 - paymentId={}, reason={}", paymentId, rejectedReason);
-
         paymentManager.reject(paymentId, rejectedReason);
     }
 

@@ -61,6 +61,8 @@ public class MemberManager {
                 updateProfile.selfIntroduction(),
                 updateProfile.idealDescription()
         );
+        log.info("[MemberManager] 프로필 수정 완료 - memberId={}", memberId);
+
     }
 
     @Transactional
@@ -71,13 +73,13 @@ public class MemberManager {
         // 추후 FCM 토큰 삭제 로직 추가 예정 -> 아님 API로 뺄수도?
         member.revokeRefreshToken();
 
-        log.info("[MemberManager] 로그아웃 처리 완료. memberId: {}", memberId);
+        log.info("[MemberManager] 로그아웃 처리 완료 - memberId={}", memberId);
     }
 
     public void updatePassword(Member member, String newPassword) {
         member.updatePassword(newPassword, passwordEncoder);
 
-        log.info("[MemberManager] 비밀번호 변경 완료. memberId: {}", member.getId());
+        log.info("[MemberManager] 비밀번호 변경 완료 - memberId={}", member.getId());
     }
 
 }

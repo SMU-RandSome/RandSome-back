@@ -2,7 +2,6 @@ package org.smu.randsome.randsomeback.domain.matching.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
@@ -14,7 +13,6 @@ import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
 public class MatchingService {
@@ -40,8 +38,6 @@ public class MatchingService {
                 matchingApplication.getApplicationCount()
         );
 
-        log.info("[MatchingService] 매칭 신청 완료 - memberId: {}, matchingType: {}, applicationCount: {}",
-                memberId, matchingApplication.getMatchingType(), matchingApplication.getApplicationCount());
     }
 
     /**
@@ -74,7 +70,6 @@ public class MatchingService {
      * */
     public void withdraw(Long applicationId, Long memberId) {
         matchingManager.withdraw(applicationId, memberId);
-        log.info("[MatchingService] 매칭 신청 철회 완료 - applicationId: {}, memberId: {}", applicationId, memberId);
     }
 
 }

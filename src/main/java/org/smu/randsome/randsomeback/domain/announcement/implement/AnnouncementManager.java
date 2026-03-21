@@ -37,7 +37,7 @@ public class AnnouncementManager {
                 newAnnouncement.content()
         ));
 
-        log.info("[AnnouncementManager] 공지사항 등록. announcementId={}", announcement.getId());
+        log.info("[AnnouncementManager] 공지사항 등록 완료 - announcementId={}", announcement.getId());
 
         return announcement;
     }

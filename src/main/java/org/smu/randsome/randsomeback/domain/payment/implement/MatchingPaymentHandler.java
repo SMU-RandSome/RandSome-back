@@ -28,20 +28,38 @@ public class MatchingPaymentHandler implements PaymentHandler {
 
     @Override
     public void approve(Long referenceId, LocalDateTime approvedAt) {
-        MatchingApplication matchingApplication = matchingManager.approve(referenceId, approvedAt);
+        try {
+            MatchingApplication matchingApplication = matchingManager.approve(referenceId, approvedAt);
+            feedManager.recordMatchRequest(
+                    matchingApplication.getMember().getNickname(),
+                    matchingApplication.getApplicationCount()
+            );
 
-        log.info("[MatchingPaymentHandler] 매칭 결제 승인 완료 - matchingApplicationId={}, handler={}",
-                referenceId, matchingManager.getClass().getSimpleName());
-
-        feedManager.recordMatchRequest(matchingApplication.getMember().getNickname(), matchingApplication.getApplicationCount());
+            log.info("[MatchingPaymentHandler] 매칭 신청 승인 처리 완료 - matchingApplicationId={}, handler={}",
+                    referenceId,
+                    matchingManager.getClass().getSimpleName());
+        } catch (RuntimeException e) {
+            log.error("[MatchingPaymentHandler] 매칭 신청 승인 후속 처리 실패 - matchingApplicationId={}",
+                    referenceId,
+                    e);
+            throw e;
+        }
     }
 
     @Override
     public void reject(Long referenceId, String rejectedReason, LocalDateTime rejectedAt) {
-        matchingManager.reject(referenceId, rejectedReason, rejectedAt);
+        try {
+            matchingManager.reject(referenceId, rejectedReason, rejectedAt);
 
-        log.info("[MatchingPaymentHandler] 매칭 결제 거절 완료 - matchingApplicationId={}, handler={}",
-                referenceId, matchingManager.getClass().getSimpleName());
+            log.info("[MatchingPaymentHandler] 매칭 신청 거절 처리 완료 - matchingApplicationId={}, handler={}",
+                    referenceId,
+                    matchingManager.getClass().getSimpleName());
+        } catch (RuntimeException e) {
+            log.error("[MatchingPaymentHandler] 매칭 신청 거절 처리 실패 - matchingApplicationId={}",
+                    referenceId,
+                    e);
+            throw e;
+        }
     }
 
 }

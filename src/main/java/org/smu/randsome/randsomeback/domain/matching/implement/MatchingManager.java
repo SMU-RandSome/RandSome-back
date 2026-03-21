@@ -114,6 +114,8 @@ public class MatchingManager {
 
         LocalDateTime withdrawnAt = LocalDateTime.now();
         matchingApplication.withdraw(withdrawnAt);
+
+        log.info("[MatchingManager] 매칭 신청 철회 완료 - matchingApplicationId: {}, memberId: {}", applicationId, memberId);
     }
 
     /**

@@ -2,7 +2,6 @@ package org.smu.randsome.randsomeback.domain.candidate.service;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
@@ -13,7 +12,6 @@ import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
 public class CandidateService {
@@ -38,13 +36,10 @@ public class CandidateService {
                 CANDIDATE_REGISTRATION_AMOUNT
         );
 
-        log.info("[CandidateService] 매칭 후보자 등록 신청 완료 - memberId: {}", memberId);
     }
 
     public void withdraw(Long memberId) {
         candidateManager.withdraw(memberId);
-
-        log.info("[CandidateService] 매칭 후보자 등록 철회 완료 - memberId: {}", memberId);
     }
 
     /**

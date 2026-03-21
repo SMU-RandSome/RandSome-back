@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.BankAccountInfo;
 import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountManager;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
@@ -15,6 +16,7 @@ import org.smu.randsome.randsomeback.domain.terms.implement.TermsAgreementManage
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class MemberService {
@@ -49,6 +51,8 @@ public class MemberService {
         Member member = memberManager.create(credentials, basicInfo, socialProfile);
         termsAgreementManager.saveAll(member.getId());
         bankAccountManager.create(member.getId(), bankAccountInfo);
+
+        log.info("[MemberService] 회원가입 완료 - memberId={}", member.getId());
 
         return member.getId();
     }
