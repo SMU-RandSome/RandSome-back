@@ -50,4 +50,9 @@ public class MemberReader {
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN));
     }
 
+    public Member findByEmail(String email) {
+        return memberJpaRepository.findByEmail_AddressAndStatus(email, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
+    }
+
 }

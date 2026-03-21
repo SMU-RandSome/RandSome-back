@@ -72,10 +72,9 @@ public class MemberController extends MemberControllerDocs {
     @Override
     @PatchMapping("/v1/members/password")
     public ApiResponse<?> updatePassword(
-            @RequestBody @Valid PasswordUpdateRequest request,
-            @LoginMember Long memberId
+            @RequestBody @Valid PasswordUpdateRequest request
     ) {
-        memberService.updatePassword(memberId, request.newPassword(), request.emailVerificationToken());
+        memberService.updatePassword(request.newPassword(), request.emailVerificationToken(), request.email());
 
         return ApiResponse.success();
     }

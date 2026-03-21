@@ -357,7 +357,6 @@ class MemberControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    @TestMember
     void 비밀번호_변경_요청이_유효하면_200을_반환한다() throws Exception {
         assertThat(mvcTester.patch().uri("/v1/members/password")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -370,9 +369,8 @@ class MemberControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    @TestMember
     void 비밀번호_변경_시_인증_토큰이_비어있으면_400을_반환한다() throws Exception {
-        var request = new PasswordUpdateRequest("", "newPassword123!");
+        var request = new PasswordUpdateRequest("", "202312345@sangmyung.kr", "newPassword123!");
 
         assertThat(mvcTester.patch().uri("/v1/members/password")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -382,9 +380,30 @@ class MemberControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    @TestMember
+    void 비밀번호_변경_시_이메일이_비어있으면_400을_반환한다() throws Exception {
+        var request = new PasswordUpdateRequest("password.verification.token", "", "newPassword123!");
+
+        assertThat(mvcTester.patch().uri("/v1/members/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void 비밀번호_변경_시_이메일이_상명대_이메일이_아니면_400을_반환한다() throws Exception {
+        var request = new PasswordUpdateRequest("password.verification.token", "student@gmail.com", "newPassword123!");
+
+        assertThat(mvcTester.patch().uri("/v1/members/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
     void 비밀번호_변경_시_새_비밀번호가_비어있으면_400을_반환한다() throws Exception {
-        var request = new PasswordUpdateRequest("password.verification.token", "");
+        var request = new PasswordUpdateRequest("password.verification.token", "202312345@sangmyung.kr", "");
 
         assertThat(mvcTester.patch().uri("/v1/members/password")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -394,9 +413,8 @@ class MemberControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    @TestMember
     void 비밀번호_변경_시_새_비밀번호가_8자_미만이면_400을_반환한다() throws Exception {
-        var request = new PasswordUpdateRequest("password.verification.token", "short1!");
+        var request = new PasswordUpdateRequest("password.verification.token", "202312345@sangmyung.kr", "short1!");
 
         assertThat(mvcTester.patch().uri("/v1/members/password")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -406,7 +424,6 @@ class MemberControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    @TestMember
     void 비밀번호_변경_시_이메일_인증_토큰이_유효하지_않으면_400을_반환한다() throws Exception {
         willThrow(new CoreException(ErrorType.INVALID_PASSWORD_UPDATE_REQUEST))
                 .given(memberService).updatePassword(any(), any(), any());
@@ -422,7 +439,6 @@ class MemberControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    @TestMember
     void 비밀번호_변경_시_존재하지_않는_회원이면_404를_반환한다() throws Exception {
         willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
                 .given(memberService).updatePassword(any(), any(), any());
@@ -438,7 +454,7 @@ class MemberControllerTest extends ControllerTestSupport {
     }
 
     private PasswordUpdateRequest createValidPasswordUpdateRequest() {
-        return new PasswordUpdateRequest("password.verification.token", "newPassword123!");
+        return new PasswordUpdateRequest("password.verification.token", "202312345@sangmyung.kr", "newPassword123!");
     }
 
     private MemberCreateRequest createValidRequest() {

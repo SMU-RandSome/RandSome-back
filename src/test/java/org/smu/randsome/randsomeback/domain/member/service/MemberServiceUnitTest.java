@@ -152,14 +152,13 @@ class MemberServiceUnitTest extends UnitTestSupport {
     void 비밀번호_변경에_성공한다() {
         // given
         Member member = mock(Member.class);
-        given(member.getEmail()).willReturn(MemberFixture.email());
-        given(memberReader.find(1L)).willReturn(member);
+        given(memberReader.findByEmail(MemberFixture.DEFAULT_EMAIL)).willReturn(member);
 
         // when
-        memberService.updatePassword(1L, "newPassword123!", "password.verification.token");
+        memberService.updatePassword("newPassword123!", "password.verification.token", MemberFixture.DEFAULT_EMAIL);
 
         // then
-        verify(memberValidator).validateUpdatePassword("password.verification.token", MemberFixture.email());
+        verify(memberValidator).validateUpdatePassword("password.verification.token", member);
         verify(memberManager).updatePassword(member, "newPassword123!");
     }
 
@@ -167,10 +166,10 @@ class MemberServiceUnitTest extends UnitTestSupport {
     void 비밀번호_변경_시_존재하지_않는_회원이면_예외가_발생한다() {
         // given
         willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
-                .given(memberReader).find(any());
+                .given(memberReader).findByEmail(any());
 
         // when & then
-        assertThatThrownBy(() -> memberService.updatePassword(999L, "newPassword123!", "password.verification.token"))
+        assertThatThrownBy(() -> memberService.updatePassword("newPassword123!", "password.verification.token", "unknown@sangmyung.kr"))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
     }
@@ -179,13 +178,12 @@ class MemberServiceUnitTest extends UnitTestSupport {
     void 비밀번호_변경_시_이메일_인증_토큰이_유효하지_않으면_예외가_발생한다() {
         // given
         Member member = mock(Member.class);
-        given(member.getEmail()).willReturn(MemberFixture.email());
-        given(memberReader.find(1L)).willReturn(member);
+        given(memberReader.findByEmail(MemberFixture.DEFAULT_EMAIL)).willReturn(member);
         willThrow(new CoreException(ErrorType.INVALID_PASSWORD_UPDATE_REQUEST))
                 .given(memberValidator).validateUpdatePassword(any(), any());
 
         // when & then
-        assertThatThrownBy(() -> memberService.updatePassword(1L, "newPassword123!", "invalid.token"))
+        assertThatThrownBy(() -> memberService.updatePassword("newPassword123!", "invalid.token", MemberFixture.DEFAULT_EMAIL))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.INVALID_PASSWORD_UPDATE_REQUEST.getMessage());
     }

@@ -67,9 +67,9 @@ public class MemberService {
     }
 
     @Transactional
-    public void updatePassword(Long memberId, String newPassword, String emailVerificationToken) {
-        Member member = memberReader.find(memberId);
-        memberValidator.validateUpdatePassword(emailVerificationToken, member.getEmail());
+    public void updatePassword(String newPassword, String emailVerificationToken, String email) {
+        Member member = memberReader.findByEmail(email);
+        memberValidator.validateUpdatePassword(emailVerificationToken, member);
 
         memberManager.updatePassword(member, newPassword);
     }
