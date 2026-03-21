@@ -1,10 +1,9 @@
 package org.smu.randsome.randsomeback.admin.payment.service;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
-import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
+import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearchCondition;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentReader;
 import org.springframework.data.domain.Page;
@@ -46,13 +45,13 @@ public class PaymentAdminService {
     }
 
     /**
-     * 결제 상태에 따른 결제 목록을 페이징 처리하여 조회한다.
-     * @param paymentStatuses 조회할 결제 상태 목록
-     * @param pageable 페이징 정보
-     * @return 결제 상태에 따른 결제 목록 페이지
+     * 결제 목록을 검색 조건에 따라 조회한다.
+     * @param paymentSearchCondition 검색 조건 (결제 상태, 검색어 등)
+     * @param pageable 페이지 정보
+     * @return 검색된 결제 목록과 거절 사유를 포함한 페이지
      * */
-    public Page<PaymentWithReason> findPayments(List<PaymentStatus> paymentStatuses, Pageable pageable) {
-        return paymentReader.findPayments(paymentStatuses, pageable);
+    public Page<PaymentWithReason> findPayments(PaymentSearchCondition paymentSearchCondition, Pageable pageable) {
+        return paymentReader.findPayments(paymentSearchCondition, pageable);
     }
 
 }

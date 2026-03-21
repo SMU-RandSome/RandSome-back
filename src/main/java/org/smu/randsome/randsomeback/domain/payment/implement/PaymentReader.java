@@ -1,10 +1,9 @@
 package org.smu.randsome.randsomeback.domain.payment.implement;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
+import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearchCondition;
 import org.smu.randsome.randsomeback.domain.payment.entity.Payment;
-import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
 import org.smu.randsome.randsomeback.domain.payment.repository.PaymentRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -26,8 +25,8 @@ public class PaymentReader {
     }
 
     @Transactional(readOnly = true)
-    public Page<PaymentWithReason> findPayments(List<PaymentStatus> paymentStatuses, Pageable pageable) {
-        return paymentRepository.findPaymentsWithRejectedReason(paymentStatuses, pageable);
+    public Page<PaymentWithReason> findPayments(PaymentSearchCondition paymentSearchCondition, Pageable pageable) {
+        return paymentRepository.findAllPaymentsWithRejectedReason(paymentSearchCondition, pageable);
     }
 
 }

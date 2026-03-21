@@ -14,6 +14,7 @@ import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
+import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearchCondition;
 import org.smu.randsome.randsomeback.domain.payment.entity.Payment;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
@@ -46,7 +47,10 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(List.of(PaymentStatus.PENDING), pageable);
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""),
+                pageable
+        );
 
         // then
         assertThat(result.getTotalElements()).isEqualTo(1);
@@ -75,8 +79,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                List.of(PaymentStatus.COMPLETED, PaymentStatus.REJECTED),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.COMPLETED, PaymentStatus.REJECTED), ""),
                 pageable
         );
 
@@ -97,8 +101,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when: COMPLETED 상태로 조회
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                List.of(PaymentStatus.COMPLETED),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.COMPLETED), ""),
                 pageable
         );
 
@@ -123,8 +127,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                List.of(PaymentStatus.REJECTED),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.REJECTED), ""),
                 pageable
         );
 
@@ -143,8 +147,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                List.of(PaymentStatus.PENDING),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""),
                 pageable
         );
 
@@ -169,8 +173,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                List.of(PaymentStatus.REJECTED),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.REJECTED), ""),
                 pageable
         );
 
@@ -193,8 +197,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                List.of(PaymentStatus.REJECTED),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.REJECTED), ""),
                 pageable
         );
 
@@ -227,8 +231,8 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(
-                List.of(PaymentStatus.REJECTED),
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.REJECTED), ""),
                 pageable
         );
 
@@ -259,7 +263,10 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = paymentRepository.findPaymentsWithRejectedReason(List.of(PaymentStatus.PENDING), pageable);
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""),
+                pageable
+        );
 
         // then: 삭제된 결제 제외, ACTIVE 결제 1건만 조회
         assertThat(result.getTotalElements()).isEqualTo(1);
@@ -288,14 +295,85 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         var lastPage  = PageRequest.of(2, 2);
 
         // when
-        var page1 = paymentRepository.findPaymentsWithRejectedReason(List.of(PaymentStatus.PENDING), firstPage);
-        var page3 = paymentRepository.findPaymentsWithRejectedReason(List.of(PaymentStatus.PENDING), lastPage);
+        var page1 = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""), firstPage);
+        var page3 = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""), lastPage);
 
         // then
         assertThat(page1.getTotalElements()).isEqualTo(5);
         assertThat(page1.getTotalPages()).isEqualTo(3);
         assertThat(page1.getContent()).hasSize(2);
         assertThat(page3.getContent()).hasSize(1);
+    }
+
+    // ===== 키워드 검색 =====
+
+    @Test
+    void 이름_키워드로_검색하면_해당_회원의_결제만_반환된다() {
+        // given
+        var member1 = memberJpaRepository.save(MemberFixture.create()); // "홍길동"
+        var member2 = memberJpaRepository.save(MemberFixture.createWithLegalName("202300001@sangmyung.kr", "김철수"));
+
+        var reg1 = candidateJpaRepository.save(CandidateRegistration.apply(member1));
+        var reg2 = candidateJpaRepository.save(CandidateRegistration.apply(member2));
+        paymentRepository.save(Payment.register(member1, PaymentType.CANDIDATE_REGISTRATION, reg1.getId(), 1));
+        paymentRepository.save(Payment.register(member2, PaymentType.CANDIDATE_REGISTRATION, reg2.getId(), 1));
+
+        var pageable = PageRequest.of(0, 10);
+
+        // when
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), "홍"),
+                pageable
+        );
+
+        // then
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().getFirst().payment().getMember().getLegalName()).isEqualTo("홍길동");
+    }
+
+    @Test
+    void 검색어가_없으면_모든_결제가_반환된다() {
+        // given
+        var member1 = memberJpaRepository.save(MemberFixture.create()); // "홍길동"
+        var member2 = memberJpaRepository.save(MemberFixture.createWithLegalName("202300001@sangmyung.kr", "김철수"));
+
+        var reg1 = candidateJpaRepository.save(CandidateRegistration.apply(member1));
+        var reg2 = candidateJpaRepository.save(CandidateRegistration.apply(member2));
+        paymentRepository.save(Payment.register(member1, PaymentType.CANDIDATE_REGISTRATION, reg1.getId(), 1));
+        paymentRepository.save(Payment.register(member2, PaymentType.CANDIDATE_REGISTRATION, reg2.getId(), 1));
+
+        var pageable = PageRequest.of(0, 10);
+
+        // when
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""),
+                pageable
+        );
+
+        // then
+        assertThat(result.getTotalElements()).isEqualTo(2);
+    }
+
+    @Test
+    void 대소문자_구분없이_검색된다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.createWithLegalName("202300002@sangmyung.kr", "HongGilDong"));
+        var reg = candidateJpaRepository.save(CandidateRegistration.apply(member));
+        paymentRepository.save(Payment.register(member, PaymentType.CANDIDATE_REGISTRATION, reg.getId(), 1));
+
+        var pageable = PageRequest.of(0, 10);
+
+        // when
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), "honggildong"),
+                pageable
+        );
+
+        // then
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().getFirst().payment().getMember().getLegalName()).isEqualTo("HongGilDong");
     }
 
 }

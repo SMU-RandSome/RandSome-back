@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
+import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearchCondition;
 import org.smu.randsome.randsomeback.domain.payment.entity.Payment;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
 import org.smu.randsome.randsomeback.domain.payment.repository.PaymentRepository;
@@ -64,37 +65,52 @@ class PaymentReaderUnitTest extends UnitTestSupport {
     // ===== findPayments() =====
 
     @Test
-    void 결제_상태_목록으로_결제_내역을_조회한다() {
+    void 결제_검색_조건으로_결제_내역을_조회한다() {
         // given
-        var statuses = List.of(PaymentStatus.PENDING);
+        var paymentSearch = new PaymentSearchCondition(List.of(PaymentStatus.PENDING), "");
         var pageable = PageRequest.of(0, 10);
         var paymentWithReason = new PaymentWithReason(mock(Payment.class), null);
         Page<PaymentWithReason> expected = new PageImpl<>(List.of(paymentWithReason));
-        given(paymentRepository.findPaymentsWithRejectedReason(statuses, pageable))
+        given(paymentRepository.findAllPaymentsWithRejectedReason(paymentSearch, pageable))
                 .willReturn(expected);
 
         // when
-        Page<PaymentWithReason> result = paymentReader.findPayments(statuses, pageable);
+        Page<PaymentWithReason> result = paymentReader.findPayments(paymentSearch, pageable);
 
         // then
         assertThat(result.getContent()).hasSize(1);
-        verify(paymentRepository).findPaymentsWithRejectedReason(statuses, pageable);
+        verify(paymentRepository).findAllPaymentsWithRejectedReason(paymentSearch, pageable);
     }
 
     @Test
     void 결제_내역이_없으면_빈_페이지를_반환한다() {
         // given
-        var statuses = List.of(PaymentStatus.PENDING);
+        var paymentSearch = new PaymentSearchCondition(List.of(PaymentStatus.PENDING), "");
         var pageable = PageRequest.of(0, 10);
-        given(paymentRepository.findPaymentsWithRejectedReason(statuses, pageable))
+        given(paymentRepository.findAllPaymentsWithRejectedReason(paymentSearch, pageable))
                 .willReturn(Page.empty());
 
         // when
-        Page<PaymentWithReason> result = paymentReader.findPayments(statuses, pageable);
+        Page<PaymentWithReason> result = paymentReader.findPayments(paymentSearch, pageable);
 
         // then
         assertThat(result.isEmpty()).isTrue();
         assertThat(result.getTotalElements()).isZero();
+    }
+
+    @Test
+    void 검색어가_있는_조건으로_조회하면_Repository에_그대로_위임한다() {
+        // given
+        var paymentSearch = new PaymentSearchCondition(List.of(PaymentStatus.PENDING), "홍길동");
+        var pageable = PageRequest.of(0, 10);
+        given(paymentRepository.findAllPaymentsWithRejectedReason(paymentSearch, pageable))
+                .willReturn(Page.empty());
+
+        // when
+        paymentReader.findPayments(paymentSearch, pageable);
+
+        // then
+        verify(paymentRepository).findAllPaymentsWithRejectedReason(paymentSearch, pageable);
     }
 
 }

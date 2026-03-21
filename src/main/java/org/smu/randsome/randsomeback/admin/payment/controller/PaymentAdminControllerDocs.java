@@ -76,6 +76,7 @@ public abstract class PaymentAdminControllerDocs {
                     #### 결제 목록 조회 API입니다.
                     - filterStatus에 따라 결제 상태를 필터링하여 페이지 형태로 반환합니다.
                     - filterStatus는 PENDING, PROCESSED 중 하나로 지정할 수 있습니다.
+                    - 검색어(query)를 통해 회원 실명 으로 결제 내역을 검색할 수 있습니다.
                     - PENDING: 대기 중인 결제, PROCESSED: 확정된 결제과 거절된 결제
                     - 반환되는 각 결제 항목에는 결제 ID, 회원 정보, 결제 유형, 금액, 상태, 거절 사유(거절된 경우) 등이 포함됩니다.
                     """
@@ -86,6 +87,7 @@ public abstract class PaymentAdminControllerDocs {
     })
     public abstract ApiResponse<PageResponse<PaymentPreviewItem>> findPayments(
             @RequestParam PaymentFilterStatus filterStatus,
+            @RequestParam String query,
             @PageableDefault(size = 10) Pageable pageable
     );
 
