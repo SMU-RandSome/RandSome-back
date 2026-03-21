@@ -29,25 +29,23 @@ public class RequestLogFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
         long startTime = System.currentTimeMillis();
-        int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         try {
             filterChain.doFilter(request, response);
-            status = response.getStatus();
         } finally {
             long elapsed = System.currentTimeMillis() - startTime;
             log.info("[HTTP] {} {} → {} ({}ms)",
                     request.getMethod(),
                     request.getRequestURI(),
-                    status,
+                    response.getStatus(),
                     elapsed);
         }
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        return uri.startsWith("/actuator")
-                || uri.startsWith("/swagger")
-                || uri.startsWith("/v3/api-docs");
+        String requestUri = request.getRequestURI();
+        return requestUri.startsWith("/actuator")
+                || requestUri.startsWith("/swagger")
+                || requestUri.startsWith("/v3/api-docs");
     }
 }
