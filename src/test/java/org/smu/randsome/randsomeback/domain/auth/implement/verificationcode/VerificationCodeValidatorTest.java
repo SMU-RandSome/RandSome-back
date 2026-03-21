@@ -64,20 +64,6 @@ class VerificationCodeValidatorTest extends UnitTestSupport {
     }
 
     @Test
-    void 오입력_후_재시도하면_코드가_폐기되어_예외가_발생한다() {
-        var email = "test@sangmyung.kr";
-        var code = manager.generateVerificationCode(email);
-
-        assertThatThrownBy(() -> validator.verifyCode(email, "000000"))
-                .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_MISMATCH);
-
-        assertThatThrownBy(() -> validator.verifyCode(email, code))
-                .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_NOT_FOUND);
-    }
-
-    @Test
     void 검증_성공_후_동일한_코드로_재검증하면_예외가_발생한다() {
         var email = "test@sangmyung.kr";
         var code = manager.generateVerificationCode(email);

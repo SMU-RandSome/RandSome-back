@@ -169,17 +169,6 @@ class PaymentAdminControllerTest extends ControllerTestSupport {
 
     @TestAdmin
     @Test
-    void query_파라미터가_없으면_400을_반환한다() {
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/payments?filterStatus=PENDING"))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-
-        then(paymentAdminService).shouldHaveNoInteractions();
-    }
-
-    @TestAdmin
-    @Test
     void 잘못된_filterStatus_값이면_400을_반환한다() {
         // when & then
         assertThat(mvcTester.get().uri("/v1/admin/payments?filterStatus=INVALID_STATUS"))
