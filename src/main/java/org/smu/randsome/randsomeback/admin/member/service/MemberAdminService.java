@@ -33,4 +33,10 @@ public class MemberAdminService {
         return MemberDetailResponse.of(member, bankAccount);
     }
 
+    @Transactional(readOnly = true)
+    public Page<MemberAdminResponse> searchMembers(String query, Pageable pageable) {
+        return memberReader.search(query, pageable)
+                .map(MemberAdminResponse::from);
+    }
+
 }

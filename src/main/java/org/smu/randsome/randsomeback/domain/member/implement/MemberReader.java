@@ -6,6 +6,7 @@ import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.repository.MemberQueryDslRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 public class MemberReader {
 
     private final MemberJpaRepository memberJpaRepository;
+    private final MemberQueryDslRepository memberQueryDslRepository;
     private final PasswordEncoder passwordEncoder;
 
     public Member findByAccount(String loginId, String password) {
@@ -48,6 +50,10 @@ public class MemberReader {
     public Member findByRefreshToken(String refreshToken) {
         return memberJpaRepository.findByRefreshTokenAndStatus(refreshToken, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN));
+    }
+
+    public Page<Member> search(String query, Pageable pageable) {
+        return memberQueryDslRepository.searchByNicknameOrLegalName(query, pageable);
     }
 
 }

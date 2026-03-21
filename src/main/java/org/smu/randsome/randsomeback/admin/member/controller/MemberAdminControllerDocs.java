@@ -54,4 +54,27 @@ public abstract class MemberAdminControllerDocs {
             @Parameter(name = "memberId", description = "조회할 회원의 고유 ID", required = true) Long memberId
     );
 
+    @Operation(
+            summary = "회원 검색",
+            description = """
+                #### 관리자 회원 검색 API입니다.
+                - 닉네임 또는 실명으로 회원을 검색합니다.
+                - 활성 상태(EntityStatus.ACTIVE)의 회원만 검색됩니다.
+                - 관리자(ROLE_ADMIN)는 검색 결과에서 제외됩니다.
+                - 페이지네이션이 적용됩니다.
+                
+                **요청 파라미터**
+                - query : 검색어 (닉네임 또는 실명)
+                - page : 페이지 번호 (0부터 시작, 기본값 0)
+                - size : 페이지 당 데이터 수 (기본값 10)
+                """
+    )
+    @ApiExceptions(values = {
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ApiResponse<PageResponse<MemberAdminResponse>> searchMembers(
+            @Parameter(name = "query", description = "검색어 (닉네임 또는 실명)", required = false) String query,
+            @ParameterObject Pageable pageable
+    );
+
 }
