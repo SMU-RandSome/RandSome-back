@@ -101,7 +101,7 @@ class PaymentAdminControllerTest extends ControllerTestSupport {
         given(paymentAdminService.findPayments(any(), any(Pageable.class))).willReturn(page);
 
         // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/payments?filterStatus=PENDING"))
+        assertThat(mvcTester.get().uri("/v1/admin/payments?filterStatus=PENDING&query="))
                 .apply(print())
                 .hasStatus(HttpStatus.OK.value())
                 .bodyJson()
@@ -119,7 +119,7 @@ class PaymentAdminControllerTest extends ControllerTestSupport {
         given(paymentAdminService.findPayments(any(), any(Pageable.class))).willReturn(Page.empty());
 
         // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/payments?filterStatus=PROCESSED"))
+        assertThat(mvcTester.get().uri("/v1/admin/payments?filterStatus=PROCESSED&query="))
                 .apply(print())
                 .hasStatus(HttpStatus.OK.value())
                 .bodyJson()
@@ -133,7 +133,7 @@ class PaymentAdminControllerTest extends ControllerTestSupport {
         given(paymentAdminService.findPayments(any(), any(Pageable.class))).willReturn(Page.empty());
 
         // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/payments?filterStatus=PENDING"))
+        assertThat(mvcTester.get().uri("/v1/admin/payments?filterStatus=PENDING&query="))
                 .apply(print())
                 .hasStatus(HttpStatus.OK.value())
                 .bodyJson()
@@ -144,9 +144,34 @@ class PaymentAdminControllerTest extends ControllerTestSupport {
 
     @TestAdmin
     @Test
+    void 검색어로_결제_내역을_조회하면_200과_필터링된_목록을_반환한다() {
+        // given
+        given(paymentAdminService.findPayments(any(), any(Pageable.class))).willReturn(Page.empty());
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/payments?filterStatus=PENDING&query=홍길동"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"));
+    }
+
+    @TestAdmin
+    @Test
     void filterStatus_파라미터가_없으면_400을_반환한다() {
         // when & then
         assertThat(mvcTester.get().uri("/v1/admin/payments"))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+
+        then(paymentAdminService).shouldHaveNoInteractions();
+    }
+
+    @TestAdmin
+    @Test
+    void query_파라미터가_없으면_400을_반환한다() {
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/payments?filterStatus=PENDING"))
                 .apply(print())
                 .hasStatus(HttpStatus.BAD_REQUEST.value());
 

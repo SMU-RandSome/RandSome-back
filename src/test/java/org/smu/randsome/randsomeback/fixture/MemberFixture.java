@@ -70,6 +70,20 @@ public class MemberFixture {
     }
 
 
+    public static Member createWithLegalName(String email, String legalName) {
+        return Member.create(
+                email,
+                DEFAULT_RAW_PASSWORD,
+                ENCODER,
+                legalName,
+                DEFAULT_GENDER,
+                DEFAULT_MBTI,
+                email.substring(0, email.indexOf('@')),
+                DEFAULT_SELF_INTRODUCTION,
+                DEFAULT_IDEAL_DESCRIPTION
+        );
+    }
+
     public static Member createWithGender(String email, Gender gender) {
         String instagramId = email.substring(0, email.indexOf('@'));
         return Member.create(
