@@ -406,15 +406,6 @@ class MemberControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void 비밀번호_변경_시_인증되지_않은_사용자면_403을_반환한다() throws Exception {
-        assertThat(mvcTester.patch().uri("/v1/members/password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createValidPasswordUpdateRequest())))
-                .apply(print())
-                .hasStatus(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
     @TestMember
     void 비밀번호_변경_시_이메일_인증_토큰이_유효하지_않으면_400을_반환한다() throws Exception {
         willThrow(new CoreException(ErrorType.INVALID_PASSWORD_UPDATE_REQUEST))

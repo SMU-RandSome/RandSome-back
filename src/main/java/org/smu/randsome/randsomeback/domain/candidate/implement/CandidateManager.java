@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.domain.candidate.implement;
 
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.repository.CandidateJpaRepository;
@@ -14,6 +15,7 @@ import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class CandidateManager {
@@ -23,8 +25,13 @@ public class CandidateManager {
 
     public CandidateRegistration apply(Long memberId) {
         Member member = memberReader.find(memberId);
+        CandidateRegistration registration = candidateJpaRepository.save(CandidateRegistration.apply(member));
 
-        return candidateJpaRepository.save(CandidateRegistration.apply(member));
+        log.info("[CandidateManager] 후보자 등록 생성 완료 - registrationId={}, memberId={}",
+                registration.getId(),
+                memberId);
+
+        return registration;
     }
 
     @Transactional
@@ -40,6 +47,10 @@ public class CandidateManager {
         Member member = registration.getMember();
         member.updateRole(Role.ROLE_CANDIDATE);
 
+        log.info("[CandidateManager] 후보자 등록 승인 처리 완료 - registrationId={}, memberId={}",
+                registrationId,
+                member.getId());
+
         return registration;
     }
 
@@ -49,6 +60,8 @@ public class CandidateManager {
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_CANDIDATE));
 
         registration.reject(rejectedReason, rejectedAt);
+
+        log.info("[CandidateManager] 후보자 등록 거절 처리 완료 - registrationId={}", registrationId);
     }
 
     @Transactional
@@ -72,6 +85,10 @@ public class CandidateManager {
         // NOTE: #1
         Member candidate = registration.getMember();
         candidate.updateRole(Role.ROLE_MEMBER);
+
+        log.info("[CandidateManager] 후보자 등록 철회 처리 완료 - registrationId={}, memberId={}",
+                registration.getId(),
+                memberId);
     }
 
 }

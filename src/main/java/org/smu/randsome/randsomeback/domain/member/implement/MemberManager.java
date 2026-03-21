@@ -61,6 +61,8 @@ public class MemberManager {
                 updateProfile.selfIntroduction(),
                 updateProfile.idealDescription()
         );
+        log.info("[MemberManager] 프로필 수정 완료 - memberId={}", memberId);
+
     }
 
     @Transactional
