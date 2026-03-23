@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
+import org.smu.randsome.randsomeback.domain.member.dto.request.DeviceTokenSyncRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.PasswordUpdateRequest;
@@ -455,6 +456,50 @@ class MemberControllerTest extends ControllerTestSupport {
 
     private PasswordUpdateRequest createValidPasswordUpdateRequest() {
         return new PasswordUpdateRequest("password.verification.token", "202312345@sangmyung.kr", "newPassword123!");
+    }
+
+    @Test
+    @TestMember
+    void 디바이스_토큰_동기화_요청이_유효하면_200을_반환한다() throws Exception {
+        // given
+        var request = new DeviceTokenSyncRequest("fcm_device_token_12345");
+
+        // when & then
+        assertThat(mvcTester.patch().uri("/v1/members/devices")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
+    }
+
+    @Test
+    @TestMember
+    void 디바이스_토큰이_비어있으면_400을_반환한다() throws Exception {
+        // given
+        var request = new DeviceTokenSyncRequest("");
+
+        // when & then
+        assertThat(mvcTester.patch().uri("/v1/members/devices")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void 디바이스_토큰_동기화_시_인증되지_않은_사용자는_403을_반환한다() throws Exception {
+        // given
+        var request = new DeviceTokenSyncRequest("fcm_device_token_12345");
+
+        // when & then
+        assertThat(mvcTester.patch().uri("/v1/members/devices")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.FORBIDDEN.value());
     }
 
     private MemberCreateRequest createValidRequest() {

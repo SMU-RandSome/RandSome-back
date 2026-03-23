@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.domain.member.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.smu.randsome.randsomeback.domain.member.dto.request.DeviceTokenSyncRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.PasswordUpdateRequest;
@@ -88,6 +89,26 @@ public abstract class MemberControllerDocs {
     })
     public abstract ApiResponse<?> updatePassword(
             @RequestBody @Valid PasswordUpdateRequest request
+    );
+
+    @Operation(
+            summary = "디바이스 토큰 동기화 - JWT [O]",
+            description = """
+                    ### 디바이스 토큰을 동기화합니다.
+                    - 사용자가 사용하는 디바이스의 FCM 토큰을 서버에 동기화합니다.
+                    - 로그인 시 또는 디바이스 변경 시 호출됩니다.
+                    - 성공 시 빈 응답을 반환합니다.
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.BAD_REQUEST,
+            ErrorType.UNAUTHORIZED_ERROR,
+            ErrorType.NOT_FOUND_MEMBER,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ApiResponse<?> syncDevices(
+            @Valid DeviceTokenSyncRequest request,
+            Long memberId
     );
 
 }

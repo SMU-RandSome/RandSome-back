@@ -153,7 +153,8 @@ memberValidator.validateAdmin(member);
 
 ## 트랜잭션 규칙
 
-- 트랜잭션 경계는 Service 계층만 담당한다.
+- **여러 Implement를 조합하는 유스케이스**는 Service에 `@Transactional`을 둔다 — Service가 트랜잭션 경계를 잡는다.
+- **단일 Implement 작업**은 해당 Manager/Reader에 `@Transactional`을 둔다 — 구현 책임과 트랜잭션이 함께 있어야 응집도가 높다.
 - 읽기 전용 유스케이스는 `@Transactional(readOnly = true)`.
 - 캐시 무효화 등 부수 효과는 트랜잭션 커밋 이후에 처리한다.
 

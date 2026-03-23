@@ -5,12 +5,14 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
+import org.smu.randsome.randsomeback.domain.member.dto.request.DeviceTokenSyncRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.PasswordUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.response.MemberProfileResponse;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.CandidateRegistrationStatusView;
+import org.smu.randsome.randsomeback.domain.member.service.MemberDeviceService;
 import org.smu.randsome.randsomeback.domain.member.service.MemberService;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController extends MemberControllerDocs {
 
     private final MemberService memberService;
+    private final MemberDeviceService memberDeviceService;
     private final CandidateService candidateService;
 
     @Override
@@ -75,6 +78,17 @@ public class MemberController extends MemberControllerDocs {
             @RequestBody @Valid PasswordUpdateRequest request
     ) {
         memberService.updatePassword(request.newPassword(), request.emailVerificationToken(), request.email());
+
+        return ApiResponse.success();
+    }
+
+    @Override
+    @PatchMapping("/v1/members/devices")
+    public ApiResponse<?> syncDevices(
+            @RequestBody @Valid DeviceTokenSyncRequest request,
+            @LoginMember Long memberId
+    ) {
+        memberDeviceService.syncDeviceTokens(memberId, request.deviceToken());
 
         return ApiResponse.success();
     }
