@@ -106,7 +106,7 @@ public abstract class MemberControllerDocs {
     )
     @ApiExceptions(values = {
             ErrorType.BAD_REQUEST,
-            ErrorType.UNAUTHORIZED_ERROR,
+            ErrorType.EMPTY_SECURITY_CONTEXT,
             ErrorType.NOT_FOUND_MEMBER,
             ErrorType.DEFAULT_ERROR
     })
