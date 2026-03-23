@@ -11,6 +11,7 @@ import com.google.firebase.messaging.SendResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationSender;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
 public class FcmNotificationSender implements NotificationSender {
 
     private final FirebaseMessaging firebaseMessaging;
+    private final ErrorNotificationSender errorNotificationSender;
 
     @Override
     public void sendNotification(List<String> fcmTokens, NotificationType type) {
@@ -43,7 +45,7 @@ public class FcmNotificationSender implements NotificationSender {
                 logFailedTokens(chunk, response);
             } catch (FirebaseMessagingException e) {
                 log.error("[FCM] 멀티캐스트 발송 실패", e);
-                // TODO: Slack 알림 전송 - 청크 단위 전체 실패이므로 즉시 알림 필요
+                errorNotificationSender.sendErrorNotification("[FCM] 멀티캐스트 발송 실패: " + e.getMessage(), e);
             }
         }
     }

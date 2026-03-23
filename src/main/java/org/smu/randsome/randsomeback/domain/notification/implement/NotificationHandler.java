@@ -10,6 +10,7 @@ import org.smu.randsome.randsomeback.domain.member.entity.MemberDevice;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberDeviceReader;
 import org.smu.randsome.randsomeback.domain.payment.event.PaymentApprovedEvent;
 import org.smu.randsome.randsomeback.domain.payment.event.PaymentRejectedEvent;
+import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,7 @@ public class NotificationHandler {
 
     private final MemberDeviceReader memberDeviceReader;
     private final NotificationManager notificationManager;
+    private final ErrorNotificationSender errorNotificationSender;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -39,7 +41,7 @@ public class NotificationHandler {
             );
         } catch (Exception e) {
             log.error("[NotificationHandler] 공지사항 알림 전송 중 오류 발생. announcementId={}", event.announcementId(), e);
-            // TODO: Slack 알림 전송 - DB 조회 또는 FCM 전송 자체가 실패한 경우이므로 즉시 알림 필요
+            errorNotificationSender.sendErrorNotification("[NotificationHandler] 공지사항 알림 전송 중 오류 발생. announcementId=" + event.announcementId() + ", error: " + e.getMessage(), e);
         }
     }
 
@@ -56,7 +58,7 @@ public class NotificationHandler {
             );
         } catch (Exception e) {
             log.error("[NotificationHandler] 매칭 신청 알림 전송 중 오류 발생. matchingApplicationId={}", event.matchingApplicationId(), e);
-            // TODO: Slack 알림 전송 - DB 조회 또는 FCM 전송 자체가 실패한 경우이므로 즉시 알림 필요
+            errorNotificationSender.sendErrorNotification("[NotificationHandler] 매칭 신청 알림 전송 중 오류 발생. matchingApplicationId=" + event.matchingApplicationId() + ", error: " + e.getMessage(), e);
         }
     }
 
@@ -73,7 +75,7 @@ public class NotificationHandler {
             );
         } catch (Exception e) {
             log.error("[NotificationHandler] 후보자 신청 알림 전송 중 오류 발생. candidateRegistrationId={}", event.candidateRegistrationId(), e);
-            // TODO: Slack 알림 전송 - DB 조회 또는 FCM 전송 자체가 실패한 경우이므로 즉시 알림 필요
+            errorNotificationSender.sendErrorNotification("[NotificationHandler] 후보자 신청 알림 전송 중 오류 발생. candidateRegistrationId=" + event.candidateRegistrationId() + ", error: " + e.getMessage(), e);
         }
     }
 
@@ -90,7 +92,7 @@ public class NotificationHandler {
             );
         } catch (Exception e) {
             log.error("[NotificationHandler] 결제 승인 알림 전송 중 오류 발생. paymentId={}", event.paymentId(), e);
-            // TODO: Slack 알림 전송 - DB 조회 또는 FCM 전송 자체가 실패한 경우이므로 즉시 알림 필요
+            errorNotificationSender.sendErrorNotification("[NotificationHandler] 결제 승인 알림 전송 중 오류 발생. paymentId=" + event.paymentId() + ", error: " + e.getMessage(), e);
         }
     }
 
@@ -107,7 +109,7 @@ public class NotificationHandler {
             );
         } catch (Exception e) {
             log.error("[NotificationHandler] 결제 거절 알림 전송 중 오류 발생. paymentId={}", event.paymentId(), e);
-            // TODO: Slack 알림 전송 - DB 조회 또는 FCM 전송 자체가 실패한 경우이므로 즉시 알림 필요
+            errorNotificationSender.sendErrorNotification("[NotificationHandler] 결제 거절 알림 전송 중 오류 발생. paymentId=" + event.paymentId() + ", error: " + e.getMessage(), e);
         }
     }
 

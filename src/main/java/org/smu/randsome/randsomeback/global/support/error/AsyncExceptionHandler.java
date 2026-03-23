@@ -1,9 +1,10 @@
 package org.smu.randsome.randsomeback.global.support.error;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.logging.LogLevel;
 
@@ -13,29 +14,42 @@ import org.springframework.boot.logging.LogLevel;
  * <p>@Async 메서드에서 발생한 예외를 잡아서 로깅합니다.
  * AsyncConfig 에서 이 핸들러를 등록하여 사용합니다.
  */
+@RequiredArgsConstructor
 @Slf4j
 public class AsyncExceptionHandler implements AsyncUncaughtExceptionHandler {
+
+    private final ErrorNotificationSender errorNotificationSender;
 
     @Override
     public void handleUncaughtException(@NonNull Throwable throwable, @NonNull Method method, Object @NonNull ... params) {
         if (throwable instanceof CoreException e) {
-            String data = e.getData() != null ? e.getData().toString() : "null";
+            String logMessage = String.format("비동기 작업 중 CoreException 발생 - Method: %s, ErrorType: %s, Message: %s, Data: %s",
+                    method.getName(),
+                    e.getErrorType().name(),
+                    e.getMessage(),
+                    e.getData() != null ? e.getData().toString() : "null"
+            );
 
             switch (e.getErrorType().getLogLevel()) {
-                case LogLevel.ERROR -> log.error("비동기 작업 중 CoreException 발생 - Method: {}, ErrorType: {}, Message: {}, Data: {}",
-                        method.getName(), e.getErrorType().name(), e.getMessage(), data, e);
-                case LogLevel.WARN ->  log.warn("비동기 작업 중 CoreException 발생 - Method: {}, ErrorType: {}, Message: {}, Data: {}",
-                        method.getName(), e.getErrorType().name(), e.getMessage(), data, e);
-                default ->             log.info("비동기 작업 중 CoreException 발생 - Method: {}, ErrorType: {}, Message: {}, Data: {}",
-                        method.getName(), e.getErrorType().name(), e.getMessage(), data, e);
+                case LogLevel.ERROR -> {
+                    log.error(logMessage, e);
+                    errorNotificationSender.sendErrorNotification(logMessage, e);
+                }
+                case LogLevel.WARN -> log.warn(logMessage, e);
+                default -> log.info(logMessage, e);
             }
         } else {
+            String logMessage = String.format("비동기 작업 중 Exception 발생 - Method: %s, Error: %s",
+                    method.getName(),
+                    throwable.getMessage()
+            );
             log.error("비동기 작업 중 Exception 발생 - Method: {}, Args: {}, Error: {}",
                     method.getName(),
-                    Arrays.toString(params),
+                    params,
                     throwable.getMessage(),
                     throwable
             );
+            errorNotificationSender.sendErrorNotification(logMessage, throwable);
         }
     }
 
