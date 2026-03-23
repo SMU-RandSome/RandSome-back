@@ -25,4 +25,9 @@ public class MemberDeviceReader {
         return memberDeviceRepository.findAllByAdmin(Role.ROLE_ADMIN, EntityStatus.ACTIVE);
     }
 
+    @Transactional(readOnly = true)
+    public List<MemberDevice> findAllByMemberId(Long memberId) {
+        return memberDeviceRepository.findByMemberIdAndStatus(memberId, EntityStatus.ACTIVE);
+    }
+
 }

@@ -26,8 +26,8 @@ public class PaymentAdminService {
      *
      * @param paymentId 승인할 결제 ID
      */
-    public void confirm(Long paymentId) {
-        paymentManager.confirm(paymentId);
+    public void approve(Long paymentId) {
+        paymentManager.approve(paymentId);
     }
 
     /**

@@ -17,4 +17,6 @@ public interface MemberDeviceJpaRepository extends JpaRepository<MemberDevice, L
 
     @Query("SELECT m FROM MemberDevice m WHERE m.member.role = :role AND m.status = :status")
     List<MemberDevice> findAllByAdmin(@Param("role") Role role, @Param("status") EntityStatus status);
+
+    List<MemberDevice> findByMemberIdAndStatus(Long memberId, EntityStatus status);
 }

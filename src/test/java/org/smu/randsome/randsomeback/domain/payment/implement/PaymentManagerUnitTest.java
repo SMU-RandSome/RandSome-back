@@ -21,6 +21,7 @@ import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
 import org.smu.randsome.randsomeback.domain.payment.repository.PaymentJpaRepository;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.context.ApplicationEventPublisher;
 
 class PaymentManagerUnitTest extends UnitTestSupport {
 
@@ -35,6 +36,9 @@ class PaymentManagerUnitTest extends UnitTestSupport {
 
     @Mock
     List<PaymentHandler> handlers;
+
+    @Mock
+    ApplicationEventPublisher eventPublisher;
 
     @Test
     void 결제를_등록한다() {
@@ -56,6 +60,7 @@ class PaymentManagerUnitTest extends UnitTestSupport {
         var payment = mock(Payment.class);
         given(payment.getPaymentType()).willReturn(PaymentType.CANDIDATE_REGISTRATION);
         given(payment.getReferenceId()).willReturn(referenceId);
+        given(payment.getMember()).willReturn(mock(Member.class));
         given(paymentReader.find(paymentId)).willReturn(payment);
 
         var handler = mock(PaymentHandler.class);
@@ -63,7 +68,7 @@ class PaymentManagerUnitTest extends UnitTestSupport {
         given(handlers.stream()).willReturn(Stream.of(handler));
 
         // when
-        paymentManager.confirm(paymentId);
+        paymentManager.approve(paymentId);
 
         // then
         verify(handler).approve(eq(referenceId), any(LocalDateTime.class));
@@ -78,6 +83,7 @@ class PaymentManagerUnitTest extends UnitTestSupport {
         var payment = mock(Payment.class);
         given(payment.getPaymentType()).willReturn(PaymentType.CANDIDATE_REGISTRATION);
         given(payment.getReferenceId()).willReturn(referenceId);
+        given(payment.getMember()).willReturn(mock(Member.class));
         given(paymentReader.find(paymentId)).willReturn(payment);
 
         var handler = mock(PaymentHandler.class);
@@ -101,7 +107,7 @@ class PaymentManagerUnitTest extends UnitTestSupport {
         given(handlers.stream()).willReturn(Stream.of());
 
         // when & then
-        assertThatThrownBy(() -> paymentManager.confirm(paymentId))
+        assertThatThrownBy(() -> paymentManager.approve(paymentId))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.DEFAULT_ERROR.getMessage());
     }

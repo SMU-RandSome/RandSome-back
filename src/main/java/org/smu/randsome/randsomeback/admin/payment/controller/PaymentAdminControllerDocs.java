@@ -37,7 +37,7 @@ public abstract class PaymentAdminControllerDocs {
             ErrorType.NOT_ALLOW_ALREADY_CONFIRMED_PAYMENT,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ApiResponse<?> confirm(
+    public abstract ApiResponse<?> approve(
             @Parameter(
                     example = "1",
                     description = "승인할 결제의 ID",

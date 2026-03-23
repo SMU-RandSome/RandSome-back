@@ -28,8 +28,8 @@ public class PaymentAdminController extends PaymentAdminControllerDocs {
 
     @Override
     @PostMapping("/v1/admin/payments/{paymentId}/confirm")
-    public ApiResponse<?> confirm(@PathVariable Long paymentId) {
-        paymentAdminService.confirm(paymentId);
+    public ApiResponse<?> approve(@PathVariable Long paymentId) {
+        paymentAdminService.approve(paymentId);
 
         return ApiResponse.success();
     }
