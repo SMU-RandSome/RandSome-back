@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.global.jwt.config;
+package org.smu.randsome.randsomeback.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
