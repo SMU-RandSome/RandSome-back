@@ -74,6 +74,9 @@ dependencies {
     implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.20.1'
     implementation 'io.sentry:sentry-logback:7.20.1'
 
+    // FIREBASE
+    implementation 'com.google.firebase:firebase-admin:9.7.0'
+
     // Cache
     implementation 'com.github.ben-manes.caffeine:caffeine'
 
