@@ -69,6 +69,8 @@ public enum ErrorType {
     EMAIL_SEND_FAILED           (HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
 
     // FIREBASE
+    INVALID_FCM_TOKEN       (HttpStatus.BAD_REQUEST, "유효하지 않은 FCM 토큰입니다.", LogLevel.INFO),
+    NOT_FOUND_FCM_TOKEN     (HttpStatus.NOT_FOUND, "FCM 토큰을 찾을 수 없습니다.", LogLevel.INFO),
     FIREBASE_INIT_ERROR     (HttpStatus.INTERNAL_SERVER_ERROR, "Firebase 초기화에 실패했습니다.", LogLevel.ERROR),
     SEND_NOTIFICATION_ERROR (HttpStatus.INTERNAL_SERVER_ERROR, "알림 전송에 실패했습니다.", LogLevel.ERROR),
 

@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.domain.member.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.smu.randsome.randsomeback.domain.member.dto.request.DeviceTokenSyncRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.PasswordUpdateRequest;
@@ -11,7 +12,11 @@ import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Tag(name = "Member Docs", description = "회원 관련 API 문서")
 public abstract class MemberControllerDocs {
@@ -88,6 +93,46 @@ public abstract class MemberControllerDocs {
     })
     public abstract ApiResponse<?> updatePassword(
             @RequestBody @Valid PasswordUpdateRequest request
+    );
+
+    @Operation(
+            summary = "디바이스 토큰 동기화 - JWT [O]",
+            description = """
+                    ### 디바이스 토큰을 동기화합니다.
+                    - 사용자가 사용하는 디바이스의 FCM 토큰을 서버에 동기화합니다.
+                    - 로그인 시 또는 디바이스 변경 시 호출됩니다.
+                    - 성공 시 빈 응답을 반환합니다.
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.BAD_REQUEST,
+            ErrorType.EMPTY_SECURITY_CONTEXT,
+            ErrorType.NOT_FOUND_MEMBER,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ApiResponse<?> syncDevices(
+            @Valid DeviceTokenSyncRequest request,
+            Long memberId
+    );
+
+    @Operation(
+            summary = "디바이스 토큰 삭제 - JWT [O]",
+            description = """
+                    ### 디바이스 토큰을 삭제합니다.
+                    - 사용자가 로그아웃하거나 더 이상 푸시 알림을 받지 않으려는 경우 호출됩니다.
+                    - 성공 시 빈 응답을 반환합니다.
+                    """
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "디바이스 토큰 삭제 성공")
+    @ApiExceptions(values = {
+            ErrorType.UNAUTHORIZED_ERROR,
+            ErrorType.NOT_FOUND_MEMBER,
+            ErrorType.NOT_FOUND_FCM_TOKEN,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ApiResponse<?> deleteDevice(
+            @RequestParam String deviceToken,
+            @LoginMember Long memberId
     );
 
 }
