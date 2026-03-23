@@ -55,7 +55,7 @@ public class NotificationHandler {
         try {
             sendNotificationToDevices(memberDeviceReader.findAllByAdminRole(), NotificationType.CANDIDATE_APPLIED_TO_ADMIN, event.candidateRegistrationId());
         } catch (Exception e) {
-            log.error("[NotificationHandler] 후보자 신청 알림 전송 중 오류 발생. matchingApplicationId={}", event.candidateRegistrationId(), e);
+            log.error("[NotificationHandler] 후보자 신청 알림 전송 중 오류 발생. candidateRegistrationId={}", event.candidateRegistrationId(), e);
             // TODO: Slack 알림 전송 - DB 조회 또는 FCM 전송 자체가 실패한 경우이므로 즉시 알림 필요
         }
     }
