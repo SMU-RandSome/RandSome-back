@@ -41,7 +41,7 @@ class PaymentAdminControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
                 .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
 
-        then(paymentAdminService).should().confirm(1L);
+        then(paymentAdminService).should().approve(1L);
     }
 
     // ===== POST /v1/admin/payments/{paymentId}/reject =====

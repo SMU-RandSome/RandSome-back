@@ -42,7 +42,7 @@ class PaymentConfirmIntegrationTest extends IntegrationTestSupport {
         ));
 
         // when
-        paymentManager.confirm(payment.getId());
+        paymentManager.approve(payment.getId());
 
         // then
         var resultPayment = paymentJpaRepository.findById(payment.getId()).orElseThrow();
@@ -93,7 +93,7 @@ class PaymentConfirmIntegrationTest extends IntegrationTestSupport {
                 registration.getId(),
                 1
         ));
-        paymentManager.confirm(payment.getId());
+        paymentManager.approve(payment.getId());
 
         // when & then
         assertThatThrownBy(() -> paymentManager.reject(payment.getId(), "거절 사유"))
@@ -116,7 +116,7 @@ class PaymentConfirmIntegrationTest extends IntegrationTestSupport {
         // when & then
         // @Transactional 테스트 환경에서 예외 발생 시 트랜잭션이 rollback-only로 마킹되므로
         // DB 상태 검증은 단위 테스트(PaymentManagerUnitTest)에서 핸들러 미호출로 확인한다.
-        assertThatThrownBy(() -> paymentManager.confirm(payment.getId()))
+        assertThatThrownBy(() -> paymentManager.approve(payment.getId()))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_CANDIDATE.getMessage());
     }
