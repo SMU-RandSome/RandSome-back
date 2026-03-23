@@ -26,7 +26,7 @@ public class MemberDeviceReader {
     }
 
     @Transactional(readOnly = true)
-    public List<MemberDevice> findByMemberId(Long memberId) {
+    public List<MemberDevice> findAllByMemberId(Long memberId) {
         return memberDeviceRepository.findByMemberIdAndStatus(memberId, EntityStatus.ACTIVE);
     }
 

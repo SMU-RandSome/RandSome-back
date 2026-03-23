@@ -82,7 +82,7 @@ public class NotificationHandler {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void paymentApprovedNotify(PaymentApprovedEvent event) {
         try {
-            List<MemberDevice> memberDevices = memberDeviceReader.findByMemberId(event.memberId());
+            List<MemberDevice> memberDevices = memberDeviceReader.findAllByMemberId(event.memberId());
             sendNotificationToDevices(
                     memberDevices,
                     NotificationType.fromApproved(event.paymentType()),
@@ -99,7 +99,7 @@ public class NotificationHandler {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void paymentRejectedNotify(PaymentRejectedEvent event) {
         try {
-            List<MemberDevice> memberDevices = memberDeviceReader.findByMemberId(event.memberId());
+            List<MemberDevice> memberDevices = memberDeviceReader.findAllByMemberId(event.memberId());
             sendNotificationToDevices(
                     memberDevices,
                     NotificationType.fromRejected(event.paymentType()),
