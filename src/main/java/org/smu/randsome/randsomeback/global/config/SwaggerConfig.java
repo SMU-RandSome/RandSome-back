@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.global.swagger;
+package org.smu.randsome.randsomeback.global.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
