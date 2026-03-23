@@ -8,6 +8,8 @@ import org.smu.randsome.randsomeback.domain.candidate.event.CandidateAppliedEven
 import org.smu.randsome.randsomeback.domain.matching.event.MatchingAppliedEvent;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberDevice;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberDeviceReader;
+import org.smu.randsome.randsomeback.domain.payment.event.PaymentApprovedEvent;
+import org.smu.randsome.randsomeback.domain.payment.event.PaymentRejectedEvent;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -29,7 +31,12 @@ public class NotificationHandler {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void announcementNotify(AnnouncementRegisteredEvent event) {
         try {
-            sendNotificationToDevices(memberDeviceReader.findAllActive(), NotificationType.ANNOUNCEMENT_REGISTERED, event.announcementId());
+            List<MemberDevice> memberDevices = memberDeviceReader.findAllActive();
+            sendNotificationToDevices(
+                    memberDevices,
+                    NotificationType.ANNOUNCEMENT_REGISTERED,
+                    event.announcementId()
+            );
         } catch (Exception e) {
             log.error("[NotificationHandler] 공지사항 알림 전송 중 오류 발생. announcementId={}", event.announcementId(), e);
             // TODO: Slack 알림 전송 - DB 조회 또는 FCM 전송 자체가 실패한 경우이므로 즉시 알림 필요
@@ -41,7 +48,12 @@ public class NotificationHandler {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void matchingApplicationNotify(MatchingAppliedEvent event) {
         try {
-            sendNotificationToDevices(memberDeviceReader.findAllByAdminRole(), NotificationType.MATCHING_APPLIED_TO_ADMIN, event.matchingApplicationId());
+            List<MemberDevice> memberDevices = memberDeviceReader.findAllByAdminRole();
+            sendNotificationToDevices(
+                    memberDevices,
+                    NotificationType.MATCHING_APPLIED_TO_ADMIN,
+                    event.matchingApplicationId()
+            );
         } catch (Exception e) {
             log.error("[NotificationHandler] 매칭 신청 알림 전송 중 오류 발생. matchingApplicationId={}", event.matchingApplicationId(), e);
             // TODO: Slack 알림 전송 - DB 조회 또는 FCM 전송 자체가 실패한 경우이므로 즉시 알림 필요
@@ -53,9 +65,48 @@ public class NotificationHandler {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void candidateRegistrationNotify(CandidateAppliedEvent event) {
         try {
-            sendNotificationToDevices(memberDeviceReader.findAllByAdminRole(), NotificationType.CANDIDATE_APPLIED_TO_ADMIN, event.candidateRegistrationId());
+            List<MemberDevice> memberDevices = memberDeviceReader.findAllByAdminRole();
+            sendNotificationToDevices(
+                    memberDevices,
+                    NotificationType.CANDIDATE_APPLIED_TO_ADMIN,
+                    event.candidateRegistrationId()
+            );
         } catch (Exception e) {
             log.error("[NotificationHandler] 후보자 신청 알림 전송 중 오류 발생. candidateRegistrationId={}", event.candidateRegistrationId(), e);
+            // TODO: Slack 알림 전송 - DB 조회 또는 FCM 전송 자체가 실패한 경우이므로 즉시 알림 필요
+        }
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void paymentApprovedNotify(PaymentApprovedEvent event) {
+        try {
+            List<MemberDevice> memberDevices = memberDeviceReader.findByMemberId(event.memberId());
+            sendNotificationToDevices(
+                    memberDevices,
+                    NotificationType.fromApproved(event.paymentType()),
+                    event.paymentId()
+            );
+        } catch (Exception e) {
+            log.error("[NotificationHandler] 결제 승인 알림 전송 중 오류 발생. paymentId={}", event.paymentId(), e);
+            // TODO: Slack 알림 전송 - DB 조회 또는 FCM 전송 자체가 실패한 경우이므로 즉시 알림 필요
+        }
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void paymentRejectedNotify(PaymentRejectedEvent event) {
+        try {
+            List<MemberDevice> memberDevices = memberDeviceReader.findByMemberId(event.memberId());
+            sendNotificationToDevices(
+                    memberDevices,
+                    NotificationType.fromRejected(event.paymentType()),
+                    event.paymentId()
+            );
+        } catch (Exception e) {
+            log.error("[NotificationHandler] 결제 거절 알림 전송 중 오류 발생. paymentId={}", event.paymentId(), e);
             // TODO: Slack 알림 전송 - DB 조회 또는 FCM 전송 자체가 실패한 경우이므로 즉시 알림 필요
         }
     }

@@ -8,9 +8,12 @@ import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.payment.entity.Payment;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
+import org.smu.randsome.randsomeback.domain.payment.event.PaymentApprovedEvent;
+import org.smu.randsome.randsomeback.domain.payment.event.PaymentRejectedEvent;
 import org.smu.randsome.randsomeback.domain.payment.repository.PaymentJpaRepository;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,7 @@ public class PaymentManager {
     private final PaymentJpaRepository paymentJpaRepository;
     private final PaymentReader paymentReader;
     private final List<PaymentHandler> handlers;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 결제 엔티티를 생성하고 저장한다.
@@ -52,7 +56,7 @@ public class PaymentManager {
      * @param paymentId 승인할 결제 ID
      */
     @Transactional
-    public void confirm(Long paymentId) {
+    public void approve(Long paymentId) {
         LocalDateTime now = LocalDateTime.now();
 
         Payment payment = paymentReader.find(paymentId);
@@ -60,6 +64,8 @@ public class PaymentManager {
 
         PaymentHandler paymentHandler = resolveHandler(payment.getPaymentType());
         paymentHandler.approve(payment.getReferenceId(), now);
+
+        eventPublisher.publishEvent(new PaymentApprovedEvent(payment.getPaymentType(), payment.getMember().getId(), payment.getId()));
 
         log.info("[PaymentManager] 결제 승인 처리 완료 - paymentId={}, paymentType={}, referenceId={}",
                 paymentId,
@@ -83,8 +89,9 @@ public class PaymentManager {
         payment.reject(now);
 
         PaymentHandler paymentHandler = resolveHandler(payment.getPaymentType());
-
         paymentHandler.reject(payment.getReferenceId(), reason, now);
+
+        eventPublisher.publishEvent(new PaymentRejectedEvent(payment.getPaymentType(), payment.getMember().getId(), payment.getId()));
 
         log.info("[PaymentManager] 결제 거절 처리 완료 - paymentId={}, paymentType={}, referenceId={}, fromStatus={}, toStatus={}",
                 paymentId,
