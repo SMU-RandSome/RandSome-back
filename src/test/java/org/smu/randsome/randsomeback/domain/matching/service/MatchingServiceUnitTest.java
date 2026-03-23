@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
@@ -20,6 +21,7 @@ import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
+import org.smu.randsome.randsomeback.domain.matching.event.MatchingAppliedEvent;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
@@ -27,6 +29,7 @@ import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.context.ApplicationEventPublisher;
 
 class MatchingServiceUnitTest extends UnitTestSupport {
 
@@ -41,6 +44,9 @@ class MatchingServiceUnitTest extends UnitTestSupport {
 
     @Mock
     PaymentManager paymentManager;
+
+    @Mock
+    ApplicationEventPublisher eventPublisher;
 
     @Test
     void 매칭_신청에_성공한다() {
@@ -65,6 +71,10 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         // then
         verify(matchingManager).apply(newMatching, memberId);
         verify(paymentManager).register(any(Member.class), any(PaymentType.class), anyLong(), anyInt());
+
+        ArgumentCaptor<MatchingAppliedEvent> captor = ArgumentCaptor.forClass(MatchingAppliedEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        assertThat(captor.getValue().matchingApplicationId()).isEqualTo(10L);
     }
 
     @Test

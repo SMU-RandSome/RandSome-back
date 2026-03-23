@@ -4,11 +4,13 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
+import org.smu.randsome.randsomeback.domain.candidate.event.CandidateAppliedEvent;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateReader;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateValidator;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class CandidateService {
     private final CandidateManager candidateManager;
     private final CandidateReader candidateReader;
     private final PaymentManager paymentManager;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void apply(Long memberId) {
@@ -35,6 +38,8 @@ public class CandidateService {
                 candidateRegistration.getId(),
                 CANDIDATE_REGISTRATION_AMOUNT
         );
+
+        eventPublisher.publishEvent(new CandidateAppliedEvent(candidateRegistration.getId()));
 
     }
 

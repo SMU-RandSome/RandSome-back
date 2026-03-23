@@ -6,10 +6,12 @@ import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
+import org.smu.randsome.randsomeback.domain.matching.event.MatchingAppliedEvent;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ public class MatchingService {
     private final MatchingManager matchingManager;
     private final MatchingReader matchingReader;
     private final PaymentManager paymentManager;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 매칭 신청을 생성하고 결제 등록까지 수행한다.
@@ -37,7 +40,7 @@ public class MatchingService {
                 matchingApplication.getId(),
                 matchingApplication.getApplicationCount()
         );
-
+        eventPublisher.publishEvent(new MatchingAppliedEvent(matchingApplication.getId()));
     }
 
     /**
