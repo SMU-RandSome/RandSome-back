@@ -1,5 +1,6 @@
 package org.smu.randsome.randsomeback.domain.member.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberDevice;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
@@ -9,4 +10,5 @@ public interface MemberDeviceJpaRepository extends JpaRepository<MemberDevice, L
 
     Optional<MemberDevice> findByMemberIdAndDeviceTokenAndStatus(Long memberId, String deviceToken, EntityStatus status);
 
+    List<MemberDevice> findAllByStatus(EntityStatus status);
 }

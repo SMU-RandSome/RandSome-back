@@ -16,7 +16,7 @@ import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.announcement.dto.command.NewAnnouncement;
 import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
 import org.smu.randsome.randsomeback.domain.announcement.implement.AnnouncementManager;
-import org.smu.randsome.randsomeback.domain.announcement.implement.AnnouncementRegisteredEvent;
+import org.smu.randsome.randsomeback.domain.announcement.event.AnnouncementRegisteredEvent;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.context.ApplicationEventPublisher;
