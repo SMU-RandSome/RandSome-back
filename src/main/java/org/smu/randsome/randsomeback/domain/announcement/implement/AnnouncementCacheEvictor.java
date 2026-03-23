@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.domain.announcement.implement;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.smu.randsome.randsomeback.domain.announcement.event.AnnouncementRegisteredEvent;
 import org.smu.randsome.randsomeback.global.config.CacheConfig;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;

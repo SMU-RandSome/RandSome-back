@@ -1,7 +1,9 @@
 package org.smu.randsome.randsomeback.global.support.notification;
 
+import java.util.List;
+
 public interface NotificationSender {
 
-    void sendNotification(String fcmToken, String title, String body, NotificationType type);
+    void sendNotification(List<String> fcmToken, NotificationType type);
 
 }
