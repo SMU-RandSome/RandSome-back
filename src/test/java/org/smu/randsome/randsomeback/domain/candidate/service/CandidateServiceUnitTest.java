@@ -1,5 +1,6 @@
 package org.smu.randsome.randsomeback.domain.candidate.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -10,10 +11,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
+import org.smu.randsome.randsomeback.domain.candidate.event.CandidateAppliedEvent;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateValidator;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
@@ -21,6 +24,7 @@ import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.context.ApplicationEventPublisher;
 
 class CandidateServiceUnitTest extends UnitTestSupport {
 
@@ -35,6 +39,9 @@ class CandidateServiceUnitTest extends UnitTestSupport {
 
     @Mock
     PaymentManager paymentManager;
+
+    @Mock
+    ApplicationEventPublisher eventPublisher;
 
     @Test
     void 후보자_지원에_성공한다() {
@@ -53,6 +60,10 @@ class CandidateServiceUnitTest extends UnitTestSupport {
         verify(candidateValidator).validateApply(memberId);
         verify(candidateManager).apply(memberId);
         verify(paymentManager).register(any(Member.class), any(PaymentType.class), anyLong(), anyInt());
+
+        ArgumentCaptor<CandidateAppliedEvent> captor = ArgumentCaptor.forClass(CandidateAppliedEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        assertThat(captor.getValue().candidateRegistrationId()).isEqualTo(1L);
     }
 
     @Test
