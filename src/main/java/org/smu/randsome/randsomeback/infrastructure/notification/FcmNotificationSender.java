@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
-import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationSender;
+import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 import org.springframework.stereotype.Component;
 
 @Slf4j

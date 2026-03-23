@@ -1,18 +1,16 @@
 package org.smu.randsome.randsomeback.domain.notification.entity;
 
-import static java.util.Objects.*;
+import static java.util.Objects.requireNonNull;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import java.time.LocalDateTime;
-import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 import org.smu.randsome.randsomeback.global.entity.BaseEntity;
+import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
