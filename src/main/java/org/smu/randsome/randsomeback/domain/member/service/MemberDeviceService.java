@@ -13,7 +13,6 @@ public class MemberDeviceService {
 
     private final MemberDeviceManager memberDeviceManager;
 
-
     /**
      * 회원 디바이스 토큰 동기화
      * @param memberId 회원 식별자
@@ -24,6 +23,17 @@ public class MemberDeviceService {
         memberDeviceManager.syncDeviceToken(memberId, deviceToken, LocalDateTime.now());
 
         log.info("[MemberService] 디바이스 토큰 동기화 완료 - memberId: {}", memberId);
+    }
+
+    /**
+     * 회원 디바이스 토큰 삭제
+     * @param memberId 회원 식별자
+     * @param deviceToken 디바이스 토큰
+     * */
+    public void deleteDeviceToken(Long memberId, String deviceToken) {
+        memberDeviceManager.deleteDeviceToken(memberId, deviceToken);
+
+        log.info("[MemberService] 디바이스 토큰 삭제 완료 - memberId: {}", memberId);
     }
 
 }

@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.domain.member.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
@@ -13,11 +14,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
-import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberDevice;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberDeviceJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 
 class MemberDeviceManagerUnitTest extends UnitTestSupport {
 
@@ -35,14 +37,14 @@ class MemberDeviceManagerUnitTest extends UnitTestSupport {
     @Test
     void ACTIVE_토큰이_이미_존재하면_lastSyncedAt을_업데이트한다() {
         // given
-        Member member = MemberFixture.create();
-        LocalDateTime registeredAt = LocalDateTime.of(2024, 1, 1, 0, 0);
-        MemberDevice existingDevice = MemberDevice.register(member, DEVICE_TOKEN, registeredAt);
+        var member = MemberFixture.create();
+        var registeredAt = LocalDateTime.of(2024, 1, 1, 0, 0);
+        var existingDevice = MemberDevice.register(member, DEVICE_TOKEN, registeredAt);
 
         given(memberDeviceJpaRepository.findByMemberIdAndDeviceTokenAndStatus(1L, DEVICE_TOKEN, EntityStatus.ACTIVE))
                 .willReturn(Optional.of(existingDevice));
 
-        LocalDateTime syncTime = LocalDateTime.of(2024, 6, 1, 12, 0);
+        var syncTime = LocalDateTime.of(2024, 6, 1, 12, 0);
 
         // when
         memberDeviceManager.syncDeviceToken(1L, DEVICE_TOKEN, syncTime);
@@ -55,12 +57,12 @@ class MemberDeviceManagerUnitTest extends UnitTestSupport {
     @Test
     void ACTIVE_토큰이_없으면_새_디바이스_토큰을_등록한다() {
         // given
-        Member member = MemberFixture.create();
+        var member = MemberFixture.create();
         given(memberDeviceJpaRepository.findByMemberIdAndDeviceTokenAndStatus(1L, DEVICE_TOKEN, EntityStatus.ACTIVE))
                 .willReturn(Optional.empty());
         given(memberReader.find(1L)).willReturn(member);
 
-        LocalDateTime now = LocalDateTime.of(2024, 6, 1, 12, 0);
+        var now = LocalDateTime.of(2024, 6, 1, 12, 0);
 
         // when
         memberDeviceManager.syncDeviceToken(1L, DEVICE_TOKEN, now);
@@ -73,6 +75,33 @@ class MemberDeviceManagerUnitTest extends UnitTestSupport {
         assertThat(saved.getMember()).isEqualTo(member);
         assertThat(saved.getDeviceToken()).isEqualTo(DEVICE_TOKEN);
         assertThat(saved.getLastSyncedAt()).isEqualTo(now);
+    }
+
+    @Test
+    void 디바이스_토큰을_soft_delete_한다() {
+        // given
+        var member = MemberFixture.create();
+        var memberDevice = MemberDevice.register(member, DEVICE_TOKEN, LocalDateTime.now());
+        given(memberDeviceJpaRepository.findByMemberIdAndDeviceTokenAndStatus(1L, DEVICE_TOKEN, EntityStatus.ACTIVE))
+                .willReturn(Optional.of(memberDevice));
+
+        // when
+        memberDeviceManager.deleteDeviceToken(1L, DEVICE_TOKEN);
+
+        // then
+        assertThat(memberDevice.isDeleted()).isTrue();
+    }
+
+    @Test
+    void 회원의_활성화된_토큰이_없으면_예외를_반환한다() {
+        // given
+        given(memberDeviceJpaRepository.findByMemberIdAndDeviceTokenAndStatus(1L, DEVICE_TOKEN, EntityStatus.ACTIVE))
+                .willReturn(Optional.empty());
+
+        // when
+        assertThatThrownBy(() -> memberDeviceManager.deleteDeviceToken(1L, DEVICE_TOKEN))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_FCM_TOKEN.getMessage());
     }
 
 }

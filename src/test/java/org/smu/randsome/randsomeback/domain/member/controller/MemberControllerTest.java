@@ -502,6 +502,16 @@ class MemberControllerTest extends ControllerTestSupport {
                 .hasStatus(HttpStatus.FORBIDDEN.value());
     }
 
+    @TestMember
+    @Test
+    void 디바이스_토큰_삭제_성공시_204를_반환한다() {
+        // when
+        assertThat(mvcTester.delete().uri("/v1/members/devices")
+                .param("deviceToken", "fcm_device_token_12345"))
+                .apply(print())
+                .hasStatus(HttpStatus.NO_CONTENT.value());
+    }
+
     private MemberCreateRequest createValidRequest() {
         return new MemberCreateRequest(
                 "email.verification.token",

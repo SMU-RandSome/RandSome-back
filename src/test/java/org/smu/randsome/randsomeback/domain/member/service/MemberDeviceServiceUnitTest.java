@@ -13,7 +13,7 @@ import org.smu.randsome.randsomeback.domain.member.implement.MemberDeviceManager
 class MemberDeviceServiceUnitTest extends UnitTestSupport {
 
     @InjectMocks
-    MemberDeviceService memberService;
+    MemberDeviceService memberDeviceService;
 
     @Mock
     MemberDeviceManager memberDeviceManager;
@@ -21,10 +21,19 @@ class MemberDeviceServiceUnitTest extends UnitTestSupport {
     @Test
     void 디바이스_토큰_동기화에_성공한다() {
         // when
-        memberService.syncDeviceTokens(1L, "fcm_device_token_12345");
+        memberDeviceService.syncDeviceTokens(1L, "fcm_device_token_12345");
 
         // then
         verify(memberDeviceManager).syncDeviceToken(eq(1L), eq("fcm_device_token_12345"), any());
+    }
+
+    @Test
+    void 디바이스_토큰_삭제에_성공한다() {
+        // when
+        memberDeviceService.deleteDeviceToken(1L, "fcm_device_token_12345");
+
+        // then
+        verify(memberDeviceManager).deleteDeviceToken(eq(1L), eq("fcm_device_token_12345"));
     }
 
 }
