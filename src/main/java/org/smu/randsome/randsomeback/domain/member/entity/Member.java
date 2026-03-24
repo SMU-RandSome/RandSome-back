@@ -7,6 +7,7 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Version;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -57,6 +58,9 @@ public class Member extends BaseEntity {
     private SocialProfile socialProfile;
 
     private String refreshToken;
+
+    @Version
+    private Long version;
 
     public static Member create(
             String email,

@@ -9,6 +9,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,6 +34,9 @@ public class CandidateRegistration extends BaseEntity {
     private RegistrationStatus registrationStatus;
 
     private String rejectedReason;
+
+    @Version
+    private Long version;
 
     private LocalDateTime approvedAt;
 
