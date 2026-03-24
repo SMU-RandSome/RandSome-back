@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
+import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 
 class FcmNotificationSenderTest extends UnitTestSupport {
@@ -28,6 +29,9 @@ class FcmNotificationSenderTest extends UnitTestSupport {
 
     @Mock
     FirebaseMessaging firebaseMessaging;
+
+    @Mock
+    ErrorNotificationSender errorNotificationSender;
 
     @Test
     void FCM_알림을_정상적으로_발송한다() throws FirebaseMessagingException {

@@ -19,6 +19,7 @@ import org.smu.randsome.randsomeback.domain.matching.event.MatchingAppliedEvent;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberDevice;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberDeviceReader;
+import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 
 class NotificationHandlerUnitTest extends UnitTestSupport {
@@ -31,6 +32,9 @@ class NotificationHandlerUnitTest extends UnitTestSupport {
 
     @Mock
     NotificationManager notificationManager;
+
+    @Mock
+    ErrorNotificationSender errorNotificationSender;
 
     @Test
     void 공지사항_이벤트_수신시_활성_디바이스에_알림을_전송한다() {
