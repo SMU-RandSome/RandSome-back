@@ -10,14 +10,15 @@ import org.springframework.http.HttpStatus;
 public enum ErrorType {
 
     // COMMON
-    BAD_REQUEST        (HttpStatus.BAD_REQUEST, "요청 형식이 올바르지 않습니다.", LogLevel.INFO),
-    UNAUTHORIZED_ERROR (HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다.", LogLevel.WARN),
-    FORBIDDEN_ERROR    (HttpStatus.FORBIDDEN, "접근 권한이 없습니다.", LogLevel.WARN),
-    FORBIDDEN_MODIFY   (HttpStatus.FORBIDDEN, "해당 리소스를 수정할 권한이 없습니다.", LogLevel.WARN),
-    FORBIDDEN_DELETE   (HttpStatus.FORBIDDEN, "해당 리소스를 삭제할 권한이 없습니다.", LogLevel.WARN),
-    NOT_FOUND          (HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다.", LogLevel.INFO),
-    DUPLICATE          (HttpStatus.CONFLICT, "이미 존재하는 리소스입니다.", LogLevel.INFO),
-    DEFAULT_ERROR      (HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
+    BAD_REQUEST                 (HttpStatus.BAD_REQUEST, "요청 형식이 올바르지 않습니다.", LogLevel.INFO),
+    UNAUTHORIZED_ERROR          (HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다.", LogLevel.WARN),
+    FORBIDDEN_ERROR             (HttpStatus.FORBIDDEN, "접근 권한이 없습니다.", LogLevel.WARN),
+    FORBIDDEN_MODIFY            (HttpStatus.FORBIDDEN, "해당 리소스를 수정할 권한이 없습니다.", LogLevel.WARN),
+    FORBIDDEN_DELETE            (HttpStatus.FORBIDDEN, "해당 리소스를 삭제할 권한이 없습니다.", LogLevel.WARN),
+    NOT_FOUND                   (HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다.", LogLevel.INFO),
+    DUPLICATE                   (HttpStatus.CONFLICT, "이미 존재하는 리소스입니다.", LogLevel.INFO),
+    CONCURRENT_UPDATE_CONFLICT  (HttpStatus.CONFLICT, "요청하신 데이터가 이미 변경되었습니다. 새로고침 후 다시 시도해 주세요.", LogLevel.WARN),
+    DEFAULT_ERROR               (HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
 
     // AUTH
     FAILED_TO_AUTHENTICATE (HttpStatus.UNAUTHORIZED, "인증에 실패했습니다. 자격 증명을 확인해주세요.", LogLevel.WARN),

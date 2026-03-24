@@ -8,7 +8,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.boot.logging.LogLevel;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -119,6 +122,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(errorType.getStatus())
                 .body(ApiResponse.error(errorType, message));
+    }
+
+    @ExceptionHandler({OptimisticLockingFailureException.class, ObjectOptimisticLockingFailureException.class})
+    public ResponseEntity<ApiResponse<?>> handleOptimisticLock(Exception e) {
+        log.warn("[OptimisticLock] 동시 처리 충돌 발생: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(ErrorType.CONCURRENT_UPDATE_CONFLICT));
     }
 
 }
