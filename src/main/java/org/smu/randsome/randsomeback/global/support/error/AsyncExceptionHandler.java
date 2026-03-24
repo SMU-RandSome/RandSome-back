@@ -43,12 +43,7 @@ public class AsyncExceptionHandler implements AsyncUncaughtExceptionHandler {
                     method.getName(),
                     throwable.getMessage()
             );
-            log.error("비동기 작업 중 Exception 발생 - Method: {}, Args: {}, Error: {}",
-                    method.getName(),
-                    params,
-                    throwable.getMessage(),
-                    throwable
-            );
+            log.error("{}, Args: {}", logMessage, params, throwable);
             errorNotificationSender.sendErrorNotification(logMessage, throwable);
         }
     }
