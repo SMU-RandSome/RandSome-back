@@ -40,7 +40,9 @@ public class NotificationHandler {
             );
         } catch (Exception e) {
             log.error("[NotificationHandler] 공지사항 알림 전송 중 오류 발생. announcementId={}", event.announcementId(), e);
-            errorNotificationSender.sendErrorNotification("[NotificationHandler] 공지사항 알림 전송 중 오류 발생. announcementId=" + event.announcementId() + ", error: " + e.getMessage(), e);
+            errorNotificationSender.sendErrorNotification(
+                    "[NotificationHandler] 공지사항 알림 전송 중 오류 발생. announcementId=" + event.announcementId() + ", error: "
+                            + e.getMessage(), e);
         }
     }
 
@@ -56,7 +58,9 @@ public class NotificationHandler {
             );
         } catch (Exception e) {
             log.error("[NotificationHandler] 매칭 신청 알림 전송 중 오류 발생. matchingApplicationId={}", event.matchingApplicationId(), e);
-            errorNotificationSender.sendErrorNotification("[NotificationHandler] 매칭 신청 알림 전송 중 오류 발생. matchingApplicationId=" + event.matchingApplicationId() + ", error: " + e.getMessage(), e);
+            errorNotificationSender.sendErrorNotification(
+                    "[NotificationHandler] 매칭 신청 알림 전송 중 오류 발생. matchingApplicationId=" + event.matchingApplicationId()
+                            + ", error: " + e.getMessage(), e);
         }
     }
 
@@ -71,8 +75,11 @@ public class NotificationHandler {
                     event.candidateRegistrationId()
             );
         } catch (Exception e) {
-            log.error("[NotificationHandler] 후보자 신청 알림 전송 중 오류 발생. candidateRegistrationId={}", event.candidateRegistrationId(), e);
-            errorNotificationSender.sendErrorNotification("[NotificationHandler] 후보자 신청 알림 전송 중 오류 발생. candidateRegistrationId=" + event.candidateRegistrationId() + ", error: " + e.getMessage(), e);
+            log.error("[NotificationHandler] 후보자 신청 알림 전송 중 오류 발생. candidateRegistrationId={}", event.candidateRegistrationId(),
+                    e);
+            errorNotificationSender.sendErrorNotification(
+                    "[NotificationHandler] 후보자 신청 알림 전송 중 오류 발생. candidateRegistrationId=" + event.candidateRegistrationId()
+                            + ", error: " + e.getMessage(), e);
         }
     }
 
@@ -88,7 +95,9 @@ public class NotificationHandler {
             );
         } catch (Exception e) {
             log.error("[NotificationHandler] 결제 승인 알림 전송 중 오류 발생. paymentId={}", event.paymentId(), e);
-            errorNotificationSender.sendErrorNotification("[NotificationHandler] 결제 승인 알림 전송 중 오류 발생. paymentId=" + event.paymentId() + ", error: " + e.getMessage(), e);
+            errorNotificationSender.sendErrorNotification(
+                    "[NotificationHandler] 결제 승인 알림 전송 중 오류 발생. paymentId=" + event.paymentId() + ", error: " + e.getMessage(),
+                    e);
         }
     }
 
@@ -104,7 +113,9 @@ public class NotificationHandler {
             );
         } catch (Exception e) {
             log.error("[NotificationHandler] 결제 거절 알림 전송 중 오류 발생. paymentId={}", event.paymentId(), e);
-            errorNotificationSender.sendErrorNotification("[NotificationHandler] 결제 거절 알림 전송 중 오류 발생. paymentId=" + event.paymentId() + ", error: " + e.getMessage(), e);
+            errorNotificationSender.sendErrorNotification(
+                    "[NotificationHandler] 결제 거절 알림 전송 중 오류 발생. paymentId=" + event.paymentId() + ", error: " + e.getMessage(),
+                    e);
         }
     }
 
@@ -114,8 +125,13 @@ public class NotificationHandler {
             return;
         }
 
-        List<Long> memberIds = devices.stream().map(d -> d.getMember().getId()).toList();
-        List<String> fcmTokens = devices.stream().map(MemberDevice::getDeviceToken).toList();
+        List<Long> memberIds = devices.stream()
+                .map(d -> d.getMember().getId())
+                .distinct()
+                .toList();
+        List<String> fcmTokens = devices.stream()
+                .map(MemberDevice::getDeviceToken)
+                .toList();
 
         notificationManager.saveNotifications(memberIds, type);
         notificationSender.sendNotification(fcmTokens, type);
