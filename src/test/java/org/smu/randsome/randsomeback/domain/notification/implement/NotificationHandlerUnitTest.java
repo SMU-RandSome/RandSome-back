@@ -20,6 +20,7 @@ import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberDevice;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberDeviceReader;
 import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
+import org.smu.randsome.randsomeback.global.support.notification.NotificationSender;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 
 class NotificationHandlerUnitTest extends UnitTestSupport {
@@ -32,6 +33,9 @@ class NotificationHandlerUnitTest extends UnitTestSupport {
 
     @Mock
     NotificationManager notificationManager;
+
+    @Mock
+    NotificationSender notificationSender;
 
     @Mock
     ErrorNotificationSender errorNotificationSender;
@@ -51,7 +55,8 @@ class NotificationHandlerUnitTest extends UnitTestSupport {
         notificationHandler.announcementNotify(event);
 
         // then
-        verify(notificationManager).sendToAll(List.of(10L), List.of("fcm_token_1"), NotificationType.ANNOUNCEMENT_REGISTERED);
+        verify(notificationManager).saveNotifications(List.of(10L), NotificationType.ANNOUNCEMENT_REGISTERED);
+        verify(notificationSender).sendNotification(List.of("fcm_token_1"), NotificationType.ANNOUNCEMENT_REGISTERED);
     }
 
     @Test
@@ -64,7 +69,8 @@ class NotificationHandlerUnitTest extends UnitTestSupport {
         notificationHandler.announcementNotify(event);
 
         // then
-        verify(notificationManager, never()).sendToAll(any(), any(), any());
+        verify(notificationManager, never()).saveNotifications(any(), any());
+        verify(notificationSender, never()).sendNotification(any(), any());
     }
 
     @Test
@@ -92,7 +98,8 @@ class NotificationHandlerUnitTest extends UnitTestSupport {
         notificationHandler.matchingApplicationNotify(event);
 
         // then
-        verify(notificationManager).sendToAll(List.of(20L), List.of("admin_token_1"), NotificationType.MATCHING_APPLIED_TO_ADMIN);
+        verify(notificationManager).saveNotifications(List.of(20L), NotificationType.MATCHING_APPLIED_TO_ADMIN);
+        verify(notificationSender).sendNotification(List.of("admin_token_1"), NotificationType.MATCHING_APPLIED_TO_ADMIN);
     }
 
     @Test
@@ -105,7 +112,8 @@ class NotificationHandlerUnitTest extends UnitTestSupport {
         notificationHandler.matchingApplicationNotify(event);
 
         // then
-        verify(notificationManager, never()).sendToAll(any(), any(), any());
+        verify(notificationManager, never()).saveNotifications(any(), any());
+        verify(notificationSender, never()).sendNotification(any(), any());
     }
 
     @Test
@@ -133,7 +141,8 @@ class NotificationHandlerUnitTest extends UnitTestSupport {
         notificationHandler.candidateRegistrationNotify(event);
 
         // then
-        verify(notificationManager).sendToAll(List.of(20L), List.of("admin_token_1"), NotificationType.CANDIDATE_APPLIED_TO_ADMIN);
+        verify(notificationManager).saveNotifications(List.of(20L), NotificationType.CANDIDATE_APPLIED_TO_ADMIN);
+        verify(notificationSender).sendNotification(List.of("admin_token_1"), NotificationType.CANDIDATE_APPLIED_TO_ADMIN);
     }
 
     @Test
@@ -146,7 +155,8 @@ class NotificationHandlerUnitTest extends UnitTestSupport {
         notificationHandler.candidateRegistrationNotify(event);
 
         // then
-        verify(notificationManager, never()).sendToAll(any(), any(), any());
+        verify(notificationManager, never()).saveNotifications(any(), any());
+        verify(notificationSender, never()).sendNotification(any(), any());
     }
 
     @Test
