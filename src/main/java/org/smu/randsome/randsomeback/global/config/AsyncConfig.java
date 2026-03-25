@@ -49,6 +49,23 @@ public class AsyncConfig implements AsyncConfigurer {
         return executor;
     }
 
+    @Bean("notificationExecutor")
+    public Executor notificationExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+
+        executor.setCorePoolSize(3);
+        executor.setMaxPoolSize(5);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("notification-");
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(30);
+        executor.setRejectedExecutionHandler(new CallerRunsPolicy());
+
+        executor.setTaskDecorator(new MdcTaskDecorator()); // MDC 전파
+
+        return executor;
+    }
+
     @Override
     public Executor getAsyncExecutor() {
         return asyncTaskExecutor();

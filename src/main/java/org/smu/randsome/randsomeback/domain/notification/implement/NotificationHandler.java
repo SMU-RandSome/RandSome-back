@@ -28,7 +28,7 @@ public class NotificationHandler {
     private final NotificationSender notificationSender;
     private final ErrorNotificationSender errorNotificationSender;
 
-    @Async
+    @Async("notificationExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void announcementNotify(AnnouncementRegisteredEvent event) {
         try {
@@ -46,7 +46,7 @@ public class NotificationHandler {
         }
     }
 
-    @Async
+    @Async("notificationExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void matchingApplicationNotify(MatchingAppliedEvent event) {
         try {
@@ -64,7 +64,7 @@ public class NotificationHandler {
         }
     }
 
-    @Async
+    @Async("notificationExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void candidateRegistrationNotify(CandidateAppliedEvent event) {
         try {
@@ -83,7 +83,7 @@ public class NotificationHandler {
         }
     }
 
-    @Async
+    @Async("notificationExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void paymentApprovedNotify(PaymentApprovedEvent event) {
         try {
@@ -101,7 +101,7 @@ public class NotificationHandler {
         }
     }
 
-    @Async
+    @Async("notificationExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void paymentRejectedNotify(PaymentRejectedEvent event) {
         try {
