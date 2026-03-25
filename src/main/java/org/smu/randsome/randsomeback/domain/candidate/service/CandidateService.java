@@ -29,7 +29,6 @@ public class CandidateService {
     @Transactional
     public void apply(Long memberId) {
         candidateValidator.validateApply(memberId);
-
         CandidateRegistration candidateRegistration = candidateManager.apply(memberId);
 
         paymentManager.register(
@@ -40,7 +39,6 @@ public class CandidateService {
         );
 
         eventPublisher.publishEvent(new CandidateAppliedEvent(candidateRegistration.getId()));
-
     }
 
     public void withdraw(Long memberId) {

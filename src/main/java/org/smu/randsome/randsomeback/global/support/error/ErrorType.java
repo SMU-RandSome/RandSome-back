@@ -18,6 +18,7 @@ public enum ErrorType {
     NOT_FOUND                   (HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다.", LogLevel.INFO),
     DUPLICATE                   (HttpStatus.CONFLICT, "이미 존재하는 리소스입니다.", LogLevel.INFO),
     CONCURRENT_UPDATE_CONFLICT  (HttpStatus.CONFLICT, "요청하신 데이터가 이미 변경되었습니다. 새로고침 후 다시 시도해 주세요.", LogLevel.WARN),
+    LOCK_ACQUISITION_TIMEOUT    (HttpStatus.CONFLICT, "요청이 충돌했습니다. 잠시 후 다시 시도해 주세요.", LogLevel.WARN),
     DEFAULT_ERROR               (HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
 
     // AUTH
@@ -40,6 +41,7 @@ public enum ErrorType {
     ALREADY_WITHDRAWN_CANDIDATE             (HttpStatus.BAD_REQUEST, "이미 철회된 후보자입니다.", LogLevel.INFO),
     NOT_FOUND_CANDIDATE                     (HttpStatus.NOT_FOUND, "후보자를 찾을 수 없습니다.", LogLevel.INFO),
     DUPLICATE_CANDIDATE                     (HttpStatus.CONFLICT, "이미 등록된 후보자 입니다.", LogLevel.INFO),
+    ALREADY_PENDING_CANDIDATE               (HttpStatus.CONFLICT, "이미 후보자 등록 신청 중입니다.", LogLevel.INFO),
     NOT_ALLOW_ALREADY_APPROVED_REGISTRATION (HttpStatus.BAD_REQUEST, "이미 승인된 후보자 등록은 거절이 불가능합니다.", LogLevel.INFO),
 
     // MATCH
