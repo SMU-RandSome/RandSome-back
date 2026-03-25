@@ -9,6 +9,7 @@ import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
+import org.smu.randsome.randsomeback.global.jwt.TokenHasher;
 
 class MemberTest extends UnitTestSupport {
 
@@ -64,7 +65,7 @@ class MemberTest extends UnitTestSupport {
     void 리프레시_토큰을_갱신한다() {
         member.updateRefreshToken("refresh-token");
 
-        assertThat(member.getRefreshToken()).isEqualTo("refresh-token");
+        assertThat(member.getRefreshToken()).isEqualTo(TokenHasher.hash("refresh-token"));
     }
 
     @Test
