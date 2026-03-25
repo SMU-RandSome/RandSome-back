@@ -2,6 +2,8 @@ package org.smu.randsome.randsomeback.domain.payment.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -9,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.candidate.repository.CandidateJpaRepository;
@@ -59,7 +62,8 @@ class PaymentConcurrencyTest extends IntegrationTestSupport {
         CountDownLatch doneLatch = new CountDownLatch(threadCount);
 
         AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger failCount = new AtomicInteger(0);
+        AtomicInteger lockConflictCount = new AtomicInteger(0);
+        List<Exception> unexpectedErrors = new CopyOnWriteArrayList<>();
 
         for (int i = 0; i < threadCount; i++) {
             executor.submit(() -> {
@@ -67,8 +71,12 @@ class PaymentConcurrencyTest extends IntegrationTestSupport {
                     startLatch.await();
                     paymentManager.approve(payment.getId());
                     successCount.incrementAndGet();
+                } catch (ObjectOptimisticLockingFailureException e) {
+                    // @Version 충돌: 낙관적 락이 정상 동작한 것
+                    lockConflictCount.incrementAndGet();
                 } catch (Exception e) {
-                    failCount.incrementAndGet();
+                    // SQL 오류·연결 문제 등 예상치 못한 실패 → 거짓 양성 방지
+                    unexpectedErrors.add(e);
                 } finally {
                     doneLatch.countDown();
                 }
@@ -80,8 +88,11 @@ class PaymentConcurrencyTest extends IntegrationTestSupport {
         executor.shutdown();
 
         // then
+        assertThat(unexpectedErrors)
+                .as("예상치 못한 예외 발생: %s", unexpectedErrors)
+                .isEmpty();
         assertThat(successCount.get()).isEqualTo(1);
-        assertThat(failCount.get()).isEqualTo(1);
+        assertThat(lockConflictCount.get()).isEqualTo(1);
 
         var resultPayment = paymentJpaRepository.findById(payment.getId()).orElseThrow();
         assertThat(resultPayment.getPaymentStatus()).isEqualTo(PaymentStatus.COMPLETED);
@@ -105,7 +116,8 @@ class PaymentConcurrencyTest extends IntegrationTestSupport {
         CountDownLatch doneLatch = new CountDownLatch(threadCount);
 
         AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger failCount = new AtomicInteger(0);
+        AtomicInteger lockConflictCount = new AtomicInteger(0);
+        List<Exception> unexpectedErrors = new CopyOnWriteArrayList<>();
 
         for (int i = 0; i < threadCount; i++) {
             executor.submit(() -> {
@@ -113,8 +125,10 @@ class PaymentConcurrencyTest extends IntegrationTestSupport {
                     startLatch.await();
                     paymentManager.reject(payment.getId(), "거절 사유");
                     successCount.incrementAndGet();
+                } catch (ObjectOptimisticLockingFailureException e) {
+                    lockConflictCount.incrementAndGet();
                 } catch (Exception e) {
-                    failCount.incrementAndGet();
+                    unexpectedErrors.add(e);
                 } finally {
                     doneLatch.countDown();
                 }
@@ -126,8 +140,11 @@ class PaymentConcurrencyTest extends IntegrationTestSupport {
         executor.shutdown();
 
         // then
+        assertThat(unexpectedErrors)
+                .as("예상치 못한 예외 발생: %s", unexpectedErrors)
+                .isEmpty();
         assertThat(successCount.get()).isEqualTo(1);
-        assertThat(failCount.get()).isEqualTo(1);
+        assertThat(lockConflictCount.get()).isEqualTo(1);
 
         var resultPayment = paymentJpaRepository.findById(payment.getId()).orElseThrow();
         assertThat(resultPayment.getPaymentStatus()).isEqualTo(PaymentStatus.REJECTED);
@@ -149,7 +166,8 @@ class PaymentConcurrencyTest extends IntegrationTestSupport {
         CountDownLatch doneLatch = new CountDownLatch(2);
 
         AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger failCount = new AtomicInteger(0);
+        AtomicInteger lockConflictCount = new AtomicInteger(0);
+        List<Exception> unexpectedErrors = new CopyOnWriteArrayList<>();
 
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
@@ -158,8 +176,10 @@ class PaymentConcurrencyTest extends IntegrationTestSupport {
                 startLatch.await();
                 paymentManager.approve(payment.getId());
                 successCount.incrementAndGet();
+            } catch (ObjectOptimisticLockingFailureException e) {
+                lockConflictCount.incrementAndGet();
             } catch (Exception e) {
-                failCount.incrementAndGet();
+                unexpectedErrors.add(e);
             } finally {
                 doneLatch.countDown();
             }
@@ -170,8 +190,10 @@ class PaymentConcurrencyTest extends IntegrationTestSupport {
                 startLatch.await();
                 paymentManager.reject(payment.getId(), "거절 사유");
                 successCount.incrementAndGet();
+            } catch (ObjectOptimisticLockingFailureException e) {
+                lockConflictCount.incrementAndGet();
             } catch (Exception e) {
-                failCount.incrementAndGet();
+                unexpectedErrors.add(e);
             } finally {
                 doneLatch.countDown();
             }
@@ -181,9 +203,12 @@ class PaymentConcurrencyTest extends IntegrationTestSupport {
         doneLatch.await();
         executor.shutdown();
 
-        // then — 성공/실패 합계가 반드시 2
-        assertThat(successCount.get() + failCount.get()).isEqualTo(2);
+        // then
+        assertThat(unexpectedErrors)
+                .as("예상치 못한 예외 발생: %s", unexpectedErrors)
+                .isEmpty();
         assertThat(successCount.get()).isEqualTo(1);
+        assertThat(lockConflictCount.get()).isEqualTo(1);
 
         // 결제 상태는 COMPLETED 또는 REJECTED 중 하나여야 하며 PENDING이 아니어야 한다
         var resultPayment = paymentJpaRepository.findById(payment.getId()).orElseThrow();
