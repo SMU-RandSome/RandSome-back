@@ -18,6 +18,7 @@ import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.candidate.event.CandidateAppliedEvent;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
+import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateReader;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateValidator;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
@@ -36,6 +37,9 @@ class CandidateServiceUnitTest extends UnitTestSupport {
 
     @Mock
     CandidateManager candidateManager;
+
+    @Mock
+    CandidateReader candidateReader;
 
     @Mock
     PaymentManager paymentManager;
@@ -67,7 +71,7 @@ class CandidateServiceUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 이미_등록된_후보자이면_예외가_발생한다() {
+    void 이미_승인된_후보자이면_예외가_발생한다() {
         // given
         var memberId = 1L;
         willThrow(new CoreException(ErrorType.DUPLICATE_CANDIDATE))
@@ -77,6 +81,19 @@ class CandidateServiceUnitTest extends UnitTestSupport {
         assertThatThrownBy(() -> candidateService.apply(memberId))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.DUPLICATE_CANDIDATE.getMessage());
+    }
+
+    @Test
+    void 이미_신청_중인_후보자이면_예외가_발생한다() {
+        // given
+        var memberId = 1L;
+        willThrow(new CoreException(ErrorType.ALREADY_PENDING_CANDIDATE))
+                .given(candidateValidator).validateApply(memberId);
+
+        // when & then
+        assertThatThrownBy(() -> candidateService.apply(memberId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.ALREADY_PENDING_CANDIDATE.getMessage());
     }
 
     @Test
