@@ -3,28 +3,23 @@ package org.smu.randsome.randsomeback.domain.candidate.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.LockModeType;
-import jakarta.persistence.LockTimeoutException;
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.candidate.repository.CandidateJpaRepository;
-import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
-import javax.sql.DataSource;
-import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -81,8 +76,9 @@ class CandidateServiceIntegrationTest extends IntegrationTestSupport {
 
         // when
         startLatch.countDown();
-        doneLatch.await(5, TimeUnit.SECONDS);
+        assertThat(doneLatch.await(5, TimeUnit.SECONDS)).isTrue();
         executor.shutdown();
+        assertThat(executor.awaitTermination(5, TimeUnit.SECONDS)).isTrue();
 
         // then
         assertThat(successCount.get()).isEqualTo(1);
@@ -149,6 +145,8 @@ class CandidateServiceIntegrationTest extends IntegrationTestSupport {
         threadB.start();
         threadA.join(10_000);
         threadB.join(10_000);
+        assertThat(threadA.isAlive()).isFalse();
+        assertThat(threadB.isAlive()).isFalse();
 
         // then
         assertThat(caughtException.get())
