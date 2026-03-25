@@ -8,25 +8,26 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
-import org.smu.randsome.randsomeback.domain.feed.FeedManager;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
+import org.smu.randsome.randsomeback.domain.matching.event.MatchingApplicationApprovedEvent;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
+import org.springframework.context.ApplicationEventPublisher;
 
-class MatchingPaymentHandlerUnitTest extends UnitTestSupport {
+class MatchingPaymentApprovalStrategyUnitTest extends UnitTestSupport {
 
     @InjectMocks
-    MatchingPaymentHandler matchingPaymentHandler;
+    MatchingPaymentApprovalStrategy matchingPaymentApprovalStrategy;
 
     @Mock
     MatchingManager matchingManager;
 
     @Mock
-    FeedManager feedManager;
+    ApplicationEventPublisher eventPublisher;
 
     @Test
-    void approve_호출_시_matchingManager_approve와_feedManager_recordMatchRequest를_호출한다() {
+    void approve_호출_시_matchingManager_approve를_호출하고_이벤트를_발행한다() {
         // given
         var referenceId = 1L;
         var now = TestDateTimeUtils.now();
@@ -41,11 +42,11 @@ class MatchingPaymentHandlerUnitTest extends UnitTestSupport {
         given(matchingApplication.getApplicationCount()).willReturn(requestCount);
 
         // when
-        matchingPaymentHandler.approve(referenceId, now);
+        matchingPaymentApprovalStrategy.approve(referenceId, now);
 
         // then
         verify(matchingManager).approve(referenceId, now);
-        verify(feedManager).recordMatchRequest(nickname, requestCount);
+        verify(eventPublisher).publishEvent(new MatchingApplicationApprovedEvent(nickname, requestCount));
     }
 
     @Test
@@ -56,7 +57,7 @@ class MatchingPaymentHandlerUnitTest extends UnitTestSupport {
         var now = TestDateTimeUtils.now();
 
         // when
-        matchingPaymentHandler.reject(referenceId, reason, now);
+        matchingPaymentApprovalStrategy.reject(referenceId, reason, now);
 
         // then
         verify(matchingManager).reject(referenceId, reason, now);

@@ -2,7 +2,6 @@ package org.smu.randsome.randsomeback.domain.feed;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,7 +12,6 @@ public class FeedManager {
 
     private final MatchingFeedEventRepository matchingFeedEventRepository;
 
-    @Async
     @Transactional
     public void recordCandidateRegistration(String nickname) {
         matchingFeedEventRepository.save(MatchingFeedEvent.recordCandidateRegister(nickname));
@@ -21,7 +19,6 @@ public class FeedManager {
         log.info("[FeedManager] 후보자 등록 피드 기록 완료 - nickname={}", nickname);
     }
 
-    @Async
     @Transactional
     public void recordMatchRequest(String nickname, Integer requestCount) {
         matchingFeedEventRepository.save(MatchingFeedEvent.recordMatchRequest(

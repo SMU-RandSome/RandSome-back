@@ -27,7 +27,7 @@ public class PaymentManager {
 
     private final PaymentJpaRepository paymentJpaRepository;
     private final PaymentReader paymentReader;
-    private final List<PaymentHandler> handlers;
+    private final List<PaymentApprovalStrategy> strategies;
     private final ApplicationEventPublisher eventPublisher;
 
     /**
@@ -62,8 +62,8 @@ public class PaymentManager {
         Payment payment = paymentReader.find(paymentId);
         payment.confirm(now);
 
-        PaymentHandler paymentHandler = resolveHandler(payment.getPaymentType());
-        paymentHandler.approve(payment.getReferenceId(), now);
+        PaymentApprovalStrategy strategy = resolveStrategy(payment.getPaymentType());
+        strategy.approve(payment.getReferenceId(), now);
 
         eventPublisher.publishEvent(new PaymentApprovedEvent(payment.getPaymentType(), payment.getMember().getId(), payment.getId()));
 
@@ -88,8 +88,8 @@ public class PaymentManager {
         PaymentStatus currentStatus = payment.getPaymentStatus();
         payment.reject(now);
 
-        PaymentHandler paymentHandler = resolveHandler(payment.getPaymentType());
-        paymentHandler.reject(payment.getReferenceId(), reason, now);
+        PaymentApprovalStrategy strategy = resolveStrategy(payment.getPaymentType());
+        strategy.reject(payment.getReferenceId(), reason, now);
 
         eventPublisher.publishEvent(new PaymentRejectedEvent(payment.getPaymentType(), payment.getMember().getId(), payment.getId()));
 
@@ -102,17 +102,17 @@ public class PaymentManager {
     }
 
     /**
-     * 결제 유형을 처리할 핸들러를 탐색한다.
+     * 결제 유형에 대응하는 전략을 탐색한다.
      *
      * @param type 결제 유형
-     * @return 결제 유형 처리 핸들러
+     * @return 결제 유형 처리 전략
      */
-    private PaymentHandler resolveHandler(PaymentType type) {
-        return handlers.stream()
-                .filter(h -> h.supports().contains(type))
+    private PaymentApprovalStrategy resolveStrategy(PaymentType type) {
+        return strategies.stream()
+                .filter(s -> s.getSupportedTypes().contains(type))
                 .findFirst()
                 .orElseThrow(() -> {
-                    log.error("[PaymentManager] 결제 핸들러를 찾을 수 없습니다 - paymentType={}", type);
+                    log.error("[PaymentManager] 결제 처리 전략을 찾을 수 없습니다 - paymentType={}", type);
                     return new CoreException(ErrorType.DEFAULT_ERROR);
                 });
     }
