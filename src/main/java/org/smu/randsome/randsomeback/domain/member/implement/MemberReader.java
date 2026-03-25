@@ -7,6 +7,7 @@ import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
+import org.smu.randsome.randsomeback.global.jwt.TokenHasher;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.data.domain.Page;
@@ -51,7 +52,7 @@ public class MemberReader {
     }
 
     public Member findByRefreshToken(String refreshToken) {
-        return memberJpaRepository.findByRefreshTokenAndStatus(refreshToken, EntityStatus.ACTIVE)
+        return memberJpaRepository.findByRefreshTokenAndStatus(TokenHasher.hash(refreshToken), EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN));
     }
 

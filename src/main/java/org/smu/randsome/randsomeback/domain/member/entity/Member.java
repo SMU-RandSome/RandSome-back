@@ -20,6 +20,7 @@ import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.global.entity.BaseEntity;
+import org.smu.randsome.randsomeback.global.jwt.TokenHasher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Getter
@@ -97,7 +98,7 @@ public class Member extends BaseEntity {
     }
 
     public void updateRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
+        this.refreshToken = TokenHasher.hash(refreshToken);
     }
 
     public void revokeRefreshToken() {
