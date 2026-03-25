@@ -11,11 +11,10 @@ import org.smu.randsome.randsomeback.domain.member.implement.MemberDeviceReader;
 import org.smu.randsome.randsomeback.domain.payment.event.PaymentApprovedEvent;
 import org.smu.randsome.randsomeback.domain.payment.event.PaymentRejectedEvent;
 import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
+import org.smu.randsome.randsomeback.global.support.notification.NotificationSender;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -26,11 +25,11 @@ public class NotificationHandler {
 
     private final MemberDeviceReader memberDeviceReader;
     private final NotificationManager notificationManager;
+    private final NotificationSender notificationSender;
     private final ErrorNotificationSender errorNotificationSender;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void announcementNotify(AnnouncementRegisteredEvent event) {
         try {
             List<MemberDevice> memberDevices = memberDeviceReader.findAllActive();
@@ -47,7 +46,6 @@ public class NotificationHandler {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void matchingApplicationNotify(MatchingAppliedEvent event) {
         try {
             List<MemberDevice> memberDevices = memberDeviceReader.findAllByAdminRole();
@@ -64,7 +62,6 @@ public class NotificationHandler {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void candidateRegistrationNotify(CandidateAppliedEvent event) {
         try {
             List<MemberDevice> memberDevices = memberDeviceReader.findAllByAdminRole();
@@ -81,7 +78,6 @@ public class NotificationHandler {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void paymentApprovedNotify(PaymentApprovedEvent event) {
         try {
             List<MemberDevice> memberDevices = memberDeviceReader.findAllByMemberId(event.memberId());
@@ -98,7 +94,6 @@ public class NotificationHandler {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void paymentRejectedNotify(PaymentRejectedEvent event) {
         try {
             List<MemberDevice> memberDevices = memberDeviceReader.findAllByMemberId(event.memberId());
@@ -122,7 +117,8 @@ public class NotificationHandler {
         List<Long> memberIds = devices.stream().map(d -> d.getMember().getId()).toList();
         List<String> fcmTokens = devices.stream().map(MemberDevice::getDeviceToken).toList();
 
-        notificationManager.sendToAll(memberIds, fcmTokens, type);
+        notificationManager.saveNotifications(memberIds, type);
+        notificationSender.sendNotification(fcmTokens, type);
 
         log.info("[NotificationHandler] 알림 전송 요청 완료. type={}, contextId={}, 대상 인원={}", type, contextId, memberIds.size());
     }
