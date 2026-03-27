@@ -8,6 +8,7 @@ import org.smu.randsome.randsomeback.domain.auth.dto.request.EmailVerificationRe
 import org.smu.randsome.randsomeback.domain.auth.dto.request.LoginRequest;
 import org.smu.randsome.randsomeback.domain.auth.dto.request.TokenReissueRequest;
 import org.smu.randsome.randsomeback.domain.auth.dto.response.EmailVerificationTokenResponse;
+import org.smu.randsome.randsomeback.domain.auth.enums.VerificationPurpose;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -45,7 +46,8 @@ public abstract class AuthControllerDocs {
             ErrorType.DEFAULT_ERROR
     })
     public abstract ApiResponse<EmailVerificationTokenResponse> verifyEmailVerificationCode(
-            @RequestBody @Valid EmailVerificationCodeVerifyRequest request
+            @RequestBody @Valid EmailVerificationCodeVerifyRequest request,
+            VerificationPurpose purpose
     );
 
 

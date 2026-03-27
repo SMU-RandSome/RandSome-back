@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.smu.randsome.randsomeback.domain.auth.dto.command.VerificationEmailCode;
 import org.smu.randsome.randsomeback.domain.auth.enums.EMAIL;
 import org.smu.randsome.randsomeback.domain.auth.implement.verificationcode.VerificationCodeManager;
 import org.smu.randsome.randsomeback.domain.auth.implement.verificationcode.VerificationCodeValidator;
@@ -28,11 +29,14 @@ public class EmailVerificationService {
         log.info("[EmailVerificationService] 인증코드 발송 완료 - email={}", email);
     }
 
-    public String verifyEmailCode(String email, String code) {
-        verificationCodeValidator.verifyCode(email, code);
+    public String verifyEmailCode(VerificationEmailCode verificationEmailCode) {
+        String email = verificationEmailCode.email();
+
+        verificationCodeValidator.verifyCode(email, verificationEmailCode.code());
 
         log.info("[EmailVerificationService] 인증코드 검증 완료 - email={}", email);
 
-        return jwtProvider.generateEmailVerificationToken(email);
+        return jwtProvider.generateEmailVerificationToken(email, verificationEmailCode.purpose());
     }
+
 }

@@ -12,7 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
+import org.smu.randsome.randsomeback.domain.auth.dto.command.VerificationEmailCode;
 import org.smu.randsome.randsomeback.domain.auth.enums.EMAIL;
+import org.smu.randsome.randsomeback.domain.auth.enums.VerificationPurpose;
 import org.smu.randsome.randsomeback.domain.auth.implement.verificationcode.VerificationCodeManager;
 import org.smu.randsome.randsomeback.domain.auth.implement.verificationcode.VerificationCodeValidator;
 import org.smu.randsome.randsomeback.global.jwt.JwtProvider;
@@ -60,15 +62,16 @@ class EmailVerificationServiceTest extends UnitTestSupport {
         // given
         var email = "student@sangmyung.kr";
         var code = "123456";
+        var verificationEmailCode = new VerificationEmailCode(email, code, VerificationPurpose.SIGN_UP);
         var expectedToken = "email.verification.jwt";
-        given(jwtProvider.generateEmailVerificationToken(email)).willReturn(expectedToken);
+        given(jwtProvider.generateEmailVerificationToken(email, VerificationPurpose.SIGN_UP)).willReturn(expectedToken);
 
         // when
-        String result = emailVerificationService.verifyEmailCode(email, code);
+        String result = emailVerificationService.verifyEmailCode(verificationEmailCode);
 
         // then
         verify(verificationCodeValidator).verifyCode(email, code);
-        verify(jwtProvider).generateEmailVerificationToken(email);
+        verify(jwtProvider).generateEmailVerificationToken(email, VerificationPurpose.SIGN_UP);
         assertThat(result).isEqualTo(expectedToken);
     }
 
@@ -77,11 +80,12 @@ class EmailVerificationServiceTest extends UnitTestSupport {
         // given
         var email = "student@sangmyung.kr";
         var code = "123456";
+        var verificationEmailCode = new VerificationEmailCode(email, code, VerificationPurpose.SIGN_UP);
         willThrow(new CoreException(ErrorType.VERIFICATION_CODE_EXPIRED))
                 .given(verificationCodeValidator).verifyCode(email, code);
 
         // when & then
-        assertThatThrownBy(() -> emailVerificationService.verifyEmailCode(email, code))
+        assertThatThrownBy(() -> emailVerificationService.verifyEmailCode(verificationEmailCode))
                 .isInstanceOf(CoreException.class)
                 .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_EXPIRED);
     }
@@ -91,11 +95,12 @@ class EmailVerificationServiceTest extends UnitTestSupport {
         // given
         var email = "student@sangmyung.kr";
         var code = "123456";
+        var verificationEmailCode = new VerificationEmailCode(email, code, VerificationPurpose.SIGN_UP);
         willThrow(new CoreException(ErrorType.VERIFICATION_CODE_NOT_FOUND))
                 .given(verificationCodeValidator).verifyCode(email, code);
 
         // when & then
-        assertThatThrownBy(() -> emailVerificationService.verifyEmailCode(email, code))
+        assertThatThrownBy(() -> emailVerificationService.verifyEmailCode(verificationEmailCode))
                 .isInstanceOf(CoreException.class)
                 .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_NOT_FOUND);
     }
@@ -105,13 +110,32 @@ class EmailVerificationServiceTest extends UnitTestSupport {
         // given
         var email = "student@sangmyung.kr";
         var code = "000000";
+        var verificationEmailCode = new VerificationEmailCode(email, code, VerificationPurpose.SIGN_UP);
         willThrow(new CoreException(ErrorType.VERIFICATION_CODE_MISMATCH))
                 .given(verificationCodeValidator).verifyCode(email, code);
 
         // when & then
-        assertThatThrownBy(() -> emailVerificationService.verifyEmailCode(email, code))
+        assertThatThrownBy(() -> emailVerificationService.verifyEmailCode(verificationEmailCode))
                 .isInstanceOf(CoreException.class)
                 .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_MISMATCH);
+    }
+
+    @Test
+    void 비밀번호_재설정_목적으로_인증_성공_시_해당_목적의_토큰을_반환한다() {
+        // given
+        var email = "student@sangmyung.kr";
+        var code = "123456";
+        var verificationEmailCode = new VerificationEmailCode(email, code, VerificationPurpose.PASSWORD_RESET);
+        var expectedToken = "password.reset.verification.jwt";
+        given(jwtProvider.generateEmailVerificationToken(email, VerificationPurpose.PASSWORD_RESET)).willReturn(expectedToken);
+
+        // when
+        String result = emailVerificationService.verifyEmailCode(verificationEmailCode);
+
+        // then
+        verify(verificationCodeValidator).verifyCode(email, code);
+        verify(jwtProvider).generateEmailVerificationToken(email, VerificationPurpose.PASSWORD_RESET);
+        assertThat(result).isEqualTo(expectedToken);
     }
 }
 

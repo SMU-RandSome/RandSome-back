@@ -8,6 +8,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -86,6 +87,25 @@ class MemberServiceUnitTest extends UnitTestSupport {
                 createBankAccountInfo()
         )).isInstanceOf(CoreException.class)
           .hasMessage(ErrorType.INVALID_SIGNUP_REQUEST.getMessage());
+    }
+
+    @Test
+    void 회원가입_시_토큰_목적이_유효하지_않으면_예외가_발생하고_후속_로직을_수행하지_않는다() {
+        // given
+        willThrow(new CoreException(ErrorType.INVALID_VERIFICATION_PURPOSE))
+                .given(memberValidator).validateSignUpToken(any(), any());
+
+        // when & then
+        assertThatThrownBy(() -> memberService.create(
+                "invalid.purpose.token",
+                MemberFixture.createCredentials(),
+                MemberFixture.createBasicInfo(),
+                MemberFixture.createMemberSocialProfile(),
+                createBankAccountInfo()
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.INVALID_VERIFICATION_PURPOSE.getMessage());
+
+        verifyNoInteractions(memberManager, termsAgreementManager, bankAccountManager);
     }
 
     @Test
@@ -186,6 +206,22 @@ class MemberServiceUnitTest extends UnitTestSupport {
         assertThatThrownBy(() -> memberService.updatePassword("newPassword123!", "invalid.token", MemberFixture.DEFAULT_EMAIL))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.INVALID_PASSWORD_UPDATE_REQUEST.getMessage());
+    }
+
+    @Test
+    void 비밀번호_변경_시_토큰_목적이_유효하지_않으면_예외가_발생하고_비밀번호를_변경하지_않는다() {
+        // given
+        Member member = mock(Member.class);
+        given(memberReader.findByEmail(MemberFixture.DEFAULT_EMAIL)).willReturn(member);
+        willThrow(new CoreException(ErrorType.INVALID_VERIFICATION_PURPOSE))
+                .given(memberValidator).validateUpdatePassword(any(), any());
+
+        // when & then
+        assertThatThrownBy(() -> memberService.updatePassword("newPassword123!", "signup.token", MemberFixture.DEFAULT_EMAIL))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.INVALID_VERIFICATION_PURPOSE.getMessage());
+
+        verifyNoInteractions(memberManager);
     }
 
     private BankAccountInfo createBankAccountInfo() {

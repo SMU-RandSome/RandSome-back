@@ -11,6 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.UnitTestSupport;
+import org.smu.randsome.randsomeback.domain.auth.enums.VerificationPurpose;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.global.jwt.JwtProvider;
 import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
@@ -173,11 +174,23 @@ class JwtProviderTest extends UnitTestSupport {
         var email = "student@sangmyung.kr";
 
         // when
-        String token = jwtProvider.generateEmailVerificationToken(email);
+        String token = jwtProvider.generateEmailVerificationToken(email, VerificationPurpose.SIGN_UP);
         String extractedEmail = jwtProvider.extractEmailFromVerificationToken(token);
 
         // then
         assertThat(extractedEmail).isEqualTo(email);
+    }
+
+    @Test
+    void 이메일_인증_토큰에서_목적을_추출한다() {
+        // given
+        String token = jwtProvider.generateEmailVerificationToken("student@sangmyung.kr", VerificationPurpose.PASSWORD_RESET);
+
+        // when
+        VerificationPurpose extractedPurpose = jwtProvider.extractVerificationPurposeFromToken(token);
+
+        // then
+        assertThat(extractedPurpose).isEqualTo(VerificationPurpose.PASSWORD_RESET);
     }
 
     @Test
@@ -190,6 +203,7 @@ class JwtProviderTest extends UnitTestSupport {
         String expiredToken = Jwts.builder()
                 .subject("student@sangmyung.kr")
                 .claim("category", TokenType.VERIFICATION.getValue())
+                .claim("purpose", VerificationPurpose.SIGN_UP.name())
                 .issuedAt(new Date(System.currentTimeMillis() - 10000))
                 .expiration(new Date(System.currentTimeMillis() - 5000))
                 .signWith(key)
@@ -216,10 +230,31 @@ class JwtProviderTest extends UnitTestSupport {
     void 서명이_위조된_토큰으로_파싱_시_INVALID_TOKEN_예외가_발생한다() {
         // given
         var wrongProvider = new JwtProvider(WRONG_SECRET_KEY);
-        String forgotToken = wrongProvider.generateEmailVerificationToken("student@sangmyung.kr");
+        String forgotToken = wrongProvider.generateEmailVerificationToken("student@sangmyung.kr", VerificationPurpose.SIGN_UP);
 
         // when & then
         assertThatThrownBy(() -> jwtProvider.extractEmailFromVerificationToken(forgotToken))
+                .isInstanceOf(CoreException.class)
+                .satisfies(e -> assertThat(((CoreException) e).getErrorType()).isEqualTo(ErrorType.INVALID_TOKEN));
+    }
+
+    @Test
+    void purpose_클레임이_없는_토큰으로_목적_파싱_시_INVALID_TOKEN_예외가_발생한다() {
+        // given
+        SecretKey key = new SecretKeySpec(
+                TEST_SECRET_KEY.getBytes(StandardCharsets.UTF_8),
+                Jwts.SIG.HS256.key().build().getAlgorithm()
+        );
+        String tokenWithoutPurpose = Jwts.builder()
+                .subject("student@sangmyung.kr")
+                .claim("category", TokenType.VERIFICATION.getValue())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + 60_000))
+                .signWith(key)
+                .compact();
+
+        // when & then
+        assertThatThrownBy(() -> jwtProvider.extractVerificationPurposeFromToken(tokenWithoutPurpose))
                 .isInstanceOf(CoreException.class)
                 .satisfies(e -> assertThat(((CoreException) e).getErrorType()).isEqualTo(ErrorType.INVALID_TOKEN));
     }

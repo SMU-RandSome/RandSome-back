@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.domain.member.implement;
 
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.domain.auth.enums.VerificationPurpose;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.global.jwt.JwtProvider;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -14,6 +15,11 @@ public class MemberValidator {
     private final JwtProvider jwtProvider;
 
     public void validateSignUpToken(String emailVerificationToken, String requestEmail) {
+        VerificationPurpose verificationPurpose = jwtProvider.extractVerificationPurposeFromToken(emailVerificationToken);
+        if (!verificationPurpose.isSignUp()) {
+            throw new CoreException(ErrorType.INVALID_VERIFICATION_PURPOSE);
+        }
+
         String tokenEmail = jwtProvider.extractEmailFromVerificationToken(emailVerificationToken);
         if (tokenEmail.equals(requestEmail)) {
             return;
@@ -29,6 +35,11 @@ public class MemberValidator {
     }
 
     public void validateUpdatePassword(String passwordVerificationToken, Member member) {
+        VerificationPurpose verificationPurpose = jwtProvider.extractVerificationPurposeFromToken(passwordVerificationToken);
+        if (!verificationPurpose.isPasswordReset()) {
+            throw new CoreException(ErrorType.INVALID_VERIFICATION_PURPOSE);
+        }
+
         String tokenEmail = jwtProvider.extractEmailFromVerificationToken(passwordVerificationToken);
 
         if (member.isEmailCorrect(tokenEmail)) {
