@@ -8,6 +8,7 @@ import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.repository.CandidateJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CandidateManager {
 
     private final CandidateJpaRepository candidateJpaRepository;
+    private final MemberManager memberManager;
     private final MemberReader memberReader;
 
     public CandidateRegistration apply(Long memberId) {
@@ -43,9 +45,8 @@ public class CandidateManager {
 
         registration.approve(approvedAt);
 
-        // NOTE: #1 회원 역할을 변경을 어디서 하는 게 좋을까? 근데 여긴 후보자 관리하는 곳이니까 여기서 하는게 맞는 것 같기도 하고... MemberManager에게 넘겨야할까..?
         Member member = registration.getMember();
-        member.updateRole(Role.ROLE_CANDIDATE);
+        memberManager.updateRole(member, Role.ROLE_CANDIDATE);
 
         log.info("[CandidateManager] 후보자 등록 승인 처리 완료 - registrationId={}, memberId={}",
                 registrationId,
@@ -82,9 +83,8 @@ public class CandidateManager {
 
         registration.withdraw(LocalDateTime.now());
 
-        // NOTE: #1
         Member candidate = registration.getMember();
-        candidate.updateRole(Role.ROLE_MEMBER);
+        memberManager.updateRole(candidate, Role.ROLE_MEMBER);
 
         log.info("[CandidateManager] 후보자 등록 철회 처리 완료 - registrationId={}, memberId={}",
                 registration.getId(),
