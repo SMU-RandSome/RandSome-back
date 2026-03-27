@@ -55,7 +55,7 @@ public class MatchingManager {
         return saved;
     }
 
-    // NOTE: idempotencyKey는 "memberId:matchingType:applicationCount" 형식으로 구성하여, 동일한 회원이 로 중복 신청하는 것을 방지한다.
+     // NOTE: idempotencyKey는 "memberId:matchingType:applicationCount" 형식으로 구성하여, 동일한 회원이 동일 파라미터로 10초 내 중복 신청하는 것을 방지한다.
     private void assertNotDuplicateAndMark(NewMatching newMatching, Long memberId) {
         String idempotencyKey = memberId + ":" + newMatching.matchingType() + ":" + newMatching.applicationCount();
         if (matchingIdempotencyCache.getIfPresent(idempotencyKey) != null) {
