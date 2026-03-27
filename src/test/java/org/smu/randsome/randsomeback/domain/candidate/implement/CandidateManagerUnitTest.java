@@ -17,11 +17,14 @@ import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.repository.CandidateJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
+import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
+import org.springframework.test.util.ReflectionTestUtils;
 
 class CandidateManagerUnitTest extends UnitTestSupport {
 
@@ -30,6 +33,9 @@ class CandidateManagerUnitTest extends UnitTestSupport {
 
     @Mock
     CandidateJpaRepository candidateJpaRepository;
+
+    @Mock
+    MemberManager memberManager;
 
     @Mock
     MemberReader memberReader;
@@ -55,9 +61,13 @@ class CandidateManagerUnitTest extends UnitTestSupport {
     @Test
     void 후보자_등록을_승인한다() {
         // given
+        var memberId = 2L;
+        var member = MemberFixture.create();
+        ReflectionTestUtils.setField(member, "id", memberId);
+
         var registrationId = 1L;
-        var member = mock(Member.class);
         var registration = CandidateRegistration.apply(member);
+
         given(candidateJpaRepository.findByIdAndStatusWithMember(registrationId, EntityStatus.ACTIVE))
                 .willReturn(Optional.of(registration));
 
@@ -67,7 +77,7 @@ class CandidateManagerUnitTest extends UnitTestSupport {
         // then
         assertThat(registration.getRegistrationStatus()).isEqualTo(RegistrationStatus.APPROVED);
         assertThat(registration.getApprovedAt()).isNotNull();
-        verify(member).updateRole(Role.ROLE_CANDIDATE);
+        verify(memberManager).updateRole(member, Role.ROLE_CANDIDATE);
     }
 
     @Test
@@ -105,7 +115,8 @@ class CandidateManagerUnitTest extends UnitTestSupport {
     void 후보자_등록을_철회하면_WITHDRAWN_상태로_변경되고_역할이_MEMBER로_변경된다() {
         // given
         var memberId = 1L;
-        var member = mock(Member.class);
+        var member = MemberFixture.create();
+        ReflectionTestUtils.setField(member, "id", memberId);
         var registration = CandidateRegistration.apply(member);
         registration.approve(TestDateTimeUtils.now());
 
@@ -123,7 +134,7 @@ class CandidateManagerUnitTest extends UnitTestSupport {
         // then
         assertThat(registration.getRegistrationStatus()).isEqualTo(RegistrationStatus.WITHDRAWN);
         assertThat(registration.getWithdrawnAt()).isNotNull();
-        verify(member).updateRole(Role.ROLE_MEMBER);
+        verify(memberManager).updateRole(member, Role.ROLE_MEMBER);
     }
 
     @Test

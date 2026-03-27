@@ -7,6 +7,7 @@ import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -80,6 +81,12 @@ public class MemberManager {
         member.updatePassword(newPassword, passwordEncoder);
 
         log.info("[MemberManager] 비밀번호 변경 완료 - memberId={}", member.getId());
+    }
+
+    public void updateRole(Member member, Role role) {
+        member.updateRole(role);
+
+        log.info("[MemberManager] 권한 변경 완료 - memberId={}, newRole={}", member.getId(), role);
     }
 
 }
