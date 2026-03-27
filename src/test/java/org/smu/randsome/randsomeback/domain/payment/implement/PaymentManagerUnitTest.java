@@ -35,7 +35,7 @@ class PaymentManagerUnitTest extends UnitTestSupport {
     PaymentReader paymentReader;
 
     @Mock
-    List<PaymentHandler> handlers;
+    List<PaymentApprovalStrategy> strategies;
 
     @Mock
     ApplicationEventPublisher eventPublisher;
@@ -53,7 +53,7 @@ class PaymentManagerUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 결제_확인_시_올바른_핸들러를_호출한다() {
+    void 결제_확인_시_올바른_전략을_호출한다() {
         // given
         var paymentId = 1L;
         var referenceId = 10L;
@@ -63,19 +63,19 @@ class PaymentManagerUnitTest extends UnitTestSupport {
         given(payment.getMember()).willReturn(mock(Member.class));
         given(paymentReader.find(paymentId)).willReturn(payment);
 
-        var handler = mock(PaymentHandler.class);
-        given(handler.supports()).willReturn(Set.of(PaymentType.CANDIDATE_REGISTRATION));
-        given(handlers.stream()).willReturn(Stream.of(handler));
+        var strategy = mock(PaymentApprovalStrategy.class);
+        given(strategy.getSupportedTypes()).willReturn(Set.of(PaymentType.CANDIDATE_REGISTRATION));
+        given(strategies.stream()).willReturn(Stream.of(strategy));
 
         // when
         paymentManager.approve(paymentId);
 
         // then
-        verify(handler).approve(eq(referenceId), any(LocalDateTime.class));
+        verify(strategy).approve(eq(referenceId), any(LocalDateTime.class));
     }
 
     @Test
-    void 결제_거절_시_올바른_핸들러를_호출한다() {
+    void 결제_거절_시_올바른_전략을_호출한다() {
         // given
         var paymentId = 1L;
         var referenceId = 10L;
@@ -86,25 +86,25 @@ class PaymentManagerUnitTest extends UnitTestSupport {
         given(payment.getMember()).willReturn(mock(Member.class));
         given(paymentReader.find(paymentId)).willReturn(payment);
 
-        var handler = mock(PaymentHandler.class);
-        given(handler.supports()).willReturn(Set.of(PaymentType.CANDIDATE_REGISTRATION));
-        given(handlers.stream()).willReturn(Stream.of(handler));
+        var strategy = mock(PaymentApprovalStrategy.class);
+        given(strategy.getSupportedTypes()).willReturn(Set.of(PaymentType.CANDIDATE_REGISTRATION));
+        given(strategies.stream()).willReturn(Stream.of(strategy));
 
         // when
         paymentManager.reject(paymentId, reason);
 
         // then
-        verify(handler).reject(eq(referenceId), eq(reason), any(LocalDateTime.class));
+        verify(strategy).reject(eq(referenceId), eq(reason), any(LocalDateTime.class));
     }
 
     @Test
-    void 지원하는_핸들러가_없으면_DEFAULT_ERROR를_던진다() {
+    void 지원하는_전략이_없으면_DEFAULT_ERROR를_던진다() {
         // given
         var paymentId = 1L;
         var payment = mock(Payment.class);
         given(payment.getPaymentType()).willReturn(PaymentType.CANDIDATE_REGISTRATION);
         given(paymentReader.find(paymentId)).willReturn(payment);
-        given(handlers.stream()).willReturn(Stream.of());
+        given(strategies.stream()).willReturn(Stream.of());
 
         // when & then
         assertThatThrownBy(() -> paymentManager.approve(paymentId))
