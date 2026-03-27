@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,13 +46,17 @@ class MatchingManagerUnitTest extends UnitTestSupport {
     @Mock
     MatchingStrategy idealStrategy;
 
+    @Mock
+    Cache<String, Boolean> matchingIdempotencyCache;
+
     @BeforeEach
     void setUp() {
         matchingManager = new MatchingManager(
                 matchingJpaRepository,
                 matchingResultJpaRepository,
                 memberReader,
-                List.of(randomStrategy, idealStrategy)
+                List.of(randomStrategy, idealStrategy),
+                matchingIdempotencyCache
         );
     }
 
@@ -65,7 +70,7 @@ class MatchingManagerUnitTest extends UnitTestSupport {
                 .applicationCount(3)
                 .build();
 
-        given(memberReader.find(memberId)).willReturn(member);
+        given(memberReader.findWithLock(memberId)).willReturn(member);
         given(matchingJpaRepository.save(any(MatchingApplication.class)))
                 .willAnswer(invocation -> invocation.getArgument(0));
 
@@ -87,6 +92,26 @@ class MatchingManagerUnitTest extends UnitTestSupport {
     }
 
     @Test
+    void 동일_파라미터로_10초_내_재신청하면_TOO_MANY_MATCHING_REQUESTS를_던진다() {
+        // given
+        var memberId = 1L;
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(3)
+                .build();
+        var member = mock(Member.class);
+        String idempotencyKey = memberId + ":" + newMatching.matchingType() + ":" + newMatching.applicationCount();
+
+        given(memberReader.findWithLock(memberId)).willReturn(member);
+        given(matchingIdempotencyCache.getIfPresent(idempotencyKey)).willReturn(Boolean.TRUE);
+
+        // when & then
+        assertThatThrownBy(() -> matchingManager.apply(newMatching, memberId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.TOO_MANY_MATCHING_REQUESTS.getMessage());
+    }
+
+    @Test
     void 회원이_없으면_예외가_발생한다() {
         // given
         var memberId = 999L;
@@ -94,7 +119,7 @@ class MatchingManagerUnitTest extends UnitTestSupport {
                 .matchingType(MatchingType.RANDOM)
                 .applicationCount(2)
                 .build();
-        given(memberReader.find(memberId))
+        given(memberReader.findWithLock(memberId))
                 .willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER));
 
         // when & then

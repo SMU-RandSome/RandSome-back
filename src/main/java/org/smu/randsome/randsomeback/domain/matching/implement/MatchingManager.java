@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.github.benmanes.caffeine.cache.Cache;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
@@ -28,16 +29,19 @@ public class MatchingManager {
     private final MatchingResultJpaRepository matchingResultJpaRepository;
     private final MemberReader memberReader;
     private final List<MatchingStrategy> strategies;
+    private final Cache<String, Boolean> matchingIdempotencyCache;
 
     /**
-     * 매칭 신청을 생성한다.
-     *
+     * 매칭 신청을 생성한다. <br>
+     * 동일한 회원이 동일한 매칭 타입과 신청 횟수로 10초 안에 중복 신청하는 것을 방지하기 위해, idempotencyKey를 활용하여 캐시에서 중복 여부를 확인한다.
      * @param newMatching 매칭 신청 커맨드
      * @param memberId    신청자 식별자
      * @return 저장된 매칭 신청 엔티티
      */
     public MatchingApplication apply(NewMatching newMatching, Long memberId) {
-        Member member = memberReader.find(memberId);
+        Member member = memberReader.findWithLock(memberId);
+
+        assertNotDuplicateAndMark(newMatching, memberId);
 
         MatchingApplication saved = matchingJpaRepository.save(MatchingApplication.apply(
                 member,
@@ -49,6 +53,15 @@ public class MatchingManager {
                 saved.getId(), memberId, saved.getMatchingType(), saved.getApplicationCount());
 
         return saved;
+    }
+
+     // NOTE: idempotencyKey는 "memberId:matchingType:applicationCount" 형식으로 구성하여, 동일한 회원이 동일 파라미터로 10초 내 중복 신청하는 것을 방지한다.
+    private void assertNotDuplicateAndMark(NewMatching newMatching, Long memberId) {
+        String idempotencyKey = memberId + ":" + newMatching.matchingType() + ":" + newMatching.applicationCount();
+        if (matchingIdempotencyCache.getIfPresent(idempotencyKey) != null) {
+            throw new CoreException(ErrorType.TOO_MANY_MATCHING_REQUESTS);
+        }
+        matchingIdempotencyCache.put(idempotencyKey, Boolean.TRUE);
     }
 
     /**

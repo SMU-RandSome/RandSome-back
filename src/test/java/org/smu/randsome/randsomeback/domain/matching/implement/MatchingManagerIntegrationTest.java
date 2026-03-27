@@ -3,7 +3,9 @@ package org.smu.randsome.randsomeback.domain.matching.implement;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
@@ -25,6 +27,12 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
     final MatchingManager matchingManager;
     final MemberJpaRepository memberJpaRepository;
     final MatchingJpaRepository matchingJpaRepository;
+    final Cache<String, Boolean> matchingIdempotencyCache;
+
+    @BeforeEach
+    void clearCache() {
+        matchingIdempotencyCache.invalidateAll();
+    }
 
     @Test
     void 매칭_신청을_저장하면_PENDING_상태로_DB에_저장된다() {
@@ -59,6 +67,42 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
                 null,
                 null
         );
+    }
+
+    @Test
+    void 동일_파라미터로_10초_내_재신청하면_TOO_MANY_MATCHING_REQUESTS를_던진다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(3)
+                .build();
+        matchingManager.apply(newMatching, member.getId());
+
+        // when & then
+        assertThatThrownBy(() -> matchingManager.apply(newMatching, member.getId()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.TOO_MANY_MATCHING_REQUESTS.getMessage());
+    }
+
+    @Test
+    void 인원수가_다르면_같은_타입으로_재신청해도_정상_처리된다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        matchingManager.apply(NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(3)
+                .build(), member.getId());
+
+        // when
+        var result = matchingManager.apply(NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(5)
+                .build(), member.getId());
+
+        // then
+        assertThat(result.getApplicationCount()).isEqualTo(5);
+        assertThat(result.getApplicationStatus()).isEqualTo(ApplicationStatus.PENDING);
     }
 
     @Test

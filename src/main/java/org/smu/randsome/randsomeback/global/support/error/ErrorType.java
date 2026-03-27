@@ -17,6 +17,7 @@ public enum ErrorType {
     FORBIDDEN_DELETE            (HttpStatus.FORBIDDEN, "해당 리소스를 삭제할 권한이 없습니다.", LogLevel.WARN),
     NOT_FOUND                   (HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다.", LogLevel.INFO),
     DUPLICATE                   (HttpStatus.CONFLICT, "이미 존재하는 리소스입니다.", LogLevel.INFO),
+    TOO_MANY_MATCHING_REQUESTS  (HttpStatus.TOO_MANY_REQUESTS, "잠시 후 다시 시도해주세요.", LogLevel.INFO),
     CONCURRENT_UPDATE_CONFLICT  (HttpStatus.CONFLICT, "요청하신 데이터가 이미 변경되었습니다. 새로고침 후 다시 시도해 주세요.", LogLevel.WARN),
     LOCK_ACQUISITION_TIMEOUT    (HttpStatus.CONFLICT, "요청이 충돌했습니다. 잠시 후 다시 시도해 주세요.", LogLevel.WARN),
     DEFAULT_ERROR               (HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
@@ -51,7 +52,7 @@ public enum ErrorType {
     NOT_ALLOW_ALREADY_APPROVED_MATCHING (HttpStatus.BAD_REQUEST, "이미 승인된 매칭은 거절이 불가능합니다.", LogLevel.INFO),
     NOT_FOUND_MATCHING                  (HttpStatus.NOT_FOUND, "매칭을 찾을 수 없습니다.", LogLevel.INFO),
     NOT_FOUND_APPROVED_MATCHING         (HttpStatus.NOT_FOUND, "승인된 매칭을 찾을 수 없습니다.", LogLevel.INFO),
-    DUPLICATE_MATCHING                  (HttpStatus.CONFLICT, "이미 등록된 매칭입니다.", LogLevel.INFO),
+
     UNSUPPORTED_MATCHING_TYPE           (HttpStatus.INTERNAL_SERVER_ERROR, "지원하지 않는 매칭 타입입니다.", LogLevel.ERROR),
     IDEAL_MATCHING_NOT_IMPLEMENTED      (HttpStatus.INTERNAL_SERVER_ERROR, "이상형 매칭 기능은 아직 준비 중입니다.", LogLevel.WARN),
 
