@@ -11,7 +11,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
@@ -24,7 +25,6 @@ import org.springframework.stereotype.Component;
 public class FcmChunkSender {
 
     private final FirebaseMessaging firebaseMessaging;
-    private final ErrorNotificationSender errorNotificationSender;
 
     @Retryable(
             retryFor = {FirebaseMessagingException.class},
@@ -50,7 +50,7 @@ public class FcmChunkSender {
     @Recover
     public void recover(FirebaseMessagingException e, List<String> chunk, NotificationType type) {
         log.error("[FCM] 청크 최종 발송 실패. size={}", chunk.size(), e);
-        errorNotificationSender.sendErrorNotification("[FCM] 청크 발송 최종 실패: " + e.getMessage(), e);
+        throw new CoreException(ErrorType.SEND_NOTIFICATION_ERROR, e);
     }
 
     private void logFailedTokens(List<String> chunk, BatchResponse response) {
