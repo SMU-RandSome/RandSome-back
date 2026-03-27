@@ -66,6 +66,12 @@ public class MemberService {
         memberManager.updateProfile(memberId, updateProfile);
     }
 
+    /**
+     * 회원의 비밀번호를 업데이트하는 서비스 메서드입니다.
+     * @param newPassword            새로운 비밀번호
+     * @param emailVerificationToken 이메일 인증 토큰 (비밀번호 재설정 용도)
+     * @param email                  회원의 이메일 주소
+     * */
     @Transactional
     public void updatePassword(String newPassword, String emailVerificationToken, String email) {
         Member member = memberReader.findByEmail(email);

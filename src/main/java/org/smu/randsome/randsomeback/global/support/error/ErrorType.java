@@ -64,12 +64,13 @@ public enum ErrorType {
     NOT_FOUND_BANK_ACCOUNT      (HttpStatus.NOT_FOUND, "연결된 은행 계좌를 찾을 수 없습니다.", LogLevel.INFO),
 
     // AUTH
-    INVALID_EMAIL_DOMAIN        (HttpStatus.BAD_REQUEST, "상명대학교 이메일(@sangmyung.kr)만 사용 가능합니다.", LogLevel.INFO),
-    VERIFICATION_CODE_NOT_FOUND (HttpStatus.BAD_REQUEST, "인증 코드를 먼저 요청해주세요.", LogLevel.INFO),
-    VERIFICATION_CODE_EXPIRED   (HttpStatus.BAD_REQUEST, "인증 코드가 만료되었습니다. 다시 요청해주세요.", LogLevel.INFO),
-    VERIFICATION_CODE_MISMATCH  (HttpStatus.BAD_REQUEST, "인증 코드가 일치하지 않습니다.", LogLevel.INFO),
-    INVALID_SIGNUP_REQUEST      (HttpStatus.BAD_REQUEST, "회원가입 요청이 유효하지 않습니다. 이메일 인증을 먼저 완료해주세요.", LogLevel.INFO),
-    EMAIL_SEND_FAILED           (HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
+    INVALID_EMAIL_DOMAIN         (HttpStatus.BAD_REQUEST, "상명대학교 이메일(@sangmyung.kr)만 사용 가능합니다.", LogLevel.INFO),
+    VERIFICATION_CODE_NOT_FOUND  (HttpStatus.BAD_REQUEST, "인증 코드를 먼저 요청해주세요.", LogLevel.INFO),
+    VERIFICATION_CODE_EXPIRED    (HttpStatus.BAD_REQUEST, "인증 코드가 만료되었습니다. 다시 요청해주세요.", LogLevel.INFO),
+    VERIFICATION_CODE_MISMATCH   (HttpStatus.BAD_REQUEST, "인증 코드가 일치하지 않습니다.", LogLevel.INFO),
+    INVALID_SIGNUP_REQUEST       (HttpStatus.BAD_REQUEST, "회원가입 요청이 유효하지 않습니다. 이메일 인증을 먼저 완료해주세요.", LogLevel.INFO),
+    INVALID_VERIFICATION_PURPOSE (HttpStatus.BAD_REQUEST, "잘못된 인증 토큰 요청입니다. 해당 인증 토큰은 이 작업에 사용할 수 없습니다.", LogLevel.INFO),
+    EMAIL_SEND_FAILED            (HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
 
     // FIREBASE
     INVALID_FCM_TOKEN       (HttpStatus.BAD_REQUEST, "유효하지 않은 FCM 토큰입니다.", LogLevel.INFO),

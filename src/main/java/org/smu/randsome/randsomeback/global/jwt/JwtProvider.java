@@ -15,6 +15,7 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.extern.slf4j.Slf4j;
+import org.smu.randsome.randsomeback.domain.auth.enums.VerificationPurpose;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.global.jwt.dto.TokenResponse;
 import org.smu.randsome.randsomeback.global.jwt.enums.TokenExpiration;
@@ -33,6 +34,8 @@ import org.springframework.stereotype.Component;
 public class JwtProvider {
 
     private static final String CATEGORY_KEY = "category";
+    private static final String PURPOSE = "purpose";
+
     private final SecretKey secretKey;
 
     public JwtProvider(@Value("${spring.jwt.secretKey}") String key) {
@@ -55,13 +58,14 @@ public class JwtProvider {
                 .build();
     }
 
-    public String generateEmailVerificationToken(String email) {
+    public String generateEmailVerificationToken(String email, VerificationPurpose purpose) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiry = getTokenExpirationTime(now, TokenExpiration.VERIFICATION_TOKEN);
 
         return Jwts.builder()
                 .subject(email)
                 .claim(CATEGORY_KEY, TokenType.VERIFICATION.getValue())
+                .claim(PURPOSE, purpose.name())
                 .issuedAt(toDate(now))
                 .expiration(toDate(expiry))
                 .signWith(secretKey)
@@ -84,12 +88,32 @@ public class JwtProvider {
 
             return email;
         } catch (ExpiredJwtException e) {
-            log.info("[Expired JWT], 이메일 인증 토큰이 만료되었습니다. Token prefix: {}", maskToken(token));
+            log.info("[Expired JWT], 인증 토큰이 만료되었습니다. Token prefix: {}", maskToken(token));
             throw new CoreException(ErrorType.INVALID_TOKEN, "이메일 인증 토큰이 만료되었습니다.");
         } catch (JwtException | IllegalArgumentException e) {
-            log.warn("[Invalid JWT], 이메일 인증 토큰이 유효하지 않습니다. Token prefix: {}", maskToken(token));
+            log.warn("[Invalid JWT], 인증 토큰이 유효하지 않습니다. Token prefix: {}", maskToken(token));
             throw new CoreException(ErrorType.INVALID_TOKEN);
         }
+    }
+
+    public VerificationPurpose extractVerificationPurposeFromToken(String token) {
+        try {
+            Claims claims = getClaimsFromToken(token);
+            String purpose = claims.get(PURPOSE, String.class);
+
+            if (purpose == null || purpose.isBlank()) {
+                throw new CoreException(ErrorType.INVALID_TOKEN);
+            }
+
+            return VerificationPurpose.valueOf(purpose);
+        } catch (ExpiredJwtException e) {
+            log.info("[Expired JWT], 인증 토큰이 만료되었습니다. Token prefix: {}", maskToken(token));
+            throw new CoreException(ErrorType.INVALID_TOKEN, "이메일 인증 토큰이 만료되었습니다.");
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("[Invalid JWT], 인증 토큰이 유효하지 않습니다. Token prefix: {}", maskToken(token));
+            throw new CoreException(ErrorType.INVALID_TOKEN);
+        }
+
     }
 
     public Authentication getAuthentication(String token) {
