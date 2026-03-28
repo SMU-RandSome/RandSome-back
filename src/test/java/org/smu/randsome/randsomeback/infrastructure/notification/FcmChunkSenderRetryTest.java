@@ -1,8 +1,8 @@
 package org.smu.randsome.randsomeback.infrastructure.notification;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -16,11 +16,14 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.MulticastMessage;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 import org.springframework.context.annotation.Bean;
@@ -53,9 +56,8 @@ class FcmChunkSenderRetryTest extends IntegrationTestSupport {
         }
 
         @Bean
-        public FcmChunkSender fcmChunkSender(FirebaseMessaging firebaseMessaging,
-                ErrorNotificationSender errorNotificationSender) {
-            return new FcmChunkSender(firebaseMessaging, errorNotificationSender);
+        public FcmChunkSender fcmChunkSender(FirebaseMessaging firebaseMessaging) {
+            return new FcmChunkSender(firebaseMessaging);
         }
     }
 
@@ -75,14 +77,13 @@ class FcmChunkSenderRetryTest extends IntegrationTestSupport {
         var exception = mock(FirebaseMessagingException.class);
         given(firebaseMessaging.sendEachForMulticast(any(MulticastMessage.class))).willThrow(exception);
 
-        // when - recover가 예외를 흡수하므로 호출부에서 예외 없음
-        assertThatNoException().isThrownBy(
-                () -> fcmChunkSender.send(tokens, NotificationType.ANNOUNCEMENT_REGISTERED)
-        );
+        // when
+        assertThatThrownBy(() -> fcmChunkSender.send(tokens, NotificationType.ANNOUNCEMENT_REGISTERED))
+            .isInstanceOf(CoreException.class)
+                    .hasMessage(ErrorType.SEND_NOTIFICATION_ERROR.getMessage());
 
         // then
         verify(firebaseMessaging, times(3)).sendEachForMulticast(any(MulticastMessage.class));
-        verify(errorNotificationSender).sendErrorNotification(any(), eq(exception));
     }
 
     @Test
