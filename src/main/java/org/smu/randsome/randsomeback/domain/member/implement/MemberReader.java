@@ -47,8 +47,8 @@ public class MemberReader {
         return memberJpaRepository.findAllByStatusAndRoleNot(EntityStatus.ACTIVE, Role.ROLE_ADMIN, pageable);
     }
 
-    public List<Member> findCandidatesByGender(Gender gender) {
-        return memberJpaRepository.findAllByGenderAndRoleAndStatus(gender, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE);
+    public List<Member> findCandidatesByGender(Gender gender, int count) {
+        return memberJpaRepository.findRandomCandidatesByGender(gender.name(), count);
     }
 
     public Member findByRefreshToken(String refreshToken) {

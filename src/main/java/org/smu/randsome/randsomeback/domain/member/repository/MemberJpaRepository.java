@@ -26,7 +26,19 @@ public interface MemberJpaRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByIdAndStatusWithLock(@Param("id") Long id, @Param("status") EntityStatus status);
     Optional<Member> findByRefreshTokenAndStatus(String refreshToken, EntityStatus status);
     Page<Member> findAllByStatusAndRoleNot(EntityStatus status, Role role, Pageable pageable);
-    List<Member> findAllByGenderAndRoleAndStatus(Gender gender, Role role, EntityStatus status);
+
+    @Query(value = """
+            SELECT * FROM member
+            WHERE gender = :gender
+              AND role = 'ROLE_CANDIDATE'
+              AND status = 'ACTIVE'
+            ORDER BY RAND()
+            LIMIT :count
+            """, nativeQuery = true)
+    List<Member> findRandomCandidatesByGender(
+            @Param("gender") String gender,
+            @Param("count") int count
+    );
 
     @Query("""
                 SELECT m.gender, COUNT(m)

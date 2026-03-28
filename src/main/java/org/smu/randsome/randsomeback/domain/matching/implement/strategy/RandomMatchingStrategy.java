@@ -37,8 +37,9 @@ public class RandomMatchingStrategy implements MatchingStrategy {
     @Override
     public List<MatchingResult> execute(MatchingApplication matchingApplication) {
         Gender targetGender = matchingApplication.getTargetGender();
-
-        List<Member> candidates = new ArrayList<>(memberReader.findCandidatesByGender(targetGender));
+        // NOTE: 신청 수의 5배를 후보군으로 조회하여, 셔플 후 충분한 후보가 남도록 한다.
+        int count = matchingApplication.getApplicationCount() * 5;
+        List<Member> candidates = new ArrayList<>(memberReader.findCandidatesByGender(targetGender, count));
 
         log.debug("[RandomMatchingStrategy] 후보 조회 완료 - matchingApplicationId: {}, targetGender: {}, candidateCount: {}",
                 matchingApplication.getId(), targetGender, candidates.size());
