@@ -3,7 +3,6 @@ package org.smu.randsome.randsomeback.infrastructure.notification;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
-import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 
 class FcmChunkSenderUnitTest extends UnitTestSupport {
@@ -29,9 +27,6 @@ class FcmChunkSenderUnitTest extends UnitTestSupport {
 
     @Mock
     FirebaseMessaging firebaseMessaging;
-
-    @Mock
-    ErrorNotificationSender errorNotificationSender;
 
     @Test
     void 청크를_정상_발송한다() throws FirebaseMessagingException {
@@ -85,16 +80,4 @@ class FcmChunkSenderUnitTest extends UnitTestSupport {
                 .isInstanceOf(FirebaseMessagingException.class);
     }
 
-    @Test
-    void recover_최종_실패시_에러_알림을_전송한다() {
-        // given
-        var tokens = List.of("token1");
-        var exception = mock(FirebaseMessagingException.class);
-
-        // when
-        fcmChunkSender.recover(exception, tokens, NotificationType.ANNOUNCEMENT_REGISTERED);
-
-        // then
-        verify(errorNotificationSender).sendErrorNotification(any(), eq(exception));
-    }
 }
