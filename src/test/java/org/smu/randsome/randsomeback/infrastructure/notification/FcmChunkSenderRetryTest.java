@@ -53,9 +53,8 @@ class FcmChunkSenderRetryTest extends IntegrationTestSupport {
         }
 
         @Bean
-        public FcmChunkSender fcmChunkSender(FirebaseMessaging firebaseMessaging,
-                ErrorNotificationSender errorNotificationSender) {
-            return new FcmChunkSender(firebaseMessaging, errorNotificationSender);
+        public FcmChunkSender fcmChunkSender(FirebaseMessaging firebaseMessaging) {
+            return new FcmChunkSender(firebaseMessaging);
         }
     }
 

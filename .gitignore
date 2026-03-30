@@ -196,9 +196,7 @@ gradle-app.setting
 *.yml
 !application.yml
 
-!docker-compose-local.yml
-!docker-compose-dev.yml
-!docker-compose-prod.yml
+!docker-compose.yml
 
 !.github/workflows/*.yml
 *.iml
@@ -207,9 +205,6 @@ firebase.json
 bad-words.txt
 
 .env
-.env.prod
-.env.staging
-
 
 # 모니터링 설정 파일은 포함하되 데이터는 제외
 !monitoring/prometheus/prometheus.yml
