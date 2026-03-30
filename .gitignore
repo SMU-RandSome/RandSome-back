@@ -196,9 +196,7 @@ gradle-app.setting
 *.yml
 !application.yml
 
-!docker-compose-local.yml
-!docker-compose-dev.yml
-!docker-compose-prod.yml
+!docker-compose.yml
 
 !.github/workflows/*.yml
 *.iml
