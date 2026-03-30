@@ -7,21 +7,21 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestConstructor;
 import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-@Testcontainers
 @ActiveProfiles("test")
 @TestPropertySource(properties = "cors.allowed-origins=http://localhost:3000")
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 @SpringBootTest
 public class IntegrationTestSupport {
 
-    @Container
     static final GenericContainer<?> REDIS = new GenericContainer<>(
             DockerImageName.parse("redis:8.6-alpine"))
             .withExposedPorts(6379);
+
+    static {
+        REDIS.start();
+    }
 
     @DynamicPropertySource
     static void redisProperties(DynamicPropertyRegistry registry) {
