@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +24,7 @@ import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 
 class MatchingManagerUnitTest extends UnitTestSupport {
@@ -47,16 +47,16 @@ class MatchingManagerUnitTest extends UnitTestSupport {
     MatchingStrategy idealStrategy;
 
     @Mock
-    Cache<String, Boolean> matchingIdempotencyCache;
+    RedisRepository redisRepository;
 
     @BeforeEach
     void setUp() {
         matchingManager = new MatchingManager(
                 matchingJpaRepository,
                 matchingResultJpaRepository,
+                redisRepository,
                 memberReader,
-                List.of(randomStrategy, idealStrategy),
-                matchingIdempotencyCache
+                List.of(randomStrategy, idealStrategy)
         );
     }
 
@@ -71,6 +71,7 @@ class MatchingManagerUnitTest extends UnitTestSupport {
                 .build();
 
         given(memberReader.findWithLock(memberId)).willReturn(member);
+        given(redisRepository.tryAcquire(any(String.class), any())).willReturn(true);
         given(matchingJpaRepository.save(any(MatchingApplication.class)))
                 .willAnswer(invocation -> invocation.getArgument(0));
 
@@ -100,10 +101,9 @@ class MatchingManagerUnitTest extends UnitTestSupport {
                 .applicationCount(3)
                 .build();
         var member = mock(Member.class);
-        String idempotencyKey = memberId + ":" + newMatching.matchingType() + ":" + newMatching.applicationCount();
 
         given(memberReader.findWithLock(memberId)).willReturn(member);
-        given(matchingIdempotencyCache.getIfPresent(idempotencyKey)).willReturn(Boolean.TRUE);
+        given(redisRepository.tryAcquire(any(String.class), any())).willReturn(false);
 
         // when & then
         assertThatThrownBy(() -> matchingManager.apply(newMatching, memberId))

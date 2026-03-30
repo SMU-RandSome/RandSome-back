@@ -1,10 +1,10 @@
 package org.smu.randsome.randsomeback.domain.matching.implement;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.github.benmanes.caffeine.cache.Cache;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
@@ -17,6 +17,7 @@ import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,13 +28,13 @@ public class MatchingManager {
 
     private final MatchingJpaRepository matchingJpaRepository;
     private final MatchingResultJpaRepository matchingResultJpaRepository;
+    private final RedisRepository redisRepository;
     private final MemberReader memberReader;
     private final List<MatchingStrategy> strategies;
-    private final Cache<String, Boolean> matchingIdempotencyCache;
 
     /**
-     * 매칭 신청을 생성한다. <br>
-     * 동일한 회원이 동일한 매칭 타입과 신청 횟수로 10초 안에 중복 신청하는 것을 방지하기 위해, idempotencyKey를 활용하여 캐시에서 중복 여부를 확인한다.
+     * 매칭 신청을 생성한다. <br> 동일한 회원이 동일한 매칭 타입과 신청 횟수로 10초 안에 중복 신청하는 것을 방지하기 위해, idempotencyKey를 활용하여 캐시에서 중복 여부를 확인한다.
+     *
      * @param newMatching 매칭 신청 커맨드
      * @param memberId    신청자 식별자
      * @return 저장된 매칭 신청 엔티티
@@ -55,13 +56,14 @@ public class MatchingManager {
         return saved;
     }
 
-     // NOTE: idempotencyKey는 "memberId:matchingType:applicationCount" 형식으로 구성하여, 동일한 회원이 동일 파라미터로 10초 내 중복 신청하는 것을 방지한다.
+    /* NOTE: idempotencyKey는 "matching:idempotency:memberId:matchingType:applicationCount" 형식으로 구성하여,
+             동일한 회원이 동일 파라미터로 10초 내 중복 신청하는 것을 방지한다.
+      */
     private void assertNotDuplicateAndMark(NewMatching newMatching, Long memberId) {
-        String idempotencyKey = memberId + ":" + newMatching.matchingType() + ":" + newMatching.applicationCount();
-        if (matchingIdempotencyCache.getIfPresent(idempotencyKey) != null) {
+        String idempotencyKey = "matching:idempotency:" + memberId + ":" + newMatching.matchingType() + ":" + newMatching.applicationCount();
+        if (!redisRepository.tryAcquire(idempotencyKey, Duration.ofSeconds(10))) {
             throw new CoreException(ErrorType.TOO_MANY_MATCHING_REQUESTS);
         }
-        matchingIdempotencyCache.put(idempotencyKey, Boolean.TRUE);
     }
 
     /**
@@ -113,10 +115,12 @@ public class MatchingManager {
 
     /**
      * 매칭 신청을 철회한다. 승인된 신청은 철회할 수 없으며, 거절된 신청은 이미 매칭 결과가 생성되어 있을 수 있으므로 철회할 수 없다.
+     *
      * @param applicationId 매칭 신청 식별자
-     * @param memberId 신청자 식별자 (보안 검증용)
+     * @param memberId      신청자 식별자 (보안 검증용)
      * @throws CoreException 매칭 신청을 찾을 수 없거나, 승인된 신청이거나, 거절된 신청인 경우
-     * */
+     *
+     */
     @Transactional
     public void withdraw(Long applicationId, Long memberId) {
         MatchingApplication matchingApplication = matchingJpaRepository.findByIdAndMemberIdAndStatus(
@@ -147,4 +151,5 @@ public class MatchingManager {
                     return new CoreException(ErrorType.UNSUPPORTED_MATCHING_TYPE);
                 });
     }
+
 }
