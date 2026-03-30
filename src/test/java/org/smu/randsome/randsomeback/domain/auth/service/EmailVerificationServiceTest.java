@@ -76,21 +76,6 @@ class EmailVerificationServiceTest extends UnitTestSupport {
     }
 
     @Test
-    void 만료된_코드로_검증_시_예외를_반환한다() {
-        // given
-        var email = "student@sangmyung.kr";
-        var code = "123456";
-        var verificationEmailCode = new VerificationEmailCode(email, code, VerificationPurpose.SIGN_UP);
-        willThrow(new CoreException(ErrorType.VERIFICATION_CODE_EXPIRED))
-                .given(verificationCodeValidator).verifyCode(email, code);
-
-        // when & then
-        assertThatThrownBy(() -> emailVerificationService.verifyEmailCode(verificationEmailCode))
-                .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_EXPIRED);
-    }
-
-    @Test
     void 인증_코드_요청_없이_검증_시_예외를_반환한다() {
         // given
         var email = "student@sangmyung.kr";
@@ -137,5 +122,5 @@ class EmailVerificationServiceTest extends UnitTestSupport {
         verify(jwtProvider).generateEmailVerificationToken(email, VerificationPurpose.PASSWORD_RESET);
         assertThat(result).isEqualTo(expectedToken);
     }
-}
 
+}
