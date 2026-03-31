@@ -76,7 +76,8 @@ public class Payment extends BaseEntity {
 
     public void confirm(LocalDateTime confirmedAt) {
         if (this.paymentStatus == PaymentStatus.COMPLETED) return;
-
+        // NOTE: REJECTED → COMPLETED 재승인 허용.
+        // 관리자 실수 정정을 위해 의도적으로 허용. 이 시점에 매칭 결과는 미생성이므로 중복 없음.
         this.paymentStatus = PaymentStatus.COMPLETED;
         this.confirmedAt = requireNonNull(confirmedAt);
         this.rejectedAt = null;
