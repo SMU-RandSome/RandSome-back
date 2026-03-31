@@ -32,19 +32,18 @@ public class MatchingReader {
 
     @Transactional(readOnly = true)
     public List<MatchingResult> findApprovedByApplication(Long applicationId, Long memberId) {
-        if (!matchingJpaRepository.existsByIdAndMemberIdAndApplicationStatusAndStatus(
+        List<MatchingResult> matchingResults = matchingResultJpaRepository.findAllByApplicationAndMemberIdAndStatus(
                 applicationId,
                 memberId,
-                ApplicationStatus.APPROVED,
                 EntityStatus.ACTIVE
-        )) {
+        );
+
+        // 매칭이 승인되었다면 결과가 존재해야 한다. 결과가 없다면 승인된 매칭이 없는 것으로 간주한다.
+        if (matchingResults.isEmpty()) {
             throw new CoreException(ErrorType.NOT_FOUND_APPROVED_MATCHING);
         }
 
-        return matchingResultJpaRepository.findAllByApplicationAndStatus(
-                applicationId,
-                EntityStatus.ACTIVE
-        );
+        return matchingResults;
     }
 
 }
