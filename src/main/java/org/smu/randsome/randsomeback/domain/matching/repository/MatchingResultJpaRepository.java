@@ -12,8 +12,9 @@ public interface MatchingResultJpaRepository extends JpaRepository<MatchingResul
             "JOIN FETCH mr.candidate " +
             "JOIN FETCH mr.matchingApplication " +
             "WHERE mr.matchingApplication.id = :applicationId " +
+            "AND mr.matchingApplication.member.id = :memberId " +
             "AND mr.status = :status"
     )
-    List<MatchingResult> findAllByApplicationAndStatus(Long applicationId, EntityStatus status);
+    List<MatchingResult> findAllByApplicationAndMemberIdAndStatus(Long applicationId, Long memberId, EntityStatus status);
 
 }
