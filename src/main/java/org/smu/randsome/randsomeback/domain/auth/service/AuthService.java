@@ -35,9 +35,8 @@ public class AuthService {
 
     @Transactional
     public TokenResponse reissue(String refreshToken) {
-        Member member = memberReader.findByRefreshToken(refreshToken);
-
         validateRefreshToken(refreshToken);
+        Member member = memberReader.findByRefreshToken(refreshToken);
 
         TokenResponse tokenResponse = jwtProvider.createTokens(member.getId(), member.getRole());
         memberManager.updateRefreshToken(member, tokenResponse.refreshToken());
