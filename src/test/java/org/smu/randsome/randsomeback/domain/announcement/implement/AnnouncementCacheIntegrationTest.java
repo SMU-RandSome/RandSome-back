@@ -1,13 +1,12 @@
 package org.smu.randsome.randsomeback.domain.announcement.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
@@ -20,29 +19,32 @@ import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
-import org.smu.randsome.randsomeback.global.config.CacheConfig;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.caffeine.CaffeineCache;
+import org.smu.randsome.randsomeback.global.config.CacheKeys;
+import org.smu.randsome.randsomeback.global.entity.EntityStatus;
+import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 @RequiredArgsConstructor
 class AnnouncementCacheIntegrationTest extends IntegrationTestSupport {
 
     final AnnouncementReader announcementReader;
     final AnnouncementAdminService announcementAdminService;
-    final AnnouncementJpaRepository announcementJpaRepository;
     final MemberJpaRepository memberJpaRepository;
-    final CacheManager cacheManager;
+    final RedisRepository redisRepository;
+
+    @MockitoSpyBean
+    AnnouncementJpaRepository announcementJpaRepository;
 
     @BeforeEach
     void setUp() {
-        Objects.requireNonNull(cacheManager.getCache(CacheConfig.ANNOUNCEMENTS)).clear();
+        redisRepository.delete(CacheKeys.ANNOUNCEMENTS);
         announcementJpaRepository.deleteAll();
         memberJpaRepository.deleteAll();
     }
 
     @AfterEach
     void tearDown() {
-        Objects.requireNonNull(cacheManager.getCache(CacheConfig.ANNOUNCEMENTS)).clear();
+        redisRepository.delete(CacheKeys.ANNOUNCEMENTS);
         announcementJpaRepository.deleteAll();
         memberJpaRepository.deleteAll();
     }
@@ -53,17 +55,12 @@ class AnnouncementCacheIntegrationTest extends IntegrationTestSupport {
         Member admin = saveAdmin();
         announcementJpaRepository.save(Announcement.register(admin, "제목1", "내용1"));
 
-        Cache<Object, Object> nativeCache = getNativeCache();
-        long hitsBefore = nativeCache.stats().hitCount();
-        long missesBefore = nativeCache.stats().missCount();
-
         // when
         List<AnnouncementItem> result = announcementReader.findAnnouncements();
 
-        // then
+        // then — DB 1회 호출 = 캐시 미스
         assertThat(result).hasSize(1);
-        assertThat(nativeCache.stats().missCount()).isEqualTo(missesBefore + 1);
-        assertThat(nativeCache.stats().hitCount()).isEqualTo(hitsBefore);
+        verify(announcementJpaRepository, times(1)).findAllByStatus(EntityStatus.ACTIVE);
     }
 
     @Test
@@ -72,17 +69,14 @@ class AnnouncementCacheIntegrationTest extends IntegrationTestSupport {
         Member admin = saveAdmin();
         announcementJpaRepository.save(Announcement.register(admin, "제목1", "내용1"));
 
-        announcementReader.findAnnouncements(); // 캐시 워밍
-
-        Cache<Object, Object> nativeCache = getNativeCache();
-        long hitsBefore = nativeCache.stats().hitCount();
+        announcementReader.findAnnouncements(); // 캐시 워밍 (DB 1회 호출)
 
         // when
         List<AnnouncementItem> result = announcementReader.findAnnouncements();
 
-        // then
+        // then — DB 총 1회만 호출됨 = 두 번째 조회는 캐시 히트
         assertThat(result).hasSize(1);
-        assertThat(nativeCache.stats().hitCount()).isEqualTo(hitsBefore + 1);
+        verify(announcementJpaRepository, times(1)).findAllByStatus(EntityStatus.ACTIVE);
     }
 
     @Test
@@ -112,10 +106,4 @@ class AnnouncementCacheIntegrationTest extends IntegrationTestSupport {
         return memberJpaRepository.save(member);
     }
 
-    private Cache<Object, Object> getNativeCache() {
-        CaffeineCache caffeineCache = (CaffeineCache) cacheManager.getCache(CacheConfig.ANNOUNCEMENTS);
-        Assertions.assertNotNull(caffeineCache);
-        //noinspection unchecked
-        return caffeineCache.getNativeCache();
-    }
 }

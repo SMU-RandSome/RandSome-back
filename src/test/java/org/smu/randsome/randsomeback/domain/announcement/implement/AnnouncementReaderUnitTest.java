@@ -5,6 +5,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -15,6 +16,7 @@ import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
 import org.smu.randsome.randsomeback.domain.announcement.repository.AnnouncementJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
+import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
 
 class AnnouncementReaderUnitTest extends UnitTestSupport {
 
@@ -23,6 +25,12 @@ class AnnouncementReaderUnitTest extends UnitTestSupport {
 
     @Mock
     AnnouncementJpaRepository announcementJpaRepository;
+
+    @Mock
+    RedisRepository redisRepository;
+
+    @Mock
+    ObjectMapper objectMapper;
 
     @Test
     void ACTIVE_상태의_공지사항_목록을_반환한다() {
