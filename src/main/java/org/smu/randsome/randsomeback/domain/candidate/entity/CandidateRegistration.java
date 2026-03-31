@@ -92,6 +92,10 @@ public class CandidateRegistration extends BaseEntity {
         // NOTE: 철회 시엔 승인 시각을 지우지 않음.
     }
 
+    public boolean isApproved() {
+        return registrationStatus.equals(RegistrationStatus.APPROVED);
+    }
+
     private void checkWithdraw() {
         if (registrationStatus.equals(RegistrationStatus.WITHDRAWN)) {
             throw new CoreException(ErrorType.ALREADY_WITHDRAWN_CANDIDATE);

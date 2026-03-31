@@ -7,6 +7,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -120,13 +121,7 @@ class CandidateManagerUnitTest extends UnitTestSupport {
         var registration = CandidateRegistration.apply(member);
         registration.approve(TestDateTimeUtils.now());
 
-        given(candidateJpaRepository.existsByMemberIdAndStatus(memberId, EntityStatus.ACTIVE))
-                .willReturn(true);
-        given(candidateJpaRepository.findByMemberIdAndRegistrationStatusAndStatus(
-                memberId,
-                RegistrationStatus.APPROVED,
-                EntityStatus.ACTIVE
-        )).willReturn(Optional.of(registration));
+        given(candidateJpaRepository.findAllByMemberIdAndStatus(memberId, EntityStatus.ACTIVE)).willReturn(List.of(registration));
 
         // when
         candidateManager.withdraw(memberId);
@@ -141,8 +136,7 @@ class CandidateManagerUnitTest extends UnitTestSupport {
     void 철회할_활성_후보자_신청이_없으면_NOT_FOUND_CANDIDATE를_던진다() {
         // given
         var memberId = 999L;
-        given(candidateJpaRepository.existsByMemberIdAndStatus(memberId, EntityStatus.ACTIVE))
-                .willReturn(false);
+        given(candidateJpaRepository.findAllByMemberIdAndStatus(memberId, EntityStatus.ACTIVE)).willReturn(List.of());
 
         // when & then
         assertThatThrownBy(() -> candidateManager.withdraw(memberId))
@@ -154,13 +148,11 @@ class CandidateManagerUnitTest extends UnitTestSupport {
     void 활성화된_신청은_있지만_승인된_신청이_없으면_NOT_ALLOW_WITHDRAW_NON_APPROVED를_던진다() {
         // given
         var memberId = 2L;
-        given(candidateJpaRepository.existsByMemberIdAndStatus(memberId, EntityStatus.ACTIVE))
-                .willReturn(true);
-        given(candidateJpaRepository.findByMemberIdAndRegistrationStatusAndStatus(
-                memberId,
-                RegistrationStatus.APPROVED,
-                EntityStatus.ACTIVE
-        )).willReturn(Optional.empty());
+        var member = MemberFixture.create();
+        ReflectionTestUtils.setField(member, "id", memberId);
+        var registration = CandidateRegistration.apply(member);
+
+        given(candidateJpaRepository.findAllByMemberIdAndStatus(memberId, EntityStatus.ACTIVE)).willReturn(List.of(registration));
 
         // when & then
         assertThatThrownBy(() -> candidateManager.withdraw(memberId))

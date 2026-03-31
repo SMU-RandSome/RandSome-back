@@ -1,10 +1,10 @@
 package org.smu.randsome.randsomeback.domain.candidate.implement;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
-import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.repository.CandidateJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
@@ -68,23 +68,20 @@ public class CandidateManager {
     @Transactional
     public void withdraw(Long memberId) {
         // 회원의 활성화된 신청이 존재하는지 확인 (APPROVED 여부 무관)
-        boolean hasActiveRegistration = candidateJpaRepository.existsByMemberIdAndStatus(memberId, EntityStatus.ACTIVE);
+        List<CandidateRegistration> registrations = candidateJpaRepository.findAllByMemberIdAndStatus(memberId, EntityStatus.ACTIVE);
 
-        if (!hasActiveRegistration) {
+        if (registrations.isEmpty()) {
             throw new CoreException(ErrorType.NOT_FOUND_CANDIDATE);
         }
 
-        // APPROVED 상태의 활성 신청만 조회
-        CandidateRegistration registration = candidateJpaRepository.findByMemberIdAndRegistrationStatusAndStatus(
-                memberId,
-                RegistrationStatus.APPROVED,
-                EntityStatus.ACTIVE
-        ).orElseThrow(() -> new CoreException(ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED));
+        // APPROVED는 하나만 존재할 수 있으므로 findFirst()로 충분
+        CandidateRegistration registration = registrations.stream()
+                .filter(CandidateRegistration::isApproved)
+                .findFirst()
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED));
 
         registration.withdraw(LocalDateTime.now());
-
-        Member candidate = registration.getMember();
-        memberManager.updateRole(candidate, Role.ROLE_MEMBER);
+        memberManager.updateRole(registration.getMember(), Role.ROLE_MEMBER);
 
         log.info("[CandidateManager] 후보자 등록 철회 처리 완료 - registrationId={}, memberId={}",
                 registration.getId(),
