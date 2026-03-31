@@ -64,6 +64,12 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        if (!jwtProvider.isAccessToken(token)) {
+            log.warn("[JWTFilter] Access Token이 아닌 토큰이 전달되었습니다. token: {}", token);
+            sendErrorResponse(response, INVALID_TOKEN);
+            return;
+        }
+
         Authentication authentication = jwtProvider.getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);

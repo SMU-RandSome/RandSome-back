@@ -169,6 +169,42 @@ class JwtProviderTest extends UnitTestSupport {
     }
 
     @Test
+    void Access_토큰이면_isAccessToken이_true를_반환한다() {
+        // given
+        TokenResponse tokens = jwtProvider.createTokens(1L, Role.ROLE_MEMBER);
+
+        // when
+        boolean result = jwtProvider.isAccessToken(tokens.accessToken());
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void Refresh_토큰을_isAccessToken으로_검증하면_false를_반환한다() {
+        // given
+        TokenResponse tokens = jwtProvider.createTokens(1L, Role.ROLE_MEMBER);
+
+        // when
+        boolean result = jwtProvider.isAccessToken(tokens.refreshToken());
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void Verification_토큰을_isAccessToken으로_검증하면_false를_반환한다() {
+        // given
+        String verificationToken = jwtProvider.generateEmailVerificationToken("student@sangmyung.kr", VerificationPurpose.SIGN_UP);
+
+        // when
+        boolean result = jwtProvider.isAccessToken(verificationToken);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
     void 이메일_인증_토큰을_생성하고_email을_추출한다() {
         // given
         var email = "student@sangmyung.kr";

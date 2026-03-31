@@ -17,4 +17,8 @@ public enum TokenType {
 
     private final String value;
 
+    public static boolean isAccessToken(String tokenType) {
+        return ACCESS.getValue().equals(tokenType);
+    }
+
 }
