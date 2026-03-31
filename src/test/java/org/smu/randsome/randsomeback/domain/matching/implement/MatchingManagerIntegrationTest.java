@@ -3,9 +3,7 @@ package org.smu.randsome.randsomeback.domain.matching.implement;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
@@ -17,6 +15,7 @@ import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepositor
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,12 +26,7 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
     final MatchingManager matchingManager;
     final MemberJpaRepository memberJpaRepository;
     final MatchingJpaRepository matchingJpaRepository;
-    final Cache<String, Boolean> matchingIdempotencyCache;
-
-    @BeforeEach
-    void clearCache() {
-        matchingIdempotencyCache.invalidateAll();
-    }
+    final RedisRepository redisRepository;
 
     @Test
     void 매칭_신청을_저장하면_PENDING_상태로_DB에_저장된다() {
