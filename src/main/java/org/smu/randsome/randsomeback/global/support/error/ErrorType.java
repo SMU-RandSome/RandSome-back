@@ -47,9 +47,9 @@ public enum ErrorType {
     NOT_ALLOW_ALREADY_APPROVED_REGISTRATION (HttpStatus.BAD_REQUEST, "이미 승인된 후보자 등록은 거절이 불가능합니다.", LogLevel.INFO),
 
     // MATCH
-    NOT_ALLOW_WITHDRAW_APPROVED         (HttpStatus.BAD_REQUEST, "승인된 매칭은 철회할 수 없습니다.", LogLevel.INFO),
-    NOT_ALLOW_WITHDRAW_REJECTED         (HttpStatus.BAD_REQUEST, "거절된 매칭은 철회할 수 없습니다.", LogLevel.INFO),
-    ALREADY_WITHDRAWN_MATCHING          (HttpStatus.BAD_REQUEST, "이미 철회된 매칭입니다.", LogLevel.INFO),
+    NOT_ALLOW_CANCEL_APPROVED           (HttpStatus.BAD_REQUEST, "승인된 매칭은 취소할 수 없습니다.", LogLevel.INFO),
+    NOT_ALLOW_CANCEL_REJECTED           (HttpStatus.BAD_REQUEST, "거절된 매칭은 취소할 수 없습니다.", LogLevel.INFO),
+    ALREADY_CANCELLED_MATCHING          (HttpStatus.BAD_REQUEST, "이미 취소된 매칭입니다.", LogLevel.INFO),
     NOT_ALLOW_ALREADY_APPROVED_MATCHING (HttpStatus.BAD_REQUEST, "이미 승인된 매칭은 거절이 불가능합니다.", LogLevel.INFO),
     NOT_FOUND_MATCHING                  (HttpStatus.NOT_FOUND, "매칭을 찾을 수 없습니다.", LogLevel.INFO),
     NOT_FOUND_APPROVED_MATCHING         (HttpStatus.NOT_FOUND, "승인된 매칭을 찾을 수 없습니다.", LogLevel.INFO),

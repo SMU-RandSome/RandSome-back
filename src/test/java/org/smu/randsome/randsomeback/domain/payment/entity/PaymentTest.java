@@ -117,4 +117,25 @@ class PaymentTest extends UnitTestSupport {
                 .isInstanceOf(NullPointerException.class);
     }
 
+    @Test
+    void PENDING_결제를_취소하면_CANCELLED_상태가_된다() {
+        Member member = mock(Member.class);
+        Payment payment = Payment.register(member, PaymentType.RANDOM_MATCHING, 1L, 1);
+
+        payment.cancel();
+
+        assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.CANCELLED);
+    }
+
+    @Test
+    void PENDING이_아닌_결제를_취소하면_예외가_발생한다() {
+        Member member = mock(Member.class);
+        Payment payment = Payment.register(member, PaymentType.RANDOM_MATCHING, 1L, 1);
+        payment.confirm(LocalDateTime.of(2026, 3, 11, 12, 0));
+
+        assertThatThrownBy(payment::cancel)
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_ALLOW_CANCEL_CONFIRMED_PAYMENT.getMessage());
+    }
+
 }

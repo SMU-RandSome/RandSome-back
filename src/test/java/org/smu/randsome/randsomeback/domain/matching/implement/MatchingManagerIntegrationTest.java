@@ -50,7 +50,7 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
                 MatchingApplication::getApplicationStatus,
                 MatchingApplication::getApprovedAt,
                 MatchingApplication::getRejectedAt,
-                MatchingApplication::getWithdrawnAt
+                MatchingApplication::getCancelledAt
         ).containsExactly(
                 result.getId(),
                 member,
@@ -197,7 +197,7 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void PENDING_신청을_철회하면_WITHDRAWN_상태와_철회_시각이_저장된다() {
+    void PENDING_신청을_취소하면_CANCELLED_상태와_취소_시각이_저장된다() {
         // given
         var member = memberJpaRepository.save(MemberFixture.create());
         var newMatching = NewMatching.builder()
@@ -207,28 +207,28 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
         var application = matchingManager.apply(newMatching, member.getId());
 
         // when
-        matchingManager.withdraw(application.getId(), member.getId());
+        matchingManager.cancel(application.getId(), member.getId());
 
         // then
         var result = matchingJpaRepository.findById(application.getId()).orElseThrow();
-        assertThat(result.getApplicationStatus()).isEqualTo(ApplicationStatus.WITHDRAWN);
-        assertThat(result.getWithdrawnAt()).isNotNull();
+        assertThat(result.getApplicationStatus()).isEqualTo(ApplicationStatus.CANCELLED);
+        assertThat(result.getCancelledAt()).isNotNull();
     }
 
     @Test
-    void 존재하지_않는_신청을_철회하면_NOT_FOUND_MATCHING을_던진다() {
+    void 존재하지_않는_신청을_취소하면_NOT_FOUND_MATCHING을_던진다() {
         // given
         var member = memberJpaRepository.save(MemberFixture.create());
         var nonExistentId = 999L;
 
         // when & then
-        assertThatThrownBy(() -> matchingManager.withdraw(nonExistentId, member.getId()))
+        assertThatThrownBy(() -> matchingManager.cancel(nonExistentId, member.getId()))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
     }
 
     @Test
-    void 다른_사용자의_신청을_철회하면_NOT_FOUND_MATCHING을_던진다() {
+    void 다른_사용자의_신청을_취소하면_NOT_FOUND_MATCHING을_던진다() {
         // given
         var owner = memberJpaRepository.save(MemberFixture.create());
         var other = memberJpaRepository.save(MemberFixture.createWithGender("202300000@sangmyung.kr", owner.getGender()));
@@ -239,13 +239,13 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
         var application = matchingManager.apply(newMatching, owner.getId());
 
         // when & then
-        assertThatThrownBy(() -> matchingManager.withdraw(application.getId(), other.getId()))
+        assertThatThrownBy(() -> matchingManager.cancel(application.getId(), other.getId()))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
     }
 
     @Test
-    void APPROVED_신청을_철회하면_NOT_ALLOW_WITHDRAW_APPROVED를_던진다() {
+    void APPROVED_신청을_취소하면_NOT_ALLOW_CANCEL_APPROVED를_던진다() {
         // given
         var member = memberJpaRepository.save(MemberFixture.create());
         var newMatching = NewMatching.builder()
@@ -256,13 +256,13 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
         matchingManager.approve(application.getId(), TestDateTimeUtils.now());
 
         // when & then
-        assertThatThrownBy(() -> matchingManager.withdraw(application.getId(), member.getId()))
+        assertThatThrownBy(() -> matchingManager.cancel(application.getId(), member.getId()))
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_ALLOW_WITHDRAW_APPROVED.getMessage());
+                .hasMessage(ErrorType.NOT_ALLOW_CANCEL_APPROVED.getMessage());
     }
 
     @Test
-    void REJECTED_신청을_철회하면_NOT_ALLOW_WITHDRAW_REJECTED를_던진다() {
+    void REJECTED_신청을_취소하면_NOT_ALLOW_CANCEL_REJECTED를_던진다() {
         // given
         var member = memberJpaRepository.save(MemberFixture.create());
         var newMatching = NewMatching.builder()
@@ -273,9 +273,9 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
         matchingManager.reject(application.getId(), "사유", TestDateTimeUtils.now());
 
         // when & then
-        assertThatThrownBy(() -> matchingManager.withdraw(application.getId(), member.getId()))
+        assertThatThrownBy(() -> matchingManager.cancel(application.getId(), member.getId()))
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_ALLOW_WITHDRAW_REJECTED.getMessage());
+                .hasMessage(ErrorType.NOT_ALLOW_CANCEL_REJECTED.getMessage());
     }
 
 }
