@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 class MemberManagerUnitTest extends UnitTestSupport {
@@ -76,6 +78,24 @@ class MemberManagerUnitTest extends UnitTestSupport {
         // given
         given(memberJpaRepository.existsByEmail_AddressAndStatus(any(String.class), any(EntityStatus.class)))
                 .willReturn(true);
+
+        // when // then
+        assertThatThrownBy(() -> memberManager.create(
+                MemberFixture.createCredentials(),
+                MemberFixture.createBasicInfo(),
+                MemberFixture.createMemberSocialProfile()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.DUPLICATE_EMAIL.getMessage());
+    }
+
+    @Test
+    void TOCTOU_경쟁_조건으로_save에서_DataIntegrityViolationException_발생_시_DUPLICATE_EMAIL_예외가_발생한다() {
+        // given
+        given(memberJpaRepository.existsByEmail_AddressAndStatus(any(String.class), any(EntityStatus.class)))
+                .willReturn(false);
+        given(passwordEncoder.encode(any())).willReturn("encoded-password");
+        willThrow(DataIntegrityViolationException.class)
+                .given(memberJpaRepository).save(any(Member.class));
 
         // when // then
         assertThatThrownBy(() -> memberManager.create(

@@ -7,6 +7,8 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -24,6 +26,7 @@ import org.smu.randsome.randsomeback.global.jwt.TokenHasher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Getter
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"email", "status"}))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class Member extends BaseEntity {
