@@ -55,7 +55,7 @@ public class MatchingApplication extends BaseEntity {
 
     private LocalDateTime rejectedAt;
 
-    private LocalDateTime withdrawnAt;
+    private LocalDateTime cancelledAt;
 
     public static MatchingApplication apply(
             Member member,
@@ -74,7 +74,7 @@ public class MatchingApplication extends BaseEntity {
         matchingApplication.applicationStatus = ApplicationStatus.PENDING;
         matchingApplication.approvedAt = null;
         matchingApplication.rejectedAt = null;
-        matchingApplication.withdrawnAt = null;
+        matchingApplication.cancelledAt = null;
 
         return matchingApplication;
     }
@@ -83,7 +83,7 @@ public class MatchingApplication extends BaseEntity {
         if (applicationStatus.equals(ApplicationStatus.APPROVED)) {
             return;
         }
-        checkWithdraw();
+        checkCancel();
         // NOTE: REJECTED → APPROVED 재승인 허용.
         // 관리자 실수 정정을 위해 의도적으로 허용. 이 시점에 매칭 결과는 미생성이므로 중복 없음.
         this.applicationStatus = ApplicationStatus.APPROVED;
@@ -96,7 +96,7 @@ public class MatchingApplication extends BaseEntity {
         if (applicationStatus.equals(ApplicationStatus.APPROVED)) {
             throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING);
         }
-        checkWithdraw();
+        checkCancel();
 
         this.applicationStatus = ApplicationStatus.REJECTED;
         this.rejectedAt = requireNonNull(rejectedAt);
@@ -104,19 +104,19 @@ public class MatchingApplication extends BaseEntity {
         this.approvedAt = null;
     }
 
-    public void withdraw(LocalDateTime withdrawnAt) {
+    public void cancel(LocalDateTime cancelledAt) {
         if (applicationStatus.equals(ApplicationStatus.APPROVED)) {
-            throw new CoreException(ErrorType.NOT_ALLOW_WITHDRAW_APPROVED);
+            throw new CoreException(ErrorType.NOT_ALLOW_CANCEL_APPROVED);
         }
         if (applicationStatus.equals(ApplicationStatus.REJECTED)) {
-            throw new CoreException(ErrorType.NOT_ALLOW_WITHDRAW_REJECTED);
+            throw new CoreException(ErrorType.NOT_ALLOW_CANCEL_REJECTED);
         }
-        if (applicationStatus.equals(ApplicationStatus.WITHDRAWN)) {
+        if (applicationStatus.equals(ApplicationStatus.CANCELLED)) {
             return;
         }
 
-        this.applicationStatus = ApplicationStatus.WITHDRAWN;
-        this.withdrawnAt = requireNonNull(withdrawnAt);
+        this.applicationStatus = ApplicationStatus.CANCELLED;
+        this.cancelledAt = requireNonNull(cancelledAt);
     }
 
     public Gender getTargetGender() {
@@ -129,9 +129,9 @@ public class MatchingApplication extends BaseEntity {
         }
     }
 
-    private void checkWithdraw() {
-        if (applicationStatus.equals(ApplicationStatus.WITHDRAWN)) {
-            throw new CoreException(ErrorType.ALREADY_WITHDRAWN_MATCHING);
+    private void checkCancel() {
+        if (applicationStatus.equals(ApplicationStatus.CANCELLED)) {
+            throw new CoreException(ErrorType.ALREADY_CANCELLED_MATCHING);
         }
     }
 

@@ -104,6 +104,7 @@ public class PaymentManager {
                 payment.getPaymentStatus());
     }
 
+    @Transactional
     public void cancel(Long memberId, PaymentType paymentType, Long referenceId) {
         Payment payment = paymentJpaRepository.findByMemberIdAndPaymentTypeAndReferenceIdAndStatus(
                 memberId,

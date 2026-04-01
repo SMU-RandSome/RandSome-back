@@ -212,4 +212,36 @@ class MatchingManagerUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
     }
 
+    @Test
+    void 매칭_신청을_취소하면_CANCELLED_상태와_취소_시각이_기록된다() {
+        // given
+        var applicationId = 1L;
+        var memberId = 1L;
+        var member = mock(Member.class);
+        var application = MatchingApplication.apply(member, MatchingType.RANDOM, 2);
+        given(matchingJpaRepository.findByIdAndMemberIdAndStatus(applicationId, memberId, EntityStatus.ACTIVE))
+                .willReturn(Optional.of(application));
+
+        // when
+        MatchingApplication result = matchingManager.cancel(applicationId, memberId);
+
+        // then
+        assertThat(result.getApplicationStatus()).isEqualTo(ApplicationStatus.CANCELLED);
+        assertThat(result.getCancelledAt()).isNotNull();
+    }
+
+    @Test
+    void 취소할_매칭이_없으면_NOT_FOUND_MATCHING을_던진다() {
+        // given
+        var applicationId = 999L;
+        var memberId = 1L;
+        given(matchingJpaRepository.findByIdAndMemberIdAndStatus(applicationId, memberId, EntityStatus.ACTIVE))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> matchingManager.cancel(applicationId, memberId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
+    }
+
 }

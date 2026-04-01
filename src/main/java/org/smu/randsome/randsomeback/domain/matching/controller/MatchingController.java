@@ -63,12 +63,12 @@ public class MatchingController extends MatchingControllerDocs {
     }
 
     @Override
-    @PostMapping("/v1/matching/applications/{applicationId}/withdraw")
-    public ApiResponse<?> withdraw(
+    @PostMapping("/v1/matching/applications/{applicationId}/cancel")
+    public ApiResponse<?> cancel(
             @PathVariable Long applicationId,
             @LoginMember Long memberId
     ) {
-        matchingService.withdraw(applicationId, memberId);
+        matchingService.cancel(applicationId, memberId);
 
         return ApiResponse.success();
     }

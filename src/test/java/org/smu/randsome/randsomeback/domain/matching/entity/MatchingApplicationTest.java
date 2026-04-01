@@ -35,7 +35,7 @@ class MatchingApplicationTest extends UnitTestSupport {
                 MatchingApplication::getApplicationStatus,
                 MatchingApplication::getApprovedAt,
                 MatchingApplication::getRejectedAt,
-                MatchingApplication::getWithdrawnAt
+                MatchingApplication::getCancelledAt
         ).containsExactly(
                 member,
                 matchingType,
@@ -126,50 +126,49 @@ class MatchingApplicationTest extends UnitTestSupport {
     }
 
     @Test
-    void 매칭_신청을_철회한다() {
+    void 매칭_신청을_취소한다() {
         // given
         var member = mock(Member.class);
         var application = MatchingApplication.apply(member, MatchingType.RANDOM, 2);
         var now = TestDateTimeUtils.now();
 
         // when
-        application.withdraw(now);
+        application.cancel(now);
 
         // then
         assertThat(application).extracting(
                 MatchingApplication::getApplicationStatus,
-                MatchingApplication::getWithdrawnAt
+                MatchingApplication::getCancelledAt
         ).containsExactly(
-                ApplicationStatus.WITHDRAWN,
+                ApplicationStatus.CANCELLED,
                 now
         );
     }
 
     @Test
-    void 이미_승인된_매칭을_철회할_수_없다() {
+    void 이미_승인된_매칭을_취소할_수_없다() {
         // given
         var member = mock(Member.class);
         var application = MatchingApplication.apply(member, MatchingType.RANDOM, 2);
         application.approve(TestDateTimeUtils.now());
 
         // when & then
-        assertThatThrownBy(() -> application.withdraw(TestDateTimeUtils.now()))
+        assertThatThrownBy(() -> application.cancel(TestDateTimeUtils.now()))
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_ALLOW_WITHDRAW_APPROVED.getMessage());
+                .hasMessage(ErrorType.NOT_ALLOW_CANCEL_APPROVED.getMessage());
     }
 
-
     @Test
-    void 이미_거절된_매칭을_철회할_수_없다() {
+    void 이미_거절된_매칭을_취소할_수_없다() {
         // given
         var member = mock(Member.class);
         var application = MatchingApplication.apply(member, MatchingType.RANDOM, 2);
         application.reject(TestDateTimeUtils.now(), "사유");
 
         // when & then
-        assertThatThrownBy(() -> application.withdraw(TestDateTimeUtils.now()))
+        assertThatThrownBy(() -> application.cancel(TestDateTimeUtils.now()))
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_ALLOW_WITHDRAW_REJECTED.getMessage());
+                .hasMessage(ErrorType.NOT_ALLOW_CANCEL_REJECTED.getMessage());
     }
 
 }

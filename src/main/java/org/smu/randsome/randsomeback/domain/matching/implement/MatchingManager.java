@@ -114,25 +114,24 @@ public class MatchingManager {
     }
 
     /**
-     * 매칭 신청을 철회한다. 승인된 신청은 철회할 수 없으며, 거절된 신청은 이미 매칭 결과가 생성되어 있을 수 있으므로 철회할 수 없다.
+     * 매칭 신청을 취소한다. 승인된 신청은 취소할 수 없으며, 거절된 신청은 이미 매칭 결과가 생성되어 있을 수 있으므로 취소할 수 없다.
      *
      * @param applicationId 매칭 신청 식별자
      * @param memberId      신청자 식별자 (보안 검증용)
      * @throws CoreException 매칭 신청을 찾을 수 없거나, 승인된 신청이거나, 거절된 신청인 경우
      *
      */
-    @Transactional
-    public void withdraw(Long applicationId, Long memberId) {
+    public MatchingApplication cancel(Long applicationId, Long memberId) {
         MatchingApplication matchingApplication = matchingJpaRepository.findByIdAndMemberIdAndStatus(
                 applicationId,
                 memberId,
                 EntityStatus.ACTIVE
         ).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MATCHING));
 
-        LocalDateTime withdrawnAt = LocalDateTime.now();
-        matchingApplication.withdraw(withdrawnAt);
+        LocalDateTime cancelledAt = LocalDateTime.now();
+        matchingApplication.cancel(cancelledAt);
 
-        log.info("[MatchingManager] 매칭 신청 철회 완료 - matchingApplicationId: {}, memberId: {}", applicationId, memberId);
+        return matchingApplication;
     }
 
     /**

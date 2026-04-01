@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.domain.matching.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
@@ -15,6 +16,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class MatchingService {
@@ -66,13 +68,18 @@ public class MatchingService {
     }
 
     /**
-     * 매칭 신청을 철회한다.
+     * 매칭 신청을 취소한다.
      * @param applicationId 매칭 신청 식별자
      * @param memberId 신청자 식별자 (보안 검증용)
      *
      * */
-    public void withdraw(Long applicationId, Long memberId) {
-        matchingManager.withdraw(applicationId, memberId);
+    @Transactional
+    public void cancel(Long applicationId, Long memberId) {
+        MatchingApplication cancelled = matchingManager.cancel(applicationId, memberId);
+        paymentManager.cancel(memberId, PaymentType.from(cancelled.getMatchingType()), cancelled.getId());
+
+        log.info("[MatchingService] 매칭 신청 취소 처리 완료 - applicationId: {}, memberId: {}",
+                applicationId, memberId);
     }
 
 }

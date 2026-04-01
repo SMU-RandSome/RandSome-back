@@ -152,16 +152,39 @@ class MatchingServiceUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 매칭_신청_철회에_성공한다() {
+    void 매칭_신청_취소에_성공한다() {
         // given
         var applicationId = 1L;
         var memberId = 1L;
+        var application = mock(MatchingApplication.class);
+        given(application.getMatchingType()).willReturn(MatchingType.RANDOM);
+        given(application.getId()).willReturn(applicationId);
+        given(matchingManager.cancel(applicationId, memberId)).willReturn(application);
 
         // when
-        matchingService.withdraw(applicationId, memberId);
+        matchingService.cancel(applicationId, memberId);
 
         // then
-        verify(matchingManager).withdraw(applicationId, memberId);
+        verify(matchingManager).cancel(applicationId, memberId);
+        verify(paymentManager).cancel(memberId, PaymentType.RANDOM_MATCHING, applicationId);
+    }
+
+    @Test
+    void 결제_취소_실패시_예외가_전파된다() {
+        // given
+        var applicationId = 1L;
+        var memberId = 1L;
+        var application = mock(MatchingApplication.class);
+        given(application.getMatchingType()).willReturn(MatchingType.RANDOM);
+        given(application.getId()).willReturn(applicationId);
+        given(matchingManager.cancel(applicationId, memberId)).willReturn(application);
+        willThrow(new CoreException(ErrorType.NOT_FOUND_PAYMENT))
+                .given(paymentManager).cancel(memberId, PaymentType.RANDOM_MATCHING, applicationId);
+
+        // when & then
+        assertThatThrownBy(() -> matchingService.cancel(applicationId, memberId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_PAYMENT.getMessage());
     }
 
 }
