@@ -83,7 +83,7 @@ public class CandidateManager {
         registration.withdraw(LocalDateTime.now());
         memberManager.updateRole(registration.getMember(), Role.ROLE_MEMBER);
 
-        log.info("[CandidateManager] 후보자 등록 철회 처리 완료 - registrationId={}, memberId={}",
+        log.info("[CandidateManager] 후보자 철회 처리 완료 - registrationId={}, memberId={}",
                 registration.getId(),
                 memberId);
     }

@@ -41,6 +41,10 @@ public class CandidateService {
         eventPublisher.publishEvent(new CandidateAppliedEvent(candidateRegistration.getId()));
     }
 
+    /**
+     * 회원이 매칭 후보자 등록을 철회하는 서비스 메서드입니다.
+     * 후보자 에서 일반 회원으로 역할이 변경됩니다.
+     * */
     public void withdraw(Long memberId) {
         candidateManager.withdraw(memberId);
     }

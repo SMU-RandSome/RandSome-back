@@ -27,20 +27,4 @@ public abstract class CandidateControllerDocs {
     })
     public abstract ApiResponse<?> apply(@LoginMember Long memberId);
 
-    @Operation(summary = "후보 등록 신청 철회 API",
-            description = """
-                    ### 후보 등록 신청 철회 API입니다.
-                    - 후보 등록 신청이 승인된 경우에만 신청 철회가 가능합니다.
-                    - 신청 철회 시 환불 없이 후보 등록이 철회됩니다.
-                    - 성공적으로 신청이 철회되면 200 OK 응답이 반환됩니다.
-                    """
-    )
-    @ApiExceptions(values = {
-            ErrorType.UNAUTHORIZED_ERROR,
-            ErrorType.NOT_FOUND_CANDIDATE,
-            ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED,
-            ErrorType.DEFAULT_ERROR
-    })
-    public abstract ApiResponse<?> withdraw(@LoginMember Long memberId);
-
 }
