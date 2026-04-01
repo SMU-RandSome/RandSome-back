@@ -113,7 +113,15 @@ public class JwtProvider {
             log.warn("[Invalid JWT], 인증 토큰이 유효하지 않습니다. Token prefix: {}", maskToken(token));
             throw new CoreException(ErrorType.INVALID_TOKEN);
         }
+    }
 
+    public boolean isAccessToken(String token) {
+        try {
+            Claims claims = getClaimsFromToken(token);
+            return TokenType.isAccessToken(claims.get(CATEGORY_KEY, String.class));
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 
     public Authentication getAuthentication(String token) {
