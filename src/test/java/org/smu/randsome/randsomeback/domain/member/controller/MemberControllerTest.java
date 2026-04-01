@@ -512,6 +512,45 @@ class MemberControllerTest extends ControllerTestSupport {
                 .hasStatus(HttpStatus.NO_CONTENT.value());
     }
 
+    @TestMember
+    @Test
+    void 후보자_철회에_성공하면_200을_반환한다() {
+        assertThat(mvcTester.post().uri("/v1/members/withdraw-candidate"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
+    }
+
+    @TestMember
+    @Test
+    void 승인된_후보자가_없으면_철회_시_404를_반환한다() {
+        willThrow(new CoreException(ErrorType.NOT_FOUND_CANDIDATE))
+                .given(candidateService).withdraw(any());
+
+        assertThat(mvcTester.post().uri("/v1/members/withdraw-candidate"))
+                .apply(print())
+                .hasStatus(HttpStatus.NOT_FOUND.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
+                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_CANDIDATE.getMessage()));
+    }
+
+    @TestMember
+    @Test
+    void 승인되지_않은_상태에서_철회하면_400을_반환한다() {
+        willThrow(new CoreException(ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED))
+                .given(candidateService).withdraw(any());
+
+        assertThat(mvcTester.post().uri("/v1/members/withdraw-candidate"))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
+                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED.getMessage()));
+    }
+
     private MemberCreateRequest createValidRequest() {
         return new MemberCreateRequest(
                 "email.verification.token",

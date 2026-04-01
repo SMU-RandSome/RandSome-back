@@ -107,4 +107,11 @@ public class MemberController extends MemberControllerDocs {
         return ApiResponse.success();
     }
 
+    @PostMapping("/v1/members/withdraw-candidate")
+    public ApiResponse<?> withdraw(@LoginMember Long memberId) {
+        candidateService.withdraw(memberId);
+
+        return ApiResponse.success();
+    }
+
 }

@@ -132,4 +132,20 @@ public abstract class MemberControllerDocs {
             @LoginMember Long memberId
     );
 
+    @Operation(summary = "후보자 등록 철회 API",
+            description = """
+                    ### 후보자 등록을 철회하는 API입니다.
+                    - JWT 인증이 필요합니다.
+                    - 후보자 역할에서 일반 회원 역할로 변경됩니다.
+                    - 후보자가 아닐 경우 철회가 허용되지 않습니다.
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.UNAUTHORIZED_ERROR,
+            ErrorType.NOT_FOUND_CANDIDATE,
+            ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ApiResponse<?> withdraw(@LoginMember Long memberId);
+
 }
