@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
+import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.repository.CandidateJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
@@ -86,6 +87,22 @@ public class CandidateManager {
         log.info("[CandidateManager] 후보자 철회 처리 완료 - registrationId={}, memberId={}",
                 registration.getId(),
                 memberId);
+    }
+
+    @Transactional
+    public CandidateRegistration cancel(Long memberId) {
+        CandidateRegistration candidateRegistration = candidateJpaRepository.findByMemberIdAndRegistrationStatusAndStatus(
+                memberId,
+                RegistrationStatus.PENDING,
+                EntityStatus.ACTIVE
+        ).orElseThrow(() -> new CoreException(ErrorType.NOT_ALLOW_CANCEL_NON_PENDING));
+
+        candidateRegistration.cancel();
+
+        log.info("[CandidateManager] 후보 신청 취소 처리 완료 - registrationId={}, memberId={}",
+                candidateRegistration.getId(), memberId);
+
+        return candidateRegistration;
     }
 
 }

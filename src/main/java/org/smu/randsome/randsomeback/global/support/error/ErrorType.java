@@ -39,6 +39,7 @@ public enum ErrorType {
 
     // CANDIDATE
     NOT_ALLOW_WITHDRAW_NON_APPROVED         (HttpStatus.BAD_REQUEST, "승인된 후보자만 철회할 수 있습니다.", LogLevel.INFO),
+    NOT_ALLOW_CANCEL_NON_PENDING            (HttpStatus.BAD_REQUEST, "승인 대기중인 후보자만 취소할 수 있습니다.", LogLevel.INFO),
     ALREADY_WITHDRAWN_CANDIDATE             (HttpStatus.BAD_REQUEST, "이미 철회된 후보자입니다.", LogLevel.INFO),
     NOT_FOUND_CANDIDATE                     (HttpStatus.NOT_FOUND, "후보자를 찾을 수 없습니다.", LogLevel.INFO),
     DUPLICATE_CANDIDATE                     (HttpStatus.CONFLICT, "이미 등록된 후보자 입니다.", LogLevel.INFO),
@@ -59,6 +60,7 @@ public enum ErrorType {
     // PAYMENT
     INVALID_PERSON_COUNT                (HttpStatus.BAD_REQUEST, "인원 수가 유효하지 않습니다.", LogLevel.INFO),
     NOT_ALLOW_ALREADY_CONFIRMED_PAYMENT (HttpStatus.BAD_REQUEST, "이미 확정된 결제는 거절이 불가능합니다.", LogLevel.INFO),
+    NOT_ALLOW_CANCEL_CONFIRMED_PAYMENT  (HttpStatus.BAD_REQUEST, "이미 확정된 결제는 취소할 수 없습니다.", LogLevel.INFO),
     NOT_FOUND_PAYMENT                   (HttpStatus.NOT_FOUND, "결제를 찾을 수 없습니다.", LogLevel.INFO),
 
     //BANK_ACCOUNT
@@ -85,7 +87,8 @@ public enum ErrorType {
     TOKEN_THEFT_DETECTED               (HttpStatus.UNAUTHORIZED, "토큰 탈취가 감지되었습니다. 보안을 위해 재로그인이 필요합니다.", LogLevel.WARN),
     EMPTY_SECURITY_CONTEXT             (HttpStatus.UNAUTHORIZED, "Security Context 에 인증 정보가 없습니다.", LogLevel.WARN),
     NOT_FOUND_TOKEN                    (HttpStatus.NOT_FOUND, "토큰을 찾을 수 없습니다.", LogLevel.INFO),
-    CONCURRENT_REQUESTS_LIMIT_EXCEEDED (HttpStatus.TOO_MANY_REQUESTS, "동시에 여러 토큰 재발급 요청이 감지되었습니다. 잠시 후 다시 시도해주세요.", LogLevel.WARN);
+    CONCURRENT_REQUESTS_LIMIT_EXCEEDED (HttpStatus.TOO_MANY_REQUESTS, "동시에 여러 토큰 재발급 요청이 감지되었습니다. 잠시 후 다시 시도해주세요.", LogLevel.WARN),
+    ;
 
     private final HttpStatus status;
     private final String message;

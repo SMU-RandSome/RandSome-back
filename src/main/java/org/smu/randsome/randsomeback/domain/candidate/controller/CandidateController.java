@@ -21,4 +21,11 @@ public class CandidateController extends CandidateControllerDocs {
         return ApiResponse.success();
     }
 
+    @Override
+    @PostMapping("/v1/candidate-registrations/cancel")
+    public ApiResponse<?> cancel(@LoginMember Long memberId) {
+        candidateService.cancel(memberId);
+        return ApiResponse.success();
+    }
+
 }
