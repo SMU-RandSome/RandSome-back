@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.domain.candidate.service;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.event.CandidateAppliedEvent;
@@ -14,6 +15,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class CandidateService {
@@ -58,6 +60,16 @@ public class CandidateService {
      */
     public Optional<RegistrationStatus> getMyRegistrationStatus(Long memberId) {
         return candidateReader.findLatestRegistrationStatus(memberId);
+    }
+
+    @Transactional
+    public void cancel(Long memberId) {
+        CandidateRegistration cancelled = candidateManager.cancel(memberId);
+        paymentManager.cancel(memberId, PaymentType.CANDIDATE_REGISTRATION, cancelled.getId());
+
+        log.info("[CandidateService] 후보자 등록 신청 취소 처리 완료 - registrationId={}, memberId={}",
+                cancelled.getId(),
+                memberId);
     }
 
 }

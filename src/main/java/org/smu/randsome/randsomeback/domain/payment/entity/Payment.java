@@ -53,6 +53,8 @@ public class Payment extends BaseEntity {
     @Column(nullable = false)
     private PaymentStatus paymentStatus;
 
+    private String refundReason;
+
     @Version
     private Long version;
 
@@ -68,6 +70,7 @@ public class Payment extends BaseEntity {
         payment.referenceId = requireNonNull(referenceId);
         payment.amount = paymentType.calculateFee(amount);
         payment.paymentStatus = PaymentStatus.PENDING;
+        payment.refundReason = null;
         payment.confirmedAt = null;
         payment.rejectedAt = null;
 
@@ -90,6 +93,14 @@ public class Payment extends BaseEntity {
 
         this.paymentStatus = PaymentStatus.REJECTED;
         this.rejectedAt = requireNonNull(rejectedAt);
+    }
+
+    public void cancel() {
+        if (!paymentStatus.isPending()) {
+            throw new CoreException(ErrorType.NOT_ALLOW_CANCEL_CONFIRMED_PAYMENT);
+        }
+
+        this.paymentStatus = PaymentStatus.CANCELLED;
     }
 
 }

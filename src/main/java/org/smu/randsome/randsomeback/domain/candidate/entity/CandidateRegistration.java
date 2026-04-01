@@ -96,10 +96,16 @@ public class CandidateRegistration extends BaseEntity {
         return registrationStatus.equals(RegistrationStatus.APPROVED);
     }
 
+    public void cancel() {
+        if (!registrationStatus.equals(RegistrationStatus.PENDING)) {
+            throw new CoreException(ErrorType.NOT_ALLOW_CANCEL_NON_PENDING);
+        }
+        this.registrationStatus = RegistrationStatus.CANCELED;
+    }
+
     private void checkWithdraw() {
         if (registrationStatus.equals(RegistrationStatus.WITHDRAWN)) {
             throw new CoreException(ErrorType.ALREADY_WITHDRAWN_CANDIDATE);
         }
     }
-
 }

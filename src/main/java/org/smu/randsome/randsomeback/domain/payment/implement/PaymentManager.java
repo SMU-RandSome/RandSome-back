@@ -11,6 +11,7 @@ import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
 import org.smu.randsome.randsomeback.domain.payment.event.PaymentApprovedEvent;
 import org.smu.randsome.randsomeback.domain.payment.event.PaymentRejectedEvent;
 import org.smu.randsome.randsomeback.domain.payment.repository.PaymentJpaRepository;
+import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.context.ApplicationEventPublisher;
@@ -65,7 +66,8 @@ public class PaymentManager {
         PaymentApprovalStrategy strategy = resolveStrategy(payment.getPaymentType());
         strategy.approve(payment.getReferenceId(), now);
 
-        eventPublisher.publishEvent(new PaymentApprovedEvent(payment.getPaymentType(), payment.getMember().getId(), payment.getId()));
+        eventPublisher.publishEvent(
+                new PaymentApprovedEvent(payment.getPaymentType(), payment.getMember().getId(), payment.getId()));
 
         log.info("[PaymentManager] 결제 승인 처리 완료 - paymentId={}, paymentType={}, referenceId={}",
                 paymentId,
@@ -91,7 +93,8 @@ public class PaymentManager {
         PaymentApprovalStrategy strategy = resolveStrategy(payment.getPaymentType());
         strategy.reject(payment.getReferenceId(), reason, now);
 
-        eventPublisher.publishEvent(new PaymentRejectedEvent(payment.getPaymentType(), payment.getMember().getId(), payment.getId()));
+        eventPublisher.publishEvent(
+                new PaymentRejectedEvent(payment.getPaymentType(), payment.getMember().getId(), payment.getId()));
 
         log.info("[PaymentManager] 결제 거절 처리 완료 - paymentId={}, paymentType={}, referenceId={}, fromStatus={}, toStatus={}",
                 paymentId,
@@ -99,6 +102,17 @@ public class PaymentManager {
                 payment.getReferenceId(),
                 currentStatus,
                 payment.getPaymentStatus());
+    }
+
+    public void cancel(Long memberId, PaymentType paymentType, Long referenceId) {
+        Payment payment = paymentJpaRepository.findByMemberIdAndPaymentTypeAndReferenceIdAndStatus(
+                memberId,
+                paymentType,
+                referenceId,
+                EntityStatus.ACTIVE
+        ).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_PAYMENT));
+
+        payment.cancel();
     }
 
     /**
@@ -116,5 +130,4 @@ public class PaymentManager {
                     return new CoreException(ErrorType.DEFAULT_ERROR);
                 });
     }
-
 }
