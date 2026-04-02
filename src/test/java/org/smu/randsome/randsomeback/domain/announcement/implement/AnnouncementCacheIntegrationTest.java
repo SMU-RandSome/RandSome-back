@@ -60,7 +60,7 @@ class AnnouncementCacheIntegrationTest extends IntegrationTestSupport {
 
         // then — DB 1회 호출 = 캐시 미스
         assertThat(result).hasSize(1);
-        verify(announcementJpaRepository, times(1)).findAllByStatus(EntityStatus.ACTIVE);
+        verify(announcementJpaRepository, times(1)).findAllByStatusOrderByIdDesc(EntityStatus.ACTIVE);
     }
 
     @Test
@@ -76,7 +76,7 @@ class AnnouncementCacheIntegrationTest extends IntegrationTestSupport {
 
         // then — DB 총 1회만 호출됨 = 두 번째 조회는 캐시 히트
         assertThat(result).hasSize(1);
-        verify(announcementJpaRepository, times(1)).findAllByStatus(EntityStatus.ACTIVE);
+        verify(announcementJpaRepository, times(1)).findAllByStatusOrderByIdDesc(EntityStatus.ACTIVE);
     }
 
     @Test

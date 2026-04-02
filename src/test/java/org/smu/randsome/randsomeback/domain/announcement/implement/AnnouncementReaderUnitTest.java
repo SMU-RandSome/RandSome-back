@@ -45,7 +45,7 @@ class AnnouncementReaderUnitTest extends UnitTestSupport {
         var admin = mock(Member.class);
         var a1 = Announcement.register(admin, "제목1", "내용1");
         var a2 = Announcement.register(admin, "제목2", "내용2");
-        given(announcementJpaRepository.findAllByStatus(EntityStatus.ACTIVE)).willReturn(List.of(a1, a2));
+        given(announcementJpaRepository.findAllByStatusOrderByIdDesc(EntityStatus.ACTIVE)).willReturn(List.of(a1, a2));
         given(objectMapper.writeValueAsString(any())).willReturn("[]");
 
         // when
@@ -55,14 +55,14 @@ class AnnouncementReaderUnitTest extends UnitTestSupport {
         assertThat(result).hasSize(2);
         assertThat(result.get(0).title()).isEqualTo("제목1");
         assertThat(result.get(1).title()).isEqualTo("제목2");
-        verify(announcementJpaRepository).findAllByStatus(EntityStatus.ACTIVE);
+        verify(announcementJpaRepository).findAllByStatusOrderByIdDesc(EntityStatus.ACTIVE);
     }
 
     @Test
     void 캐시_미스_시_DB_조회_결과를_캐시에_저장한다() throws Exception {
         // given
         given(redisRepository.get(CacheKeys.ANNOUNCEMENTS)).willReturn(null);
-        given(announcementJpaRepository.findAllByStatus(EntityStatus.ACTIVE)).willReturn(List.of());
+        given(announcementJpaRepository.findAllByStatusOrderByIdDesc(EntityStatus.ACTIVE)).willReturn(List.of());
         given(objectMapper.writeValueAsString(any())).willReturn("[]");
 
         // when
@@ -86,14 +86,14 @@ class AnnouncementReaderUnitTest extends UnitTestSupport {
         // then
         assertThat(result).hasSize(1);
         assertThat(result.getFirst().title()).isEqualTo("제목1");
-        verify(announcementJpaRepository, never()).findAllByStatus(any());
+        verify(announcementJpaRepository, never()).findAllByStatusOrderByIdDesc(any());
     }
 
     @Test
     void 공지사항이_없으면_빈_목록을_반환한다() throws Exception {
         // given
         given(redisRepository.get(CacheKeys.ANNOUNCEMENTS)).willReturn(null);
-        given(announcementJpaRepository.findAllByStatus(EntityStatus.ACTIVE)).willReturn(List.of());
+        given(announcementJpaRepository.findAllByStatusOrderByIdDesc(EntityStatus.ACTIVE)).willReturn(List.of());
         given(objectMapper.writeValueAsString(any())).willReturn("[]");
 
         // when
