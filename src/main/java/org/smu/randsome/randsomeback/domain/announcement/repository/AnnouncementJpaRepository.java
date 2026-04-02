@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AnnouncementJpaRepository extends JpaRepository<Announcement, Long> {
 
-    List<Announcement> findAllByStatus(EntityStatus status);
+    List<Announcement> findAllByStatusOrderByIdDesc(EntityStatus status);
 
 }

@@ -40,7 +40,7 @@ public class AnnouncementReader {
     @Transactional(readOnly = true)
     public List<AnnouncementItem> findAnnouncements() {
         return getFromCache().orElseGet(() -> {
-            List<AnnouncementItem> result = announcementJpaRepository.findAllByStatus(EntityStatus.ACTIVE)
+            List<AnnouncementItem> result = announcementJpaRepository.findAllByStatusOrderByIdDesc(EntityStatus.ACTIVE)
                     .stream()
                     .map(AnnouncementItem::from)
                     .toList();
