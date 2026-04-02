@@ -6,6 +6,7 @@ import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.UpdateBankAc
 import org.smu.randsome.randsomeback.domain.bankaccount.entity.BankAccount;
 import org.smu.randsome.randsomeback.domain.bankaccount.repository.BankAccountJpaRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
@@ -22,8 +23,13 @@ public class BankAccountManager {
         ));
     }
 
-    public void update(BankAccount bankAccount, UpdateBankAccount command) {
-        bankAccount.updateAccount(command.bankName(), command.accountNumber(), command.accountHolder());
+    @Transactional
+    public void update(BankAccount bankAccount, UpdateBankAccount updateBankAccount) {
+        bankAccount.updateAccount(
+                updateBankAccount.bankName(),
+                updateBankAccount.accountNumber(),
+                updateBankAccount.accountHolder()
+        );
     }
 
 }
