@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.domain.member.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.smu.randsome.randsomeback.domain.bankaccount.entity.BankAccount;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.CandidateRegistrationStatusView;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
@@ -42,11 +43,21 @@ public record MemberProfileResponse(
         @Schema(description = "이상형 소개", example = "성실하고 배려심 있는 사람이 좋아요.", nullable = true)
         String idealDescription,
 
+        @Schema(description = "은행명", example = "국민은행")
+        String bankName,
+
+        @Schema(description = "계좌번호", example = "123456789012")
+        String accountNumber,
+
         @Schema(description = "후보자 신청 상태", example = "NOT_APPLIED")
         CandidateRegistrationStatusView candidateRegistrationStatus
 ) {
 
-    public static MemberProfileResponse of(Member member, CandidateRegistrationStatusView candidateRegistrationStatus) {
+    public static MemberProfileResponse of(
+            Member member,
+            BankAccount bankAccount,
+            CandidateRegistrationStatusView candidateRegistrationStatus
+    ) {
         return new MemberProfileResponse(
                 member.getId(),
                 member.getNickname(),
@@ -58,6 +69,8 @@ public record MemberProfileResponse(
                 member.getSocialProfile().instagramId(),
                 member.getSocialProfile().selfIntroduction(),
                 member.getSocialProfile().idealDescription(),
+                bankAccount.getBankName(),
+                bankAccount.getAccountNumber(),
                 candidateRegistrationStatus
         );
     }

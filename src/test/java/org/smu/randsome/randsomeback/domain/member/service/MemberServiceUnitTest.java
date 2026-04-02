@@ -15,8 +15,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.BankAccountInfo;
+import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.UpdateBankAccount;
+import org.smu.randsome.randsomeback.domain.bankaccount.entity.BankAccount;
 import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountManager;
+import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountReader;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
+import org.smu.randsome.randsomeback.fixture.BankAccountFixture;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
@@ -46,6 +50,9 @@ class MemberServiceUnitTest extends UnitTestSupport {
 
     @Mock
     BankAccountManager bankAccountManager;
+
+    @Mock
+    BankAccountReader bankAccountReader;
 
     @Test
     void 회원가입에_성공하면_회원_ID를_반환한다() {
@@ -143,12 +150,17 @@ class MemberServiceUnitTest extends UnitTestSupport {
                 .selfIntroduction("새 자기소개")
                 .idealDescription("새 이상형")
                 .build();
+        var updateBankAccount = new UpdateBankAccount("국민은행", "123456789012", "김철수");
+        BankAccount bankAccount = BankAccountFixture.create();
+        given(bankAccountReader.findByMemberId(1L)).willReturn(bankAccount);
 
         // when
-        memberService.updateProfile(1L, updateProfile);
+        memberService.updateProfile(1L, updateProfile, updateBankAccount);
 
         // then
         verify(memberManager).updateProfile(eq(1L), eq(updateProfile));
+        verify(bankAccountReader).findByMemberId(1L);
+        verify(bankAccountManager).update(bankAccount, updateBankAccount);
     }
 
     @Test
@@ -158,14 +170,33 @@ class MemberServiceUnitTest extends UnitTestSupport {
                 .legalName("김철수")
                 .mbti(Mbti.ENFP)
                 .build();
+        var updateBankAccount = new UpdateBankAccount("국민은행", "123456789012", "김철수");
 
         willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
                 .given(memberManager).updateProfile(any(), any());
 
         // when & then
-        assertThatThrownBy(() -> memberService.updateProfile(999L, updateProfile))
+        assertThatThrownBy(() -> memberService.updateProfile(999L, updateProfile, updateBankAccount))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+    }
+
+    @Test
+    void 프로필_업데이트_시_계좌가_없으면_예외가_발생한다() {
+        // given
+        var updateProfile = UpdateProfile.builder()
+                .legalName("김철수")
+                .mbti(Mbti.ENFP)
+                .build();
+        var updateBankAccount = new UpdateBankAccount("국민은행", "123456789012", "김철수");
+
+        willThrow(new CoreException(ErrorType.NOT_FOUND_BANK_ACCOUNT))
+                .given(bankAccountReader).findByMemberId(any());
+
+        // when & then
+        assertThatThrownBy(() -> memberService.updateProfile(1L, updateProfile, updateBankAccount))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_BANK_ACCOUNT.getMessage());
     }
 
     @Test

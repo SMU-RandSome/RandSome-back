@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.UpdateBankAccount;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 
@@ -25,16 +26,33 @@ public record MemberUpdateRequest(
         String selfIntroduction,
 
         @Schema(description = "이상형 소개", example = "성실하고 배려심 있는 사람이 좋아요.", nullable = true)
-        String idealDescription
+        String idealDescription,
+
+        @Schema(description = "은행명", example = "국민은행")
+        @NotBlank(message = "은행명은 필수입니다.")
+        String bankName,
+
+        @Schema(description = "계좌번호", example = "123456789012")
+        @NotBlank(message = "계좌번호는 필수입니다.")
+        String accountNumber
 ) {
-        public UpdateProfile toUpdateProfile() {
-                return UpdateProfile.builder()
-                    .legalName(legalName)
-                    .mbti(mbti)
-                    .instagramId(instagramId)
-                    .selfIntroduction(selfIntroduction)
-                    .idealDescription(idealDescription)
-                    .build();
-        }
+
+    public UpdateBankAccount toUpdateBankAccount() {
+        return UpdateBankAccount.builder()
+                .bankName(bankName)
+                .accountNumber(accountNumber)
+                .accountHolder(legalName)
+                .build();
+    }
+
+    public UpdateProfile toUpdateProfile() {
+        return UpdateProfile.builder()
+                .legalName(legalName)
+                .mbti(mbti)
+                .instagramId(instagramId)
+                .selfIntroduction(selfIntroduction)
+                .idealDescription(idealDescription)
+                .build();
+    }
 
 }

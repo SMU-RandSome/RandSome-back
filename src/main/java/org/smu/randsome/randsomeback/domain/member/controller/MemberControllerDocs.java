@@ -58,7 +58,7 @@ public abstract class MemberControllerDocs {
             description = """
                     ### 로그인한 회원의 프로필 정보를 수정하는 API입니다.
                     - JWT 인증이 필요합니다.
-                    - 실명, MBTI는 필수 값입니다.
+                    - 실명, MBTI, 은행명, 계좌번호는 필수 값입니다.
                     - 인스타그램 ID, 자기소개, 이상형 소개는 선택 값입니다.
                     - 성공 시 200을 반환합니다.
                     """

@@ -20,6 +20,7 @@ import org.smu.randsome.randsomeback.domain.feed.FeedController;
 import org.smu.randsome.randsomeback.domain.feed.FeedService;
 import org.smu.randsome.randsomeback.domain.matching.controller.MatchingController;
 import org.smu.randsome.randsomeback.domain.matching.service.MatchingService;
+import org.smu.randsome.randsomeback.domain.bankaccount.service.BankAccountService;
 import org.smu.randsome.randsomeback.domain.member.controller.MemberController;
 import org.smu.randsome.randsomeback.domain.member.service.MemberDeviceService;
 import org.smu.randsome.randsomeback.domain.member.service.MemberService;
@@ -77,6 +78,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected MemberService memberService;
+
+    @MockitoBean
+    protected BankAccountService bankAccountService;
 
     @MockitoBean
     protected MemberAdminService memberAdminService;

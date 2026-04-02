@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
+import org.smu.randsome.randsomeback.fixture.BankAccountFixture;
 import org.smu.randsome.randsomeback.domain.member.dto.request.DeviceTokenSyncRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberUpdateRequest;
@@ -197,6 +198,7 @@ class MemberControllerTest extends ControllerTestSupport {
         given(member.getRole()).willReturn(Role.ROLE_MEMBER);
         given(member.getSocialProfile()).willReturn(MemberFixture.socialProfile());
         given(memberService.getMyProfile(any())).willReturn(member);
+        given(bankAccountService.findByMemberId(any())).willReturn(BankAccountFixture.create());
         given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.empty());
 
         // when & then
@@ -206,6 +208,8 @@ class MemberControllerTest extends ControllerTestSupport {
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
                 .hasPathSatisfying("$.data.id", v -> v.assertThat().isEqualTo(1))
+                .hasPathSatisfying("$.data.bankName", v -> v.assertThat().isEqualTo(BankAccountFixture.DEFAULT_BANK_NAME))
+                .hasPathSatisfying("$.data.accountNumber", v -> v.assertThat().isEqualTo(BankAccountFixture.DEFAULT_ACCOUNT_NUMBER))
                 .hasPathSatisfying("$.data.candidateRegistrationStatus", v -> v.assertThat().isEqualTo("NOT_APPLIED"))
                 .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
     }
@@ -224,6 +228,7 @@ class MemberControllerTest extends ControllerTestSupport {
         given(member.getRole()).willReturn(Role.ROLE_MEMBER);
         given(member.getSocialProfile()).willReturn(MemberFixture.socialProfile());
         given(memberService.getMyProfile(any())).willReturn(member);
+        given(bankAccountService.findByMemberId(any())).willReturn(BankAccountFixture.create());
         given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.of(RegistrationStatus.PENDING));
 
         // when & then
@@ -248,6 +253,7 @@ class MemberControllerTest extends ControllerTestSupport {
         given(member.getRole()).willReturn(Role.ROLE_MEMBER);
         given(member.getSocialProfile()).willReturn(MemberFixture.socialProfile());
         given(memberService.getMyProfile(any())).willReturn(member);
+        given(bankAccountService.findByMemberId(any())).willReturn(BankAccountFixture.create());
         given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.of(RegistrationStatus.APPROVED));
 
         // when & then
@@ -256,6 +262,24 @@ class MemberControllerTest extends ControllerTestSupport {
                 .hasStatus(HttpStatus.OK.value())
                 .bodyJson()
                 .hasPathSatisfying("$.data.candidateRegistrationStatus", v -> v.assertThat().isEqualTo("APPROVED"));
+    }
+
+    @Test
+    @TestMember
+    void 계좌가_없는_회원이면_프로필_조회_시_404를_반환한다() {
+        // given
+        Member member = mock(Member.class);
+        given(memberService.getMyProfile(any())).willReturn(member);
+        willThrow(new CoreException(ErrorType.NOT_FOUND_BANK_ACCOUNT))
+                .given(bankAccountService).findByMemberId(any());
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/members"))
+                .apply(print())
+                .hasStatus(HttpStatus.NOT_FOUND.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
+                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_BANK_ACCOUNT.getMessage()));
     }
 
     @Test
@@ -334,7 +358,7 @@ class MemberControllerTest extends ControllerTestSupport {
     void 프로필_업데이트_시_존재하지_않는_회원이면_404를_반환한다() throws Exception {
         // given
         willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
-                .given(memberService).updateProfile(any(), any());
+                .given(memberService).updateProfile(any(), any(), any());
 
         // when & then
         assertThat(mvcTester.patch().uri("/v1/members")
@@ -347,6 +371,40 @@ class MemberControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_MEMBER.getMessage()));
     }
 
+    @Test
+    @TestMember
+    void 프로필_수정_시_은행명이_비어있으면_400을_반환한다() throws Exception {
+        var request = MemberUpdateRequest.builder()
+                .legalName("김철수")
+                .mbti(Mbti.ENFP)
+                .bankName("")
+                .accountNumber("123456789012")
+                .build();
+
+        assertThat(mvcTester.patch().uri("/v1/members")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @TestMember
+    void 프로필_수정_시_계좌번호가_비어있으면_400을_반환한다() throws Exception {
+        var request = MemberUpdateRequest.builder()
+                .legalName("김철수")
+                .mbti(Mbti.ENFP)
+                .bankName("국민은행")
+                .accountNumber("")
+                .build();
+
+        assertThat(mvcTester.patch().uri("/v1/members")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+    }
+
     private MemberUpdateRequest createValidUpdateRequest() {
         return MemberUpdateRequest.builder()
                 .legalName("김철수")
@@ -354,6 +412,8 @@ class MemberControllerTest extends ControllerTestSupport {
                 .instagramId("new_insta")
                 .selfIntroduction("새 자기소개")
                 .idealDescription("새 이상형")
+                .bankName("국민은행")
+                .accountNumber("123456789012")
                 .build();
     }
 
