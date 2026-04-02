@@ -3,6 +3,8 @@ package org.smu.randsome.randsomeback.domain.member.controller;
 import jakarta.validation.Valid;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.domain.bankaccount.entity.BankAccount;
+import org.smu.randsome.randsomeback.domain.bankaccount.service.BankAccountService;
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
 import org.smu.randsome.randsomeback.domain.member.dto.request.DeviceTokenSyncRequest;
@@ -33,6 +35,7 @@ public class MemberController extends MemberControllerDocs {
     private final MemberService memberService;
     private final MemberDeviceService memberDeviceService;
     private final CandidateService candidateService;
+    private final BankAccountService bankAccountService;
 
     @Override
     @ResponseStatus(HttpStatus.CREATED)
@@ -53,10 +56,12 @@ public class MemberController extends MemberControllerDocs {
     @GetMapping("/v1/members")
     public ApiResponse<MemberProfileResponse> getMyProfile(@LoginMember Long memberId) {
         Member member = memberService.getMyProfile(memberId);
+        BankAccount bankAccount = bankAccountService.findByMemberId(memberId);
         Optional<RegistrationStatus> myRegistrationStatus = candidateService.getMyRegistrationStatus(memberId);
 
         MemberProfileResponse response = MemberProfileResponse.of(
                 member,
+                bankAccount,
                 CandidateRegistrationStatusView.from(myRegistrationStatus)
         );
 
@@ -69,7 +74,7 @@ public class MemberController extends MemberControllerDocs {
             @RequestBody @Valid MemberUpdateRequest request,
             @LoginMember Long memberId
     ) {
-        memberService.updateProfile(memberId, request.toUpdateProfile());
+        memberService.updateProfile(memberId, request.toUpdateProfile(), request.toUpdateBankAccount());
 
         return ApiResponse.success();
     }

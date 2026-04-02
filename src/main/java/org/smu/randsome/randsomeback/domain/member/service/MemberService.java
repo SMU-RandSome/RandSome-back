@@ -3,7 +3,9 @@ package org.smu.randsome.randsomeback.domain.member.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.BankAccountInfo;
+import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.UpdateBankAccount;
 import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountManager;
+import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountReader;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
@@ -26,6 +28,7 @@ public class MemberService {
     private final MemberValidator memberValidator;
     private final TermsAgreementManager termsAgreementManager;
     private final BankAccountManager bankAccountManager;
+    private final BankAccountReader bankAccountReader;
 
     /**
      * 회원 가입을 처리하는 서비스 메서드입니다.
@@ -62,8 +65,10 @@ public class MemberService {
         return memberReader.find(memberId);
     }
 
-    public void updateProfile(Long memberId, UpdateProfile updateProfile) {
+    @Transactional
+    public void updateProfile(Long memberId, UpdateProfile updateProfile, UpdateBankAccount updateBankAccount) {
         memberManager.updateProfile(memberId, updateProfile);
+        bankAccountManager.update(bankAccountReader.findByMemberId(memberId), updateBankAccount);
     }
 
     /**

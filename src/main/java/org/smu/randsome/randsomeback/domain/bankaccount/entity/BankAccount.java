@@ -40,4 +40,10 @@ public class BankAccount extends BaseEntity {
         return bankAccount;
     }
 
+    public void updateAccount(String bankName, String accountNumber, String accountHolder) {
+        this.bankName = bankName;
+        this.accountNumber = accountNumber;
+        this.accountHolder = accountHolder;
+    }
+
 }
