@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.domain.announcement.dto.response.AnnouncementItem;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
+import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.http.HttpStatus;
 
 class AnnouncementControllerTest extends ControllerTestSupport {
@@ -17,9 +19,20 @@ class AnnouncementControllerTest extends ControllerTestSupport {
     @TestMember
     void 인증된_사용자가_공지사항_목록을_조회하면_200을_반환한다() {
         // given
+        LocalDateTime now = TestDateTimeUtils.now();
         given(announcementService.findAnnouncements()).willReturn(List.of(
-                AnnouncementItem.builder().id(1L).title("제목1").content("내용1").build(),
-                AnnouncementItem.builder().id(2L).title("제목2").content("내용2").build()
+                AnnouncementItem.builder()
+                        .id(1L)
+                        .title("제목1")
+                        .content("내용1")
+                        .createdAt(now)
+                        .build(),
+                AnnouncementItem.builder()
+                        .id(2L)
+                        .title("제목2")
+                        .content("내용2")
+                        .createdAt(now.plusHours(2))
+                        .build()
         ));
 
         // when & then
@@ -31,6 +44,7 @@ class AnnouncementControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.data.length()", v -> v.assertThat().isEqualTo(2))
                 .hasPathSatisfying("$.data[0].title", v -> v.assertThat().isEqualTo("제목1"))
                 .hasPathSatisfying("$.data[0].content", v -> v.assertThat().isEqualTo("내용1"))
+                .hasPathSatisfying("$.data[0].createdAt", v -> v.assertThat().isEqualTo(now.toString()))
                 .hasPathSatisfying("$.data[1].title", v -> v.assertThat().isEqualTo("제목2"));
     }
 
