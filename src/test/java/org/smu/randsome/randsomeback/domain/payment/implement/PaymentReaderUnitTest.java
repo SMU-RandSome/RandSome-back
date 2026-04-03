@@ -75,7 +75,7 @@ class PaymentReaderUnitTest extends UnitTestSupport {
                 .willReturn(expected);
 
         // when
-        Page<PaymentWithDetails> result = paymentReader.findPayments(paymentSearch, pageable);
+        Page<PaymentWithDetails> result = paymentReader.findAllPayments(paymentSearch, pageable);
 
         // then
         assertThat(result.getContent()).hasSize(1);
@@ -91,7 +91,7 @@ class PaymentReaderUnitTest extends UnitTestSupport {
                 .willReturn(Page.empty());
 
         // when
-        Page<PaymentWithDetails> result = paymentReader.findPayments(paymentSearch, pageable);
+        Page<PaymentWithDetails> result = paymentReader.findAllPayments(paymentSearch, pageable);
 
         // then
         assertThat(result.isEmpty()).isTrue();
@@ -107,7 +107,7 @@ class PaymentReaderUnitTest extends UnitTestSupport {
                 .willReturn(Page.empty());
 
         // when
-        paymentReader.findPayments(paymentSearch, pageable);
+        paymentReader.findAllPayments(paymentSearch, pageable);
 
         // then
         verify(paymentRepository).findAllPaymentsWithRejectedReason(paymentSearch, pageable);

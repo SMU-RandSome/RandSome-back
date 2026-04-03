@@ -45,14 +45,14 @@ class PaymentAdminServiceUnitTest extends UnitTestSupport {
         Page<PaymentWithDetails> expected = new PageImpl<>(List.of(
                 new PaymentWithDetails(mock(Payment.class), null, null)
         ));
-        given(paymentReader.findPayments(paymentSearch, pageable)).willReturn(expected);
+        given(paymentReader.findAllPayments(paymentSearch, pageable)).willReturn(expected);
 
         // when
         var result = paymentAdminService.findPayments(paymentSearch, pageable);
 
         // then
         assertThat(result).isEqualTo(expected);
-        verify(paymentReader).findPayments(paymentSearch, pageable);
+        verify(paymentReader).findAllPayments(paymentSearch, pageable);
     }
 
     @Test
@@ -60,7 +60,7 @@ class PaymentAdminServiceUnitTest extends UnitTestSupport {
         // given
         var paymentSearch = new PaymentSearchCondition(List.of(PaymentStatus.COMPLETED, PaymentStatus.REJECTED), "");
         var pageable = PageRequest.of(0, 10);
-        given(paymentReader.findPayments(paymentSearch, pageable)).willReturn(Page.empty());
+        given(paymentReader.findAllPayments(paymentSearch, pageable)).willReturn(Page.empty());
 
         // when
         var result = paymentAdminService.findPayments(paymentSearch, pageable);
@@ -74,13 +74,13 @@ class PaymentAdminServiceUnitTest extends UnitTestSupport {
         // given
         var paymentSearch = new PaymentSearchCondition(List.of(PaymentStatus.PENDING), "홍길동");
         var pageable = PageRequest.of(0, 10);
-        given(paymentReader.findPayments(paymentSearch, pageable)).willReturn(Page.empty());
+        given(paymentReader.findAllPayments(paymentSearch, pageable)).willReturn(Page.empty());
 
         // when
         paymentAdminService.findPayments(paymentSearch, pageable);
 
         // then
-        verify(paymentReader).findPayments(paymentSearch, pageable);
+        verify(paymentReader).findAllPayments(paymentSearch, pageable);
     }
 
     @Test
@@ -89,7 +89,7 @@ class PaymentAdminServiceUnitTest extends UnitTestSupport {
         var paymentSearch = new PaymentSearchCondition(List.of(PaymentStatus.PENDING), "");
         var pageable = PageRequest.of(0, 10);
         willThrow(new CoreException(ErrorType.DEFAULT_ERROR))
-                .given(paymentReader).findPayments(paymentSearch, pageable);
+                .given(paymentReader).findAllPayments(paymentSearch, pageable);
 
         // when & then
         assertThatThrownBy(() -> paymentAdminService.findPayments(paymentSearch, pageable))

@@ -47,7 +47,7 @@ public class PaymentAdminService {
      * @return 검색된 결제 목록과 거절 사유를 포함한 페이지
      * */
     public Page<PaymentWithDetails> findPayments(PaymentSearchCondition paymentSearchCondition, Pageable pageable) {
-        return paymentReader.findPayments(paymentSearchCondition, pageable);
+        return paymentReader.findAllPayments(paymentSearchCondition, pageable);
     }
 
 }

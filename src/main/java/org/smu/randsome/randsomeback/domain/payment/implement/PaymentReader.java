@@ -25,7 +25,7 @@ public class PaymentReader {
     }
 
     @Transactional(readOnly = true)
-    public Page<PaymentWithDetails> findPayments(PaymentSearchCondition paymentSearchCondition, Pageable pageable) {
+    public Page<PaymentWithDetails> findAllPayments(PaymentSearchCondition paymentSearchCondition, Pageable pageable) {
         return paymentRepository.findAllPaymentsWithRejectedReason(paymentSearchCondition, pageable);
     }
 
