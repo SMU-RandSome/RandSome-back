@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.candidate.repository.CandidateJpaRepository;
@@ -21,6 +20,7 @@ import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
 import org.smu.randsome.randsomeback.domain.payment.repository.PaymentJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 /**
  * 결제 승인/거절 동시성 테스트

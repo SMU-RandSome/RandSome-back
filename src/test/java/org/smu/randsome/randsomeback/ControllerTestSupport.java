@@ -14,13 +14,13 @@ import org.smu.randsome.randsomeback.domain.announcement.service.AnnouncementSer
 import org.smu.randsome.randsomeback.domain.auth.controller.AuthController;
 import org.smu.randsome.randsomeback.domain.auth.service.AuthService;
 import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationService;
+import org.smu.randsome.randsomeback.domain.bankaccount.service.BankAccountService;
 import org.smu.randsome.randsomeback.domain.candidate.controller.CandidateController;
 import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
 import org.smu.randsome.randsomeback.domain.feed.FeedController;
 import org.smu.randsome.randsomeback.domain.feed.FeedService;
 import org.smu.randsome.randsomeback.domain.matching.controller.MatchingController;
 import org.smu.randsome.randsomeback.domain.matching.service.MatchingService;
-import org.smu.randsome.randsomeback.domain.bankaccount.service.BankAccountService;
 import org.smu.randsome.randsomeback.domain.member.controller.MemberController;
 import org.smu.randsome.randsomeback.domain.member.service.MemberDeviceService;
 import org.smu.randsome.randsomeback.domain.member.service.MemberService;

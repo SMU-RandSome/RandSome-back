@@ -1,5 +1,6 @@
 package org.smu.randsome.randsomeback.global.support.error;
 
+import jakarta.persistence.LockTimeoutException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Map;
@@ -8,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.boot.logging.LogLevel;
-import jakarta.persistence.LockTimeoutException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
