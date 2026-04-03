@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.admin.payment.dto.request.PaymentRejectRequest;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
+import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithDetails;
 import org.smu.randsome.randsomeback.domain.payment.entity.Payment;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
@@ -97,7 +97,7 @@ class PaymentAdminControllerTest extends ControllerTestSupport {
         given(payment.getPaymentStatus()).willReturn(PaymentStatus.PENDING);
         given(payment.getAmount()).willReturn(BigDecimal.valueOf(2000));
 
-        Page<PaymentWithReason> page = new PageImpl<>(List.of(new PaymentWithReason(payment, null)));
+        Page<PaymentWithDetails> page = new PageImpl<>(List.of(new PaymentWithDetails(payment, null, null)));
         given(paymentAdminService.findPayments(any(), any(Pageable.class))).willReturn(page);
 
         // when & then

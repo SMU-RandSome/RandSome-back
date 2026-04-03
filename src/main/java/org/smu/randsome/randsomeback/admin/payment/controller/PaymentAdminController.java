@@ -6,7 +6,7 @@ import org.smu.randsome.randsomeback.admin.payment.dto.request.PaymentRejectRequ
 import org.smu.randsome.randsomeback.admin.payment.dto.response.PaymentPreviewItem;
 import org.smu.randsome.randsomeback.admin.payment.enums.PaymentFilterStatus;
 import org.smu.randsome.randsomeback.admin.payment.service.PaymentAdminService;
-import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
+import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithDetails;
 import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearchCondition;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.support.response.PageResponse;
@@ -52,7 +52,7 @@ public class PaymentAdminController extends PaymentAdminControllerDocs {
             @RequestParam(defaultValue = "") String query,
             @PageableDefault(size = 10) Pageable pageable
     ) {
-        Page<PaymentWithReason> payments = paymentAdminService.findPayments(
+        Page<PaymentWithDetails> payments = paymentAdminService.findPayments(
                 new PaymentSearchCondition(filterStatus.toPaymentStatuses(), query),
                 pageable
         );

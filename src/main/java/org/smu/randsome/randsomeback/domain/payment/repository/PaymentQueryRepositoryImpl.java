@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.candidate.entity.QCandidateRegistration;
 import org.smu.randsome.randsomeback.domain.matching.entity.QMatchingApplication;
 import org.smu.randsome.randsomeback.domain.member.entity.QMember;
-import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
+import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithDetails;
 import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearchCondition;
 import org.smu.randsome.randsomeback.domain.payment.entity.QPayment;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
@@ -31,12 +31,17 @@ public class PaymentQueryRepositoryImpl implements PaymentQueryRepository {
     private static final QCandidateRegistration candidateRegistration = QCandidateRegistration.candidateRegistration;
 
     @Override
-    public Page<PaymentWithReason> findAllPaymentsWithRejectedReason(
+    public Page<PaymentWithDetails> findAllPaymentsWithRejectedReason(
             PaymentSearchCondition paymentSearchCondition,
             Pageable pageable
     ) {
-        List<PaymentWithReason> content = queryFactory
-                .select(payment, matchingApplication.rejectedReason, candidateRegistration.rejectedReason)
+        List<PaymentWithDetails> content = queryFactory
+                .select(
+                        payment,
+                        matchingApplication.applicationCount,
+                        matchingApplication.rejectedReason,
+                        candidateRegistration.rejectedReason
+                )
                 .from(payment)
                 .join(payment.member, member).fetchJoin()
                 .leftJoin(matchingApplication)
@@ -63,7 +68,7 @@ public class PaymentQueryRepositoryImpl implements PaymentQueryRepository {
                     String reason = tuple.get(matchingApplication.rejectedReason) != null
                             ? tuple.get(matchingApplication.rejectedReason)
                             : tuple.get(candidateRegistration.rejectedReason);
-                    return new PaymentWithReason(tuple.get(payment), reason);
+                    return new PaymentWithDetails(tuple.get(payment), tuple.get(matchingApplication.applicationCount), reason);
                 })
                 .toList();
 

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
-import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
+import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithDetails;
 import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearchCondition;
 import org.smu.randsome.randsomeback.domain.payment.entity.Payment;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
@@ -42,8 +42,8 @@ class PaymentAdminServiceUnitTest extends UnitTestSupport {
         // given
         var paymentSearch = new PaymentSearchCondition(List.of(PaymentStatus.PENDING), "");
         var pageable = PageRequest.of(0, 10);
-        Page<PaymentWithReason> expected = new PageImpl<>(List.of(
-                new PaymentWithReason(mock(Payment.class), null)
+        Page<PaymentWithDetails> expected = new PageImpl<>(List.of(
+                new PaymentWithDetails(mock(Payment.class), null, null)
         ));
         given(paymentReader.findPayments(paymentSearch, pageable)).willReturn(expected);
 

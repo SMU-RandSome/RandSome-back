@@ -13,7 +13,7 @@ import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
-import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
+import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithDetails;
 import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearchCondition;
 import org.smu.randsome.randsomeback.domain.payment.entity.Payment;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
@@ -55,7 +55,7 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         // then
         assertThat(result.getTotalElements()).isEqualTo(1);
         assertThat(result.getContent())
-                .extracting(pr -> pr.payment().getId(), PaymentWithReason::rejectedReason)
+                .extracting(pr -> pr.payment().getId(), PaymentWithDetails::rejectedReason)
                 .containsExactly(tuple(pending.getId(), null));
     }
 
@@ -207,6 +207,99 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         assertThat(result.getContent().getFirst().rejectedReason()).isEqualTo(reason);
     }
 
+    // ===== 매칭 신청 결제 - applicationCount =====
+
+    @Test
+    void 랜덤_매칭_결제_조회_시_applicationCount가_올바르게_반환된다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var application = matchingJpaRepository.save(MatchingApplication.apply(member, MatchingType.RANDOM, 3));
+
+        paymentRepository.save(Payment.register(member, PaymentType.RANDOM_MATCHING, application.getId(), 3));
+
+        var pageable = PageRequest.of(0, 10);
+
+        // when
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""),
+                pageable
+        );
+
+        // then
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst().applicationCount()).isEqualTo(3);
+    }
+
+    @Test
+    void 이상형_매칭_결제_조회_시_applicationCount가_올바르게_반환된다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var application = matchingJpaRepository.save(MatchingApplication.apply(member, MatchingType.IDEAL, 2));
+
+        paymentRepository.save(Payment.register(member, PaymentType.IDEAL_TYPE_MATCHING, application.getId(), 2));
+
+        var pageable = PageRequest.of(0, 10);
+
+        // when
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""),
+                pageable
+        );
+
+        // then
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst().applicationCount()).isEqualTo(2);
+    }
+
+    @Test
+    void 후보자_등록_결제는_applicationCount가_null이다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var reg = candidateJpaRepository.save(CandidateRegistration.apply(member));
+        paymentRepository.save(Payment.register(member, PaymentType.CANDIDATE_REGISTRATION, reg.getId(), 1));
+
+        var pageable = PageRequest.of(0, 10);
+
+        // when
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""),
+                pageable
+        );
+
+        // then
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst().applicationCount()).isNull();
+    }
+
+    @Test
+    void 후보자_등록과_매칭_결제가_함께_조회될_때_각각의_applicationCount가_올바르게_반환된다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+
+        var reg = candidateJpaRepository.save(CandidateRegistration.apply(member));
+        var candidatePayment = paymentRepository.save(Payment.register(member, PaymentType.CANDIDATE_REGISTRATION, reg.getId(), 1));
+
+        var application = matchingJpaRepository.save(MatchingApplication.apply(member, MatchingType.RANDOM, 4));
+        var matchingPayment = paymentRepository.save(Payment.register(member, PaymentType.RANDOM_MATCHING, application.getId(), 4));
+
+        var pageable = PageRequest.of(0, 10);
+
+        // when
+        var result = paymentRepository.findAllPaymentsWithRejectedReason(
+                new PaymentSearchCondition(List.of(PaymentStatus.PENDING), ""),
+                pageable
+        );
+
+        // then
+        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getContent())
+                .extracting(pr -> pr.payment().getId(), PaymentWithDetails::applicationCount)
+                .containsExactlyInAnyOrder(
+                        tuple(candidatePayment.getId(), null),
+                        tuple(matchingPayment.getId(), 4)
+                );
+    }
+
     // ===== 결제 유형 혼재 =====
 
     @Test
@@ -239,7 +332,7 @@ class PaymentQueryRepositoryIntegrationTest extends IntegrationTestSupport {
         // then
         assertThat(result.getTotalElements()).isEqualTo(2);
         assertThat(result.getContent())
-                .extracting(pr -> pr.payment().getPaymentType(), PaymentWithReason::rejectedReason)
+                .extracting(pr -> pr.payment().getPaymentType(), PaymentWithDetails::rejectedReason)
                 .containsExactlyInAnyOrder(
                         tuple(PaymentType.CANDIDATE_REGISTRATION, candidateReason),
                         tuple(PaymentType.RANDOM_MATCHING, matchingReason)
