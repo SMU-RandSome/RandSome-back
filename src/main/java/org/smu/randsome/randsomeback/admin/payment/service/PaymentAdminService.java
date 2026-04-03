@@ -2,7 +2,7 @@ package org.smu.randsome.randsomeback.admin.payment.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
+import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithDetails;
 import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearchCondition;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentReader;
@@ -46,8 +46,8 @@ public class PaymentAdminService {
      * @param pageable 페이지 정보
      * @return 검색된 결제 목록과 거절 사유를 포함한 페이지
      * */
-    public Page<PaymentWithReason> findPayments(PaymentSearchCondition paymentSearchCondition, Pageable pageable) {
-        return paymentReader.findPayments(paymentSearchCondition, pageable);
+    public Page<PaymentWithDetails> findPayments(PaymentSearchCondition paymentSearchCondition, Pageable pageable) {
+        return paymentReader.findAllPayments(paymentSearchCondition, pageable);
     }
 
 }

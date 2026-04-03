@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
-import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithReason;
+import org.smu.randsome.randsomeback.domain.payment.dto.PaymentWithDetails;
 import org.smu.randsome.randsomeback.domain.payment.dto.command.PaymentSearchCondition;
 import org.smu.randsome.randsomeback.domain.payment.entity.Payment;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
@@ -69,13 +69,13 @@ class PaymentReaderUnitTest extends UnitTestSupport {
         // given
         var paymentSearch = new PaymentSearchCondition(List.of(PaymentStatus.PENDING), "");
         var pageable = PageRequest.of(0, 10);
-        var paymentWithReason = new PaymentWithReason(mock(Payment.class), null);
-        Page<PaymentWithReason> expected = new PageImpl<>(List.of(paymentWithReason));
+        var paymentWithReason = new PaymentWithDetails(mock(Payment.class), null, null);
+        Page<PaymentWithDetails> expected = new PageImpl<>(List.of(paymentWithReason));
         given(paymentRepository.findAllPaymentsWithRejectedReason(paymentSearch, pageable))
                 .willReturn(expected);
 
         // when
-        Page<PaymentWithReason> result = paymentReader.findPayments(paymentSearch, pageable);
+        Page<PaymentWithDetails> result = paymentReader.findAllPayments(paymentSearch, pageable);
 
         // then
         assertThat(result.getContent()).hasSize(1);
@@ -91,7 +91,7 @@ class PaymentReaderUnitTest extends UnitTestSupport {
                 .willReturn(Page.empty());
 
         // when
-        Page<PaymentWithReason> result = paymentReader.findPayments(paymentSearch, pageable);
+        Page<PaymentWithDetails> result = paymentReader.findAllPayments(paymentSearch, pageable);
 
         // then
         assertThat(result.isEmpty()).isTrue();
@@ -107,7 +107,7 @@ class PaymentReaderUnitTest extends UnitTestSupport {
                 .willReturn(Page.empty());
 
         // when
-        paymentReader.findPayments(paymentSearch, pageable);
+        paymentReader.findAllPayments(paymentSearch, pageable);
 
         // then
         verify(paymentRepository).findAllPaymentsWithRejectedReason(paymentSearch, pageable);
