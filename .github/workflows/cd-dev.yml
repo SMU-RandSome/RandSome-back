@@ -55,9 +55,10 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            IMAGE_TAG=${{ github.event.workflow_run.head_sha }}
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
               docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-            docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
+            docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
             docker stop ${{ secrets.CONTAINER_NAME }} || true
             docker rm ${{ secrets.CONTAINER_NAME }} || true
             docker run -d \
@@ -66,5 +67,5 @@ jobs:
               --restart always \
               -p 8080:8080 \
               -e SPRING_PROFILES_ACTIVE=dev \
-              ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
+              ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
 
