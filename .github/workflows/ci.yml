@@ -27,6 +27,9 @@ jobs:
         env:
           YML_TEST: ${{ secrets.APPLICATION_TEST }}
 
+      - name: Make firebase.json
+        run: echo '${{ secrets.FIREBASE_JSON }}' > ./src/main/resources/firebase.json
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
