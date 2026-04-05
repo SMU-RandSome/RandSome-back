@@ -10,7 +10,7 @@ COPY settings.gradle .
 RUN chmod +x gradlew && ./gradlew dependencies --no-daemon --quiet || true
 
 COPY src src
-RUN ./gradlew build -x test --no-daemon
+RUN ./gradlew bootJar -x test --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine
 
@@ -18,7 +18,7 @@ WORKDIR /app
 
 RUN addgroup -S spring && adduser -S spring -G spring
 
-COPY --from=builder /app/build/libs/*.jar app.jar
+COPY --from=builder /app/build/libs/app.jar app.jar
 
 RUN mkdir -p /app/secrets && chown spring:spring /app/secrets
 
