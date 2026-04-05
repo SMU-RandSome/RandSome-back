@@ -67,6 +67,7 @@ jobs:
               --restart always \
               -p 8080:8080 \
               -e SPRING_PROFILES_ACTIVE=dev \
+              -e SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/config/ \
               -v /home/ubuntu/config/application-dev.yml:/app/config/application-dev.yml \
               -v /home/ubuntu/config/firebase.json:/app/secrets/firebase.json \
               ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
