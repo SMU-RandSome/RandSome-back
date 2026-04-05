@@ -10,18 +10,26 @@ import java.io.InputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 @Slf4j
 @Configuration
 public class FirebaseConfig {
 
+    @Value("${firebase.credential-path:firebase.json}")
+    private String credentialPath;
+
     @PostConstruct
     public void initialize() {
         if (FirebaseApp.getApps().isEmpty()) {
-            ClassPathResource resource = new ClassPathResource("firebase.json");
+            Resource resource = credentialPath.startsWith("/")
+                    ? new FileSystemResource(credentialPath)
+                    : new ClassPathResource(credentialPath);
 
             try (InputStream serviceAccount = resource.getInputStream()) {
 
