@@ -16,17 +16,6 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
-      - name: Make application-dev.yml
-        run: |
-          cd ./src/main/resources
-          echo "$YML_DEV" | base64 --decode > application-dev.yml
-        shell: bash
-        env:
-          YML_DEV: ${{ secrets.APPLICATION_DEV }}
-
-      - name: Make firebase.json
-        run: echo '${{ secrets.FIREBASE_JSON }}' > ./src/main/resources/firebase.json
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -48,6 +37,17 @@ jobs:
           docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
           docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
 
+      - name: Upload secrets to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            mkdir -p /home/ubuntu/config
+            echo "${{ secrets.APPLICATION_DEV }}" | base64 --decode > /home/ubuntu/config/application-dev.yml
+            echo '${{ secrets.FIREBASE_JSON }}' > /home/ubuntu/config/firebase.json
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
         with:
@@ -67,5 +67,7 @@ jobs:
               --restart always \
               -p 8080:8080 \
               -e SPRING_PROFILES_ACTIVE=dev \
+              -v /home/ubuntu/config/application-dev.yml:/app/config/application-dev.yml \
+              -v /home/ubuntu/config/firebase.json:/app/secrets/firebase.json \
               ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
 
