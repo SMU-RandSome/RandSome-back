@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import java.util.Optional;
@@ -19,7 +18,6 @@ import org.smu.randsome.randsomeback.domain.member.dto.request.PasswordUpdateReq
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
-import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.fixture.BankAccountFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -27,6 +25,7 @@ import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 
 class MemberControllerTest extends ControllerTestSupport {
 
@@ -188,18 +187,11 @@ class MemberControllerTest extends ControllerTestSupport {
     @TestMember
     void 내_프로필_조회에_성공하면_200을_반환한다() {
         // given
-        Member member = mock(Member.class);
-        given(member.getId()).willReturn(1L);
-        given(member.getNickname()).willReturn("남자#ABC12345");
-        given(member.getLegalName()).willReturn(MemberFixture.DEFAULT_LEGAL_NAME);
-        given(member.getEmail()).willReturn(MemberFixture.email());
-        given(member.getGender()).willReturn(MemberFixture.DEFAULT_GENDER);
-        given(member.getMbti()).willReturn(MemberFixture.DEFAULT_MBTI);
-        given(member.getRole()).willReturn(Role.ROLE_MEMBER);
-        given(member.getSocialProfile()).willReturn(MemberFixture.socialProfile());
+        Member member = createMemberFixture();
         given(memberService.getMyProfile(any())).willReturn(member);
         given(bankAccountService.findByMemberId(any())).willReturn(BankAccountFixture.create());
         given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.empty());
+        given(matchingService.getExposureCount(any())).willReturn(5L);
 
         // when & then
         assertThat(mvcTester.get().uri("/v1/members"))
@@ -211,6 +203,7 @@ class MemberControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.data.bankName", v -> v.assertThat().isEqualTo(BankAccountFixture.DEFAULT_BANK_NAME))
                 .hasPathSatisfying("$.data.accountNumber", v -> v.assertThat().isEqualTo(BankAccountFixture.DEFAULT_ACCOUNT_NUMBER))
                 .hasPathSatisfying("$.data.candidateRegistrationStatus", v -> v.assertThat().isEqualTo("NOT_APPLIED"))
+                .hasPathSatisfying("$.data.exposureCount", v -> v.assertThat().isEqualTo(5))
                 .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
     }
 
@@ -218,18 +211,11 @@ class MemberControllerTest extends ControllerTestSupport {
     @TestMember
     void 후보자_신청_중이면_프로필_조회_시_PENDING을_반환한다() {
         // given
-        Member member = mock(Member.class);
-        given(member.getId()).willReturn(1L);
-        given(member.getNickname()).willReturn("남자#ABC12345");
-        given(member.getLegalName()).willReturn(MemberFixture.DEFAULT_LEGAL_NAME);
-        given(member.getEmail()).willReturn(MemberFixture.email());
-        given(member.getGender()).willReturn(MemberFixture.DEFAULT_GENDER);
-        given(member.getMbti()).willReturn(MemberFixture.DEFAULT_MBTI);
-        given(member.getRole()).willReturn(Role.ROLE_MEMBER);
-        given(member.getSocialProfile()).willReturn(MemberFixture.socialProfile());
+        Member member = createMemberFixture();
         given(memberService.getMyProfile(any())).willReturn(member);
         given(bankAccountService.findByMemberId(any())).willReturn(BankAccountFixture.create());
         given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.of(RegistrationStatus.PENDING));
+        given(matchingService.getExposureCount(any())).willReturn(0L);
 
         // when & then
         assertThat(mvcTester.get().uri("/v1/members"))
@@ -243,18 +229,11 @@ class MemberControllerTest extends ControllerTestSupport {
     @TestMember
     void 후보자_승인_완료이면_프로필_조회_시_APPROVED를_반환한다() {
         // given
-        Member member = mock(Member.class);
-        given(member.getId()).willReturn(1L);
-        given(member.getNickname()).willReturn("남자#ABC12345");
-        given(member.getLegalName()).willReturn(MemberFixture.DEFAULT_LEGAL_NAME);
-        given(member.getEmail()).willReturn(MemberFixture.email());
-        given(member.getGender()).willReturn(MemberFixture.DEFAULT_GENDER);
-        given(member.getMbti()).willReturn(MemberFixture.DEFAULT_MBTI);
-        given(member.getRole()).willReturn(Role.ROLE_MEMBER);
-        given(member.getSocialProfile()).willReturn(MemberFixture.socialProfile());
+        Member member = createMemberFixture();
         given(memberService.getMyProfile(any())).willReturn(member);
         given(bankAccountService.findByMemberId(any())).willReturn(BankAccountFixture.create());
         given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.of(RegistrationStatus.APPROVED));
+        given(matchingService.getExposureCount(any())).willReturn(0L);
 
         // when & then
         assertThat(mvcTester.get().uri("/v1/members"))
@@ -268,7 +247,7 @@ class MemberControllerTest extends ControllerTestSupport {
     @TestMember
     void 계좌가_없는_회원이면_프로필_조회_시_404를_반환한다() {
         // given
-        Member member = mock(Member.class);
+        Member member = createMemberFixture();
         given(memberService.getMyProfile(any())).willReturn(member);
         willThrow(new CoreException(ErrorType.NOT_FOUND_BANK_ACCOUNT))
                 .given(bankAccountService).findByMemberId(any());
@@ -415,6 +394,12 @@ class MemberControllerTest extends ControllerTestSupport {
                 .bankName("국민은행")
                 .accountNumber("123456789012")
                 .build();
+    }
+
+    private Member createMemberFixture() {
+        Member member = MemberFixture.create();
+        ReflectionTestUtils.setField(member, "id", 1L);
+        return member;
     }
 
     @Test

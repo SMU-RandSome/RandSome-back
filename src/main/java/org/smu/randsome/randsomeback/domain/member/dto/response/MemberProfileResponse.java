@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.domain.member.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import org.smu.randsome.randsomeback.domain.bankaccount.entity.BankAccount;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.CandidateRegistrationStatusView;
@@ -12,6 +13,7 @@ import org.smu.randsome.randsomeback.domain.member.enums.Role;
         name = "회원 프로필 조회 응답 DTO",
         description = "내 프로필 조회 시 반환되는 회원 프로필 정보입니다."
 )
+@Builder
 public record MemberProfileResponse(
         @Schema(description = "회원 ID", example = "1")
         Long id,
@@ -50,29 +52,34 @@ public record MemberProfileResponse(
         String accountNumber,
 
         @Schema(description = "후보자 신청 상태", example = "NOT_APPLIED")
-        CandidateRegistrationStatusView candidateRegistrationStatus
+        CandidateRegistrationStatusView candidateRegistrationStatus,
+
+        @Schema(description = "후보자 노출 횟수", example = "5")
+        long exposureCount
 ) {
 
     public static MemberProfileResponse of(
             Member member,
             BankAccount bankAccount,
-            CandidateRegistrationStatusView candidateRegistrationStatus
+            CandidateRegistrationStatusView candidateRegistrationStatus,
+            long exposureCount
     ) {
-        return new MemberProfileResponse(
-                member.getId(),
-                member.getNickname(),
-                member.getLegalName(),
-                member.getEmail().address(),
-                member.getGender(),
-                member.getMbti(),
-                member.getRole(),
-                member.getSocialProfile().instagramId(),
-                member.getSocialProfile().selfIntroduction(),
-                member.getSocialProfile().idealDescription(),
-                bankAccount.getBankName(),
-                bankAccount.getAccountNumber(),
-                candidateRegistrationStatus
-        );
+        return MemberProfileResponse.builder()
+                .id(member.getId())
+                .nickname(member.getNickname())
+                .legalName(member.getLegalName())
+                .email(member.getEmail().address())
+                .gender(member.getGender())
+                .mbti(member.getMbti())
+                .role(member.getRole())
+                .instagramId(member.getSocialProfile().instagramId())
+                .selfIntroduction(member.getSocialProfile().selfIntroduction())
+                .idealDescription(member.getSocialProfile().idealDescription())
+                .bankName(bankAccount.getBankName())
+                .accountNumber(bankAccount.getAccountNumber())
+                .candidateRegistrationStatus(candidateRegistrationStatus)
+                .exposureCount(exposureCount)
+                .build();
     }
 
 }

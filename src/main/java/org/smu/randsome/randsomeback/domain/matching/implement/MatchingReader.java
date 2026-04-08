@@ -46,4 +46,9 @@ public class MatchingReader {
         return matchingResults;
     }
 
+    @Transactional(readOnly = true)
+    public long countExposures(Long memberId) {
+        return matchingResultJpaRepository.countByCandidateIdAndStatus(memberId, EntityStatus.ACTIVE);
+    }
+
 }
