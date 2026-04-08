@@ -9,6 +9,7 @@ import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.springframework.stereotype.Component;
@@ -37,9 +38,10 @@ public class RandomMatchingStrategy implements MatchingStrategy {
     @Override
     public List<MatchingResult> execute(MatchingApplication matchingApplication) {
         Gender targetGender = matchingApplication.getTargetGender();
+        Department applicantDepartment = matchingApplication.getMember().getDepartment();
         // NOTE: 신청 수의 5배를 후보군으로 조회하여, 셔플 후 충분한 후보가 남도록 한다.
         int count = matchingApplication.getApplicationCount() * 5;
-        List<Member> candidates = new ArrayList<>(memberReader.findCandidatesByGender(targetGender, count));
+        List<Member> candidates = new ArrayList<>(memberReader.findCandidatesByGender(targetGender, applicantDepartment, count));
 
         log.debug("[RandomMatchingStrategy] 후보 조회 완료 - matchingApplicationId: {}, targetGender: {}, candidateCount: {}",
                 matchingApplication.getId(), targetGender, candidates.size());

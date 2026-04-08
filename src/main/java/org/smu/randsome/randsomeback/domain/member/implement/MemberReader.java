@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.domain.member.implement;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
@@ -47,8 +48,13 @@ public class MemberReader {
         return memberJpaRepository.findAllByStatusAndRoleNot(EntityStatus.ACTIVE, Role.ROLE_ADMIN, pageable);
     }
 
-    public List<Member> findCandidatesByGender(Gender gender, int count) {
-        return memberJpaRepository.findRandomCandidatesByGender(gender.name(), count);
+    public List<Member> findCandidatesByGender(Gender gender, Department excludeDepartment, int count) {
+        // NOTE: 자율 전공일 경우, 학과를 제외하지 않고 조회한다.
+        if (excludeDepartment.isSelfDirectedMajor()) {
+            return memberJpaRepository.findRandomCandidatesByGender(gender.name(), count);
+        }
+        return memberJpaRepository.findRandomCandidatesByGenderExcludingDepartment(
+                gender.name(), excludeDepartment.name(), count);
     }
 
     public Member findByRefreshToken(String refreshToken) {

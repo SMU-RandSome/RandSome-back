@@ -64,4 +64,8 @@ public enum Department {
 
     private final String displayName;
 
+    public boolean isSelfDirectedMajor() {
+        return this == SELF_DIRECTED_MAJOR;
+    }
+
 }
