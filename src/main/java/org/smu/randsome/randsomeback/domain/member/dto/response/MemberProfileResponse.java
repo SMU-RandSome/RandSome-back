@@ -33,6 +33,9 @@ public record MemberProfileResponse(
         @Schema(description = "MBTI", example = "ENTJ")
         Mbti mbti,
 
+        @Schema(description = "학과", example = "SOFTWARE")
+        String department,
+
         @Schema(description = "회원 역할", example = "ROLE_MEMBER")
         Role role,
 
@@ -71,6 +74,7 @@ public record MemberProfileResponse(
                 .email(member.getEmail().address())
                 .gender(member.getGender())
                 .mbti(member.getMbti())
+                .department(member.getDepartment().getDisplayName())
                 .role(member.getRole())
                 .instagramId(member.getSocialProfile().instagramId())
                 .selfIntroduction(member.getSocialProfile().selfIntroduction())
