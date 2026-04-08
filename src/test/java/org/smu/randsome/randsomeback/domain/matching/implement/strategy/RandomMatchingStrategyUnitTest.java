@@ -15,6 +15,7 @@ import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
@@ -37,16 +38,17 @@ class RandomMatchingStrategyUnitTest extends UnitTestSupport {
         int applicationCount = 3;
         var applicant = mock(Member.class);
         given(applicant.getGender()).willReturn(Gender.MALE);
+        given(applicant.getDepartment()).willReturn(Department.SOFTWARE);
 
         var application = MatchingApplication.apply(applicant, MatchingType.RANDOM, applicationCount);
-        given(memberReader.findCandidatesByGender(Gender.FEMALE, applicationCount * 5))
+        given(memberReader.findCandidatesByGender(Gender.FEMALE, Department.SOFTWARE, applicationCount * 5))
                 .willReturn(List.of());
 
         // when
         strategy.execute(application);
 
         // then
-        verify(memberReader).findCandidatesByGender(Gender.FEMALE, applicationCount * 5);
+        verify(memberReader).findCandidatesByGender(Gender.FEMALE, Department.SOFTWARE, applicationCount * 5);
     }
 
     @Test
@@ -55,13 +57,14 @@ class RandomMatchingStrategyUnitTest extends UnitTestSupport {
         int applicationCount = 2;
         var applicant = mock(Member.class);
         given(applicant.getGender()).willReturn(Gender.MALE);
+        given(applicant.getDepartment()).willReturn(Department.SOFTWARE);
 
         var application = MatchingApplication.apply(applicant, MatchingType.RANDOM, applicationCount);
 
         List<Member> candidates = IntStream.range(0, 10)
                 .mapToObj(i -> MemberFixture.createCandidate("20221200" + i + "@sangmyung.kr", Gender.FEMALE))
                 .toList();
-        given(memberReader.findCandidatesByGender(Gender.FEMALE, applicationCount * 5))
+        given(memberReader.findCandidatesByGender(Gender.FEMALE, Department.SOFTWARE, applicationCount * 5))
                 .willReturn(candidates);
 
         // when

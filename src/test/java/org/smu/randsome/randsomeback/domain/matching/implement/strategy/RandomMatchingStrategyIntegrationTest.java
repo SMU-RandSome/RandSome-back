@@ -26,14 +26,16 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
     @Test
     void RANDOM_매칭_승인_시_반대_성별_후보자로_매칭_결과가_저장된다() {
         // given
-        var maleApplicant = memberJpaRepository.save(MemberFixture.create()); // MALE
-        var femaleCandidate1 = memberJpaRepository.save(MemberFixture.createCandidate(
+        var maleApplicant = memberJpaRepository.save(MemberFixture.create()); // MALE, SOFTWARE
+        var femaleCandidate1 = memberJpaRepository.save(MemberFixture.createCandidateWithDepartment(
                 "202212001@sangmyung.kr",
-                Gender.FEMALE
+                Gender.FEMALE,
+                MemberFixture.OTHER_DEPARTMENT
         ));
-        var femaleCandidate2 = memberJpaRepository.save(MemberFixture.createCandidate(
+        var femaleCandidate2 = memberJpaRepository.save(MemberFixture.createCandidateWithDepartment(
                 "202212002@sangmyung.kr",
-                Gender.FEMALE
+                Gender.FEMALE,
+                MemberFixture.OTHER_DEPARTMENT
         ));
 
         var application = matchingManager.apply(
@@ -59,11 +61,12 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
     @Test
     void 신청_인원수만큼_매칭_결과가_저장된다() {
         // given
-        var applicant = memberJpaRepository.save(MemberFixture.create()); // MALE
+        var applicant = memberJpaRepository.save(MemberFixture.create()); // MALE, SOFTWARE
         for (int i = 1; i <= 5; i++) {
-            memberJpaRepository.save(MemberFixture.createCandidate(
+            memberJpaRepository.save(MemberFixture.createCandidateWithDepartment(
                     "20221000" + i + "@sangmyung.kr",
-                    Gender.FEMALE
+                    Gender.FEMALE,
+                    MemberFixture.OTHER_DEPARTMENT
             ));
         }
 
@@ -108,9 +111,10 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
                 "202212010@sangmyung.kr",
                 Gender.FEMALE)
         );
-        var maleCandidate = memberJpaRepository.save(MemberFixture.createCandidate(
+        var maleCandidate = memberJpaRepository.save(MemberFixture.createCandidateWithDepartment(
                 "202212011@sangmyung.kr",
-                Gender.MALE)
+                Gender.MALE,
+                MemberFixture.OTHER_DEPARTMENT)
         );
 
         var application = matchingManager.apply(
@@ -135,8 +139,8 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
     void 후보자가_신청_인원수보다_적으면_있는_만큼만_저장된다() {
         // given: 후보자 2명, 신청 인원수 5명
         var applicant = memberJpaRepository.save(MemberFixture.create());
-        memberJpaRepository.save(MemberFixture.createCandidate("202212030@sangmyung.kr", Gender.FEMALE));
-        memberJpaRepository.save(MemberFixture.createCandidate("202212031@sangmyung.kr", Gender.FEMALE));
+        memberJpaRepository.save(MemberFixture.createCandidateWithDepartment("202212030@sangmyung.kr", Gender.FEMALE, MemberFixture.OTHER_DEPARTMENT));
+        memberJpaRepository.save(MemberFixture.createCandidateWithDepartment("202212031@sangmyung.kr", Gender.FEMALE, MemberFixture.OTHER_DEPARTMENT));
 
         var application = matchingManager.apply(
                 NewMatching.builder()
@@ -157,9 +161,10 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
     void 매칭_결과에_신청서_정보가_올바르게_연결된다() {
         // given
         var applicant = memberJpaRepository.save(MemberFixture.create());
-        memberJpaRepository.save(MemberFixture.createCandidate(
+        memberJpaRepository.save(MemberFixture.createCandidateWithDepartment(
                 "202212020@sangmyung.kr",
-                Gender.FEMALE)
+                Gender.FEMALE,
+                MemberFixture.OTHER_DEPARTMENT)
         );
 
         var application = matchingManager.apply(

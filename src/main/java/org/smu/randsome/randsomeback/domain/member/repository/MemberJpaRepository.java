@@ -29,6 +29,21 @@ public interface MemberJpaRepository extends JpaRepository<Member, Long> {
     @Query(value = """
             SELECT * FROM member
             WHERE gender = :gender
+              AND department != :department
+              AND role = 'ROLE_CANDIDATE'
+              AND status = 'ACTIVE'
+            ORDER BY RAND()
+            LIMIT :count
+            """, nativeQuery = true)
+    List<Member> findRandomCandidatesByGenderExcludingDepartment(
+            @Param("gender") String gender,
+            @Param("department") String department,
+            @Param("count") int count
+    );
+
+    @Query(value = """
+            SELECT * FROM member
+            WHERE gender = :gender
               AND role = 'ROLE_CANDIDATE'
               AND status = 'ACTIVE'
             ORDER BY RAND()
