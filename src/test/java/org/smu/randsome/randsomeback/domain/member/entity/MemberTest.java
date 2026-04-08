@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
+import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
@@ -82,12 +83,13 @@ class MemberTest extends UnitTestSupport {
         // given
         var newLegalName = "김철수";
         var newMbti = Mbti.ENFP;
+        var department = Department.SOFTWARE;
         var newInstagramId = "new_insta";
         var newSelfIntroduction = "새 자기소개";
         var newIdealDescription = "새 이상형";
 
         // when
-        member.updateProfile(newLegalName, newMbti, newInstagramId, newSelfIntroduction, newIdealDescription);
+        member.updateProfile(newLegalName, newMbti, department, newInstagramId, newSelfIntroduction, newIdealDescription);
 
         // then
         assertThat(member.getLegalName()).isEqualTo(newLegalName);

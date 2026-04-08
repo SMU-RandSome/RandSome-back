@@ -8,6 +8,7 @@ import org.smu.randsome.randsomeback.domain.member.entity.vo.Email;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Password;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.StudentId;
+import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
@@ -24,6 +25,8 @@ public class MemberFixture {
     public static final String DEFAULT_IDEAL_DESCRIPTION = "착한 사람";
     public static final Mbti DEFAULT_MBTI                = Mbti.ISTP;
     public static final Gender DEFAULT_GENDER            = Gender.MALE;
+    public static final Department DEFAULT_DEPARTMENT    = Department.SOFTWARE;
+    public static final Department OTHER_DEPARTMENT      = Department.ELECTRONICS_ENGINEERING;
 
     public static final PasswordEncoder ENCODER = new BCryptPasswordEncoder();
 
@@ -35,6 +38,7 @@ public class MemberFixture {
                 DEFAULT_LEGAL_NAME,
                 DEFAULT_GENDER,
                 DEFAULT_MBTI,
+                DEFAULT_DEPARTMENT,
                 DEFAULT_INSTAGRAM_ID,
                 DEFAULT_SELF_INTRODUCTION,
                 DEFAULT_IDEAL_DESCRIPTION
@@ -46,7 +50,7 @@ public class MemberFixture {
     }
 
     public static MemberBasicInfo createBasicInfo() {
-        return new MemberBasicInfo(DEFAULT_LEGAL_NAME, DEFAULT_GENDER, DEFAULT_MBTI);
+        return new MemberBasicInfo(DEFAULT_LEGAL_NAME, DEFAULT_GENDER, DEFAULT_MBTI, DEFAULT_DEPARTMENT);
     }
 
     public static MemberSocialProfile createMemberSocialProfile() {
@@ -78,6 +82,7 @@ public class MemberFixture {
                 legalName,
                 DEFAULT_GENDER,
                 DEFAULT_MBTI,
+                DEFAULT_DEPARTMENT,
                 email.substring(0, email.indexOf('@')),
                 DEFAULT_SELF_INTRODUCTION,
                 DEFAULT_IDEAL_DESCRIPTION
@@ -93,6 +98,7 @@ public class MemberFixture {
                 DEFAULT_LEGAL_NAME,
                 gender,
                 DEFAULT_MBTI,
+                DEFAULT_DEPARTMENT,
                 instagramId,
                 DEFAULT_SELF_INTRODUCTION,
                 DEFAULT_IDEAL_DESCRIPTION
@@ -101,6 +107,24 @@ public class MemberFixture {
 
     public static Member createCandidate(String email, Gender gender) {
         Member member = createWithGender(email, gender);
+        member.updateRole(Role.ROLE_CANDIDATE);
+        return member;
+    }
+
+    public static Member createCandidateWithDepartment(String email, Gender gender, Department department) {
+        String instagramId = email.substring(0, email.indexOf('@'));
+        Member member = Member.create(
+                email,
+                DEFAULT_RAW_PASSWORD,
+                ENCODER,
+                DEFAULT_LEGAL_NAME,
+                gender,
+                DEFAULT_MBTI,
+                department,
+                instagramId,
+                DEFAULT_SELF_INTRODUCTION,
+                DEFAULT_IDEAL_DESCRIPTION
+        );
         member.updateRole(Role.ROLE_CANDIDATE);
         return member;
     }

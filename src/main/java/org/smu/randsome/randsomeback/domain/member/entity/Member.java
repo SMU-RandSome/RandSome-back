@@ -18,6 +18,7 @@ import org.smu.randsome.randsomeback.domain.member.entity.vo.Email;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Password;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.StudentId;
+import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
@@ -58,6 +59,10 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Mbti mbti;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Department department;
+
     @Embedded
     private SocialProfile socialProfile;
 
@@ -73,6 +78,7 @@ public class Member extends BaseEntity {
             String legalName,
             Gender gender,
             Mbti mbti,
+            Department department,
             String instagramId,
             String selfIntroduction,
             String idealDescription
@@ -88,6 +94,7 @@ public class Member extends BaseEntity {
         member.password = Password.create(rawPassword, encoder);
         member.gender = safeGender;
         member.mbti = requireNonNull(mbti);
+        member.department = requireNonNull(department);
         member.studentId = StudentId.create(safeEmail);
         member.socialProfile = SocialProfile.create(instagramId, selfIntroduction, idealDescription);
         member.role = Role.ROLE_MEMBER;
@@ -123,12 +130,14 @@ public class Member extends BaseEntity {
     public void updateProfile(
             String legalName,
             Mbti mbti,
+            Department department,
             String instagramId,
             String selfIntroduction,
             String idealDescription
     ) {
         this.legalName = requireNonNull(legalName);
         this.mbti = requireNonNull(mbti);
+        this.department = requireNonNull(department);
         this.socialProfile = SocialProfile.create(instagramId, selfIntroduction, idealDescription);
     }
 
@@ -141,4 +150,5 @@ public class Member extends BaseEntity {
 
         return gender.getValue() + "#" + suffix;
     }
+
 }

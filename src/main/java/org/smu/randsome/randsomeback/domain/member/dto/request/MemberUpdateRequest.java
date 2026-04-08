@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.UpdateBankAccount;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
+import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 
 @Schema(name = "회원 프로필 수정 요청 DTO", description = "회원 프로필 수정 시 필요한 정보를 담는 DTO입니다.")
@@ -18,6 +19,10 @@ public record MemberUpdateRequest(
         @Schema(description = "MBTI", example = "ENTJ")
         @NotNull(message = "MBTI는 필수입니다.")
         Mbti mbti,
+
+        @Schema(description = "학과", example = "SOFTWARE")
+        @NotNull(message = "학과는 필수입니다.")
+        Department department,
 
         @Schema(description = "인스타그램 아이디", example = "my_insta", nullable = true)
         String instagramId,
@@ -49,6 +54,7 @@ public record MemberUpdateRequest(
         return UpdateProfile.builder()
                 .legalName(legalName)
                 .mbti(mbti)
+                .department(department)
                 .instagramId(instagramId)
                 .selfIntroduction(selfIntroduction)
                 .idealDescription(idealDescription)

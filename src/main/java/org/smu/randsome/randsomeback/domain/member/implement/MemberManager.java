@@ -42,6 +42,7 @@ public class MemberManager {
                     basicInfo.legalName(),
                     basicInfo.gender(),
                     basicInfo.mbti(),
+                    basicInfo.department(),
                     socialProfile.instagramId(),
                     socialProfile.selfIntroduction(),
                     socialProfile.idealDescription()
@@ -63,6 +64,7 @@ public class MemberManager {
         member.updateProfile(
                 updateProfile.legalName(),
                 updateProfile.mbti(),
+                updateProfile.department(),
                 updateProfile.instagramId(),
                 updateProfile.selfIntroduction(),
                 updateProfile.idealDescription()
