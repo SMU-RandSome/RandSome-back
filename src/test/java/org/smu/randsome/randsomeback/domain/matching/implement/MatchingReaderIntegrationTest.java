@@ -152,4 +152,73 @@ class MatchingReaderIntegrationTest extends IntegrationTestSupport {
                 .hasMessage(ErrorType.NOT_FOUND_APPROVED_MATCHING.getMessage());
     }
 
+    @Test
+    void 후보자로_노출된_횟수를_조회한다() {
+        // given
+        var applicant1 = memberJpaRepository.save(MemberFixture.create());
+        var applicant2 = memberJpaRepository.save(MemberFixture.createWithGender("202310001@sangmyung.kr", Gender.MALE));
+        var applicant3 = memberJpaRepository.save(MemberFixture.createWithGender("202310002@sangmyung.kr", Gender.MALE));
+        var candidate = memberJpaRepository.save(MemberFixture.createWithGender("202310003@sangmyung.kr", Gender.FEMALE));
+
+        var application1 = matchingJpaRepository.save(MatchingApplication.apply(applicant1, MatchingType.RANDOM, 1));
+        application1.approve(TestDateTimeUtils.now());
+        var application2 = matchingJpaRepository.save(MatchingApplication.apply(applicant2, MatchingType.RANDOM, 1));
+        application2.approve(TestDateTimeUtils.now());
+        var application3 = matchingJpaRepository.save(MatchingApplication.apply(applicant3, MatchingType.RANDOM, 1));
+        application3.approve(TestDateTimeUtils.now());
+
+        matchingResultJpaRepository.save(MatchingResult.create(application1, candidate));
+        matchingResultJpaRepository.save(MatchingResult.create(application2, candidate));
+        matchingResultJpaRepository.save(MatchingResult.create(application3, candidate));
+
+        // when
+        long count = matchingReader.countExposures(candidate.getId());
+
+        // then
+        assertThat(count).isEqualTo(3L);
+    }
+
+    @Test
+    void 삭제된_매칭_결과는_노출_횟수에_포함되지_않는다() {
+        // given
+        var applicant1 = memberJpaRepository.save(MemberFixture.create());
+        var applicant2 = memberJpaRepository.save(MemberFixture.createWithGender("202310001@sangmyung.kr", Gender.MALE));
+        var candidate = memberJpaRepository.save(MemberFixture.createWithGender("202310003@sangmyung.kr", Gender.FEMALE));
+
+        var application1 = matchingJpaRepository.save(MatchingApplication.apply(applicant1, MatchingType.RANDOM, 1));
+        application1.approve(TestDateTimeUtils.now());
+        var application2 = matchingJpaRepository.save(MatchingApplication.apply(applicant2, MatchingType.RANDOM, 1));
+        application2.approve(TestDateTimeUtils.now());
+
+        matchingResultJpaRepository.save(MatchingResult.create(application1, candidate));
+        var deletedResult = matchingResultJpaRepository.save(MatchingResult.create(application2, candidate));
+        deletedResult.delete();
+
+        // when
+        long count = matchingReader.countExposures(candidate.getId());
+
+        // then
+        assertThat(count).isEqualTo(1L);
+    }
+
+    @Test
+    void 다른_후보자의_노출_횟수는_포함되지_않는다() {
+        // given
+        var applicant = memberJpaRepository.save(MemberFixture.create());
+        var candidate = memberJpaRepository.save(MemberFixture.createWithGender("202310003@sangmyung.kr", Gender.FEMALE));
+        var otherCandidate = memberJpaRepository.save(MemberFixture.createWithGender("202310004@sangmyung.kr", Gender.FEMALE));
+
+        var application = matchingJpaRepository.save(MatchingApplication.apply(applicant, MatchingType.RANDOM, 1));
+        application.approve(TestDateTimeUtils.now());
+
+        matchingResultJpaRepository.save(MatchingResult.create(application, candidate));
+        matchingResultJpaRepository.save(MatchingResult.create(application, otherCandidate));
+
+        // when
+        long count = matchingReader.countExposures(candidate.getId());
+
+        // then
+        assertThat(count).isEqualTo(1L);
+    }
+
 }

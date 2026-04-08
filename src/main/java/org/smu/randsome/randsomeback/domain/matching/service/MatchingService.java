@@ -82,4 +82,13 @@ public class MatchingService {
                 applicationId, memberId);
     }
 
+    /**
+     * 회원이 후보자로 노출된 횟수를 조회한다.
+     * @param memberId 회원 식별자
+     * @return 회원이 후보자로 노출된 총 횟수
+     * */
+    public long getExposureCount(Long memberId) {
+        return matchingReader.countExposures(memberId);
+    }
+
 }

@@ -187,4 +187,18 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.NOT_FOUND_PAYMENT.getMessage());
     }
 
+    @Test
+    void 후보자_노출_횟수를_조회한다() {
+        // given
+        var memberId = 1L;
+        given(matchingReader.countExposures(memberId)).willReturn(5L);
+
+        // when
+        long result = matchingService.getExposureCount(memberId);
+
+        // then
+        assertThat(result).isEqualTo(5L);
+        verify(matchingReader).countExposures(memberId);
+    }
+
 }

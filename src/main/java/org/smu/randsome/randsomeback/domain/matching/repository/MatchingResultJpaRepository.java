@@ -17,4 +17,5 @@ public interface MatchingResultJpaRepository extends JpaRepository<MatchingResul
     )
     List<MatchingResult> findAllByApplicationAndMemberIdAndStatus(Long applicationId, Long memberId, EntityStatus status);
 
+    long countByCandidateIdAndStatus(Long candidateId, EntityStatus status);
 }

@@ -7,6 +7,7 @@ import org.smu.randsome.randsomeback.domain.bankaccount.entity.BankAccount;
 import org.smu.randsome.randsomeback.domain.bankaccount.service.BankAccountService;
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
+import org.smu.randsome.randsomeback.domain.matching.service.MatchingService;
 import org.smu.randsome.randsomeback.domain.member.dto.request.DeviceTokenSyncRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberUpdateRequest;
@@ -36,6 +37,7 @@ public class MemberController extends MemberControllerDocs {
     private final MemberDeviceService memberDeviceService;
     private final CandidateService candidateService;
     private final BankAccountService bankAccountService;
+    private final MatchingService matchingService;
 
     @Override
     @ResponseStatus(HttpStatus.CREATED)
@@ -58,11 +60,13 @@ public class MemberController extends MemberControllerDocs {
         Member member = memberService.getMyProfile(memberId);
         BankAccount bankAccount = bankAccountService.findByMemberId(memberId);
         Optional<RegistrationStatus> myRegistrationStatus = candidateService.getMyRegistrationStatus(memberId);
+        long exposureCount = matchingService.getExposureCount(memberId);
 
         MemberProfileResponse response = MemberProfileResponse.of(
                 member,
                 bankAccount,
-                CandidateRegistrationStatusView.from(myRegistrationStatus)
+                CandidateRegistrationStatusView.from(myRegistrationStatus),
+                exposureCount
         );
 
         return ApiResponse.success(response);
