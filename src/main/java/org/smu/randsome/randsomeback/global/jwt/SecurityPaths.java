@@ -14,6 +14,7 @@ public final class SecurityPaths {
             "/v1/auth/email/**",
             "/v1/members/sign-up",
             "/v1/members/password",
+            "/v1/statistics/dashboard",
             "/swagger/**",
             "/swagger-ui/**",
             "/v3/api-docs/**",
