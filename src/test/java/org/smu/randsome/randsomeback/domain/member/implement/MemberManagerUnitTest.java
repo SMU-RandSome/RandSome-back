@@ -15,6 +15,7 @@ import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Password;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
+import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
@@ -115,6 +116,7 @@ class MemberManagerUnitTest extends UnitTestSupport {
         var updateProfile = UpdateProfile.builder()
                 .legalName("김철수")
                 .mbti(Mbti.ENFP)
+                .department(Department.ELECTRONICS_ENGINEERING)
                 .instagramId("new_insta")
                 .selfIntroduction("새 자기소개")
                 .idealDescription("새 이상형")

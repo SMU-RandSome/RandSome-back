@@ -11,6 +11,7 @@ import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.BankAccountI
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
+import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 
@@ -44,6 +45,10 @@ public record MemberCreateRequest(
         @NotNull(message = "MBTI는 필수입니다.")
         Mbti mbti,
 
+        @Schema(description = "학과", example = "SOFTWARE")
+        @NotNull(message = "학과는 필수입니다.")
+        Department department,
+
         @Schema(description = "인스타그램 아이디", example = "my_insta")
         @Size(max = 255, message = "인스타그램 아이디는 255자 이하여야 합니다.")
         String instagramId,
@@ -74,7 +79,7 @@ public record MemberCreateRequest(
     }
 
     public MemberBasicInfo toBasicInfo() {
-        return new MemberBasicInfo(legalName, gender, mbti);
+        return new MemberBasicInfo(legalName, gender, mbti, department);
     }
 
     public MemberSocialProfile toSocialProfile() {
