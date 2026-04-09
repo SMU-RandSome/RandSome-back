@@ -13,11 +13,11 @@ import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.entity.vo.MyProfileTags;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Password;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
-import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
@@ -38,13 +38,11 @@ class MemberManagerUnitTest extends UnitTestSupport {
     PasswordEncoder passwordEncoder;
 
     @Test
-    void 회원을_생성한다() {
+    void 태그와_함께_회원을_생성한다() {
         // given
         given(memberJpaRepository.existsByEmail_AddressAndStatus(any(String.class), any(EntityStatus.class)))
                 .willReturn(false);
-        String encodedPassword = "encoded-password";
-        given(passwordEncoder.encode(MemberFixture.DEFAULT_RAW_PASSWORD)).willReturn(encodedPassword);
-        // save()에 넘긴 인자를 그대로 반환하도록 설정
+        given(passwordEncoder.encode(any())).willReturn("encoded-password");
         given(memberJpaRepository.save(any(Member.class)))
                 .willAnswer(invocation -> invocation.getArgument(0));
 
@@ -52,25 +50,21 @@ class MemberManagerUnitTest extends UnitTestSupport {
         Member member = memberManager.create(
                 MemberFixture.createCredentials(),
                 MemberFixture.createBasicInfo(),
-                MemberFixture.createMemberSocialProfile());
+                MemberFixture.createMemberSocialProfile(),
+                MemberFixture.createTagsInfo()
+        );
 
         // then
-        assertThat(member).isNotNull().extracting(
-                Member::getEmail,
-                Member::getLegalName,
-                Member::getRole,
-                Member::getSocialProfile,
-                Member::getMbti,
-                Member::getGender,
-                Member::getPassword
+        MyProfileTags tags = member.getMyProfileTags();
+        assertThat(tags).isNotNull().extracting(
+                MyProfileTags::personalityTag,
+                MyProfileTags::faceTypeTag,
+                MyProfileTags::datingStyleTag
+
         ).containsExactly(
-                MemberFixture.email(),
-                MemberFixture.DEFAULT_LEGAL_NAME,
-                Role.ROLE_MEMBER,
-                MemberFixture.socialProfile(),
-                MemberFixture.DEFAULT_MBTI,
-                MemberFixture.DEFAULT_GENDER,
-                new Password(encodedPassword)
+                MemberFixture.DEFAULT_PERSONALITY_TAG,
+                MemberFixture.DEFAULT_FACE_TYPE_TAG,
+                MemberFixture.DEFAULT_DATING_STYLE_TAG
         );
     }
 
@@ -84,7 +78,8 @@ class MemberManagerUnitTest extends UnitTestSupport {
         assertThatThrownBy(() -> memberManager.create(
                 MemberFixture.createCredentials(),
                 MemberFixture.createBasicInfo(),
-                MemberFixture.createMemberSocialProfile()))
+                MemberFixture.createMemberSocialProfile(),
+                MemberFixture.createTagsInfo()))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.DUPLICATE_EMAIL.getMessage());
     }
@@ -102,7 +97,8 @@ class MemberManagerUnitTest extends UnitTestSupport {
         assertThatThrownBy(() -> memberManager.create(
                 MemberFixture.createCredentials(),
                 MemberFixture.createBasicInfo(),
-                MemberFixture.createMemberSocialProfile()))
+                MemberFixture.createMemberSocialProfile(),
+                MemberFixture.createTagsInfo()))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.DUPLICATE_EMAIL.getMessage());
     }

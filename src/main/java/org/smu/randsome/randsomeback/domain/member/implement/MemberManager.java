@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberTagsInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.entity.vo.MyProfileTags;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
@@ -25,16 +27,20 @@ public class MemberManager {
     private final MemberJpaRepository memberJpaRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public Member create(MemberCredentials credentials, MemberBasicInfo basicInfo, MemberSocialProfile socialProfile) {
+    public Member create(
+            MemberCredentials credentials,
+            MemberBasicInfo basicInfo,
+            MemberSocialProfile socialProfile,
+            MemberTagsInfo tagsInfo
+    ) {
         if (memberJpaRepository.existsByEmail_AddressAndStatus(credentials.email(), EntityStatus.ACTIVE)) {
             throw new CoreException(ErrorType.DUPLICATE_EMAIL);
         }
 
-        /* NOTE: 파라미터가 많을 경우 어떻게 넘겨야할까??
-                 여기서 VO를 생성하는 건 아닌거같아
-                 애그리거트가 담당해야될 거 같고 Domain으로 넘기는 객체를 하나 더 만들어야 되나?
-        */
         try {
+            MyProfileTags profileTags = MyProfileTags.of(
+                    tagsInfo.personalityTag(), tagsInfo.faceTypeTag(), tagsInfo.datingStyleTag());
+
             return memberJpaRepository.save(Member.create(
                     credentials.email(),
                     credentials.password(),
@@ -45,7 +51,8 @@ public class MemberManager {
                     basicInfo.department(),
                     socialProfile.instagramId(),
                     socialProfile.selfIntroduction(),
-                    socialProfile.idealDescription()
+                    socialProfile.idealDescription(),
+                    profileTags
             ));
         } catch (DataIntegrityViolationException e) {
             throw new CoreException(ErrorType.DUPLICATE_EMAIL);

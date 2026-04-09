@@ -59,7 +59,7 @@ class MemberServiceUnitTest extends UnitTestSupport {
         // given
         Member member = mock(Member.class);
         given(member.getId()).willReturn(1L);
-        given(memberManager.create(any(), any(), any())).willReturn(member);
+        given(memberManager.create(any(), any(), any(), any())).willReturn(member);
 
         var bankAccountInfo = createBankAccountInfo();
 
@@ -69,7 +69,8 @@ class MemberServiceUnitTest extends UnitTestSupport {
                 MemberFixture.createCredentials(),
                 MemberFixture.createBasicInfo(),
                 MemberFixture.createMemberSocialProfile(),
-                bankAccountInfo
+                bankAccountInfo,
+                MemberFixture.createTagsInfo()
         );
 
         // then
@@ -91,7 +92,8 @@ class MemberServiceUnitTest extends UnitTestSupport {
                 MemberFixture.createCredentials(),
                 MemberFixture.createBasicInfo(),
                 MemberFixture.createMemberSocialProfile(),
-                createBankAccountInfo()
+                createBankAccountInfo(),
+                MemberFixture.createTagsInfo()
         )).isInstanceOf(CoreException.class)
           .hasMessage(ErrorType.INVALID_SIGNUP_REQUEST.getMessage());
     }
@@ -108,7 +110,8 @@ class MemberServiceUnitTest extends UnitTestSupport {
                 MemberFixture.createCredentials(),
                 MemberFixture.createBasicInfo(),
                 MemberFixture.createMemberSocialProfile(),
-                createBankAccountInfo()
+                createBankAccountInfo(),
+                MemberFixture.createTagsInfo()
         )).isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.INVALID_VERIFICATION_PURPOSE.getMessage());
 

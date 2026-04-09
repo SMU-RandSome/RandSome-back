@@ -11,9 +11,13 @@ import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.BankAccountI
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberTagsInfo;
+import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
+import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
+import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 
 @Schema(description = "회원 가입 요청 DTO")
 public record MemberCreateRequest(
@@ -71,7 +75,19 @@ public record MemberCreateRequest(
 
         @Schema(description = "계좌번호", example = "123456789012")
         @NotBlank(message = "계좌번호는 필수입니다.")
-        String accountNumber
+        String accountNumber,
+
+        @Schema(description = "내 성격 태그", example = "ACTIVE")
+        @NotNull(message = "성격 태그는 필수입니다.")
+        PersonalityTag personalityTag,
+
+        @Schema(description = "내 얼굴상 태그", example = "PUPPY")
+        @NotNull(message = "얼굴상 태그는 필수입니다.")
+        FaceTypeTag faceTypeTag,
+
+        @Schema(description = "내 연애 스타일 태그", example = "EXPRESSIVE")
+        @NotNull(message = "연애 스타일 태그는 필수입니다.")
+        DatingStyleTag datingStyleTag
 ) {
 
     public MemberCredentials toCredentials() {
@@ -88,6 +104,10 @@ public record MemberCreateRequest(
 
     public BankAccountInfo toBankAccountInfo() {
         return new BankAccountInfo(bankName, accountNumber, legalName);
+    }
+
+    public MemberTagsInfo toTagsInfo() {
+        return new MemberTagsInfo(personalityTag, faceTypeTag, datingStyleTag);
     }
 
 }
