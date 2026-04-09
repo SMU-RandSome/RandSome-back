@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.admin.member.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.smu.randsome.randsomeback.admin.member.dto.request.RestrictionRequest;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberAdminResponse;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailResponse;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -11,6 +12,7 @@ import org.smu.randsome.randsomeback.global.support.response.PageResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "관리자 회원 관리 API", description = "관리자용 회원 관리 API 문서")
 public abstract class MemberAdminControllerDocs {
@@ -52,6 +54,34 @@ public abstract class MemberAdminControllerDocs {
     })
     public abstract ApiResponse<MemberDetailResponse> getMemberDetail(
             @Parameter(name = "memberId", description = "조회할 회원의 고유 ID", required = true) Long memberId
+    );
+
+    @Operation(
+            summary = "회원 정지",
+            description = """
+                    #### 관리자 회원 정지 API입니다.
+                    - 특정 회원을 정지 상태로 변경합니다.
+                    - 정지 사유를 함께 기록합니다.
+                    
+                    **요청 경로 파라미터**
+                    - memberId : 정지할 회원의 고유 ID
+                    
+                    **요청 본문**
+                    - reason : 정지 사유 (예: 부적절한 행동)
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.NOT_FOUND_MEMBER,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ApiResponse<?> suspendMember(
+            @Parameter(
+                    name = "memberId",
+                    description = "정지할 회원의 고유 ID",
+                    required = true
+            )
+            Long memberId,
+            @RequestBody RestrictionRequest request
     );
 
 }

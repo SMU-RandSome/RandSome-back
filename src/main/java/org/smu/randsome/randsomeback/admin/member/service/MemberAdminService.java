@@ -6,6 +6,7 @@ import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailRespo
 import org.smu.randsome.randsomeback.domain.bankaccount.entity.BankAccount;
 import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountReader;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberAdminService {
 
     private final MemberReader memberReader;
+    private final MemberManager memberManager;
     private final BankAccountReader bankAccountReader;
 
     @Transactional(readOnly = true)
@@ -31,6 +33,16 @@ public class MemberAdminService {
         BankAccount bankAccount = bankAccountReader.findByMemberId(memberId);
 
         return MemberDetailResponse.of(member, bankAccount);
+    }
+
+    /**
+     * 회원 정지 <br>
+     * - 회원 상태를 '정지'로 변경 <br>
+     * - 정지 사유 기록 <br>
+     **/
+    @Transactional
+    public void suspendMember(Long memberId, String reason) {
+        memberManager.suspend(memberId, reason);
     }
 
 }

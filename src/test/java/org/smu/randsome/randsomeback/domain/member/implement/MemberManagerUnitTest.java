@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.verify;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -13,12 +14,14 @@ import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.entity.MemberRestriction;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.MyProfileTags;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Password;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.repository.MemberRestricetionJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -33,6 +36,9 @@ class MemberManagerUnitTest extends UnitTestSupport {
 
     @Mock
     MemberJpaRepository memberJpaRepository;
+
+    @Mock
+    MemberRestricetionJpaRepository memberRestricetionJpaRepository;
 
     @Mock
     PasswordEncoder passwordEncoder;
@@ -182,7 +188,7 @@ class MemberManagerUnitTest extends UnitTestSupport {
     @Test
     void 비밀번호를_변경한다() {
         // given
-        Member member = MemberFixture.create();
+        var member = MemberFixture.create();
         String newPassword = "newPassword123!";
         String encodedNewPassword = "encoded-new-password";
         given(passwordEncoder.encode(newPassword)).willReturn(encodedNewPassword);
@@ -192,6 +198,21 @@ class MemberManagerUnitTest extends UnitTestSupport {
 
         // then
         assertThat(member.getPassword()).isEqualTo(new Password(encodedNewPassword));
+    }
+
+    @Test
+    void 관리자가_회원을_정지한다() {
+        // given
+        var memberId = 1L;
+        var member = MemberFixture.create();
+        given(memberJpaRepository.findByIdAndStatus(any(Long.class), any(EntityStatus.class))).willReturn(Optional.of(member));
+
+        // when
+        String reason = "규칙 위반";
+        memberManager.suspend(memberId, reason);
+
+        // then
+        verify(memberRestricetionJpaRepository).save(any(MemberRestriction.class));
     }
 
 }

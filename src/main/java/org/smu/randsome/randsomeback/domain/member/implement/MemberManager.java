@@ -8,9 +8,11 @@ import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfi
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberTagsInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.entity.MemberRestriction;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.MyProfileTags;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.repository.MemberRestricetionJpaRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberManager {
 
     private final MemberJpaRepository memberJpaRepository;
+    private final MemberRestricetionJpaRepository memberRestricetionJpaRepository;
     private final PasswordEncoder passwordEncoder;
 
     public Member create(
@@ -102,6 +105,15 @@ public class MemberManager {
         member.updateRole(role);
 
         log.info("[MemberManager] 권한 변경 완료 - memberId={}, newRole={}", member.getId(), role);
+    }
+
+    public void suspend(Long memberId, String reason) {
+        Member member = memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
+
+        memberRestricetionJpaRepository.save(MemberRestriction.create(member, reason));
+
+        log.info("[MemberManager] 회원 정지 처리 완료 - memberId = {}", memberId);
     }
 
 }

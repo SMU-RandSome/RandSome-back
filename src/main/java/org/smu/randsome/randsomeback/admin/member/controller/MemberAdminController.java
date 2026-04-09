@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.admin.member.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.admin.member.dto.request.RestrictionRequest;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberAdminResponse;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailResponse;
 import org.smu.randsome.randsomeback.admin.member.service.MemberAdminService;
@@ -10,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -34,6 +37,14 @@ public class MemberAdminController extends MemberAdminControllerDocs {
         return ApiResponse.success(
                 memberAdminService.getMemberDetail(memberId)
         );
+    }
+
+    @Override
+    @PostMapping("/v1/admin/members/{memberId}/suspensions")
+    public ApiResponse<?> suspendMember(@PathVariable Long memberId, @RequestBody RestrictionRequest request) {
+        memberAdminService.suspendMember(memberId, request.reason());
+
+        return ApiResponse.success();
     }
 
 }

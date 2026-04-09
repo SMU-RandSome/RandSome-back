@@ -5,11 +5,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
+import org.smu.randsome.randsomeback.admin.member.dto.request.RestrictionRequest;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberAdminResponse;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailResponse;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
@@ -19,10 +22,15 @@ import org.smu.randsome.randsomeback.fixture.BankAccountFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 class MemberAdminControllerTest extends ControllerTestSupport {
 
@@ -131,6 +139,19 @@ class MemberAdminControllerTest extends ControllerTestSupport {
                 .hasStatus(HttpStatus.FORBIDDEN.value());
 
         then(memberAdminService).shouldHaveNoInteractions();
+    }
+
+    @TestAdmin
+    @Test
+    void 관리자가_회원을_제한한다() throws JsonProcessingException {
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/admin/members/{memberId}/suspensions", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new RestrictionRequest("부적절한 행동"))))
+                .apply(print())
+                .hasStatusOk();
+
+        verify(memberAdminService).suspendMember(any(), any());
     }
 
 }
