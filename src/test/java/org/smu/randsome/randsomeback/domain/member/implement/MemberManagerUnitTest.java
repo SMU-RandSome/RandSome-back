@@ -116,6 +116,9 @@ class MemberManagerUnitTest extends UnitTestSupport {
                 .instagramId("new_insta")
                 .selfIntroduction("새 자기소개")
                 .idealDescription("새 이상형")
+                .personalityTag(MemberFixture.DEFAULT_PERSONALITY_TAG)
+                .faceTypeTag(MemberFixture.DEFAULT_FACE_TYPE_TAG)
+                .datingStyleTag(MemberFixture.DEFAULT_DATING_STYLE_TAG)
                 .build();
 
         // when

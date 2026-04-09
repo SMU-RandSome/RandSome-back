@@ -415,6 +415,9 @@ class MemberControllerTest extends ControllerTestSupport {
                 .idealDescription("새 이상형")
                 .bankName("국민은행")
                 .accountNumber("123456789012")
+                .personalityTag(PersonalityTag.QUIET)
+                .faceTypeTag(FaceTypeTag.BEAR)
+                .datingStyleTag(DatingStyleTag.EXPRESSIVE)
                 .build();
     }
 

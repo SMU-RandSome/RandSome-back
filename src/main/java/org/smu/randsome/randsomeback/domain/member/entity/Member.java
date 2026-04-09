@@ -19,9 +19,12 @@ import org.smu.randsome.randsomeback.domain.member.entity.vo.MyProfileTags;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Password;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.StudentId;
+import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
+import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
+import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.global.entity.BaseEntity;
 import org.smu.randsome.randsomeback.global.jwt.TokenHasher;
@@ -86,7 +89,9 @@ public class Member extends BaseEntity {
             String instagramId,
             String selfIntroduction,
             String idealDescription,
-            MyProfileTags myProfileTags
+            PersonalityTag personalityTag,
+            FaceTypeTag faceTypeTag,
+            DatingStyleTag datingStyleTag
     ) {
         Member member = new Member();
 
@@ -102,7 +107,7 @@ public class Member extends BaseEntity {
         member.department = requireNonNull(department);
         member.studentId = StudentId.create(safeEmail);
         member.socialProfile = SocialProfile.create(instagramId, selfIntroduction, idealDescription);
-        member.myProfileTags = myProfileTags;
+        member.myProfileTags = MyProfileTags.create(personalityTag, faceTypeTag, datingStyleTag);
         member.role = Role.ROLE_MEMBER;
         member.refreshToken = null;
 
@@ -139,12 +144,17 @@ public class Member extends BaseEntity {
             Department department,
             String instagramId,
             String selfIntroduction,
-            String idealDescription
+            String idealDescription,
+            PersonalityTag personalityTag,
+            FaceTypeTag faceTypeTag,
+            DatingStyleTag datingStyleTag
+
     ) {
         this.legalName = requireNonNull(legalName);
         this.mbti = requireNonNull(mbti);
         this.department = requireNonNull(department);
         this.socialProfile = SocialProfile.create(instagramId, selfIntroduction, idealDescription);
+        this.myProfileTags = MyProfileTags.create(personalityTag, faceTypeTag, datingStyleTag);
     }
 
     public void updatePassword(String newPassword, PasswordEncoder passwordEncoder) {

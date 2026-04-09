@@ -72,7 +72,7 @@ class MemberTest extends UnitTestSupport {
 
     @Test
     void 소개_태그를_변경한다() {
-        MyProfileTags newTags = MyProfileTags.of(PersonalityTag.QUIET, FaceTypeTag.CAT, DatingStyleTag.GROW_TOGETHER);
+        MyProfileTags newTags = MyProfileTags.create(PersonalityTag.QUIET, FaceTypeTag.CAT, DatingStyleTag.GROW_TOGETHER);
 
         member.changeProfileTags(newTags);
 
@@ -115,9 +115,22 @@ class MemberTest extends UnitTestSupport {
         var newInstagramId = "new_insta";
         var newSelfIntroduction = "새 자기소개";
         var newIdealDescription = "새 이상형";
+        var personalityTag = PersonalityTag.QUIET;
+        var faceTypeTag = FaceTypeTag.CAT;
+        var datingStyleTag = DatingStyleTag.GROW_TOGETHER;
 
         // when
-        member.updateProfile(newLegalName, newMbti, department, newInstagramId, newSelfIntroduction, newIdealDescription);
+        member.updateProfile(
+                newLegalName,
+                newMbti,
+                department,
+                newInstagramId,
+                newSelfIntroduction,
+                newIdealDescription,
+                personalityTag,
+                faceTypeTag,
+                datingStyleTag
+        );
 
         // then
         assertThat(member.getLegalName()).isEqualTo(newLegalName);

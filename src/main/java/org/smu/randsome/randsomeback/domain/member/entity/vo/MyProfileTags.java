@@ -35,7 +35,7 @@ public record MyProfileTags(
         Objects.requireNonNull(datingStyleTag, "연애 스타일 태그는 필수입니다.");
     }
 
-    public static MyProfileTags of(PersonalityTag personalityTag, FaceTypeTag faceTypeTag, DatingStyleTag datingStyleTag) {
+    public static MyProfileTags create(PersonalityTag personalityTag, FaceTypeTag faceTypeTag, DatingStyleTag datingStyleTag) {
         return new MyProfileTags(personalityTag, faceTypeTag, datingStyleTag);
     }
 

@@ -6,7 +6,6 @@ import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfi
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberTagsInfo;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Email;
-import org.smu.randsome.randsomeback.domain.member.entity.vo.MyProfileTags;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Password;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.StudentId;
@@ -51,7 +50,9 @@ public class MemberFixture {
                 DEFAULT_INSTAGRAM_ID,
                 DEFAULT_SELF_INTRODUCTION,
                 DEFAULT_IDEAL_DESCRIPTION,
-                createMyProfileTags()
+                DEFAULT_PERSONALITY_TAG,
+                DEFAULT_FACE_TYPE_TAG,
+                DEFAULT_DATING_STYLE_TAG
         );
     }
 
@@ -69,10 +70,6 @@ public class MemberFixture {
 
     public static MemberTagsInfo createTagsInfo() {
         return new MemberTagsInfo(DEFAULT_PERSONALITY_TAG, DEFAULT_FACE_TYPE_TAG, DEFAULT_DATING_STYLE_TAG);
-    }
-
-    public static MyProfileTags createMyProfileTags() {
-        return MyProfileTags.of(DEFAULT_PERSONALITY_TAG, DEFAULT_FACE_TYPE_TAG, DEFAULT_DATING_STYLE_TAG);
     }
 
     public static Email email() {
@@ -103,7 +100,9 @@ public class MemberFixture {
                 email.substring(0, email.indexOf('@')),
                 DEFAULT_SELF_INTRODUCTION,
                 DEFAULT_IDEAL_DESCRIPTION,
-                createMyProfileTags()
+                DEFAULT_PERSONALITY_TAG,
+                DEFAULT_FACE_TYPE_TAG,
+                DEFAULT_DATING_STYLE_TAG
         );
     }
 
@@ -120,7 +119,9 @@ public class MemberFixture {
                 instagramId,
                 DEFAULT_SELF_INTRODUCTION,
                 DEFAULT_IDEAL_DESCRIPTION,
-                createMyProfileTags()
+                DEFAULT_PERSONALITY_TAG,
+                DEFAULT_FACE_TYPE_TAG,
+                DEFAULT_DATING_STYLE_TAG
         );
     }
 
@@ -143,7 +144,9 @@ public class MemberFixture {
                 instagramId,
                 DEFAULT_SELF_INTRODUCTION,
                 DEFAULT_IDEAL_DESCRIPTION,
-                createMyProfileTags()
+                DEFAULT_PERSONALITY_TAG,
+                DEFAULT_FACE_TYPE_TAG,
+                DEFAULT_DATING_STYLE_TAG
         );
         member.updateRole(Role.ROLE_CANDIDATE);
         return member;
