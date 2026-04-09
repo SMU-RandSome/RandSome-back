@@ -48,7 +48,8 @@ public class MemberController extends MemberControllerDocs {
                 request.toCredentials(),
                 request.toBasicInfo(),
                 request.toSocialProfile(),
-                request.toBankAccountInfo()
+                request.toBankAccountInfo(),
+                request.toTagsInfo()
         );
 
         return ApiResponse.success(memberId);

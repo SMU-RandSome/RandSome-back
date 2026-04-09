@@ -4,9 +4,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import org.smu.randsome.randsomeback.domain.bankaccount.entity.BankAccount;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.entity.vo.MyProfileTags;
 import org.smu.randsome.randsomeback.domain.member.enums.CandidateRegistrationStatusView;
+import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
+import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
+import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 
 @Schema(
@@ -58,7 +62,16 @@ public record MemberProfileResponse(
         CandidateRegistrationStatusView candidateRegistrationStatus,
 
         @Schema(description = "후보자 노출 횟수", example = "5")
-        long exposureCount
+        long exposureCount,
+
+        @Schema(description = "내 성격 태그", example = "ACTIVE", nullable = true)
+        PersonalityTag personalityTag,
+
+        @Schema(description = "내 얼굴상 태그", example = "PUPPY", nullable = true)
+        FaceTypeTag faceTypeTag,
+
+        @Schema(description = "내 연애 스타일 태그", example = "EXPRESSIVE", nullable = true)
+        DatingStyleTag datingStyleTag
 ) {
 
     public static MemberProfileResponse of(
@@ -67,6 +80,8 @@ public record MemberProfileResponse(
             CandidateRegistrationStatusView candidateRegistrationStatus,
             long exposureCount
     ) {
+        MyProfileTags profileTags = member.getMyProfileTags();
+
         return MemberProfileResponse.builder()
                 .id(member.getId())
                 .nickname(member.getNickname())
@@ -83,6 +98,9 @@ public record MemberProfileResponse(
                 .accountNumber(bankAccount.getAccountNumber())
                 .candidateRegistrationStatus(candidateRegistrationStatus)
                 .exposureCount(exposureCount)
+                .personalityTag(profileTags.personalityTag())
+                .faceTypeTag(profileTags.faceTypeTag())
+                .datingStyleTag(profileTags.datingStyleTag())
                 .build();
     }
 

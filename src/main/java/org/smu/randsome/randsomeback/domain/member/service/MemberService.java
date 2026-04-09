@@ -9,6 +9,7 @@ import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountRea
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberTagsInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
@@ -38,6 +39,7 @@ public class MemberService {
      * @param basicInfo              회원의 기본 정보 (이름, 생년월일 등)
      * @param socialProfile          회원의 소셜 프로필 정보 (인스타그램 ID, 자기소개 등)
      * @param bankAccountInfo        회원의 은행 계좌 정보
+     * @param tagsInfo               회원의 태그 정보 (성격, 얼굴형, 데이트 스타일 등)
      * @return 생성된 회원의 ID
      *
      */
@@ -47,11 +49,12 @@ public class MemberService {
             MemberCredentials credentials,
             MemberBasicInfo basicInfo,
             MemberSocialProfile socialProfile,
-            BankAccountInfo bankAccountInfo
+            BankAccountInfo bankAccountInfo,
+            MemberTagsInfo tagsInfo
     ) {
         memberValidator.validateSignUpToken(emailVerificationToken, credentials.email());
 
-        Member member = memberManager.create(credentials, basicInfo, socialProfile);
+        Member member = memberManager.create(credentials, basicInfo, socialProfile, tagsInfo);
         termsAgreementManager.saveAll(member.getId());
         bankAccountManager.create(member.getId(), bankAccountInfo);
 

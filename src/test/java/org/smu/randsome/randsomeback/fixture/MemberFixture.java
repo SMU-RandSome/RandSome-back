@@ -3,14 +3,19 @@ package org.smu.randsome.randsomeback.fixture;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberTagsInfo;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Email;
+import org.smu.randsome.randsomeback.domain.member.entity.vo.MyProfileTags;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Password;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.StudentId;
+import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
+import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
+import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +33,10 @@ public class MemberFixture {
     public static final Department DEFAULT_DEPARTMENT    = Department.SOFTWARE;
     public static final Department OTHER_DEPARTMENT      = Department.ELECTRONICS_ENGINEERING;
 
+    public static final PersonalityTag DEFAULT_PERSONALITY_TAG    = PersonalityTag.ACTIVE;
+    public static final FaceTypeTag DEFAULT_FACE_TYPE_TAG         = FaceTypeTag.PUPPY;
+    public static final DatingStyleTag DEFAULT_DATING_STYLE_TAG   = DatingStyleTag.EXPRESSIVE;
+
     public static final PasswordEncoder ENCODER = new BCryptPasswordEncoder();
 
     public static Member create() {
@@ -41,7 +50,8 @@ public class MemberFixture {
                 DEFAULT_DEPARTMENT,
                 DEFAULT_INSTAGRAM_ID,
                 DEFAULT_SELF_INTRODUCTION,
-                DEFAULT_IDEAL_DESCRIPTION
+                DEFAULT_IDEAL_DESCRIPTION,
+                createMyProfileTags()
         );
     }
 
@@ -55,6 +65,14 @@ public class MemberFixture {
 
     public static MemberSocialProfile createMemberSocialProfile() {
         return new MemberSocialProfile(DEFAULT_INSTAGRAM_ID, DEFAULT_SELF_INTRODUCTION, DEFAULT_IDEAL_DESCRIPTION);
+    }
+
+    public static MemberTagsInfo createTagsInfo() {
+        return new MemberTagsInfo(DEFAULT_PERSONALITY_TAG, DEFAULT_FACE_TYPE_TAG, DEFAULT_DATING_STYLE_TAG);
+    }
+
+    public static MyProfileTags createMyProfileTags() {
+        return MyProfileTags.of(DEFAULT_PERSONALITY_TAG, DEFAULT_FACE_TYPE_TAG, DEFAULT_DATING_STYLE_TAG);
     }
 
     public static Email email() {
@@ -73,7 +91,6 @@ public class MemberFixture {
         return StudentId.create(DEFAULT_EMAIL);
     }
 
-
     public static Member createWithLegalName(String email, String legalName) {
         return Member.create(
                 email,
@@ -85,7 +102,8 @@ public class MemberFixture {
                 DEFAULT_DEPARTMENT,
                 email.substring(0, email.indexOf('@')),
                 DEFAULT_SELF_INTRODUCTION,
-                DEFAULT_IDEAL_DESCRIPTION
+                DEFAULT_IDEAL_DESCRIPTION,
+                createMyProfileTags()
         );
     }
 
@@ -101,7 +119,8 @@ public class MemberFixture {
                 DEFAULT_DEPARTMENT,
                 instagramId,
                 DEFAULT_SELF_INTRODUCTION,
-                DEFAULT_IDEAL_DESCRIPTION
+                DEFAULT_IDEAL_DESCRIPTION,
+                createMyProfileTags()
         );
     }
 
@@ -123,7 +142,8 @@ public class MemberFixture {
                 department,
                 instagramId,
                 DEFAULT_SELF_INTRODUCTION,
-                DEFAULT_IDEAL_DESCRIPTION
+                DEFAULT_IDEAL_DESCRIPTION,
+                createMyProfileTags()
         );
         member.updateRole(Role.ROLE_CANDIDATE);
         return member;

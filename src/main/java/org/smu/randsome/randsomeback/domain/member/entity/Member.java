@@ -15,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Email;
+import org.smu.randsome.randsomeback.domain.member.entity.vo.MyProfileTags;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Password;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.StudentId;
@@ -66,6 +67,9 @@ public class Member extends BaseEntity {
     @Embedded
     private SocialProfile socialProfile;
 
+    @Embedded
+    private MyProfileTags myProfileTags;
+
     private String refreshToken;
 
     @Version
@@ -81,7 +85,8 @@ public class Member extends BaseEntity {
             Department department,
             String instagramId,
             String selfIntroduction,
-            String idealDescription
+            String idealDescription,
+            MyProfileTags myProfileTags
     ) {
         Member member = new Member();
 
@@ -97,6 +102,7 @@ public class Member extends BaseEntity {
         member.department = requireNonNull(department);
         member.studentId = StudentId.create(safeEmail);
         member.socialProfile = SocialProfile.create(instagramId, selfIntroduction, idealDescription);
+        member.myProfileTags = myProfileTags;
         member.role = Role.ROLE_MEMBER;
         member.refreshToken = null;
 
@@ -143,6 +149,10 @@ public class Member extends BaseEntity {
 
     public void updatePassword(String newPassword, PasswordEncoder passwordEncoder) {
         this.password = Password.create(newPassword, passwordEncoder);
+    }
+
+    public void changeProfileTags(MyProfileTags myProfileTags) {
+        this.myProfileTags = myProfileTags;
     }
 
     private static String createRandomNickname(Gender gender) {
