@@ -12,7 +12,7 @@ class MyProfileTagsTest extends UnitTestSupport {
 
     @Test
     void 세_태그로_MyProfileTags를_생성한다() {
-        MyProfileTags tags = MyProfileTags.of(PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.EXPRESSIVE);
+        MyProfileTags tags = MyProfileTags.create(PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.EXPRESSIVE);
 
         assertThat(tags.personalityTag()).isEqualTo(PersonalityTag.ACTIVE);
         assertThat(tags.faceTypeTag()).isEqualTo(FaceTypeTag.PUPPY);

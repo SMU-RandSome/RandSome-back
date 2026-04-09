@@ -6,8 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.UpdateBankAccount;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
+import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
+import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
+import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 
 @Schema(name = "회원 프로필 수정 요청 DTO", description = "회원 프로필 수정 시 필요한 정보를 담는 DTO입니다.")
 @Builder
@@ -39,7 +42,19 @@ public record MemberUpdateRequest(
 
         @Schema(description = "계좌번호", example = "123456789012")
         @NotBlank(message = "계좌번호는 필수입니다.")
-        String accountNumber
+        String accountNumber,
+
+        @Schema(description = "내 성격 태그", example = "ACTIVE")
+        @NotNull(message = "성격 태그는 필수입니다.")
+        PersonalityTag personalityTag,
+
+        @Schema(description = "내 얼굴상 태그", example = "PUPPY")
+        @NotNull(message = "얼굴상 태그는 필수입니다.")
+        FaceTypeTag faceTypeTag,
+
+        @Schema(description = "내 연애 스타일 태그", example = "EXPRESSIVE")
+        @NotNull(message = "연애 스타일 태그는 필수입니다.")
+        DatingStyleTag datingStyleTag
 ) {
 
     public UpdateBankAccount toUpdateBankAccount() {
@@ -58,6 +73,9 @@ public record MemberUpdateRequest(
                 .instagramId(instagramId)
                 .selfIntroduction(selfIntroduction)
                 .idealDescription(idealDescription)
+                .personalityTag(personalityTag)
+                .faceTypeTag(faceTypeTag)
+                .datingStyleTag(datingStyleTag)
                 .build();
     }
 

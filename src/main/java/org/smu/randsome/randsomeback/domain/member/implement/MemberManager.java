@@ -38,9 +38,6 @@ public class MemberManager {
         }
 
         try {
-            MyProfileTags profileTags = MyProfileTags.of(
-                    tagsInfo.personalityTag(), tagsInfo.faceTypeTag(), tagsInfo.datingStyleTag());
-
             return memberJpaRepository.save(Member.create(
                     credentials.email(),
                     credentials.password(),
@@ -52,7 +49,9 @@ public class MemberManager {
                     socialProfile.instagramId(),
                     socialProfile.selfIntroduction(),
                     socialProfile.idealDescription(),
-                    profileTags
+                    tagsInfo.personalityTag(),
+                    tagsInfo.faceTypeTag(),
+                    tagsInfo.datingStyleTag()
             ));
         } catch (DataIntegrityViolationException e) {
             throw new CoreException(ErrorType.DUPLICATE_EMAIL);
@@ -74,10 +73,12 @@ public class MemberManager {
                 updateProfile.department(),
                 updateProfile.instagramId(),
                 updateProfile.selfIntroduction(),
-                updateProfile.idealDescription()
+                updateProfile.idealDescription(),
+                updateProfile.personalityTag(),
+                updateProfile.faceTypeTag(),
+                updateProfile.datingStyleTag()
         );
         log.info("[MemberManager] 프로필 수정 완료 - memberId={}", memberId);
-
     }
 
     @Transactional
