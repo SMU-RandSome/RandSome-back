@@ -16,6 +16,9 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
+RUN apk add --no-cache tzdata
+ENV TZ=Asia/Seoul
+
 RUN addgroup -S spring && adduser -S spring -G spring
 
 COPY --from=builder /app/build/libs/app.jar app.jar
