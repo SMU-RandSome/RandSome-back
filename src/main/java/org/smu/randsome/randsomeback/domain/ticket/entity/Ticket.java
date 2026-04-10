@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.domain.ticket.entity;
 import static java.util.Objects.requireNonNull;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -18,8 +19,6 @@ import lombok.NoArgsConstructor;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
 import org.smu.randsome.randsomeback.global.entity.BaseEntity;
-import org.smu.randsome.randsomeback.global.support.error.CoreException;
-import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 
 @Table(
         uniqueConstraints = @UniqueConstraint(name = "UK_TICKET_MEMBER_TICKET_TYPE", columnNames = {"member_id", "ticket_type"})
@@ -37,8 +36,8 @@ public class Ticket extends BaseEntity {
     @Column(nullable = false, length = 20)
     private TicketType ticketType;
 
-    @Column(nullable = false)
-    private int quantity;
+    @Embedded
+    private TicketQuantity quantity;
 
     @Version
     private Long version;
@@ -48,20 +47,21 @@ public class Ticket extends BaseEntity {
 
         ticket.member = requireNonNull(member);
         ticket.ticketType = requireNonNull(ticketType);
-        ticket.quantity = quantity;
+        ticket.quantity = TicketQuantity.initial(quantity);
 
         return ticket;
     }
 
     public void earn(int amount) {
-        this.quantity += amount;
+        this.quantity = this.quantity.plus(amount);
     }
 
     public void use(int amount) {
-        if (this.quantity < amount) {
-            throw new CoreException(ErrorType.NOT_ENOUGH_TICKETS);
-        }
-        this.quantity -= amount;
+        this.quantity = this.quantity.minus(amount);
+    }
+
+    public int getQuantityValue() {
+        return quantity.value();
     }
 
 }
