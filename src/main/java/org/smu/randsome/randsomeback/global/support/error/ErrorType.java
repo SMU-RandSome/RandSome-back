@@ -57,7 +57,8 @@ public enum ErrorType {
     IDEAL_MATCHING_NOT_IMPLEMENTED      (HttpStatus.INTERNAL_SERVER_ERROR, "이상형 매칭 기능은 아직 준비 중입니다.", LogLevel.WARN),
 
     // TICKET
-    NOT_ENOUGH_TICKETS (HttpStatus.BAD_REQUEST, "티켓이 부족합니다.", LogLevel.INFO),
+    NOT_ENOUGH_TICKETS    (HttpStatus.BAD_REQUEST, "티켓이 부족합니다.", LogLevel.INFO),
+    INVALID_TICKET_AMOUNT (HttpStatus.BAD_REQUEST, "유효하지 않은 티켓 수량입니다. 0보다 큰 수량을 입력해주세요.", LogLevel.INFO),
 
     // PAYMENT
     INVALID_PERSON_COUNT                (HttpStatus.BAD_REQUEST, "인원 수가 유효하지 않습니다.", LogLevel.INFO),
@@ -83,14 +84,13 @@ public enum ErrorType {
     FIREBASE_INIT_ERROR     (HttpStatus.INTERNAL_SERVER_ERROR, "Firebase 초기화에 실패했습니다.", LogLevel.ERROR),
     SEND_NOTIFICATION_ERROR (HttpStatus.INTERNAL_SERVER_ERROR, "알림 전송에 실패했습니다.", LogLevel.ERROR),
 
-    // JWT
+    // JWT,
     EMPTY_TOKEN                        (HttpStatus.UNAUTHORIZED, "JWT 토큰이 존재하지 않습니다.", LogLevel.WARN),
     INVALID_TOKEN                      (HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다.", LogLevel.WARN),
     TOKEN_THEFT_DETECTED               (HttpStatus.UNAUTHORIZED, "토큰 탈취가 감지되었습니다. 보안을 위해 재로그인이 필요합니다.", LogLevel.WARN),
     EMPTY_SECURITY_CONTEXT             (HttpStatus.UNAUTHORIZED, "Security Context 에 인증 정보가 없습니다.", LogLevel.WARN),
     NOT_FOUND_TOKEN                    (HttpStatus.NOT_FOUND, "토큰을 찾을 수 없습니다.", LogLevel.INFO),
-    CONCURRENT_REQUESTS_LIMIT_EXCEEDED (HttpStatus.TOO_MANY_REQUESTS, "동시에 여러 토큰 재발급 요청이 감지되었습니다. 잠시 후 다시 시도해주세요.", LogLevel.WARN),
-    ;
+    CONCURRENT_REQUESTS_LIMIT_EXCEEDED (HttpStatus.TOO_MANY_REQUESTS, "동시에 여러 토큰 재발급 요청이 감지되었습니다. 잠시 후 다시 시도해주세요.", LogLevel.WARN);
 
     private final HttpStatus status;
     private final String message;

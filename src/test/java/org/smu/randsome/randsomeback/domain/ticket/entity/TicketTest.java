@@ -15,7 +15,7 @@ class TicketTest {
         // given
         var member = MemberFixture.create();
         var randomType = TicketType.RANDOM;
-        var idealType = TicketType.RANDOM;
+        var idealType = TicketType.IDEAL;
         int quantity = 10;
 
         // when
@@ -23,17 +23,11 @@ class TicketTest {
         var idealTicket = Ticket.create(member, idealType, quantity);
 
         // then
-        assertThat(randomTicket).isNotNull().extracting(
-                Ticket::getMember,
-                Ticket::getTicketType,
-                Ticket::getQuantity
-        ).containsExactly(member, randomType, quantity);
-
-        assertThat(idealTicket).isNotNull().extracting(
-                Ticket::getMember,
-                Ticket::getTicketType,
-                Ticket::getQuantity
-        ).containsExactly(member, idealType, quantity);
+        assertThat(randomTicket.getQuantityValue()).isEqualTo(quantity);
+        assertThat(randomTicket.getTicketType()).isEqualTo(randomType);
+        
+        assertThat(idealTicket.getQuantityValue()).isEqualTo(quantity);
+        assertThat(idealTicket.getTicketType()).isEqualTo(idealType);
     }
 
     @Test
@@ -45,7 +39,7 @@ class TicketTest {
         ticket.earn(5);
 
         // then
-        assertThat(ticket.getQuantity()).isEqualTo(15);
+        assertThat(ticket.getQuantityValue()).isEqualTo(15);
     }
 
     @Test
@@ -57,7 +51,7 @@ class TicketTest {
         ticket.use(4);
 
         // then
-        assertThat(ticket.getQuantity()).isEqualTo(6);
+        assertThat(ticket.getQuantityValue()).isEqualTo(6);
     }
 
     @Test
@@ -69,7 +63,7 @@ class TicketTest {
         ticket.use(10);
 
         // then
-        assertThat(ticket.getQuantity()).isZero();
+        assertThat(ticket.getQuantityValue()).isZero();
     }
 
     @Test
@@ -92,7 +86,7 @@ class TicketTest {
         ticket.earn(3);
 
         // then
-        assertThat(ticket.getQuantity()).isEqualTo(8);
+        assertThat(ticket.getQuantityValue()).isEqualTo(8);
     }
 
 }
