@@ -1,0 +1,67 @@
+package org.smu.randsome.randsomeback.domain.ticket.entity;
+
+import static java.util.Objects.requireNonNull;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
+import org.smu.randsome.randsomeback.global.entity.BaseEntity;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+
+@Table(
+        uniqueConstraints = @UniqueConstraint(name = "UK_TICKET_MEMBER_TICKET_TYPE", columnNames = {"member_id", "ticket_type"})
+)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+public class Ticket extends BaseEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
+    private Member member;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private TicketType ticketType;
+
+    @Column(nullable = false)
+    private int quantity;
+
+    @Version
+    private Long version;
+
+    public static Ticket create(Member member, TicketType ticketType, int quantity) {
+        Ticket ticket = new Ticket();
+
+        ticket.member = requireNonNull(member);
+        ticket.ticketType = requireNonNull(ticketType);
+        ticket.quantity = quantity;
+
+        return ticket;
+    }
+
+    public void earn(int amount) {
+        this.quantity += amount;
+    }
+
+    public void use(int amount) {
+        if (this.quantity < amount) {
+            throw new CoreException(ErrorType.NOT_ENOUGH_TICKETS);
+        }
+        this.quantity -= amount;
+    }
+
+}
