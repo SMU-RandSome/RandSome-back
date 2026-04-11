@@ -4,7 +4,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
-import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.ticket.entity.Ticket;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketActionType;

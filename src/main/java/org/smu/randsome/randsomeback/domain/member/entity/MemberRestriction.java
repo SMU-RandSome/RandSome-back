@@ -1,6 +1,6 @@
 package org.smu.randsome.randsomeback.domain.member.entity;
 
-import static java.util.Objects.*;
+import static java.util.Objects.requireNonNull;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
