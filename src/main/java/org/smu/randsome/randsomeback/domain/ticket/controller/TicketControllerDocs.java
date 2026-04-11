@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.domain.ticket.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Min;
 import org.smu.randsome.randsomeback.domain.ticket.dto.response.TicketHistoryItem;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketHistorySortType;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
@@ -45,6 +46,7 @@ public abstract class TicketControllerDocs {
             @Parameter(description = "이전 페이지의 마지막 ID (첫 페이지는 미전달)", example = "42")
             Long cursor,
             @Parameter(description = "페이지 크기", example = "20")
+            @Min(1)
             int size,
             Long memberId
     );

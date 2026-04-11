@@ -13,12 +13,14 @@ import org.smu.randsome.randsomeback.domain.ticket.service.TicketService;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
+@Validated
 public class TicketController extends TicketControllerDocs {
 
     private final TicketService ticketService;

@@ -104,4 +104,15 @@ class TicketControllerTest extends ControllerTestSupport {
                 .hasStatus(HttpStatus.FORBIDDEN.value());
     }
 
+    @Test
+    @TestMember
+    void 티켓_이력_조회_시_크기가_0이면_400을_반환한다() {
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/tickets/history?size=0"))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"));
+    }
+
 }
