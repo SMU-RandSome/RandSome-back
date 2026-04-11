@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class TicketHandler {
 
+    private static final int ATTENDANCE_REWARD_AMOUNT = 1;
+
     private final TicketManager ticketManager;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -62,17 +64,16 @@ public class TicketHandler {
      * @param memberId 회원 식별자
      * */
     public void issueForAttendance(Long memberId) {
-        final int amount = 1;
         TicketType randomType = TicketType.RANDOM;
 
-        ticketManager.earn(memberId, randomType, amount);
+        ticketManager.earn(memberId, randomType, ATTENDANCE_REWARD_AMOUNT);
 
         eventPublisher.publishEvent(new TicketHistoryRegisterEvent(
                 memberId,
                 randomType,
                 TicketActionType.EARN,
                 TicketSource.ATTENDANCE,
-                amount,
+                ATTENDANCE_REWARD_AMOUNT,
                 TicketSource.ATTENDANCE.getDescription()
         ));
 
