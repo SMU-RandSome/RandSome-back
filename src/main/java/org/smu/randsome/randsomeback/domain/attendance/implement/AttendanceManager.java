@@ -26,7 +26,9 @@ public class AttendanceManager {
         Member member = memberReader.find(memberId);
         // exists check 없이 바로 INSERT — DB unique constraint(UK_ATTENDANCE_MEMBER_DATE)가 유일성을 보장하므로 TOCTOU 없이 안전하게 중복 방지
         try {
-            attendanceJpaRepository.save(Attendance.create(member, today));
+            // @Transactional이 Service에 있으므로 save()는 커밋 시점에 flush됨 → try-catch 밖에서 예외 발생.
+            // saveAndFlush()로 즉시 flush하여 DataIntegrityViolationException을 여기서 포착.
+            attendanceJpaRepository.saveAndFlush(Attendance.create(member, today));
         } catch (DataIntegrityViolationException e) {
             throw new CoreException(ErrorType.DUPLICATE_ATTENDANCE);
         }
