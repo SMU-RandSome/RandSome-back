@@ -13,14 +13,15 @@ import org.smu.randsome.randsomeback.domain.ticket.entity.TicketHistory;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketActionType;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketSource;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
+import org.smu.randsome.randsomeback.domain.ticket.event.TicketHistoryEventHandler;
 import org.smu.randsome.randsomeback.domain.ticket.event.TicketHistoryRegisterEvent;
 import org.smu.randsome.randsomeback.domain.ticket.repository.TicketHistoryJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 
-class TicketHistoryHandlerUnitTest extends UnitTestSupport {
+class TicketHistoryEventHandlerUnitTest extends UnitTestSupport {
 
     @InjectMocks
-    TicketHistoryHandler ticketHistoryHandler;
+    TicketHistoryEventHandler ticketHistoryEventHandler;
 
     @Mock
     MemberReader memberReader;
@@ -35,7 +36,7 @@ class TicketHistoryHandlerUnitTest extends UnitTestSupport {
         given(memberReader.find(any(Long.class))).willReturn(member);
 
         // when
-        ticketHistoryHandler.recordTicketHistory(new TicketHistoryRegisterEvent(
+        ticketHistoryEventHandler.recordTicketHistory(new TicketHistoryRegisterEvent(
                 1L,
                 TicketType.RANDOM,
                 TicketActionType.USE,
