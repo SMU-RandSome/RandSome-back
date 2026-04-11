@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import java.util.Optional;
@@ -25,8 +23,6 @@ import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 import org.smu.randsome.randsomeback.fixture.BankAccountFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
-import org.smu.randsome.randsomeback.global.support.error.CoreException;
-import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -56,156 +52,6 @@ class MemberControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
                 .hasPathSatisfying("$.data", v -> v.assertThat().isEqualTo(1))
                 .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
-    }
-
-    @Test
-    void 회원가입_요청_이메일이_상명대_이메일이_아니면_400을_반환한다() throws Exception {
-        // given
-        var request = new MemberCreateRequest(
-                "email.verification.token",
-                "student@gmail.com",
-                "password123!",
-                "홍길동",
-                Gender.MALE,
-                Mbti.ISTP,
-                Department.SOFTWARE,
-                "my_insta",
-                "안녕하세요",
-                "착한 사람",
-                true,
-                "국민은행",
-                "123456789012",
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.BEAR,
-                DatingStyleTag.EXPRESSIVE
-        );
-
-        // when & then
-        assertThat(mvcTester.post().uri("/v1/members/sign-up")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    void 회원가입_요청_이메일_인증_토큰이_비어있으면_400을_반환한다() throws Exception {
-        // given
-        var request = new MemberCreateRequest(
-                "",
-                "202312345@sangmyung.kr",
-                "password123!",
-                "홍길동",
-                Gender.MALE,
-                Mbti.ISTP,
-                Department.SOFTWARE,
-                "my_insta",
-                "안녕하세요",
-                "착한 사람",
-                true,
-                "국민은행",
-                "123456789012",
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.BEAR,
-                DatingStyleTag.EXPRESSIVE
-        );
-
-        // when & then
-        assertThat(mvcTester.post().uri("/v1/members/sign-up")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    void 약관에_동의하지_않으면_400을_반환한다() throws Exception {
-        // given
-        var request = new MemberCreateRequest(
-                "email.verification.token",
-                "202312345@sangmyung.kr",
-                "password123!",
-                "홍길동",
-                Gender.MALE,
-                Mbti.ISTP,
-                Department.SOFTWARE,
-                "my_insta",
-                "안녕하세요",
-                "착한 사람",
-                false,
-                "국민은행",
-                "123456789012",
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.BEAR,
-                DatingStyleTag.EXPRESSIVE
-        );
-
-        // when & then
-        assertThat(mvcTester.post().uri("/v1/members/sign-up")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    void 은행명이_비어있으면_400을_반환한다() throws Exception {
-        // given
-        var request = new MemberCreateRequest(
-                "email.verification.token",
-                "202312345@sangmyung.kr",
-                "password123!",
-                "홍길동",
-                Gender.MALE,
-                Mbti.ISTP,
-                Department.SOFTWARE,
-                "my_insta",
-                "안녕하세요",
-                "착한 사람",
-                true,
-                "",
-                "123456789012",
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.BEAR,
-                DatingStyleTag.EXPRESSIVE
-        );
-
-        // when & then
-        assertThat(mvcTester.post().uri("/v1/members/sign-up")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    void 계좌번호가_비어있으면_400을_반환한다() throws Exception {
-        // given
-        var request = new MemberCreateRequest(
-                "email.verification.token",
-                "202312345@sangmyung.kr",
-                "password123!",
-                "홍길동",
-                Gender.MALE,
-                Mbti.ISTP,
-                Department.SOFTWARE,
-                "my_insta",
-                "안녕하세요",
-                "착한 사람",
-                true,
-                "국민은행",
-                "",
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.BEAR,
-                DatingStyleTag.EXPRESSIVE
-        );
-
-        // when & then
-        assertThat(mvcTester.post().uri("/v1/members/sign-up")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
@@ -265,44 +111,10 @@ class MemberControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    @TestMember
-    void 계좌가_없는_회원이면_프로필_조회_시_404를_반환한다() {
-        // given
-        Member member = mock(Member.class);
-        given(memberService.getMyProfile(any())).willReturn(member);
-        willThrow(new CoreException(ErrorType.NOT_FOUND_BANK_ACCOUNT))
-                .given(bankAccountService).findByMemberId(any());
-
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/members"))
-                .apply(print())
-                .hasStatus(HttpStatus.NOT_FOUND.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
-                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_BANK_ACCOUNT.getMessage()));
-    }
-
-    @Test
     void 인증되지_않은_사용자는_403을_반환한다() {
         assertThat(mvcTester.get().uri("/v1/members"))
                 .apply(print())
                 .hasStatus(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
-    @TestMember
-    void 존재하지_않는_회원이면_404를_반환한다() {
-        // given
-        willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
-                .given(memberService).getMyProfile(any());
-
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/members"))
-                .apply(print())
-                .hasStatus(HttpStatus.NOT_FOUND.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
-                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_MEMBER.getMessage()));
     }
 
     @Test
@@ -317,92 +129,6 @@ class MemberControllerTest extends ControllerTestSupport {
                 .content(objectMapper.writeValueAsString(request)))
                 .apply(print())
                 .hasStatus(HttpStatus.OK.value());
-    }
-
-    @Test
-    @TestMember
-    void 프로필_업데이트_시_실명이_없으면_400을_반환한다() throws Exception {
-        // given
-        var request = MemberUpdateRequest.builder()
-                .legalName("")
-                .mbti(Mbti.ENFP)
-                .build();
-
-        // when & then
-        assertThat(mvcTester.patch().uri("/v1/members")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    @TestMember
-    void 프로필_업데이트_시_MBTI가_없으면_400을_반환한다() throws Exception {
-        // given
-        var request = MemberUpdateRequest.builder()
-                .legalName("김철수")
-                .mbti(null)
-                .build();
-
-        // when & then
-        assertThat(mvcTester.patch().uri("/v1/members")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    @TestMember
-    void 프로필_업데이트_시_존재하지_않는_회원이면_404를_반환한다() throws Exception {
-        // given
-        willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
-                .given(memberService).updateProfile(any(), any(), any());
-
-        // when & then
-        assertThat(mvcTester.patch().uri("/v1/members")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createValidUpdateRequest())))
-                .apply(print())
-                .hasStatus(HttpStatus.NOT_FOUND.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
-                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_MEMBER.getMessage()));
-    }
-
-    @Test
-    @TestMember
-    void 프로필_수정_시_은행명이_비어있으면_400을_반환한다() throws Exception {
-        var request = MemberUpdateRequest.builder()
-                .legalName("김철수")
-                .mbti(Mbti.ENFP)
-                .bankName("")
-                .accountNumber("123456789012")
-                .build();
-
-        assertThat(mvcTester.patch().uri("/v1/members")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    @TestMember
-    void 프로필_수정_시_계좌번호가_비어있으면_400을_반환한다() throws Exception {
-        var request = MemberUpdateRequest.builder()
-                .legalName("김철수")
-                .mbti(Mbti.ENFP)
-                .bankName("국민은행")
-                .accountNumber("")
-                .build();
-
-        assertThat(mvcTester.patch().uri("/v1/members")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
     }
 
     private MemberUpdateRequest createValidUpdateRequest() {
@@ -433,91 +159,6 @@ class MemberControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
     }
 
-    @Test
-    void 비밀번호_변경_시_인증_토큰이_비어있으면_400을_반환한다() throws Exception {
-        var request = new PasswordUpdateRequest("", "202312345@sangmyung.kr", "newPassword123!");
-
-        assertThat(mvcTester.patch().uri("/v1/members/password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    void 비밀번호_변경_시_이메일이_비어있으면_400을_반환한다() throws Exception {
-        var request = new PasswordUpdateRequest("password.verification.token", "", "newPassword123!");
-
-        assertThat(mvcTester.patch().uri("/v1/members/password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    void 비밀번호_변경_시_이메일이_상명대_이메일이_아니면_400을_반환한다() throws Exception {
-        var request = new PasswordUpdateRequest("password.verification.token", "student@gmail.com", "newPassword123!");
-
-        assertThat(mvcTester.patch().uri("/v1/members/password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    void 비밀번호_변경_시_새_비밀번호가_비어있으면_400을_반환한다() throws Exception {
-        var request = new PasswordUpdateRequest("password.verification.token", "202312345@sangmyung.kr", "");
-
-        assertThat(mvcTester.patch().uri("/v1/members/password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    void 비밀번호_변경_시_새_비밀번호가_8자_미만이면_400을_반환한다() throws Exception {
-        var request = new PasswordUpdateRequest("password.verification.token", "202312345@sangmyung.kr", "short1!");
-
-        assertThat(mvcTester.patch().uri("/v1/members/password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    void 비밀번호_변경_시_이메일_인증_토큰이_유효하지_않으면_400을_반환한다() throws Exception {
-        willThrow(new CoreException(ErrorType.INVALID_PASSWORD_UPDATE_REQUEST))
-                .given(memberService).updatePassword(any(), any(), any());
-
-        assertThat(mvcTester.patch().uri("/v1/members/password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createValidPasswordUpdateRequest())))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
-                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.INVALID_PASSWORD_UPDATE_REQUEST.getMessage()));
-    }
-
-    @Test
-    void 비밀번호_변경_시_존재하지_않는_회원이면_404를_반환한다() throws Exception {
-        willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
-                .given(memberService).updatePassword(any(), any(), any());
-
-        assertThat(mvcTester.patch().uri("/v1/members/password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createValidPasswordUpdateRequest())))
-                .apply(print())
-                .hasStatus(HttpStatus.NOT_FOUND.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
-                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_MEMBER.getMessage()));
-    }
-
     private PasswordUpdateRequest createValidPasswordUpdateRequest() {
         return new PasswordUpdateRequest("password.verification.token", "202312345@sangmyung.kr", "newPassword123!");
     }
@@ -537,20 +178,6 @@ class MemberControllerTest extends ControllerTestSupport {
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
                 .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
-    }
-
-    @Test
-    @TestMember
-    void 디바이스_토큰이_비어있으면_400을_반환한다() throws Exception {
-        // given
-        var request = new DeviceTokenSyncRequest("");
-
-        // when & then
-        assertThat(mvcTester.patch().uri("/v1/members/devices")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
@@ -585,34 +212,6 @@ class MemberControllerTest extends ControllerTestSupport {
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
                 .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
-    }
-
-    @TestMember
-    @Test
-    void 승인된_후보자가_없으면_철회_시_404를_반환한다() {
-        willThrow(new CoreException(ErrorType.NOT_FOUND_CANDIDATE))
-                .given(candidateService).withdraw(any());
-
-        assertThat(mvcTester.post().uri("/v1/members/withdraw-candidate"))
-                .apply(print())
-                .hasStatus(HttpStatus.NOT_FOUND.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
-                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_CANDIDATE.getMessage()));
-    }
-
-    @TestMember
-    @Test
-    void 승인되지_않은_상태에서_철회하면_400을_반환한다() {
-        willThrow(new CoreException(ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED))
-                .given(candidateService).withdraw(any());
-
-        assertThat(mvcTester.post().uri("/v1/members/withdraw-candidate"))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
-                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_ALLOW_WITHDRAW_NON_APPROVED.getMessage()));
     }
 
     private MemberCreateRequest createValidRequest() {

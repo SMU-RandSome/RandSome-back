@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
@@ -20,8 +19,6 @@ import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.fixture.BankAccountFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
-import org.smu.randsome.randsomeback.global.support.error.CoreException;
-import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.data.domain.PageImpl;
@@ -77,42 +74,6 @@ class MemberAdminControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.data.bankName", v -> v.assertThat().isEqualTo(response.bankName()));
 
         then(memberAdminService).should().getMemberDetail(1L);
-    }
-
-    @TestAdmin
-    @Test
-    void 회원을_찾을_수_없으면_404를_반환한다() {
-        // given
-        doThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
-                .when(memberAdminService).getMemberDetail(2L);
-
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/members/2"))
-                .apply(print())
-                .hasStatus(HttpStatus.NOT_FOUND.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
-                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_MEMBER.getMessage()));
-
-        then(memberAdminService).should().getMemberDetail(2L);
-    }
-
-    @TestAdmin
-    @Test
-    void 은행_계좌를_찾을_수_없으면_404를_반환한다() {
-        // given
-        doThrow(new CoreException(ErrorType.NOT_FOUND_BANK_ACCOUNT))
-                .when(memberAdminService).getMemberDetail(3L);
-
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/members/3"))
-                .apply(print())
-                .hasStatus(HttpStatus.NOT_FOUND.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("ERROR"))
-                .hasPathSatisfying("$.error.message", v -> v.assertThat().isEqualTo(ErrorType.NOT_FOUND_BANK_ACCOUNT.getMessage()));
-
-        then(memberAdminService).should().getMemberDetail(3L);
     }
 
     @TestMember

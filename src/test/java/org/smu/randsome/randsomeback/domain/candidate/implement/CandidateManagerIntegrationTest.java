@@ -26,6 +26,20 @@ class CandidateManagerIntegrationTest extends IntegrationTestSupport {
     final CandidateJpaRepository candidateJpaRepository;
 
     @Test
+    void 후보자_지원을_저장하면_PENDING_상태로_DB에_저장된다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+
+        // when
+        var result = candidateManager.apply(member.getId());
+
+        // then
+        var saved = candidateJpaRepository.findById(result.getId()).orElseThrow();
+        assertThat(saved.getMember()).isEqualTo(member);
+        assertThat(saved.getRegistrationStatus()).isEqualTo(RegistrationStatus.PENDING);
+    }
+
+    @Test
     void 후보자_등록을_승인하면_등록_상태와_승인_시각_및_회원_역할이_변경된다() {
         // given
         var member = memberJpaRepository.save(MemberFixture.create());

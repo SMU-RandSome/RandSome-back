@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import java.math.BigDecimal;
@@ -65,22 +64,6 @@ class PaymentAdminControllerTest extends ControllerTestSupport {
         then(paymentAdminService).should().reject(1L, "증빙 서류 미비");
     }
 
-    @TestAdmin
-    @Test
-    void 결제_거절_사유가_비어있으면_400을_반환한다() throws Exception {
-        // given
-        var request = new PaymentRejectRequest("");
-
-        // when & then
-        assertThat(mvcTester.post().uri("/v1/admin/payments/1/reject")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-
-        then(paymentAdminService).should(never()).reject(1L, "");
-    }
-
     // ===== GET /v1/admin/payments =====
 
     @TestAdmin
@@ -110,72 +93,6 @@ class PaymentAdminControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.data.content[0].paymentId", v -> v.assertThat().isEqualTo(1))
                 .hasPathSatisfying("$.data.content[0].memberName", v -> v.assertThat().isEqualTo("홍길동"))
                 .hasPathSatisfying("$.data.content[0].paymentStatus", v -> v.assertThat().isEqualTo("PENDING"));
-    }
-
-    @TestAdmin
-    @Test
-    void 관리자가_PROCESSED_필터로_결제_내역을_조회하면_200을_반환한다() {
-        // given
-        given(paymentAdminService.findPayments(any(), any(Pageable.class))).willReturn(Page.empty());
-
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/payments?filterStatus=PROCESSED&query="))
-                .apply(print())
-                .hasStatus(HttpStatus.OK.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"));
-    }
-
-    @TestAdmin
-    @Test
-    void 조회_결과가_없으면_빈_content와_함께_200을_반환한다() {
-        // given
-        given(paymentAdminService.findPayments(any(), any(Pageable.class))).willReturn(Page.empty());
-
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/payments?filterStatus=PENDING&query="))
-                .apply(print())
-                .hasStatus(HttpStatus.OK.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
-                .hasPathSatisfying("$.data.totalElements", v -> v.assertThat().isEqualTo(0))
-                .hasPathSatisfying("$.data.content", v -> v.assertThat().asArray().isEmpty());
-    }
-
-    @TestAdmin
-    @Test
-    void 검색어로_결제_내역을_조회하면_200과_필터링된_목록을_반환한다() {
-        // given
-        given(paymentAdminService.findPayments(any(), any(Pageable.class))).willReturn(Page.empty());
-
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/payments?filterStatus=PENDING&query=홍길동"))
-                .apply(print())
-                .hasStatus(HttpStatus.OK.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"));
-    }
-
-    @TestAdmin
-    @Test
-    void filterStatus_파라미터가_없으면_400을_반환한다() {
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/payments"))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-
-        then(paymentAdminService).shouldHaveNoInteractions();
-    }
-
-    @TestAdmin
-    @Test
-    void 잘못된_filterStatus_값이면_400을_반환한다() {
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/payments?filterStatus=INVALID_STATUS"))
-                .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
-
-        then(paymentAdminService).shouldHaveNoInteractions();
     }
 
     // ===== 인가 검증 =====

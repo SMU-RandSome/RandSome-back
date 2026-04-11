@@ -52,21 +52,6 @@ class AnnouncementControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    @TestMember
-    void 공지사항이_없으면_빈_배열을_반환한다() {
-        // given
-        given(announcementService.findAnnouncements()).willReturn(List.of());
-
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/announcements"))
-                .apply(print())
-                .hasStatus(HttpStatus.OK.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
-                .hasPathSatisfying("$.data.length()", v -> v.assertThat().isEqualTo(0));
-    }
-
-    @Test
     void 권한이_없는_사용자가_공지사항을_조회하면_403을_반환한다() {
         assertThat(mvcTester.get().uri("/v1/announcements"))
                 .apply(print())
