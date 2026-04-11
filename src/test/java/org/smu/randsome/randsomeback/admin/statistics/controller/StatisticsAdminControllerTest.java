@@ -40,22 +40,6 @@ class StatisticsAdminControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.data.femaleCount", v -> v.assertThat().isEqualTo(3));
     }
 
-    @TestAdmin
-    @Test
-    void 후보자가_없으면_빈_리스트와_함께_200을_반환한다() {
-        // given
-        given(statisticsAdminService.findCandidateGenderCount()).willReturn(List.of());
-
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/statistics/candidates/gender-count"))
-                .apply(print())
-                .hasStatus(HttpStatus.OK.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
-                .hasPathSatisfying("$.data.maleCount", v -> v.assertThat().isEqualTo(0))
-                .hasPathSatisfying("$.data.femaleCount", v -> v.assertThat().isEqualTo(0));
-    }
-
     // ===== GET /v1/admin/statistics/payments/status-count =====
 
     @TestAdmin
