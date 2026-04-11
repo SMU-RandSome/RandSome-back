@@ -20,4 +20,12 @@ public enum TicketType {
         };
     }
 
+    public boolean isRandom() {
+        return this == RANDOM;
+    }
+
+    public boolean isIdeal() {
+        return this == IDEAL;
+    }
+
 }

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -40,6 +41,25 @@ class TicketReaderUnitTest extends UnitTestSupport {
         // then
         assertThat(result.getTicketType()).isEqualTo(ticketType);
         assertThat(result.getQuantityValue()).isEqualTo(3);
+    }
+
+    @Test
+    void 회원의_모든_티켓_목록을_조회한다() {
+        // given
+        var memberId = 1L;
+        var member = MemberFixture.create();
+        var tickets = List.of(
+                Ticket.create(member, TicketType.RANDOM, 3),
+                Ticket.create(member, TicketType.IDEAL, 1)
+        );
+        given(ticketJpaRepository.findAllByMemberIdAndStatus(memberId, EntityStatus.ACTIVE))
+                .willReturn(tickets);
+
+        // when
+        List<Ticket> result = ticketReader.findMyTickets(memberId);
+
+        // then
+        assertThat(result).hasSize(2);
     }
 
     @Test

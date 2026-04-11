@@ -1,5 +1,6 @@
 package org.smu.randsome.randsomeback.domain.ticket.implement;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.ticket.entity.Ticket;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
@@ -20,6 +21,11 @@ public class TicketReader {
     public Ticket findByMemberAndType(Long memberId, TicketType ticketType) {
         return ticketJpaRepository.findByMemberIdAndTicketTypeAndStatus(memberId, ticketType, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_TICKET));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Ticket> findMyTickets(Long memberId) {
+        return ticketJpaRepository.findAllByMemberIdAndStatus(memberId, EntityStatus.ACTIVE);
     }
 
 }
