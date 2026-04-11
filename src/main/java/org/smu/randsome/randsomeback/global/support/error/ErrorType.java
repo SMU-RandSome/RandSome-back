@@ -57,9 +57,10 @@ public enum ErrorType {
     IDEAL_MATCHING_NOT_IMPLEMENTED      (HttpStatus.INTERNAL_SERVER_ERROR, "이상형 매칭 기능은 아직 준비 중입니다.", LogLevel.WARN),
 
     // TICKET
+    NOT_FOUND_TICKET      (HttpStatus.NOT_FOUND, "티켓을 찾을 수 없습니다.", LogLevel.INFO),
     NOT_ENOUGH_TICKETS    (HttpStatus.BAD_REQUEST, "티켓이 부족합니다.", LogLevel.INFO),
     INVALID_TICKET_AMOUNT (HttpStatus.BAD_REQUEST, "유효하지 않은 티켓 수량입니다. 0보다 큰 수량을 입력해주세요.", LogLevel.INFO),
-    DUPLICATE_TICKET(HttpStatus.CONFLICT, "이미 가입하신 회원존재하는 티켓입니다.", LogLevel.INFO),
+    DUPLICATE_TICKET      (HttpStatus.CONFLICT, "이미 가입하신 회원존재하는 티켓입니다.", LogLevel.INFO),
     // PAYMENT
     INVALID_PERSON_COUNT                (HttpStatus.BAD_REQUEST, "인원 수가 유효하지 않습니다.", LogLevel.INFO),
     NOT_ALLOW_ALREADY_CONFIRMED_PAYMENT (HttpStatus.BAD_REQUEST, "이미 확정된 결제는 거절이 불가능합니다.", LogLevel.INFO),
