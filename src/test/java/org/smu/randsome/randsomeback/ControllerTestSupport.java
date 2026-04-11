@@ -11,6 +11,8 @@ import org.smu.randsome.randsomeback.admin.statistics.controller.StatisticsAdmin
 import org.smu.randsome.randsomeback.admin.statistics.service.StatisticsAdminService;
 import org.smu.randsome.randsomeback.domain.announcement.controller.AnnouncementController;
 import org.smu.randsome.randsomeback.domain.announcement.service.AnnouncementService;
+import org.smu.randsome.randsomeback.domain.attendance.controller.AttendanceController;
+import org.smu.randsome.randsomeback.domain.attendance.service.AttendanceService;
 import org.smu.randsome.randsomeback.domain.auth.controller.AuthController;
 import org.smu.randsome.randsomeback.domain.auth.service.AuthService;
 import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationService;
@@ -55,6 +57,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
         StatisticsAdminController.class,
         StatisticsController.class,
         TicketController.class,
+        AttendanceController.class
 })
 public abstract class ControllerTestSupport {
 
@@ -111,5 +114,8 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected TicketService ticketService;
+
+    @MockitoBean
+    protected AttendanceService attendanceService;
 
 }
