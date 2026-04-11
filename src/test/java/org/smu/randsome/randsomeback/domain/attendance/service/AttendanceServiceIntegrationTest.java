@@ -8,6 +8,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
+import org.springframework.transaction.annotation.Transactional;
 import org.smu.randsome.randsomeback.domain.attendance.repository.AttendanceJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.domain.ticket.dto.command.TicketHistorySearchCondition;
@@ -24,6 +25,7 @@ import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 
+@Transactional
 @RequiredArgsConstructor
 class AttendanceServiceIntegrationTest extends IntegrationTestSupport {
 
@@ -42,16 +44,18 @@ class AttendanceServiceIntegrationTest extends IntegrationTestSupport {
         var memberId = member.getId();
 
         // when
+        int beforeQuantity = ticketJpaRepository.findByMemberIdAndTicketTypeAndStatus(memberId, TicketType.RANDOM, EntityStatus.ACTIVE)
+                .orElseThrow().getQuantityValue();
         attendanceService.attend(memberId);
 
         // then
         // 1. 출석 기록 확인
         assertThat(attendanceJpaRepository.findAllByMemberIdAndStatus(memberId, EntityStatus.ACTIVE)).hasSize(1);
 
-        // 2. 티켓 지급 확인
+        // 2. 티켓 지급 확인 (출석 보상 1장 지급)
         Ticket ticket = ticketJpaRepository.findByMemberIdAndTicketTypeAndStatus(memberId, TicketType.RANDOM, EntityStatus.ACTIVE)
                 .orElseThrow();
-        assertThat(ticket.getQuantityValue()).isEqualTo(4);
+        assertThat(ticket.getQuantityValue()).isEqualTo(beforeQuantity + 1);
 
         // 3. 티켓 히스토리 기록 확인 (동기 처리 확인)
         List<TicketHistory> histories = ticketHistoryRepository.findHistories(memberId, new TicketHistorySearchCondition(null, null, null, 10));
