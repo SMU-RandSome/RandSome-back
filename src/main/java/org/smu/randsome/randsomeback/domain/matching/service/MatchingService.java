@@ -12,6 +12,7 @@ import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
+import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,18 +25,21 @@ public class MatchingService {
     private final MatchingManager matchingManager;
     private final MatchingReader matchingReader;
     private final PaymentManager paymentManager;
+    private final TicketHandler ticketHandler;
     private final ApplicationEventPublisher eventPublisher;
 
     /**
-     * 매칭 신청을 생성하고 결제 등록까지 수행한다.
+     * 매칭 신청을 처리한다. 신청 시 회원의 티켓을 차감하고, 매칭 신청 정보를 저장한 후, 매칭 신청 이벤트를 발행한다.
      *
      * @param newMatching 매칭 신청 커맨드
      * @param memberId 신청자 식별자
      */
     @Transactional
     public void apply(NewMatching newMatching, Long memberId) {
-        MatchingApplication matchingApplication = matchingManager.apply(newMatching, memberId);
+        ticketHandler.deduct(memberId, newMatching);
 
+        MatchingApplication matchingApplication = matchingManager.apply(newMatching, memberId);
+        // NOTE: 서비스 모델 변경(유료화 -> 무료화)으로 인한 삭제 예정
         paymentManager.register(
                 matchingApplication.getMember(),
                 PaymentType.from(matchingApplication.getMatchingType()),

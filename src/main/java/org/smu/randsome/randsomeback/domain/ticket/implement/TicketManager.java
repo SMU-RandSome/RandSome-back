@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TicketManager {
 
     private final TicketJpaRepository ticketJpaRepository;
+    private final TicketReader ticketReader;
 
     @Transactional
     public List<Ticket> create(Member member) {
@@ -21,6 +22,13 @@ public class TicketManager {
         Ticket idealTicket = Ticket.create(member, TicketType.IDEAL, TicketType.IDEAL.getDefaultQuantity());
 
         return ticketJpaRepository.saveAll(List.of(randomTicket, idealTicket));
+    }
+
+    @Transactional
+    public void use(Long memberId, TicketType ticketType, int amount) {
+        Ticket ticket = ticketReader.findByMemberAndType(memberId, ticketType);
+
+        ticket.use(amount);
     }
 
 }

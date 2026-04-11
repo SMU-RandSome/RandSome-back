@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
@@ -27,6 +28,7 @@ import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
 import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
+import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.context.ApplicationEventPublisher;
@@ -44,6 +46,9 @@ class MatchingServiceUnitTest extends UnitTestSupport {
 
     @Mock
     PaymentManager paymentManager;
+
+    @Mock
+    TicketHandler ticketHandler;
 
     @Mock
     ApplicationEventPublisher eventPublisher;
@@ -69,12 +74,81 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         matchingService.apply(newMatching, memberId);
 
         // then
+        verify(ticketHandler).deduct(memberId, newMatching);
         verify(matchingManager).apply(newMatching, memberId);
         verify(paymentManager).register(any(Member.class), any(PaymentType.class), anyLong(), anyInt());
 
         ArgumentCaptor<MatchingAppliedEvent> captor = ArgumentCaptor.forClass(MatchingAppliedEvent.class);
         verify(eventPublisher).publishEvent(captor.capture());
         assertThat(captor.getValue().matchingApplicationId()).isEqualTo(10L);
+    }
+
+    @Test
+    void 티켓이_부족하면_매칭_신청이_생성되지_않는다() {
+        // given
+        var memberId = 1L;
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(5)
+                .build();
+        willThrow(new CoreException(ErrorType.NOT_ENOUGH_TICKETS))
+                .given(ticketHandler).deduct(memberId, newMatching);
+
+        // when & then
+        assertThatThrownBy(() -> matchingService.apply(newMatching, memberId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_ENOUGH_TICKETS.getMessage());
+
+        verify(matchingManager, never()).apply(any(), anyLong());
+        verify(paymentManager, never()).register(any(), any(), anyLong(), anyInt());
+        verify(eventPublisher, never()).publishEvent(any());
+    }
+
+    @Test
+    void 티켓_차감_순서는_매칭_신청_생성보다_먼저다() {
+        // given
+        var memberId = 1L;
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(2)
+                .build();
+
+        var member = mock(Member.class);
+        var application = mock(MatchingApplication.class);
+        given(application.getMember()).willReturn(member);
+        given(application.getMatchingType()).willReturn(MatchingType.RANDOM);
+        given(application.getId()).willReturn(10L);
+        given(application.getApplicationCount()).willReturn(2);
+        given(matchingManager.apply(newMatching, memberId)).willReturn(application);
+
+        var order = org.mockito.Mockito.inOrder(ticketHandler, matchingManager);
+
+        // when
+        matchingService.apply(newMatching, memberId);
+
+        // then
+        order.verify(ticketHandler).deduct(memberId, newMatching);
+        order.verify(matchingManager).apply(newMatching, memberId);
+    }
+
+    @Test
+    void 매칭_신청_생성_실패시_예외가_전파된다() {
+        // given
+        var memberId = 1L;
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(2)
+                .build();
+        willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
+                .given(matchingManager).apply(newMatching, memberId);
+
+        // when & then
+        assertThatThrownBy(() -> matchingService.apply(newMatching, memberId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+
+        verify(ticketHandler).deduct(memberId, newMatching);
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test
