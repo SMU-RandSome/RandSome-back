@@ -156,4 +156,32 @@ class TicketHandlerUnitTest extends UnitTestSupport {
         verify(eventPublisher, never()).publishEvent(any());
     }
 
+    @Test
+    void 출석_보상으로_티켓을_지급하면_티켓을_생성하고_히스토리_이벤트를_발행한다() {
+        // given
+        Long memberId = 1L;
+        int expectedAmount = 1;
+        TicketType expectedType = TicketType.RANDOM;
+
+        // when
+        ticketHandler.issueForAttendance(memberId);
+
+        // then
+        // 1. TicketManager의 earn 메서드가 올바른 인자로 호출되었는지 확인
+        verify(ticketManager).earn(memberId, expectedType, expectedAmount);
+
+        // 2. TicketHistoryRegisterEvent가 올바른 데이터와 함께 발행되었는지 확인
+        verify(eventPublisher).publishEvent(any(TicketHistoryRegisterEvent.class));
+
+        // 상세 이벤트 값 검증 (ArgumentCaptor를 사용할 수도 있지만, 간단하게 호출 여부만 확인하거나 필드 직접 검증)
+        verify(eventPublisher).publishEvent(new TicketHistoryRegisterEvent(
+                memberId,
+                expectedType,
+                TicketActionType.EARN,
+                TicketSource.ATTENDANCE,
+                expectedAmount,
+                TicketSource.ATTENDANCE.getDescription()
+        ));
+    }
+
 }

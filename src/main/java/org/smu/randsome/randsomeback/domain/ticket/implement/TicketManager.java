@@ -31,4 +31,11 @@ public class TicketManager {
         ticket.use(amount);
     }
 
+    @Transactional
+    public void earn(Long memberId, TicketType ticketType, int amount) {
+        Ticket ticket = ticketReader.findByMemberAndType(memberId, ticketType);
+
+        ticket.earn(amount);
+    }
+
 }

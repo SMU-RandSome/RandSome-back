@@ -57,4 +57,26 @@ public class TicketHandler {
         log.info("[TicketHandler] 티켓 차감 완료 - memberId={}, matchingType={}", memberId, newMatching.matchingType());
     }
 
+    /**
+     * 출석 보상으로 티켓을 지급한다.
+     * @param memberId 회원 식별자
+     * */
+    public void issueForAttendance(Long memberId) {
+        final int amount = 1;
+        TicketType randomType = TicketType.RANDOM;
+
+        ticketManager.earn(memberId, randomType, amount);
+
+        eventPublisher.publishEvent(new TicketHistoryRegisterEvent(
+                memberId,
+                randomType,
+                TicketActionType.EARN,
+                TicketSource.ATTENDANCE,
+                amount,
+                TicketSource.ATTENDANCE.getDescription()
+        ));
+
+        log.info("[TicketHandler] 출석 보상 티켓 생성 완료 - memberId={}", memberId);
+    }
+
 }

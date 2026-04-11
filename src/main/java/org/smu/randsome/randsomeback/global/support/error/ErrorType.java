@@ -61,6 +61,10 @@ public enum ErrorType {
     NOT_ENOUGH_TICKETS    (HttpStatus.BAD_REQUEST, "티켓이 부족합니다.", LogLevel.INFO),
     INVALID_TICKET_AMOUNT (HttpStatus.BAD_REQUEST, "유효하지 않은 티켓 수량입니다. 0보다 큰 수량을 입력해주세요.", LogLevel.INFO),
     DUPLICATE_TICKET      (HttpStatus.CONFLICT, "해당 회원은 이미 티켓을 보유하고 있습니다.", LogLevel.INFO),
+
+    // ATTENDANCE
+    DUPLICATE_ATTENDANCE(HttpStatus.CONFLICT, "오늘 이미 출석 체크를 완료했습니다.", LogLevel.INFO),
+
     // PAYMENT
     INVALID_PERSON_COUNT                (HttpStatus.BAD_REQUEST, "인원 수가 유효하지 않습니다.", LogLevel.INFO),
     NOT_ALLOW_ALREADY_CONFIRMED_PAYMENT (HttpStatus.BAD_REQUEST, "이미 확정된 결제는 거절이 불가능합니다.", LogLevel.INFO),
@@ -93,7 +97,7 @@ public enum ErrorType {
     NOT_FOUND_TOKEN                    (HttpStatus.NOT_FOUND, "토큰을 찾을 수 없습니다.", LogLevel.INFO),
     CONCURRENT_REQUESTS_LIMIT_EXCEEDED (HttpStatus.TOO_MANY_REQUESTS, "동시에 여러 토큰 재발급 요청이 감지되었습니다. 잠시 후 다시 시도해주세요.", LogLevel.WARN),
 
-            ;
+    ;
 
     private final HttpStatus status;
     private final String message;
