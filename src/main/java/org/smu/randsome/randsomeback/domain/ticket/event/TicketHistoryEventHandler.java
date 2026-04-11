@@ -1,11 +1,10 @@
-package org.smu.randsome.randsomeback.domain.ticket.implement;
+package org.smu.randsome.randsomeback.domain.ticket.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.domain.ticket.entity.TicketHistory;
-import org.smu.randsome.randsomeback.domain.ticket.event.TicketHistoryRegisterEvent;
 import org.smu.randsome.randsomeback.domain.ticket.repository.TicketHistoryJpaRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -17,7 +16,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class TicketHistoryHandler {
+public class TicketHistoryEventHandler {
 
     private final TicketHistoryJpaRepository ticketHistoryJpaRepository;
     private final MemberReader memberReader;

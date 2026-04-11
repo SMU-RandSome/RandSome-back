@@ -59,7 +59,7 @@ public enum ErrorType {
     // TICKET
     NOT_ENOUGH_TICKETS    (HttpStatus.BAD_REQUEST, "티켓이 부족합니다.", LogLevel.INFO),
     INVALID_TICKET_AMOUNT (HttpStatus.BAD_REQUEST, "유효하지 않은 티켓 수량입니다. 0보다 큰 수량을 입력해주세요.", LogLevel.INFO),
-
+    DUPLICATE_TICKET(HttpStatus.CONFLICT, "이미 가입하신 회원존재하는 티켓입니다.", LogLevel.INFO),
     // PAYMENT
     INVALID_PERSON_COUNT                (HttpStatus.BAD_REQUEST, "인원 수가 유효하지 않습니다.", LogLevel.INFO),
     NOT_ALLOW_ALREADY_CONFIRMED_PAYMENT (HttpStatus.BAD_REQUEST, "이미 확정된 결제는 거절이 불가능합니다.", LogLevel.INFO),
@@ -90,7 +90,9 @@ public enum ErrorType {
     TOKEN_THEFT_DETECTED               (HttpStatus.UNAUTHORIZED, "토큰 탈취가 감지되었습니다. 보안을 위해 재로그인이 필요합니다.", LogLevel.WARN),
     EMPTY_SECURITY_CONTEXT             (HttpStatus.UNAUTHORIZED, "Security Context 에 인증 정보가 없습니다.", LogLevel.WARN),
     NOT_FOUND_TOKEN                    (HttpStatus.NOT_FOUND, "토큰을 찾을 수 없습니다.", LogLevel.INFO),
-    CONCURRENT_REQUESTS_LIMIT_EXCEEDED (HttpStatus.TOO_MANY_REQUESTS, "동시에 여러 토큰 재발급 요청이 감지되었습니다. 잠시 후 다시 시도해주세요.", LogLevel.WARN);
+    CONCURRENT_REQUESTS_LIMIT_EXCEEDED (HttpStatus.TOO_MANY_REQUESTS, "동시에 여러 토큰 재발급 요청이 감지되었습니다. 잠시 후 다시 시도해주세요.", LogLevel.WARN),
+
+            ;
 
     private final HttpStatus status;
     private final String message;

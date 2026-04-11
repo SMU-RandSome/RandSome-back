@@ -26,6 +26,7 @@ import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberValidator;
 import org.smu.randsome.randsomeback.domain.terms.implement.TermsAgreementManager;
+import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
 import org.smu.randsome.randsomeback.fixture.BankAccountFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -50,6 +51,9 @@ class MemberServiceUnitTest extends UnitTestSupport {
 
     @Mock
     BankAccountManager bankAccountManager;
+
+    @Mock
+    TicketHandler ticketHandler;
 
     @Mock
     BankAccountReader bankAccountReader;
@@ -78,6 +82,7 @@ class MemberServiceUnitTest extends UnitTestSupport {
         verify(memberValidator).validateSignUpToken("email.verification.token", MemberFixture.DEFAULT_EMAIL);
         verify(termsAgreementManager).saveAll(1L);
         verify(bankAccountManager).create(1L, bankAccountInfo);
+        verify(ticketHandler).issue(member);
     }
 
     @Test

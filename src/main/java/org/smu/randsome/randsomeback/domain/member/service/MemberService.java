@@ -16,6 +16,7 @@ import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberValidator;
 import org.smu.randsome.randsomeback.domain.terms.implement.TermsAgreementManager;
+import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ public class MemberService {
     private final TermsAgreementManager termsAgreementManager;
     private final BankAccountManager bankAccountManager;
     private final BankAccountReader bankAccountReader;
+    private final TicketHandler ticketHandler;
 
     /**
      * 회원 가입을 처리하는 서비스 메서드입니다.
@@ -57,6 +59,7 @@ public class MemberService {
         Member member = memberManager.create(credentials, basicInfo, socialProfile, tagsInfo);
         termsAgreementManager.saveAll(member.getId());
         bankAccountManager.create(member.getId(), bankAccountInfo);
+        ticketHandler.issue(member);
 
         log.info("[MemberService] 회원가입 완료 - memberId={}", member.getId());
 
