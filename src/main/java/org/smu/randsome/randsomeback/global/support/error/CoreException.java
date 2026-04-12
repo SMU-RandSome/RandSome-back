@@ -20,4 +20,16 @@ public class CoreException extends RuntimeException {
         this.data = data;
     }
 
+    public CoreException(ErrorType type, Throwable cause) {
+        super(type.getMessage(), cause);
+        this.errorType = type;
+        this.data = null;
+    }
+
+    public CoreException(ErrorType type, Object data, Throwable cause) {
+        super(type.getMessage(), cause);
+        this.errorType = type;
+        this.data = data;
+    }
+
 }

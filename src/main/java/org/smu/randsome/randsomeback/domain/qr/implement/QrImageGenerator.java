@@ -10,6 +10,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component;
  *   <li>오류 정정 레벨: M (최대 15% 손상 복구)</li>
  * </ul>
  */
+@Slf4j
 @Component
 public class QrImageGenerator {
 
@@ -53,7 +55,8 @@ public class QrImageGenerator {
 
             return outputStream.toByteArray();
         } catch (WriterException | IOException e) {
-            throw new CoreException(ErrorType.QR_GENERATION_FAILED);
+            log.info("QR 코드 생성 실패: {}", e.getMessage());
+            throw new CoreException(ErrorType.QR_GENERATION_FAILED, e);
         }
     }
 
