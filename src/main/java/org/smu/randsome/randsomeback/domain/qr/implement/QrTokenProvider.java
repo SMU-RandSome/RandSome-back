@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.UUID;
+import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.global.jwt.enums.TokenExpiration;
 import org.smu.randsome.randsomeback.global.jwt.enums.TokenType;
@@ -41,10 +41,7 @@ public class QrTokenProvider {
     private final SecretKey secretKey;
 
     public QrTokenProvider(@Value("${spring.jwt.secretKey}") String key) {
-        this.secretKey = new SecretKeySpec(
-                key.getBytes(StandardCharsets.UTF_8),
-                Jwts.SIG.HS256.key().build().getAlgorithm()
-        );
+        this.secretKey = Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
     }
 
     /**

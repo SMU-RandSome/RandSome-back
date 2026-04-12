@@ -6,6 +6,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -13,7 +14,6 @@ import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.auth.enums.VerificationPurpose;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
@@ -39,13 +39,7 @@ public class JwtProvider {
     private final SecretKey secretKey;
 
     public JwtProvider(@Value("${spring.jwt.secretKey}") String key) {
-        this.secretKey = new SecretKeySpec(
-                key.getBytes(StandardCharsets.UTF_8),
-                Jwts.SIG.HS256
-                        .key()
-                        .build()
-                        .getAlgorithm()
-        );
+        this.secretKey = Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
     }
 
     public TokenResponse createTokens(Long memberId, Role role) {
