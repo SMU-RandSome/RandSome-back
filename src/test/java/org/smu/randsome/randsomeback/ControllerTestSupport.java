@@ -3,6 +3,8 @@ package org.smu.randsome.randsomeback;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.smu.randsome.randsomeback.admin.announcement.controller.AnnouncementAdminController;
 import org.smu.randsome.randsomeback.admin.announcement.service.AnnouncementAdminService;
+import org.smu.randsome.randsomeback.admin.coupon.controller.CouponEventAdminController;
+import org.smu.randsome.randsomeback.admin.coupon.service.CouponEventAdminService;
 import org.smu.randsome.randsomeback.admin.member.controller.MemberAdminController;
 import org.smu.randsome.randsomeback.admin.member.service.MemberAdminService;
 import org.smu.randsome.randsomeback.admin.payment.controller.PaymentAdminController;
@@ -60,7 +62,8 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
         StatisticsController.class,
         TicketController.class,
         AttendanceController.class,
-        QrController.class
+        QrController.class,
+        CouponEventAdminController.class
 })
 public abstract class ControllerTestSupport {
 
@@ -123,5 +126,8 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected QrService qrService;
+
+    @MockitoBean
+    protected CouponEventAdminService couponEventAdminService;
 
 }
