@@ -4,12 +4,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
-import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.global.jwt.enums.TokenExpiration;
@@ -70,18 +69,16 @@ public class QrTokenProvider {
      */
     public CreatedQrToken createToken(Long memberId) {
         String jti = UUID.randomUUID().toString();
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expiry = now.plusSeconds(TokenExpiration.QR_TOKEN.getExpirationTime() / 1000);
-
+        Instant now = Instant.now();
+        Instant expiry = now.plusMillis(TokenExpiration.QR_TOKEN.getExpirationTime());
         String token = Jwts.builder()
                 .subject(String.valueOf(memberId))
                 .id(jti)
                 .claim(CATEGORY_KEY, TokenType.QR.getValue())
-                .issuedAt(toDate(now))
-                .expiration(toDate(expiry))
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiry))
                 .signWith(secretKey)
                 .compact();
-
         return new CreatedQrToken(token, jti);
     }
 
@@ -125,10 +122,6 @@ public class QrTokenProvider {
             return "***";
         }
         return token.substring(0, 10) + "..." + token.substring(token.length() - 5);
-    }
-
-    private Date toDate(LocalDateTime localDateTime) {
-        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 
 }
