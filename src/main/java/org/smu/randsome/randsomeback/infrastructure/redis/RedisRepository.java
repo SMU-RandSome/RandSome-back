@@ -29,4 +29,14 @@ public class RedisRepository {
         return Boolean.TRUE.equals(acquired);
     }
 
+    // NOTE: DECR은 원자 연산이므로 동시 요청이 몰려도 값이 정확히 1씩 감소한다.
+    // 반환값이 음수이면 재고가 이미 소진된 것이다.
+    public Long decrement(String key) {
+        return stringRedisTemplate.opsForValue().decrement(key);
+    }
+
+    public Long increment(String key) {
+        return stringRedisTemplate.opsForValue().increment(key);
+    }
+
 }
