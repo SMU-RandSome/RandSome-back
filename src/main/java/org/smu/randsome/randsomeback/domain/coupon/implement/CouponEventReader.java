@@ -1,8 +1,10 @@
 package org.smu.randsome.randsomeback.domain.coupon.implement;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
+import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventStatus;
 import org.smu.randsome.randsomeback.domain.coupon.repository.CouponEventJpaRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -25,6 +27,12 @@ public class CouponEventReader {
     @Transactional(readOnly = true)
     public List<CouponEvent> findCouponEvents() {
         return couponEventJpaRepository.findAllByStatusOrderByStartsAtDesc(EntityStatus.ACTIVE);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CouponEvent> findDraftEventsReadyToActivate(LocalDateTime now) {
+        return couponEventJpaRepository.findAllByEventStatusAndStartsAtLessThanEqualAndStatus(
+                CouponEventStatus.DRAFT, now, EntityStatus.ACTIVE);
     }
 
 }

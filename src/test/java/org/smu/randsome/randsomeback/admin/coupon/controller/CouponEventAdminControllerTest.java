@@ -16,10 +16,13 @@ import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventUpdateR
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventType;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
+import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 class CouponEventAdminControllerTest extends ControllerTestSupport {
 
@@ -148,6 +151,17 @@ class CouponEventAdminControllerTest extends ControllerTestSupport {
         assertThat(mvcTester.delete().uri("/v1/admin/coupon-events/1"))
                 .apply(print())
                 .hasStatusOk();
+    }
+
+    @TestAdmin
+    @Test
+    void 관리자가_수동으로_이벤트를_활성화한다() {
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/admin/coupon-events/{couponEventId}/activate", 1L))
+                .apply(print())
+                .hasStatusOk()
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"));
     }
 
     private List<CouponEvent> createCouponEvents() {
