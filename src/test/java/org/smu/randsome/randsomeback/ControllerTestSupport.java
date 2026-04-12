@@ -28,6 +28,8 @@ import org.smu.randsome.randsomeback.domain.member.service.MemberDeviceService;
 import org.smu.randsome.randsomeback.domain.member.service.MemberService;
 import org.smu.randsome.randsomeback.domain.payment.controller.PaymentController;
 import org.smu.randsome.randsomeback.domain.payment.service.PaymentService;
+import org.smu.randsome.randsomeback.domain.qr.controller.QrController;
+import org.smu.randsome.randsomeback.domain.qr.service.QrService;
 import org.smu.randsome.randsomeback.domain.statistics.controller.StatisticsController;
 import org.smu.randsome.randsomeback.domain.statistics.service.StatisticsService;
 import org.smu.randsome.randsomeback.domain.ticket.controller.TicketController;
@@ -57,7 +59,8 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
         StatisticsAdminController.class,
         StatisticsController.class,
         TicketController.class,
-        AttendanceController.class
+        AttendanceController.class,
+        QrController.class
 })
 public abstract class ControllerTestSupport {
 
@@ -117,5 +120,8 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected AttendanceService attendanceService;
+
+    @MockitoBean
+    protected QrService qrService;
 
 }

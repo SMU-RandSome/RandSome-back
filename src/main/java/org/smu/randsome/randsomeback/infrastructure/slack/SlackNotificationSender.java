@@ -46,9 +46,9 @@ public class SlackNotificationSender implements ErrorNotificationSender {
             sendToSlack(payload);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            log.warn("[SlackNotificationSender] Slack 알림 전송 중단 (인터럽트): {}", ex.getMessage());
+            log.warn("[SlackNotificationSender] Slack 알림 전송 중단 (인터럽트)", ex);
         } catch (IOException ex) {
-            log.warn("[SlackNotificationSender] Slack 알림 전송 실패: {}", ex.getMessage());
+            log.warn("[SlackNotificationSender] Slack 알림 전송 실패", ex);
         }
     }
 

@@ -65,6 +65,12 @@ public enum ErrorType {
     // ATTENDANCE
     DUPLICATE_ATTENDANCE(HttpStatus.CONFLICT, "오늘 이미 출석 체크를 완료했습니다.", LogLevel.INFO),
 
+    // QR
+    QR_TOKEN_EXPIRED      (HttpStatus.UNAUTHORIZED, "QR 코드가 만료되었습니다. 다시 생성해주세요.", LogLevel.INFO),
+    QR_TOKEN_ALREADY_USED (HttpStatus.CONFLICT, "이미 사용된 QR 코드입니다.", LogLevel.INFO),
+    INVALID_QR_TOKEN      (HttpStatus.BAD_REQUEST, "유효하지 않은 QR 코드입니다.", LogLevel.WARN),
+    QR_GENERATION_FAILED  (HttpStatus.INTERNAL_SERVER_ERROR, "QR 코드 생성에 실패했습니다.", LogLevel.ERROR),
+
     // PAYMENT
     INVALID_PERSON_COUNT                (HttpStatus.BAD_REQUEST, "인원 수가 유효하지 않습니다.", LogLevel.INFO),
     NOT_ALLOW_ALREADY_CONFIRMED_PAYMENT (HttpStatus.BAD_REQUEST, "이미 확정된 결제는 거절이 불가능합니다.", LogLevel.INFO),
