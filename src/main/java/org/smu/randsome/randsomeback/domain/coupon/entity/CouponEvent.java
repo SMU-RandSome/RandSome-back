@@ -91,6 +91,33 @@ public class CouponEvent extends BaseEntity {
         this.eventStatus = CouponEventStatus.ENDED;
     }
 
+    public void update(
+            String name,
+            String description,
+            CouponEventType type,
+            int totalQuantity,
+            TicketType rewardTicketType,
+            int rewardTicketAmount,
+            LocalDateTime startsAt,
+            LocalDateTime expiresAt
+    ) {
+        if (eventStatus != CouponEventStatus.DRAFT) {
+            throw new CoreException(ErrorType.COUPON_EVENT_INVALID_STATUS);
+        }
+
+        if (startsAt.isAfter(expiresAt)) {
+            throw new CoreException(ErrorType.BAD_REQUEST);
+        }
+        this.name = requireNonNull(name);
+        this.description = description;
+        this.type = requireNonNull(type);
+        this.totalQuantity = totalQuantity;
+        this.rewardTicketType = requireNonNull(rewardTicketType);
+        this.rewardTicketAmount = rewardTicketAmount;
+        this.startsAt = requireNonNull(startsAt);
+        this.expiresAt = requireNonNull(expiresAt);
+    }
+
     public boolean isIssuable(LocalDateTime now) {
         return eventStatus == CouponEventStatus.ACTIVE
                 && !now.isBefore(startsAt)

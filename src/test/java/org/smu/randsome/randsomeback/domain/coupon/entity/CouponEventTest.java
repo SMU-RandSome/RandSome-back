@@ -114,4 +114,53 @@ class CouponEventTest {
         assertThat(event.isIssuable(CuponFixture.STARTED_AT.minusSeconds(1))).isFalse();
         assertThat(event.isIssuable(CuponFixture.STARTED_AT.plusWeeks(1))).isFalse();
     }
+
+    @Test
+    void 이벤트_수정은_비활성화일떄만_가능하다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+
+        // when
+        String name = "업데이트된 이벤트 이름";
+        event.update(
+                name,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT
+        );
+
+        // then
+        assertThat(event.getName()).isEqualTo(name);
+
+        event.activate();
+        assertThatThrownBy(() -> event.update(
+                name,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+
+        event.end();
+        assertThatThrownBy(() -> event.update(
+                name,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+
+    }
 }

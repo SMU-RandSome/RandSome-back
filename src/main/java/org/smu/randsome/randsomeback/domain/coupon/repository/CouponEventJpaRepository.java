@@ -1,5 +1,6 @@
 package org.smu.randsome.randsomeback.domain.coupon.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
@@ -9,4 +10,5 @@ public interface CouponEventJpaRepository extends JpaRepository<CouponEvent, Lon
 
     Optional<CouponEvent> findByIdAndStatus(Long id, EntityStatus status);
 
+    List<CouponEvent> findAllByStatusOrderByStartsAtDesc(EntityStatus status);
 }
