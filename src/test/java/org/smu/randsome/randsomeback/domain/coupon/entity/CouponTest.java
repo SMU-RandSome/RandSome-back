@@ -11,6 +11,7 @@ import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 
 class CouponTest {
 
@@ -21,7 +22,7 @@ class CouponTest {
     @BeforeEach
     void setUp() {
         event = CuponFixture.createCuponEvent();
-        event.activate();
+        event.activate(TestDateTimeUtils.now());
         member = MemberFixture.create();
         coupon = Coupon.issue(event, member);
     }

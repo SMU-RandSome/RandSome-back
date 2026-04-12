@@ -60,4 +60,21 @@ public abstract class CouponEventAdminControllerDocs {
     )
     public abstract ApiResponse<List<CouponEventPreviewItem>> findCouponEvents();
 
+    @Operation(summary = "쿠폰 이벤트 활성화",
+            description = """
+                    ## DRAFT 상태의 쿠폰 이벤트를 활성화합니다.
+                    이벤트 활성화와 동시에 Redis에 쿠폰 재고(stock)를 초기화합니다.
+                    TTL은 이벤트 만료 시각까지의 남은 시간으로 자동 설정됩니다.
+                    """
+    )
+    public abstract ApiResponse<?> activateCouponEvent(Long couponEventId);
+
+    @Operation(summary = "쿠폰 이벤트 비활성화",
+            description = """
+                    ## ACTIVE 상태의 쿠폰 이벤트를 종료합니다.
+                    이벤트 비활성화와 동시에 Redis에 저장된 쿠폰 재고(stock)를 삭제합니다.
+                    """
+    )
+    public abstract ApiResponse<?> deactivateCouponEvent(Long couponEventId);
+
 }

@@ -65,7 +65,8 @@ public enum ErrorType {
         // COUPON
     NOT_FOUND_COUPON_EVENT      (HttpStatus.NOT_FOUND,   "쿠폰 이벤트를 찾을 수 없습니다.", LogLevel.INFO),
     COUPON_EVENT_NOT_ACTIVE     (HttpStatus.BAD_REQUEST,  "현재 발급 가능한 이벤트가 아닙니다.", LogLevel.INFO),
-    COUPON_EVENT_INVALID_STATUS (HttpStatus.BAD_REQUEST,  "해당 상태의 이벤트에서는 이 작업을 수행할 수 없습니다.", LogLevel.WARN),
+    COUPON_EVENT_INVALID_STATUS  (HttpStatus.BAD_REQUEST,  "해당 상태의 이벤트에서는 이 작업을 수행할 수 없습니다.", LogLevel.WARN),
+    COUPON_EVENT_ALREADY_EXPIRED (HttpStatus.BAD_REQUEST,  "이미 만료된 쿠폰 이벤트는 활성화할 수 없습니다.", LogLevel.INFO),
     ALREADY_ISSUED_COUPON       (HttpStatus.CONFLICT,     "이미 발급받은 쿠폰입니다.", LogLevel.INFO),
     COUPON_SOLD_OUT             (HttpStatus.CONFLICT,     "쿠폰이 모두 소진되었습니다.", LogLevel.INFO),
     NOT_FOUND_COUPON            (HttpStatus.NOT_FOUND,   "쿠폰을 찾을 수 없습니다.", LogLevel.INFO),

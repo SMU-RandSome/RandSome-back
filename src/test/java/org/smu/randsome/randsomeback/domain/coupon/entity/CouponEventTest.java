@@ -3,14 +3,17 @@ package org.smu.randsome.randsomeback.domain.coupon.entity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventStatus;
 import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 
 class CouponEventTest {
 
+    private static final LocalDateTime NOW = TestDateTimeUtils.now();
     @Test
     void 이벤트를_생성한다() {
         // when
@@ -46,27 +49,47 @@ class CouponEventTest {
         var event = CuponFixture.createCuponEvent();
 
         // when
-        event.activate();
+        event.activate(NOW);
 
         // then
         assertThat(event.getEventStatus()).isEqualTo(CouponEventStatus.ACTIVE);
     }
 
     @Test
+    void 이미_만료된_이벤트는_활성화할_수_없다() {
+        // given — expiresAt이 과거인 이벤트
+        var expiredEvent = CouponEvent.create(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                NOW.minusDays(2),
+                NOW.minusDays(1)
+        );
+
+        // when & then
+        assertThatThrownBy(() -> expiredEvent.activate(NOW))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_ALREADY_EXPIRED.getMessage());
+    }
+
+    @Test
     void 이벤트가_비활성화된_상태일때만_활성화_가능하다() {
         // given
         var event = CuponFixture.createCuponEvent();
-        event.activate();
+        event.activate(NOW);
 
         // when & then
         // 이미 활성화된 이벤트는 다시 활성화할 수 없다.
-        assertThatThrownBy(event::activate)
+        assertThatThrownBy(() -> event.activate(NOW))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
 
         // 이미 종료된 이벤트는 다시 활성화할 수 없다.
         event.end();
-        assertThatThrownBy(event::activate)
+        assertThatThrownBy(() -> event.activate(NOW))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
     }
@@ -76,7 +99,7 @@ class CouponEventTest {
         // given
         var event = CuponFixture.createCuponEvent();
 
-        event.activate();
+        event.activate(NOW);
         // when
         event.end();
 
@@ -96,7 +119,7 @@ class CouponEventTest {
                 .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
 
         // 이미 종료된 이벤트는 다시 종료할 수 없다.
-        event.activate();
+        event.activate(NOW);
         event.end();
         assertThatThrownBy(event::end)
                 .isInstanceOf(CoreException.class)
@@ -107,7 +130,7 @@ class CouponEventTest {
     void 이벤트가_활성화된_시각인지_확인한다() {
         // given
         var event = CuponFixture.createCuponEvent();
-        event.activate();
+        event.activate(NOW);
 
         // when & then
         assertThat(event.isIssuable(CuponFixture.STARTED_AT.plusSeconds(1))).isTrue();
@@ -136,7 +159,7 @@ class CouponEventTest {
         // then
         assertThat(event.getName()).isEqualTo(name);
 
-        event.activate();
+        event.activate(NOW);
         assertThatThrownBy(() -> event.update(
                 name,
                 CuponFixture.CUPON_DESCRIPTION,

@@ -77,9 +77,12 @@ public class CouponEvent extends BaseEntity {
         return event;
     }
 
-    public void activate() {
+    public void activate(LocalDateTime now) {
         if (eventStatus != CouponEventStatus.DRAFT) {
             throw new CoreException(ErrorType.COUPON_EVENT_INVALID_STATUS);
+        }
+        if (!now.isBefore(expiresAt)) {
+            throw new CoreException(ErrorType.COUPON_EVENT_ALREADY_EXPIRED);
         }
         this.eventStatus = CouponEventStatus.ACTIVE;
     }

@@ -59,4 +59,12 @@ public class CouponCacheManager {
         redisRepository.delete(CacheKeys.couponMemberLock(eventId, memberId));
     }
 
+    /**
+     * 이벤트 종료 시 Redis에 저장된 재고 캐시를 삭제한다.
+     */
+    public void deleteStock(Long eventId) {
+        String key = CacheKeys.couponStock(eventId);
+        redisRepository.delete(key);
+    }
+
 }
