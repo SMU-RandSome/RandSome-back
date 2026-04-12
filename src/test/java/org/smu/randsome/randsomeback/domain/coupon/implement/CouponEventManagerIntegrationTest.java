@@ -1,9 +1,8 @@
 package org.smu.randsome.randsomeback.domain.coupon.implement;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import lombok.RequiredArgsConstructor;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.NewCouponEvent;

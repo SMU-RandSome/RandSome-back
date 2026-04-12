@@ -1,9 +1,11 @@
 package org.smu.randsome.randsomeback.admin.coupon.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.NewCouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventManager;
+import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventReader;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 public class CouponEventAdminService {
 
     private final CouponEventManager couponEventManager;
+    private final CouponEventReader couponEventReader;
 
     /**
      * 쿠폰 이벤트 등록
@@ -21,6 +24,14 @@ public class CouponEventAdminService {
         CouponEvent event = couponEventManager.register(newCouponEvent);
 
         return event.getId();
+    }
+
+    /**
+     * 쿠폰 이벤트 목록 조회
+     * @return 조회된 쿠폰 이벤트 리스트
+     * */
+    public List<CouponEvent> findCouponEvents() {
+        return couponEventReader.findCouponEvents();
     }
 
 }
