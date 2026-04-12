@@ -12,6 +12,7 @@ public enum TokenType {
     ACCESS               ("accessToken"),
     REFRESH              ("refreshToken"),
     VERIFICATION         ("verificationToken"),
+    QR                   ("qrToken"),
 
     ;
 

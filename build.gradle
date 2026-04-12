@@ -34,7 +34,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -51,6 +50,7 @@ dependencies {
     testImplementation 'org.awaitility:awaitility:4.2.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
+
     // Testcontainers
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.testcontainers:junit-jupiter'
@@ -91,6 +91,10 @@ dependencies {
     // 분산 락 (Scheduled 중복 방지)
     implementation 'net.javacrumbs.shedlock:shedlock-spring:7.7.0'
     implementation 'net.javacrumbs.shedlock:shedlock-provider-redis-spring:7.7.0'
+
+    // QR 코드 생성
+    implementation 'com.google.zxing:core:3.5.4'
+    implementation 'com.google.zxing:javase:3.5.4'
 
 }
 
