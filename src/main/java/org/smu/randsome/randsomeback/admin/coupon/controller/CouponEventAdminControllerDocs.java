@@ -4,9 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventDetailItem;
 import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventPreviewItem;
 import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventRegisterRequest;
+import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventUpdateRequest;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "관리자 쿠폰 이벤트 API", description = "관리자 쿠폰 이벤트 관련 API")
@@ -23,6 +26,31 @@ public abstract class CouponEventAdminControllerDocs {
     public abstract ApiResponse<Long> registerCouponEvent(
             @RequestBody @Valid CouponEventRegisterRequest request
     );
+
+    @Operation(summary = "쿠폰 이벤트 수정",
+            description = """
+                    ## 쿠폰 이벤트 정보를 수정합니다.
+                    ENDED 상태의 이벤트는 수정할 수 없습니다.
+                    """
+    )
+    public abstract ApiResponse<Void> updateCouponEvent(
+            Long couponEventId,
+            @RequestBody @Valid CouponEventUpdateRequest request
+    );
+
+    @Operation(summary = "쿠폰 이벤트 상세 조회",
+            description = """
+                    ## 쿠폰 이벤트 단건 상세 정보를 조회합니다.
+                    """
+    )
+    public abstract ApiResponse<CouponEventDetailItem> findCouponEvent(Long couponEventId);
+
+    @Operation(summary = "쿠폰 이벤트 삭제",
+            description = """
+                    ## 쿠폰 이벤트를 삭제합니다. (소프트 삭제)
+                    """
+    )
+    public abstract ApiResponse<?> deleteCouponEvent(Long couponEventId);
 
     @Operation(summary = "쿠폰 이벤트 목록 조회",
             description = """
