@@ -19,9 +19,8 @@ public record AttendanceResponse(
         List<LocalDate> attendanceDates
 ) {
     public static AttendanceResponse from(List<Attendance> attendances) {
-        int totalDays = (int) ChronoUnit.DAYS.between(ServicePeriod.OPEN_DATE, ServicePeriod.CLOSE_DATE) + 1;
         return AttendanceResponse.builder()
-                .totalDays(totalDays)
+                .totalDays(ServicePeriod.TOTAL_DAYS)
                 .attendedDays(attendances.size())
                 .attendanceDates(attendances.stream()
                         .map(Attendance::getAttendanceDate)

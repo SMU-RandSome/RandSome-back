@@ -15,5 +15,6 @@ public final class ServicePeriod {
 
     public static final LocalDate OPEN_DATE = LocalDate.of(2026, 5, 6);
     public static final LocalDate CLOSE_DATE = LocalDate.of(2026, 5, 28);
+    public static final int TOTAL_DAYS = (int) java.time.temporal.ChronoUnit.DAYS.between(OPEN_DATE, CLOSE_DATE) + 1;
 
 }
