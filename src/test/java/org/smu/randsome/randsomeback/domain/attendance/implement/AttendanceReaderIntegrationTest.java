@@ -39,6 +39,28 @@ class AttendanceReaderIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
+    void 출석_기록은_오름차순으로_조회된다() {
+        // given
+        Member member = memberJpaRepository.save(MemberFixture.create());
+        attendanceJpaRepository.save(Attendance.create(member, ServicePeriod.OPEN_DATE));
+        attendanceJpaRepository.save(Attendance.create(member, ServicePeriod.CLOSE_DATE));
+        attendanceJpaRepository.save(Attendance.create(member, LocalDate.of(2026, 5, 15)));
+
+        // when
+        List<Attendance> result = attendanceReader.findAllInServicePeriod(member.getId());
+
+        // then
+        // 오름차순으로 조회되는지 확인
+        assertThat(result).extracting(Attendance::getAttendanceDate)
+                .containsExactly(
+                        ServicePeriod.OPEN_DATE,
+                        LocalDate.of(2026, 5, 15),
+                        ServicePeriod.CLOSE_DATE
+                );
+
+    }
+
+    @Test
     void 서비스_기간_밖의_출석_기록은_조회되지_않는다() {
         // given
         Member member = memberJpaRepository.save(MemberFixture.create());

@@ -18,7 +18,7 @@ public class AttendanceReader {
 
     @Transactional(readOnly = true)
     public List<Attendance> findAllInServicePeriod(Long memberId) {
-        return attendanceJpaRepository.findAllByMemberIdAndAttendanceDateBetweenAndStatus(
+        return attendanceJpaRepository.findAllByMemberIdAndAttendanceDateBetweenAndStatusOrderByAttendanceDateAsc(
                 memberId,
                 ServicePeriod.OPEN_DATE,
                 ServicePeriod.CLOSE_DATE,
