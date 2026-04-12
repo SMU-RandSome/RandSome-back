@@ -76,6 +76,7 @@ class CouponEventTest {
         // given
         var event = CuponFixture.createCuponEvent();
 
+        event.activate();
         // when
         event.end();
 
