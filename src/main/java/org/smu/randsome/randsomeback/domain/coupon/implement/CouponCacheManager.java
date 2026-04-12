@@ -43,7 +43,7 @@ public class CouponCacheManager {
         String stockKey = CacheKeys.couponStock(eventId);
         Long remaining = redisRepository.decrement(stockKey);
 
-        if (remaining < 0) {
+        if (remaining != null && remaining < 0)  {
             compensate(eventId, memberId);
             throw new CoreException(ErrorType.COUPON_SOLD_OUT);
         }
