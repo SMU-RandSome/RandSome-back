@@ -30,7 +30,9 @@ public class AttendanceCacheManager {
     private Duration calculateTtlUntilMidnight(LocalDate date) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime midnight = date.plusDays(1).atStartOfDay();
-        return Duration.between(now, midnight);
+        Duration duration = Duration.between(now, midnight);
+        // 만약 현재 시간이 자정 이후라면 음수 값이 나올 수 있으므로, 음수인 경우 TTL을 0으로 설정하여 즉시 만료되도록 합니다.
+        return duration.isNegative() ? Duration.ZERO : duration;
     }
 
 }
