@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.admin.coupon.scheduler;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -65,6 +66,27 @@ class CouponEventSchedulerUnitTest extends UnitTestSupport {
     }
 
     @Test
+    void 활성화_처리_중_일부_이벤트가_실패해도_나머지는_처리된다() {
+        // given
+        CouponEvent event1 = CuponFixture.createCuponEvent();
+        ReflectionTestUtils.setField(event1, "id", 1L);
+        CouponEvent event2 = CuponFixture.createCuponEvent();
+        ReflectionTestUtils.setField(event2, "id", 2L);
+
+        given(couponEventReader.findDraftEventsReadyToActivate(any(LocalDateTime.class)))
+                .willReturn(List.of(event1, event2));
+        willThrow(new RuntimeException("활성화 실패"))
+                .given(couponEventAdminService).activateCouponEvent(1L);
+
+        // when
+        couponEventScheduler.activateDueEvents();
+
+        // then
+        verify(couponEventAdminService).activateCouponEvent(1L);
+        verify(couponEventAdminService).activateCouponEvent(2L);
+    }
+
+    @Test
     void 종료_대기_중인_이벤트가_있으면_모두_종료한다() {
         // given
         CouponEvent event1 = CuponFixture.createCuponEvent();
@@ -81,6 +103,27 @@ class CouponEventSchedulerUnitTest extends UnitTestSupport {
 
         // then
         verify(couponEventReader).findActiveEventsReadyToEnd(any(LocalDateTime.class));
+        verify(couponEventAdminService).deactivateCouponEvent(1L);
+        verify(couponEventAdminService).deactivateCouponEvent(2L);
+    }
+
+    @Test
+    void 종료_처리_중_일부_이벤트가_실패해도_나머지는_처리된다() {
+        // given
+        CouponEvent event1 = CuponFixture.createCuponEvent();
+        ReflectionTestUtils.setField(event1, "id", 1L);
+        CouponEvent event2 = CuponFixture.createCuponEvent();
+        ReflectionTestUtils.setField(event2, "id", 2L);
+
+        given(couponEventReader.findActiveEventsReadyToEnd(any(LocalDateTime.class)))
+                .willReturn(List.of(event1, event2));
+        willThrow(new RuntimeException("종료 실패"))
+                .given(couponEventAdminService).deactivateCouponEvent(1L);
+
+        // when
+        couponEventScheduler.deactivateDueEvents();
+
+        // then
         verify(couponEventAdminService).deactivateCouponEvent(1L);
         verify(couponEventAdminService).deactivateCouponEvent(2L);
     }

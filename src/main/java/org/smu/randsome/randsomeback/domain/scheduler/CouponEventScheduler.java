@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.domain.scheduler;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.smu.randsome.randsomeback.admin.coupon.service.CouponEventAdminService;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
@@ -10,6 +11,7 @@ import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventReader;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CouponEventScheduler {
@@ -26,7 +28,13 @@ public class CouponEventScheduler {
     @SchedulerLock(name = "activateDueEvents", lockAtMostFor = "10m", lockAtLeastFor = "1m")
     public void activateDueEvents() {
         List<CouponEvent> events = couponEventReader.findDraftEventsReadyToActivate(LocalDateTime.now());
-        events.forEach(event -> couponEventAdminService.activateCouponEvent(event.getId()));
+        events.forEach(event -> {
+            try {
+                couponEventAdminService.activateCouponEvent(event.getId());
+            } catch (Exception e) {
+                log.error("[CouponEventScheduler] 쿠폰 이벤트 활성화 실패 - eventId: {}", event.getId(), e);
+            }
+        });
     }
 
     /**
@@ -38,7 +46,13 @@ public class CouponEventScheduler {
     @SchedulerLock(name = "deactivateDueEvents", lockAtMostFor = "10m", lockAtLeastFor = "1m")
     public void deactivateDueEvents() {
         List<CouponEvent> events = couponEventReader.findActiveEventsReadyToEnd(LocalDateTime.now());
-        events.forEach(event -> couponEventAdminService.deactivateCouponEvent(event.getId()));
+        events.forEach(event -> {
+            try {
+                couponEventAdminService.deactivateCouponEvent(event.getId());
+            } catch (Exception e) {
+                log.error("[CouponEventScheduler] 쿠폰 이벤트 종료 실패 - eventId: {}", event.getId(), e);
+            }
+        });
     }
 
 }
