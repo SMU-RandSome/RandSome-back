@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.domain.cupon.entity;
+package org.smu.randsome.randsomeback.domain.coupon.entity;
 
 import static java.util.Objects.requireNonNull;
 
@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.smu.randsome.randsomeback.domain.cupon.enums.CouponEventStatus;
-import org.smu.randsome.randsomeback.domain.cupon.enums.CouponEventType;
+import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventStatus;
+import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventType;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
 import org.smu.randsome.randsomeback.global.entity.BaseEntity;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;

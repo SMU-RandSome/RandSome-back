@@ -1,7 +1,7 @@
-package org.smu.randsome.randsomeback.domain.cupon.repository;
+package org.smu.randsome.randsomeback.domain.coupon.repository;
 
 import java.util.Optional;
-import org.smu.randsome.randsomeback.domain.cupon.entity.CouponEvent;
+import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 

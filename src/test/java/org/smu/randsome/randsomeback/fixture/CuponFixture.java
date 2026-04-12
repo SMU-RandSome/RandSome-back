@@ -1,8 +1,8 @@
 package org.smu.randsome.randsomeback.fixture;
 
 import java.time.LocalDateTime;
-import org.smu.randsome.randsomeback.domain.cupon.entity.CouponEvent;
-import org.smu.randsome.randsomeback.domain.cupon.enums.CouponEventType;
+import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
+import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventType;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 

@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.domain.cupon.enums;
+package org.smu.randsome.randsomeback.domain.coupon.enums;
 
 public enum CouponStatus {
 

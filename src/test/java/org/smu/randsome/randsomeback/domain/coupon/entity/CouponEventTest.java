@@ -1,10 +1,10 @@
-package org.smu.randsome.randsomeback.domain.cupon.entity;
+package org.smu.randsome.randsomeback.domain.coupon.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
-import org.smu.randsome.randsomeback.domain.cupon.enums.CouponEventStatus;
+import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventStatus;
 import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -97,8 +97,7 @@ class CouponEventTest {
         // 이미 종료된 이벤트는 다시 종료할 수 없다.
         event.activate();
         event.end();
-
-        assertThatThrownBy(event::activate)
+        assertThatThrownBy(event::end)
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
     }

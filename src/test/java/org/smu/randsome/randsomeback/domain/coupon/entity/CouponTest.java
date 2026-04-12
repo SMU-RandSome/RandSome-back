@@ -1,38 +1,38 @@
-package org.smu.randsome.randsomeback.domain.cupon.entity;
+package org.smu.randsome.randsomeback.domain.coupon.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.smu.randsome.randsomeback.domain.cupon.enums.CouponStatus;
+import org.smu.randsome.randsomeback.domain.coupon.enums.CouponStatus;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 
-class CuponTest {
+class CouponTest {
 
     CouponEvent event;
     Member member;
-    Cupon cupon;
+    Coupon coupon;
 
     @BeforeEach
     void setUp() {
         event = CuponFixture.createCuponEvent();
         event.activate();
         member = MemberFixture.create();
-        cupon = Cupon.issue(event, member);
+        coupon = Coupon.issue(event, member);
     }
 
     @Test
     void 쿠폰을_발급한다() {
         // then
-        assertThat(cupon).extracting(
-                Cupon::getCouponEvent,
-                Cupon::getMember,
-                Cupon::getCouponStatus
+        assertThat(coupon).extracting(
+                Coupon::getCouponEvent,
+                Coupon::getMember,
+                Coupon::getCouponStatus
         ).containsExactly(
                 event,
                 member,
@@ -43,10 +43,10 @@ class CuponTest {
     @Test
     void 쿠폰을_만료시킨다() {
         // when
-        cupon.expire();
+        coupon.expire();
 
         // then
-        assertThat(cupon.getCouponStatus()).isEqualTo(CouponStatus.EXPIRED);
+        assertThat(coupon.getCouponStatus()).isEqualTo(CouponStatus.EXPIRED);
     }
 
     @Test
@@ -54,12 +54,12 @@ class CuponTest {
         // given
 
         // when
-        cupon.use();
+        coupon.use();
 
         // then
-        assertThat(cupon.getCouponStatus()).isEqualTo(CouponStatus.USED);
+        assertThat(coupon.getCouponStatus()).isEqualTo(CouponStatus.USED);
 
-        assertThatThrownBy(() -> cupon.use())
+        assertThatThrownBy(() -> coupon.use())
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.COUPON_NOT_USABLE.getMessage());
     }

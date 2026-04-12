@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.domain.cupon.entity;
+package org.smu.randsome.randsomeback.domain.coupon.entity;
 
 import static java.util.Objects.requireNonNull;
 
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.smu.randsome.randsomeback.domain.cupon.enums.CouponStatus;
+import org.smu.randsome.randsomeback.domain.coupon.enums.CouponStatus;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.global.entity.BaseEntity;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -30,7 +30,7 @@ import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Cupon extends BaseEntity {
+public class Coupon extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coupon_event_id", nullable = false)
@@ -46,14 +46,14 @@ public class Cupon extends BaseEntity {
 
     private LocalDateTime usedAt;
 
-    public static Cupon issue(CouponEvent couponEvent, Member member) {
-        Cupon cupon = new Cupon();
+    public static Coupon issue(CouponEvent couponEvent, Member member) {
+        Coupon coupon = new Coupon();
 
-        cupon.couponEvent = requireNonNull(couponEvent);
-        cupon.member = requireNonNull(member);
-        cupon.couponStatus = CouponStatus.AVAILABLE;
+        coupon.couponEvent = requireNonNull(couponEvent);
+        coupon.member = requireNonNull(member);
+        coupon.couponStatus = CouponStatus.AVAILABLE;
 
-        return cupon;
+        return coupon;
     }
 
     public void use() {
