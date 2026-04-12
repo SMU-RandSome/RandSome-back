@@ -1,5 +1,6 @@
 package org.smu.randsome.randsomeback.domain.coupon.implement;
 
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.NewCouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.UpdateCouponEvent;
@@ -62,7 +63,7 @@ public class CouponEventManager {
         CouponEvent event = couponEventJpaRepository.findByIdAndStatus(couponEventId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_COUPON_EVENT));
 
-        event.activate();
+        event.activate(LocalDateTime.now());
 
         return event;
     }
