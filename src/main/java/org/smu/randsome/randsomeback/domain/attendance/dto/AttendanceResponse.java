@@ -15,7 +15,7 @@ public record AttendanceResponse(
         int totalDays,
         @Schema(description = "실제 출석한 일수", example = "15")
         int attendedDays,
-        @Schema(description = "출석한 날짜 목록", example = "[\"2024-05-06\", \"2024-05-07\", \"2024-05-08\"]")
+        @Schema(description = "출석한 날짜 목록", example = "[\"2026-05-06\", \"2026-05-07\", \"2026-05-08\"]")
         List<LocalDate> attendanceDates
 ) {
     public static AttendanceResponse from(List<Attendance> attendances) {
