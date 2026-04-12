@@ -35,4 +35,10 @@ public class CouponEventReader {
                 CouponEventStatus.DRAFT, now, EntityStatus.ACTIVE);
     }
 
+    @Transactional(readOnly = true)
+    public List<CouponEvent> findActiveEventsReadyToEnd(LocalDateTime now) {
+        return couponEventJpaRepository.findAllByEventStatusAndExpiresAtLessThanEqualAndStatus(
+                CouponEventStatus.ACTIVE, now, EntityStatus.ACTIVE);
+    }
+
 }

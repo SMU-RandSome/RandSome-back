@@ -78,4 +78,14 @@ public class CouponEventAdminService {
         couponCacheManager.initializeStock(couponEventId, event.getTotalQuantity(), ttl);
     }
 
+    /**
+     * 쿠폰 이벤트 비활성화 및 Redis stock 삭제
+     * @param couponEventId 비활성화할 쿠폰 이벤트 ID
+     * */
+    @Transactional
+    public void deactivateCouponEvent(Long couponEventId) {
+        couponEventManager.deactivate(couponEventId);
+        couponCacheManager.deleteStock(couponEventId);
+    }
+
 }

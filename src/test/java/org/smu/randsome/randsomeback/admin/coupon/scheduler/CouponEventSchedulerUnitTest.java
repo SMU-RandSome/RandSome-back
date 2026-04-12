@@ -64,4 +64,39 @@ class CouponEventSchedulerUnitTest extends UnitTestSupport {
         verify(couponEventAdminService, never()).activateCouponEvent(any(Long.class));
     }
 
+    @Test
+    void 종료_대기_중인_이벤트가_있으면_모두_종료한다() {
+        // given
+        CouponEvent event1 = CuponFixture.createCuponEvent();
+        ReflectionTestUtils.setField(event1, "id", 1L);
+        CouponEvent event2 = CuponFixture.createCuponEvent();
+        ReflectionTestUtils.setField(event2, "id", 2L);
+
+        List<CouponEvent> readyEvents = List.of(event1, event2);
+        given(couponEventReader.findActiveEventsReadyToEnd(any(LocalDateTime.class)))
+                .willReturn(readyEvents);
+
+        // when
+        couponEventScheduler.deactivateDueEvents();
+
+        // then
+        verify(couponEventReader).findActiveEventsReadyToEnd(any(LocalDateTime.class));
+        verify(couponEventAdminService).deactivateCouponEvent(1L);
+        verify(couponEventAdminService).deactivateCouponEvent(2L);
+    }
+
+    @Test
+    void 종료_대기_중인_이벤트가_없으면_아무것도_하지_않는다() {
+        // given
+        given(couponEventReader.findActiveEventsReadyToEnd(any(LocalDateTime.class)))
+                .willReturn(List.of());
+
+        // when
+        couponEventScheduler.deactivateDueEvents();
+
+        // then
+        verify(couponEventReader).findActiveEventsReadyToEnd(any(LocalDateTime.class));
+        verify(couponEventAdminService, never()).deactivateCouponEvent(any(Long.class));
+    }
+
 }

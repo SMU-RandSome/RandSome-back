@@ -69,4 +69,12 @@ public abstract class CouponEventAdminControllerDocs {
     )
     public abstract ApiResponse<?> activateCouponEvent(Long couponEventId);
 
+    @Operation(summary = "쿠폰 이벤트 비활성화",
+            description = """
+                    ## ACTIVE 상태의 쿠폰 이벤트를 종료합니다.
+                    이벤트 비활성화와 동시에 Redis에 저장된 쿠폰 재고(stock)를 삭제합니다.
+                    """
+    )
+    public abstract ApiResponse<?> deactivateCouponEvent(Long couponEventId);
+
 }

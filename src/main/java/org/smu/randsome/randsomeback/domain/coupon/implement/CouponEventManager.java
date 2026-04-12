@@ -67,4 +67,12 @@ public class CouponEventManager {
         return event;
     }
 
+    @Transactional
+    public void deactivate(Long couponEventId) {
+        CouponEvent event = couponEventJpaRepository.findByIdAndStatus(couponEventId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_COUPON_EVENT));
+
+        event.end();
+    }
+
 }

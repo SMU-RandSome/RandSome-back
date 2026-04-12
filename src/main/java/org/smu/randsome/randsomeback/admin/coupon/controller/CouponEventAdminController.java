@@ -80,4 +80,12 @@ public class CouponEventAdminController extends CouponEventAdminControllerDocs {
         return ApiResponse.success();
     }
 
+    @Override
+    @PostMapping("/v1/admin/coupon-events/{couponEventId}/deactivate")
+    public ApiResponse<?> deactivateCouponEvent(@PathVariable Long couponEventId) {
+        couponEventAdminService.deactivateCouponEvent(couponEventId);
+
+        return ApiResponse.success();
+    }
+
 }

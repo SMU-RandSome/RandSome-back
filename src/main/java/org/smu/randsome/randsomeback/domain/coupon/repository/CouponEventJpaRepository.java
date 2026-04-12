@@ -17,5 +17,10 @@ public interface CouponEventJpaRepository extends JpaRepository<CouponEvent, Lon
             LocalDateTime now,
             EntityStatus status
     );
+    List<CouponEvent> findAllByEventStatusAndExpiresAtLessThanEqualAndStatus(
+            CouponEventStatus eventStatus,
+            LocalDateTime now,
+            EntityStatus status
+    );
 
 }

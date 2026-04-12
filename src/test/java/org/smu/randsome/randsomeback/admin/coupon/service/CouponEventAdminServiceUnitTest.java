@@ -47,4 +47,17 @@ class CouponEventAdminServiceUnitTest extends UnitTestSupport {
         );
     }
 
+    @Test
+    void 쿠폰_이벤트를_비활성화하면_Redis에_재고를_삭제한다() {
+        // given
+        Long eventId = 1L;
+
+        // when
+        couponEventAdminService.deactivateCouponEvent(eventId);
+
+        // then
+        verify(couponEventManager).deactivate(eventId);
+        verify(couponCacheManager).deleteStock(eventId);
+    }
+
 }

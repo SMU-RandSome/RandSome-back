@@ -164,6 +164,17 @@ class CouponEventAdminControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"));
     }
 
+    @TestAdmin
+    @Test
+    void 관리자가_수동으로_이벤트를_종료한다() {
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/admin/coupon-events/{couponEventId}/deactivate", 1L))
+                .apply(print())
+                .hasStatusOk()
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"));
+    }
+
     private List<CouponEvent> createCouponEvents() {
         return List.of(
                 CouponEvent.create(
