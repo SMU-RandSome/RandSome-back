@@ -1,5 +1,7 @@
 package org.smu.randsome.randsomeback.domain.coupon.controller;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.CouponSearchCondition;
 import org.smu.randsome.randsomeback.domain.coupon.dto.response.CouponItem;
@@ -25,7 +27,7 @@ public class CouponController extends CouponControllerDocs {
             @LoginMember Long memberId,
             @RequestParam(defaultValue = "ALL") CouponFilterType filter,
             @RequestParam(required = false) Long lastCouponId,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") @Positive @Max(30) int size
     ) {
         CursorSlice<Coupon> coupons = couponService.findCoupons(memberId, new CouponSearchCondition(filter, lastCouponId, size));
 
