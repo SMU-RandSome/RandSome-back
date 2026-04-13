@@ -9,7 +9,6 @@ import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventPreviewItem;
 import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventRegisterRequest;
 import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventUpdateRequest;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "관리자 쿠폰 이벤트 API", description = "관리자 쿠폰 이벤트 관련 API")
