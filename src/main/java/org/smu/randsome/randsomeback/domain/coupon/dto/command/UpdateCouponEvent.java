@@ -14,6 +14,7 @@ public record UpdateCouponEvent(
         TicketType rewardTicketType,
         int rewardTicketAmount,
         LocalDateTime startsAt,
-        LocalDateTime expiresAt
+        LocalDateTime expiresAt,
+        LocalDateTime couponExpiresAt
 ) {
 }

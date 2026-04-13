@@ -18,7 +18,7 @@ class CouponEventManagerIntegrationTest extends IntegrationTestSupport {
 
     final CouponEventManager couponEventManager;
     @Test
-    void 관리자가_생성한다() {
+    void 관리자가_이벤트를_생성한다() {
         // given
         var newCouponEvent = new NewCouponEvent(
                 "이벤트명",
@@ -28,7 +28,8 @@ class CouponEventManagerIntegrationTest extends IntegrationTestSupport {
                 TicketType.RANDOM,
                 10,
                 TestDateTimeUtils.now(),
-                TestDateTimeUtils.now().plusDays(7)
+                TestDateTimeUtils.now().plusDays(7),
+                TestDateTimeUtils.now().plusDays(30)
         );
         // when
         var event = couponEventManager.register(newCouponEvent);
@@ -42,7 +43,8 @@ class CouponEventManagerIntegrationTest extends IntegrationTestSupport {
                 CouponEvent::getRewardTicketType,
                 CouponEvent::getRewardTicketAmount,
                 CouponEvent::getStartsAt,
-                CouponEvent::getExpiresAt
+                CouponEvent::getExpiresAt,
+                CouponEvent::getCouponExpiresAt
         ).containsExactly(
                 newCouponEvent.name(),
                 newCouponEvent.description(),
@@ -51,7 +53,8 @@ class CouponEventManagerIntegrationTest extends IntegrationTestSupport {
                 newCouponEvent.rewardTicketType(),
                 newCouponEvent.rewardTicketAmount(),
                 newCouponEvent.startsAt(),
-                newCouponEvent.expiresAt()
+                newCouponEvent.expiresAt(),
+                newCouponEvent.couponExpiresAt()
         );
     }
 

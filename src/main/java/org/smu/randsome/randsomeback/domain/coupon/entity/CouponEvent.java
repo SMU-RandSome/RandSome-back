@@ -52,6 +52,9 @@ public class CouponEvent extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime expiresAt;
 
+    @Column(nullable = false)
+    private LocalDateTime couponExpiresAt;
+
     public static CouponEvent create(
             String name,
             String description,
@@ -60,7 +63,8 @@ public class CouponEvent extends BaseEntity {
             TicketType rewardTicketType,
             int rewardTicketAmount,
             LocalDateTime startsAt,
-            LocalDateTime expiresAt
+            LocalDateTime expiresAt,
+            LocalDateTime couponExpiresAt
     ) {
         CouponEvent event = new CouponEvent();
 
@@ -73,6 +77,7 @@ public class CouponEvent extends BaseEntity {
         event.rewardTicketAmount = rewardTicketAmount;
         event.startsAt = requireNonNull(startsAt);
         event.expiresAt = requireNonNull(expiresAt);
+        event.couponExpiresAt = requireNonNull(couponExpiresAt);
 
         return event;
     }
@@ -102,13 +107,14 @@ public class CouponEvent extends BaseEntity {
             TicketType rewardTicketType,
             int rewardTicketAmount,
             LocalDateTime startsAt,
-            LocalDateTime expiresAt
+            LocalDateTime expiresAt,
+            LocalDateTime couponExpiresAt
     ) {
         if (eventStatus != CouponEventStatus.DRAFT) {
             throw new CoreException(ErrorType.COUPON_EVENT_INVALID_STATUS);
         }
 
-        if (startsAt.isAfter(expiresAt)) {
+        if (startsAt.isAfter(expiresAt) || expiresAt.isAfter(couponExpiresAt)) {
             throw new CoreException(ErrorType.BAD_REQUEST);
         }
         this.name = requireNonNull(name);
@@ -119,6 +125,7 @@ public class CouponEvent extends BaseEntity {
         this.rewardTicketAmount = rewardTicketAmount;
         this.startsAt = requireNonNull(startsAt);
         this.expiresAt = requireNonNull(expiresAt);
+        this.couponExpiresAt = requireNonNull(couponExpiresAt);
     }
 
     public boolean isIssuable(LocalDateTime now) {
