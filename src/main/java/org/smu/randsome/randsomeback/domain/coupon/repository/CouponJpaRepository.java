@@ -25,13 +25,10 @@ public interface CouponJpaRepository extends JpaRepository<Coupon, Long> {
             @Param("status") EntityStatus status
     );
 
-    List<Coupon> findAllByMemberIdAndStatus(Long memberId, EntityStatus status);
-
     @Query("""
             SELECT c FROM Coupon c
-            JOIN FETCH c.couponEvent ce
             WHERE c.couponStatus = :couponStatus
-              AND ce.expiresAt < :now
+              AND c.expiredAt < :now
               AND c.status = :entityStatus
             """)
     List<Coupon> findAllExpirable(

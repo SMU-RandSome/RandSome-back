@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.domain.coupon.implement;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
@@ -53,6 +54,14 @@ public class CouponManager {
         Coupon coupon = Coupon.issue(couponEvent, member);
 
         return couponRepository.save(coupon).getId();
+    }
+
+    @Transactional
+    public void expireBatch(List<Coupon> coupons) {
+        // TODO: 성능 개선 필요 - 대량의 쿠폰을 한 번에 만료 처리할 때, 개별적으로 expire()를 호출하는 대신 배치 업데이트를 고려할 수 있음
+        coupons.forEach(Coupon::expire);
+        // 파라미터로 전달 받은 coupons는 영속성 컨텍스트에 관리되지 않는 상태이므로, saveAll()을 통해 일괄 저장하여 변경 사항을 DB에 반영한다.
+        couponRepository.saveAll(coupons);
     }
 
     private Duration calculateTtl(CouponEvent couponEvent, LocalDateTime now) {
