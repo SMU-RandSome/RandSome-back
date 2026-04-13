@@ -1,10 +1,10 @@
 package org.smu.randsome.randsomeback.admin.coupon.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,13 +16,10 @@ import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventUpdateR
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventType;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
-import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 
 class CouponEventAdminControllerTest extends ControllerTestSupport {
 
@@ -38,7 +35,8 @@ class CouponEventAdminControllerTest extends ControllerTestSupport {
                 TicketType.RANDOM,
                 10,
                 TestDateTimeUtils.now(),
-                TestDateTimeUtils.now().plusDays(7)
+                TestDateTimeUtils.now().plusDays(7),
+                TestDateTimeUtils.now().plusDays(30)
         );
 
         given(couponEventAdminService.registerCouponEvent(request.toNewCouponEvent()))
@@ -96,7 +94,8 @@ class CouponEventAdminControllerTest extends ControllerTestSupport {
                 TicketType.RANDOM,
                 5,
                 TestDateTimeUtils.now(),
-                TestDateTimeUtils.now().plusDays(14)
+                TestDateTimeUtils.now().plusDays(14),
+                TestDateTimeUtils.now().plusDays(30)
         );
 
         willDoNothing().given(couponEventAdminService).updateCouponEvent(eq(1L), any());
@@ -123,7 +122,8 @@ class CouponEventAdminControllerTest extends ControllerTestSupport {
                 TicketType.RANDOM,
                 10,
                 TestDateTimeUtils.now(),
-                TestDateTimeUtils.now().plusDays(7)
+                TestDateTimeUtils.now().plusDays(7),
+                TestDateTimeUtils.now().plusDays(30)
         );
 
         given(couponEventAdminService.findCouponEvent(1L)).willReturn(event);
@@ -185,7 +185,8 @@ class CouponEventAdminControllerTest extends ControllerTestSupport {
                         TicketType.RANDOM,
                         10,
                         TestDateTimeUtils.now(),
-                        TestDateTimeUtils.now().plusDays(7)
+                        TestDateTimeUtils.now().plusDays(7),
+                        TestDateTimeUtils.now().plusDays(30)
                 ),
                 CouponEvent.create(
                         "이벤트 2",
@@ -195,7 +196,8 @@ class CouponEventAdminControllerTest extends ControllerTestSupport {
                         TicketType.RANDOM,
                         20,
                         TestDateTimeUtils.now(),
-                        TestDateTimeUtils.now().plusDays(14)
+                        TestDateTimeUtils.now().plusDays(14),
+                        TestDateTimeUtils.now().plusDays(30)
                 )
         );
     }

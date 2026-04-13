@@ -16,6 +16,7 @@ public class CuponFixture {
     public static final TicketType REWARD_TICKET_TYPE = TicketType.RANDOM;
     public static final LocalDateTime STARTED_AT = TestDateTimeUtils.now();
     public static final LocalDateTime ENDED_AT = TestDateTimeUtils.now().plusDays(1);
+    public static final LocalDateTime COUPON_EXPIRED_AT = TestDateTimeUtils.now().plusDays(30);
 
     public static CouponEvent createCuponEvent() {
         return CouponEvent.create(
@@ -26,7 +27,8 @@ public class CuponFixture {
                 REWARD_TICKET_TYPE,
                 REWARD_TICKET_QUANTITY,
                 STARTED_AT,
-                ENDED_AT
+                ENDED_AT,
+                COUPON_EXPIRED_AT
         );
     }
 

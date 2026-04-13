@@ -28,7 +28,8 @@ public class CouponEventManager {
                 newCouponEvent.rewardTicketType(),
                 newCouponEvent.rewardTicketAmount(),
                 newCouponEvent.startsAt(),
-                newCouponEvent.expiresAt()
+                newCouponEvent.expiresAt(),
+                newCouponEvent.couponExpiresAt()
         );
         return couponEventJpaRepository.save(couponEvent);
     }
@@ -46,7 +47,8 @@ public class CouponEventManager {
                 updateCouponEvent.rewardTicketType(),
                 updateCouponEvent.rewardTicketAmount(),
                 updateCouponEvent.startsAt(),
-                updateCouponEvent.expiresAt()
+                updateCouponEvent.expiresAt(),
+                updateCouponEvent.couponExpiresAt()
         );
     }
 

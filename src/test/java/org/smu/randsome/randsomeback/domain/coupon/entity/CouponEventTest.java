@@ -29,6 +29,7 @@ class CouponEventTest {
                 CouponEvent::getRewardTicketAmount,
                 CouponEvent::getStartsAt,
                 CouponEvent::getExpiresAt,
+                CouponEvent::getCouponExpiresAt,
                 CouponEvent::getEventStatus
         ).containsExactly(
                 CuponFixture.CUPON_NAME,
@@ -39,6 +40,7 @@ class CouponEventTest {
                 CuponFixture.REWARD_TICKET_QUANTITY,
                 CuponFixture.STARTED_AT,
                 CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT,
                 CouponEventStatus.DRAFT
         );
     }
@@ -66,7 +68,8 @@ class CouponEventTest {
                 CuponFixture.REWARD_TICKET_TYPE,
                 CuponFixture.REWARD_TICKET_QUANTITY,
                 NOW.minusDays(2),
-                NOW.minusDays(1)
+                NOW.minusDays(1),
+                NOW.plusDays(1)
         );
 
         // when & then
@@ -153,7 +156,8 @@ class CouponEventTest {
                 CuponFixture.REWARD_TICKET_TYPE,
                 CuponFixture.REWARD_TICKET_QUANTITY,
                 CuponFixture.STARTED_AT,
-                CuponFixture.ENDED_AT
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT
         );
 
         // then
@@ -168,7 +172,8 @@ class CouponEventTest {
                 CuponFixture.REWARD_TICKET_TYPE,
                 CuponFixture.REWARD_TICKET_QUANTITY,
                 CuponFixture.STARTED_AT,
-                CuponFixture.ENDED_AT
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT
         )).isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
 
@@ -181,7 +186,8 @@ class CouponEventTest {
                 CuponFixture.REWARD_TICKET_TYPE,
                 CuponFixture.REWARD_TICKET_QUANTITY,
                 CuponFixture.STARTED_AT,
-                CuponFixture.ENDED_AT
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT
         )).isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
 

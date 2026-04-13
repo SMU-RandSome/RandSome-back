@@ -9,12 +9,12 @@ import java.time.Duration;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponCacheManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventManager;
 import org.smu.randsome.randsomeback.fixture.CuponFixture;
+import org.springframework.test.util.ReflectionTestUtils;
 
 class CouponEventAdminServiceUnitTest extends UnitTestSupport {
 

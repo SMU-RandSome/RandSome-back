@@ -50,12 +50,15 @@ public class Coupon extends BaseEntity {
 
     private LocalDateTime usedAt;
 
+    private LocalDateTime expiredAt;
+
     public static Coupon issue(CouponEvent couponEvent, Member member) {
         Coupon coupon = new Coupon();
 
         coupon.couponEvent = requireNonNull(couponEvent);
         coupon.member = requireNonNull(member);
         coupon.couponStatus = CouponStatus.AVAILABLE;
+        coupon.expiredAt = couponEvent.getCouponExpiresAt();
 
         return coupon;
     }

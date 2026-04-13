@@ -33,11 +33,13 @@ class CouponTest {
         assertThat(coupon).extracting(
                 Coupon::getCouponEvent,
                 Coupon::getMember,
-                Coupon::getCouponStatus
+                Coupon::getCouponStatus,
+                Coupon::getExpiredAt
         ).containsExactly(
                 event,
                 member,
-                CouponStatus.AVAILABLE
+                CouponStatus.AVAILABLE,
+                event.getCouponExpiresAt()
         );
     }
 
