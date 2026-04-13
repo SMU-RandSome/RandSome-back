@@ -60,6 +60,27 @@ public class TicketHandler {
     }
 
     /**
+     * 쿠폰 사용 보상으로 티켓을 지급한다.
+     * @param memberId   회원 식별자
+     * @param ticketType 지급할 티켓 종류
+     * @param amount     지급할 티켓 수량
+     */
+    public void issueForCoupon(Long memberId, TicketType ticketType, int amount) {
+        ticketManager.earn(memberId, ticketType, amount);
+
+        eventPublisher.publishEvent(new TicketHistoryRegisterEvent(
+                memberId,
+                ticketType,
+                TicketActionType.EARN,
+                TicketSource.COUPON,
+                amount,
+                TicketSource.COUPON.getDescription()
+        ));
+
+        log.info("[TicketHandler] 쿠폰 보상 티켓 지급 완료 - memberId={}, ticketType={}, amount={}", memberId, ticketType, amount);
+    }
+
+    /**
      * 출석 보상으로 티켓을 지급한다.
      * @param memberId 회원 식별자
      * */
