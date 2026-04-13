@@ -14,7 +14,16 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CouponJpaRepository extends JpaRepository<Coupon, Long> {
 
-    Optional<Coupon> findByIdAndStatus(Long id, EntityStatus status);
+    @Query("""
+            SELECT c FROM Coupon c
+            JOIN FETCH c.couponEvent
+            WHERE c.id = :id
+              AND c.status = :status
+            """)
+    Optional<Coupon> findByIdAndStatusWithEvent(
+            @Param("id") Long id,
+            @Param("status") EntityStatus status
+    );
 
     List<Coupon> findAllByMemberIdAndStatus(Long memberId, EntityStatus status);
 

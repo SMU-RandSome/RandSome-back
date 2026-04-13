@@ -18,6 +18,23 @@ class CouponControllerTest extends ControllerTestSupport {
 
     @TestMember
     @Test
+    void 쿠폰을_사용하면_200을_반환한다() {
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/coupons/1/use"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value());
+    }
+
+    @Test
+    void 인증되지_않은_사용자가_쿠폰을_사용하면_403을_반환한다() {
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/coupons/1/use"))
+                .apply(print())
+                .hasStatus(HttpStatus.FORBIDDEN.value());
+    }
+
+    @TestMember
+    @Test
     void 회원의_쿠폰_목록을_조회한다() {
         // given
         given(couponService.findCoupons(eq(1L), any(CouponSearchCondition.class)))

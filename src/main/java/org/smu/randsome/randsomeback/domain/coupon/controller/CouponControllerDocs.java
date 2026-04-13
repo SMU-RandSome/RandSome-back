@@ -12,6 +12,17 @@ import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
 @Tag(name = "쿠폰 API", description = "쿠폰 관련 Docs")
 public abstract class CouponControllerDocs {
 
+    @Operation(summary = "쿠폰 사용 - JWT [O]",
+            description = """
+                    ## 쿠폰 사용 API
+                    - 보유한 쿠폰을 사용하는 API입니다.
+                    - 쿠폰 사용 시 이벤트에 설정된 종류와 수량의 티켓이 즉시 지급됩니다.
+                    - `AVAILABLE` 상태의 쿠폰만 사용할 수 있습니다.
+                    - 본인 소유의 쿠폰만 사용할 수 있습니다.
+                    """
+    )
+    public abstract ApiResponse<?> useCoupon(Long memberId, Long couponId);
+
     @Operation(summary = "쿠폰 목록 조회 - JWT [O]",
             description = """
                     ## 쿠폰 목록 조회 API

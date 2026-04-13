@@ -17,10 +17,23 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class CouponManager {
 
+    private final CouponReader couponReader;
     private final CouponEventReader couponEventReader;
     private final MemberReader memberReader;
     private final CouponCacheManager couponCacheManager;
     private final CouponRepository couponRepository;
+
+    public Coupon useCoupon(Long couponId, Long memberId) {
+        Coupon coupon = couponReader.findWithEvent(couponId);
+
+        if (!coupon.isOwnedBy(memberId)) {
+            throw new CoreException(ErrorType.NOT_FOUND_COUPON);
+        }
+
+        coupon.use();
+
+        return coupon;
+    }
 
     @Transactional
     public Long issueCoupon(Long couponEventId, Long memberId, LocalDateTime now) {

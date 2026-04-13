@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.CouponSearchCondition;
 import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
 import org.smu.randsome.randsomeback.domain.coupon.repository.CouponRepository;
+import org.smu.randsome.randsomeback.global.entity.EntityStatus;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponReader {
 
     private final CouponRepository couponRepository;
+
+    @Transactional(readOnly = true)
+    public Coupon findWithEvent(Long couponId) {
+        return couponRepository.findByIdAndStatusWithEvent(couponId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_COUPON));
+    }
 
     @Transactional(readOnly = true)
     public CursorSlice<Coupon> findCoupons(Long memberId, CouponSearchCondition condition) {

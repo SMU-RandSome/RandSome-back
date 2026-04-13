@@ -157,6 +157,56 @@ class TicketHandlerUnitTest extends UnitTestSupport {
     }
 
     @Test
+    void 쿠폰_보상으로_티켓을_지급하면_earn을_호출하고_COUPON_source_이벤트를_발행한다() {
+        // given
+        Long memberId = 1L;
+        TicketType ticketType = TicketType.RANDOM;
+        int amount = 3;
+
+        // when
+        ticketHandler.issueForCoupon(memberId, ticketType, amount);
+
+        // then
+        verify(ticketManager).earn(memberId, ticketType, amount);
+
+        ArgumentCaptor<TicketHistoryRegisterEvent> captor = ArgumentCaptor.forClass(TicketHistoryRegisterEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+
+        TicketHistoryRegisterEvent event = captor.getValue();
+        assertThat(event).extracting(
+                TicketHistoryRegisterEvent::memberId,
+                TicketHistoryRegisterEvent::ticketType,
+                TicketHistoryRegisterEvent::actionType,
+                TicketHistoryRegisterEvent::source,
+                TicketHistoryRegisterEvent::amount
+        ).containsExactly(
+                memberId,
+                ticketType,
+                TicketActionType.EARN,
+                TicketSource.COUPON,
+                amount
+        );
+    }
+
+    @Test
+    void 쿠폰_티켓_지급_실패_시_이벤트를_발행하지_않는다() {
+        // given
+        Long memberId = 1L;
+        TicketType ticketType = TicketType.RANDOM;
+        int amount = 3;
+
+        willThrow(new CoreException(ErrorType.NOT_FOUND_TICKET))
+                .given(ticketManager).earn(memberId, ticketType, amount);
+
+        // when & then
+        assertThatThrownBy(() -> ticketHandler.issueForCoupon(memberId, ticketType, amount))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_TICKET.getMessage());
+
+        verify(eventPublisher, never()).publishEvent(any());
+    }
+
+    @Test
     void 출석_보상으로_티켓을_지급하면_티켓을_생성하고_히스토리_이벤트를_발행한다() {
         // given
         Long memberId = 1L;

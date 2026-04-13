@@ -1,12 +1,14 @@
 package org.smu.randsome.randsomeback.domain.coupon.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.CouponSearchCondition;
 import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
+import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponFilterType;
 import org.smu.randsome.randsomeback.domain.coupon.repository.CouponEventJpaRepository;
 import org.smu.randsome.randsomeback.domain.coupon.repository.CouponRepository;
@@ -23,6 +25,25 @@ class CouponReaderIntegrationTest extends IntegrationTestSupport {
     private final CouponRepository couponRepository;
     private final CouponEventJpaRepository couponEventJpaRepository;
     private final MemberJpaRepository memberJpaRepository;
+
+    @Test
+    void findWithEvent_쿠폰_조회_시_CouponEvent를_함께_로딩한다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var event = couponEventJpaRepository.save(CuponFixture.createActiveCuponEvent());
+        var coupon = couponRepository.save(Coupon.issue(event, member));
+
+        // when
+        Coupon result = couponReader.findWithEvent(coupon.getId());
+
+        // then — 트랜잭션 내에서 LazyInitializationException 없이 couponEvent 필드에 접근 가능
+        assertThatNoException().isThrownBy(() -> {
+            CouponEvent loadedEvent = result.getCouponEvent();
+            assertThat(loadedEvent.getId()).isEqualTo(event.getId());
+            assertThat(loadedEvent.getRewardTicketType()).isEqualTo(CuponFixture.REWARD_TICKET_TYPE);
+            assertThat(loadedEvent.getRewardTicketAmount()).isEqualTo(CuponFixture.REWARD_TICKET_QUANTITY);
+        });
+    }
 
     @Test
     void 회원의_모든_쿠폰을_최신순으로_조회한다() {
