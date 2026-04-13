@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Transactional
-class TicketHistoryQueryRepositoryIntegrationTest extends IntegrationTestSupport {
+class TicketHistoryQueryDslRepositoryIntegrationTest extends IntegrationTestSupport {
 
     final TicketHistoryRepository ticketHistoryRepository;
     final MemberJpaRepository memberJpaRepository;

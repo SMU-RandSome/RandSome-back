@@ -4,7 +4,7 @@ import java.util.List;
 import org.smu.randsome.randsomeback.domain.ticket.dto.command.TicketHistorySearchCondition;
 import org.smu.randsome.randsomeback.domain.ticket.entity.TicketHistory;
 
-public interface TicketHistoryQueryRepository {
+public interface TicketHistoryQueryDslRepository {
 
     /**
      * 회원의 티켓 변동 내역을 조회하는 메서드입니다.
