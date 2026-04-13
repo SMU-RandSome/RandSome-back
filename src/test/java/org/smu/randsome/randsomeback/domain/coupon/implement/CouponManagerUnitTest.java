@@ -15,7 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
-import org.smu.randsome.randsomeback.domain.coupon.repository.CouponJpaRepository;
+import org.smu.randsome.randsomeback.domain.coupon.repository.CouponRepository;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
@@ -37,7 +37,7 @@ class CouponManagerUnitTest extends UnitTestSupport {
     CouponCacheManager couponCacheManager;
 
     @Mock
-    CouponJpaRepository couponJpaRepository;
+    CouponRepository couponRepository;
 
     // ── issueCoupon ──────────────────────────────────────────────
 
@@ -46,20 +46,20 @@ class CouponManagerUnitTest extends UnitTestSupport {
         // given
         Long eventId = 1L;
         Long memberId = 42L;
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = CuponFixture.STARTED_AT.plusSeconds(1);
         var couponEvent = CuponFixture.createActiveCuponEvent();
         var member = MemberFixture.create();
 
         given(couponEventReader.find(eventId)).willReturn(couponEvent);
         given(memberReader.getReference(memberId)).willReturn(member);
-        given(couponJpaRepository.save(any(Coupon.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(couponRepository.save(any(Coupon.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         // when
         couponManager.issueCoupon(eventId, memberId, now);
 
         // then
         ArgumentCaptor<Coupon> captor = ArgumentCaptor.forClass(Coupon.class);
-        verify(couponJpaRepository).save(captor.capture());
+        verify(couponRepository).save(captor.capture());
 
         Coupon capturedCoupon = captor.getValue();
         assertThat(capturedCoupon.getCouponEvent()).isEqualTo(couponEvent);
@@ -78,7 +78,7 @@ class CouponManagerUnitTest extends UnitTestSupport {
 
         given(couponEventReader.find(eventId)).willReturn(couponEvent);
         given(memberReader.getReference(memberId)).willReturn(member);
-        given(couponJpaRepository.save(any(Coupon.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(couponRepository.save(any(Coupon.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         // when
         couponManager.issueCoupon(eventId, memberId, now);

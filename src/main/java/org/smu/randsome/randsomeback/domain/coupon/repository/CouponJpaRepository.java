@@ -9,7 +9,9 @@ import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface CouponJpaRepository extends JpaRepository<Coupon, Long> {
 
     Optional<Coupon> findByIdAndStatus(Long id, EntityStatus status);
