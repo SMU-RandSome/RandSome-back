@@ -15,7 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
-import org.smu.randsome.randsomeback.domain.coupon.repository.CuponJpaRepository;
+import org.smu.randsome.randsomeback.domain.coupon.repository.CouponJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
@@ -37,7 +37,7 @@ class CouponManagerUnitTest extends UnitTestSupport {
     CouponCacheManager couponCacheManager;
 
     @Mock
-    CuponJpaRepository couponJpaRepository;
+    CouponJpaRepository couponJpaRepository;
 
     // ── issueCoupon ──────────────────────────────────────────────
 

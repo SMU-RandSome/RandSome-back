@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
-import org.smu.randsome.randsomeback.domain.coupon.repository.CuponJpaRepository;
+import org.smu.randsome.randsomeback.domain.coupon.repository.CouponJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -20,7 +20,7 @@ public class CouponManager {
     private final CouponEventReader couponEventReader;
     private final MemberReader memberReader;
     private final CouponCacheManager couponCacheManager;
-    private final CuponJpaRepository couponJpaRepository;
+    private final CouponJpaRepository couponJpaRepository;
 
     @Transactional
     public Long issueCoupon(Long couponEventId, Long memberId, LocalDateTime now) {
