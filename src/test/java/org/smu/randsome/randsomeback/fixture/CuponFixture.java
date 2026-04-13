@@ -30,4 +30,10 @@ public class CuponFixture {
         );
     }
 
+    public static CouponEvent createActiveCuponEvent() {
+        CouponEvent event = createCuponEvent();
+        event.activate(LocalDateTime.now());
+        return event;
+    }
+
 }

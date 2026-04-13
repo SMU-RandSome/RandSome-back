@@ -39,6 +39,13 @@ public class MemberReader {
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
     }
 
+    public Member getReference(Long memberId) {
+        if (!memberJpaRepository.existsByIdAndStatus(memberId, EntityStatus.ACTIVE)) {
+            throw new CoreException(ErrorType.NOT_FOUND_MEMBER);
+        }
+        return memberJpaRepository.getReferenceById(memberId);
+    }
+
     public Member findWithLock(Long memberId) {
         return memberJpaRepository.findByIdAndStatusWithLock(memberId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));

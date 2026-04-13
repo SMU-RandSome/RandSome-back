@@ -21,6 +21,8 @@ import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationServic
 import org.smu.randsome.randsomeback.domain.bankaccount.service.BankAccountService;
 import org.smu.randsome.randsomeback.domain.candidate.controller.CandidateController;
 import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
+import org.smu.randsome.randsomeback.domain.coupon.controller.CouponEventController;
+import org.smu.randsome.randsomeback.domain.coupon.service.CouponEventService;
 import org.smu.randsome.randsomeback.domain.feed.FeedController;
 import org.smu.randsome.randsomeback.domain.feed.FeedService;
 import org.smu.randsome.randsomeback.domain.matching.controller.MatchingController;
@@ -63,7 +65,8 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
         TicketController.class,
         AttendanceController.class,
         QrController.class,
-        CouponEventAdminController.class
+        CouponEventAdminController.class,
+        CouponEventController.class
 })
 public abstract class ControllerTestSupport {
 
@@ -129,5 +132,8 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected CouponEventAdminService couponEventAdminService;
+
+    @MockitoBean
+    protected CouponEventService couponEventService;
 
 }
