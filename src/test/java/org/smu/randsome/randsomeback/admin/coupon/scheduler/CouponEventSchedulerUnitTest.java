@@ -11,13 +11,13 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.smu.randsome.randsomeback.domain.scheduler.CouponEventScheduler;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.admin.coupon.service.CouponEventAdminService;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventReader;
+import org.smu.randsome.randsomeback.domain.scheduler.CouponEventScheduler;
 import org.smu.randsome.randsomeback.fixture.CuponFixture;
+import org.springframework.test.util.ReflectionTestUtils;
 
 class CouponEventSchedulerUnitTest extends UnitTestSupport {
 
