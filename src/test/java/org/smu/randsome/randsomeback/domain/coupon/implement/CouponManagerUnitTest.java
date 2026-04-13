@@ -281,4 +281,20 @@ class CouponManagerUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.COUPON_SOLD_OUT.getMessage());
     }
 
+    @Test
+    void 쿠폰을_배치로_만료시킨다() {
+        // given
+        var coupon1 = Coupon.issue(CuponFixture.createCuponEvent(), MemberFixture.create());
+        var coupon2 = Coupon.issue(CuponFixture.createCuponEvent(), MemberFixture.create());
+        var coupons = java.util.List.of(coupon1, coupon2);
+
+        // when
+        couponManager.expireBatch(coupons);
+
+        // then
+        assertThat(coupon1.getCouponStatus()).isEqualTo(org.smu.randsome.randsomeback.domain.coupon.enums.CouponStatus.EXPIRED);
+        assertThat(coupon2.getCouponStatus()).isEqualTo(org.smu.randsome.randsomeback.domain.coupon.enums.CouponStatus.EXPIRED);
+        verify(couponRepository).saveAll(coupons);
+    }
+
 }
