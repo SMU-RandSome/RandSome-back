@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
 @Repository
-public class TicketHistoryQueryRepositoryImpl implements TicketHistoryQueryDslRepository {
+public class TicketHistoryQueryDslRepositoryImpl implements TicketHistoryQueryDslRepository {
 
     private final JPAQueryFactory queryFactory;
 
