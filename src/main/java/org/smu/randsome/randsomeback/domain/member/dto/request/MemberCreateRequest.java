@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.BankAccountInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
@@ -69,14 +68,6 @@ public record MemberCreateRequest(
         @AssertTrue(message = "약관에 동의해야 합니다.")
         boolean agreedToTerms,
 
-        @Schema(description = "은행명", example = "국민은행")
-        @NotBlank(message = "은행명은 필수입니다.")
-        String bankName,
-
-        @Schema(description = "계좌번호", example = "123456789012")
-        @NotBlank(message = "계좌번호는 필수입니다.")
-        String accountNumber,
-
         @Schema(description = "내 성격 태그", example = "ACTIVE")
         @NotNull(message = "성격 태그는 필수입니다.")
         PersonalityTag personalityTag,
@@ -100,10 +91,6 @@ public record MemberCreateRequest(
 
     public MemberSocialProfile toSocialProfile() {
         return new MemberSocialProfile(instagramId, selfIntroduction, idealDescription);
-    }
-
-    public BankAccountInfo toBankAccountInfo() {
-        return new BankAccountInfo(bankName, accountNumber, legalName);
     }
 
     public MemberTagsInfo toTagsInfo() {

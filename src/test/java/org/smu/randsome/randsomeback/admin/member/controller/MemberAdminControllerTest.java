@@ -17,7 +17,6 @@ import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailRespo
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
-import org.smu.randsome.randsomeback.fixture.BankAccountFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
@@ -59,8 +58,7 @@ class MemberAdminControllerTest extends ControllerTestSupport {
     void 관리자가_회원_상세_조회에_성공하면_200을_반환한다() {
         // given
         var member = MemberFixture.create();
-        var bankAccount = BankAccountFixture.create();
-        var response = MemberDetailResponse.of(member, bankAccount);
+        var response = MemberDetailResponse.of(member);
 
         given(memberAdminService.getMemberDetail(1L)).willReturn(response);
 
@@ -70,8 +68,7 @@ class MemberAdminControllerTest extends ControllerTestSupport {
                 .hasStatus(HttpStatus.OK.value())
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
-                .hasPathSatisfying("$.data.id", v -> v.assertThat().isEqualTo(response.id()))
-                .hasPathSatisfying("$.data.bankName", v -> v.assertThat().isEqualTo(response.bankName()));
+                .hasPathSatisfying("$.data.id", v -> v.assertThat().isEqualTo(response.id()));
 
         then(memberAdminService).should().getMemberDetail(1L);
     }

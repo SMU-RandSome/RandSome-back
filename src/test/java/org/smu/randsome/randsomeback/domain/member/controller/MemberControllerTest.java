@@ -21,7 +21,6 @@ import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
-import org.smu.randsome.randsomeback.fixture.BankAccountFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.http.HttpStatus;
@@ -38,7 +37,6 @@ class MemberControllerTest extends ControllerTestSupport {
                 eq(request.toCredentials()),
                 eq(request.toBasicInfo()),
                 eq(request.toSocialProfile()),
-                eq(request.toBankAccountInfo()),
                 eq(request.toTagsInfo())
         )).willReturn(1L);
 
@@ -61,7 +59,6 @@ class MemberControllerTest extends ControllerTestSupport {
 
         Member member = MemberFixture.create();
         given(memberService.getMyProfile(any())).willReturn(member);
-        given(bankAccountService.findByMemberId(any())).willReturn(BankAccountFixture.create());
         given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.empty());
 
         // when & then
@@ -70,8 +67,6 @@ class MemberControllerTest extends ControllerTestSupport {
                 .hasStatus(HttpStatus.OK.value())
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
-                .hasPathSatisfying("$.data.bankName", v -> v.assertThat().isEqualTo(BankAccountFixture.DEFAULT_BANK_NAME))
-                .hasPathSatisfying("$.data.accountNumber", v -> v.assertThat().isEqualTo(BankAccountFixture.DEFAULT_ACCOUNT_NUMBER))
                 .hasPathSatisfying("$.data.candidateRegistrationStatus", v -> v.assertThat().isEqualTo("NOT_APPLIED"))
                 .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
     }
@@ -82,7 +77,6 @@ class MemberControllerTest extends ControllerTestSupport {
         // given
         Member member = MemberFixture.create();
         given(memberService.getMyProfile(any())).willReturn(member);
-        given(bankAccountService.findByMemberId(any())).willReturn(BankAccountFixture.create());
         given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.of(RegistrationStatus.PENDING));
 
         // when & then
@@ -99,7 +93,6 @@ class MemberControllerTest extends ControllerTestSupport {
         // given
         Member member = MemberFixture.create();
         given(memberService.getMyProfile(any())).willReturn(member);
-        given(bankAccountService.findByMemberId(any())).willReturn(BankAccountFixture.create());
         given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.of(RegistrationStatus.APPROVED));
 
         // when & then
@@ -139,8 +132,6 @@ class MemberControllerTest extends ControllerTestSupport {
                 .instagramId("new_insta")
                 .selfIntroduction("새 자기소개")
                 .idealDescription("새 이상형")
-                .bankName("국민은행")
-                .accountNumber("123456789012")
                 .personalityTag(PersonalityTag.QUIET)
                 .faceTypeTag(FaceTypeTag.BEAR)
                 .datingStyleTag(DatingStyleTag.EXPRESSIVE)
@@ -227,8 +218,6 @@ class MemberControllerTest extends ControllerTestSupport {
                 "안녕하세요",
                 "착한 사람",
                 true,
-                "국민은행",
-                "123456789012",
                 PersonalityTag.ACTIVE,
                 FaceTypeTag.BEAR,
                 DatingStyleTag.EXPRESSIVE

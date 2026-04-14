@@ -2,7 +2,6 @@ package org.smu.randsome.randsomeback.domain.member.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
-import org.smu.randsome.randsomeback.domain.bankaccount.entity.BankAccount;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.MyProfileTags;
 import org.smu.randsome.randsomeback.domain.member.enums.CandidateRegistrationStatusView;
@@ -52,12 +51,6 @@ public record MemberProfileResponse(
         @Schema(description = "이상형 소개", example = "성실하고 배려심 있는 사람이 좋아요.", nullable = true)
         String idealDescription,
 
-        @Schema(description = "은행명", example = "국민은행")
-        String bankName,
-
-        @Schema(description = "계좌번호", example = "123456789012")
-        String accountNumber,
-
         @Schema(description = "후보자 신청 상태", example = "NOT_APPLIED")
         CandidateRegistrationStatusView candidateRegistrationStatus,
 
@@ -76,7 +69,6 @@ public record MemberProfileResponse(
 
     public static MemberProfileResponse of(
             Member member,
-            BankAccount bankAccount,
             CandidateRegistrationStatusView candidateRegistrationStatus,
             long exposureCount
     ) {
@@ -94,8 +86,6 @@ public record MemberProfileResponse(
                 .instagramId(member.getSocialProfile().instagramId())
                 .selfIntroduction(member.getSocialProfile().selfIntroduction())
                 .idealDescription(member.getSocialProfile().idealDescription())
-                .bankName(bankAccount.getBankName())
-                .accountNumber(bankAccount.getAccountNumber())
                 .candidateRegistrationStatus(candidateRegistrationStatus)
                 .exposureCount(exposureCount)
                 .personalityTag(profileTags.personalityTag())

@@ -2,10 +2,6 @@ package org.smu.randsome.randsomeback.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.BankAccountInfo;
-import org.smu.randsome.randsomeback.domain.bankaccount.dto.command.UpdateBankAccount;
-import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountManager;
-import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountReader;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
@@ -29,8 +25,6 @@ public class MemberService {
     private final MemberReader memberReader;
     private final MemberValidator memberValidator;
     private final TermsAgreementManager termsAgreementManager;
-    private final BankAccountManager bankAccountManager;
-    private final BankAccountReader bankAccountReader;
     private final TicketHandler ticketHandler;
 
     /**
@@ -40,7 +34,6 @@ public class MemberService {
      * @param credentials            회원의 계정 정보 (이메일, 비밀번호)
      * @param basicInfo              회원의 기본 정보 (이름, 생년월일 등)
      * @param socialProfile          회원의 소셜 프로필 정보 (인스타그램 ID, 자기소개 등)
-     * @param bankAccountInfo        회원의 은행 계좌 정보
      * @param tagsInfo               회원의 태그 정보 (성격, 얼굴형, 데이트 스타일 등)
      * @return 생성된 회원의 ID
      *
@@ -51,14 +44,12 @@ public class MemberService {
             MemberCredentials credentials,
             MemberBasicInfo basicInfo,
             MemberSocialProfile socialProfile,
-            BankAccountInfo bankAccountInfo,
             MemberTagsInfo tagsInfo
     ) {
         memberValidator.validateSignUpToken(emailVerificationToken, credentials.email());
 
         Member member = memberManager.create(credentials, basicInfo, socialProfile, tagsInfo);
         termsAgreementManager.saveAll(member.getId());
-        bankAccountManager.create(member.getId(), bankAccountInfo);
         ticketHandler.issue(member);
 
         log.info("[MemberService] 회원가입 완료 - memberId={}", member.getId());
@@ -72,9 +63,8 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateProfile(Long memberId, UpdateProfile updateProfile, UpdateBankAccount updateBankAccount) {
+    public void updateProfile(Long memberId, UpdateProfile updateProfile) {
         memberManager.updateProfile(memberId, updateProfile);
-        bankAccountManager.update(bankAccountReader.findByMemberId(memberId), updateBankAccount);
     }
 
     /**
