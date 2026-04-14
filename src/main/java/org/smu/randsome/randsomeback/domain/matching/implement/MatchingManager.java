@@ -122,7 +122,7 @@ public class MatchingManager {
      * @throws CoreException 매칭 신청을 찾을 수 없거나, 승인된 신청이거나, 거절된 신청인 경우
      *
      */
-    public MatchingApplication cancel(Long applicationId, Long memberId) {
+    public void cancel(Long applicationId, Long memberId) {
         MatchingApplication matchingApplication = matchingJpaRepository.findByIdAndMemberIdAndStatus(
                 applicationId,
                 memberId,
@@ -131,8 +131,6 @@ public class MatchingManager {
 
         LocalDateTime cancelledAt = LocalDateTime.now();
         matchingApplication.cancel(cancelledAt);
-
-        return matchingApplication;
     }
 
     /**

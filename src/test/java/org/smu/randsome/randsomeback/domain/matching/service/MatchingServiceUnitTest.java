@@ -3,10 +3,10 @@ package org.smu.randsome.randsomeback.domain.matching.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -26,8 +26,6 @@ import org.smu.randsome.randsomeback.domain.matching.event.MatchingAppliedEvent;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
-import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
 import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -45,9 +43,6 @@ class MatchingServiceUnitTest extends UnitTestSupport {
     MatchingReader matchingReader;
 
     @Mock
-    PaymentManager paymentManager;
-
-    @Mock
     TicketHandler ticketHandler;
 
     @Mock
@@ -62,12 +57,8 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .applicationCount(2)
                 .build();
 
-        var member = mock(Member.class);
         var application = mock(MatchingApplication.class);
-        given(application.getMember()).willReturn(member);
-        given(application.getMatchingType()).willReturn(MatchingType.RANDOM);
         given(application.getId()).willReturn(10L);
-        given(application.getApplicationCount()).willReturn(2);
         given(matchingManager.apply(newMatching, memberId)).willReturn(application);
 
         // when
@@ -76,7 +67,6 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         // then
         verify(ticketHandler).deduct(memberId, newMatching);
         verify(matchingManager).apply(newMatching, memberId);
-        verify(paymentManager).register(any(Member.class), any(PaymentType.class), anyLong(), anyInt());
 
         ArgumentCaptor<MatchingAppliedEvent> captor = ArgumentCaptor.forClass(MatchingAppliedEvent.class);
         verify(eventPublisher).publishEvent(captor.capture());
@@ -100,7 +90,6 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.NOT_ENOUGH_TICKETS.getMessage());
 
         verify(matchingManager, never()).apply(any(), anyLong());
-        verify(paymentManager, never()).register(any(), any(), anyLong(), anyInt());
         verify(eventPublisher, never()).publishEvent(any());
     }
 
@@ -113,12 +102,7 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .applicationCount(2)
                 .build();
 
-        var member = mock(Member.class);
         var application = mock(MatchingApplication.class);
-        given(application.getMember()).willReturn(member);
-        given(application.getMatchingType()).willReturn(MatchingType.RANDOM);
-        given(application.getId()).willReturn(10L);
-        given(application.getApplicationCount()).willReturn(2);
         given(matchingManager.apply(newMatching, memberId)).willReturn(application);
 
         var order = org.mockito.Mockito.inOrder(ticketHandler, matchingManager);
@@ -230,17 +214,12 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         // given
         var applicationId = 1L;
         var memberId = 1L;
-        var application = mock(MatchingApplication.class);
-        given(application.getMatchingType()).willReturn(MatchingType.RANDOM);
-        given(application.getId()).willReturn(applicationId);
-        given(matchingManager.cancel(applicationId, memberId)).willReturn(application);
 
         // when
         matchingService.cancel(applicationId, memberId);
 
         // then
         verify(matchingManager).cancel(applicationId, memberId);
-        verify(paymentManager).cancel(memberId, PaymentType.RANDOM_MATCHING, applicationId);
     }
 
     @Test
@@ -248,12 +227,8 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         // given
         var applicationId = 1L;
         var memberId = 1L;
-        var application = mock(MatchingApplication.class);
-        given(application.getMatchingType()).willReturn(MatchingType.RANDOM);
-        given(application.getId()).willReturn(applicationId);
-        given(matchingManager.cancel(applicationId, memberId)).willReturn(application);
-        willThrow(new CoreException(ErrorType.NOT_FOUND_PAYMENT))
-                .given(paymentManager).cancel(memberId, PaymentType.RANDOM_MATCHING, applicationId);
+        doThrow(new CoreException(ErrorType.NOT_FOUND_PAYMENT))
+                .when(matchingManager).cancel(applicationId, memberId);
 
         // when & then
         assertThatThrownBy(() -> matchingService.cancel(applicationId, memberId))

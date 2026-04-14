@@ -10,8 +10,6 @@ import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.event.MatchingAppliedEvent;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
-import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
-import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
 import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -24,7 +22,6 @@ public class MatchingService {
 
     private final MatchingManager matchingManager;
     private final MatchingReader matchingReader;
-    private final PaymentManager paymentManager;
     private final TicketHandler ticketHandler;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -39,13 +36,7 @@ public class MatchingService {
         ticketHandler.deduct(memberId, newMatching);
 
         MatchingApplication matchingApplication = matchingManager.apply(newMatching, memberId);
-        // NOTE: 서비스 모델 변경(유료화 -> 무료화)으로 인한 삭제 예정
-        paymentManager.register(
-                matchingApplication.getMember(),
-                PaymentType.from(matchingApplication.getMatchingType()),
-                matchingApplication.getId(),
-                matchingApplication.getApplicationCount()
-        );
+
         eventPublisher.publishEvent(new MatchingAppliedEvent(matchingApplication.getId()));
     }
 
@@ -79,8 +70,7 @@ public class MatchingService {
      * */
     @Transactional
     public void cancel(Long applicationId, Long memberId) {
-        MatchingApplication cancelled = matchingManager.cancel(applicationId, memberId);
-        paymentManager.cancel(memberId, PaymentType.from(cancelled.getMatchingType()), cancelled.getId());
+        matchingManager.cancel(applicationId, memberId);
 
         log.info("[MatchingService] 매칭 신청 취소 처리 완료 - applicationId: {}, memberId: {}",
                 applicationId, memberId);
