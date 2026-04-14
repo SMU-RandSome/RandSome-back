@@ -52,9 +52,11 @@ public enum ErrorType {
     ALREADY_CANCELLED_MATCHING          (HttpStatus.BAD_REQUEST, "이미 취소된 매칭입니다.", LogLevel.INFO),
     NOT_ALLOW_ALREADY_APPROVED_MATCHING (HttpStatus.BAD_REQUEST, "이미 승인된 매칭은 거절이 불가능합니다.", LogLevel.INFO),
     NOT_FOUND_MATCHING                  (HttpStatus.NOT_FOUND, "매칭을 찾을 수 없습니다.", LogLevel.INFO),
+    NOT_FOUND_MATCHING_RESULT           (HttpStatus.NOT_FOUND, "매칭 결과를 찾을 수 없습니다.", LogLevel.INFO),
     NOT_FOUND_APPROVED_MATCHING         (HttpStatus.NOT_FOUND, "승인된 매칭을 찾을 수 없습니다.", LogLevel.INFO),
     UNSUPPORTED_MATCHING_TYPE           (HttpStatus.INTERNAL_SERVER_ERROR, "지원하지 않는 매칭 타입입니다.", LogLevel.ERROR),
     IDEAL_MATCHING_NOT_IMPLEMENTED      (HttpStatus.INTERNAL_SERVER_ERROR, "이상형 매칭 기능은 아직 준비 중입니다.", LogLevel.WARN),
+    FORBIDDEN_MATCHING_RESULT           (HttpStatus.FORBIDDEN, "다른 사용자의 매칭 결과에 접근할 수 없습니다.", LogLevel.WARN),
 
     // TICKET
     NOT_FOUND_TICKET      (HttpStatus.NOT_FOUND, "티켓을 찾을 수 없습니다.", LogLevel.INFO),
@@ -89,6 +91,12 @@ public enum ErrorType {
 
     //BANK_ACCOUNT
     NOT_FOUND_BANK_ACCOUNT      (HttpStatus.NOT_FOUND, "연결된 은행 계좌를 찾을 수 없습니다.", LogLevel.INFO),
+
+    // REPORT
+    NOT_FOUND_REPORT              (HttpStatus.NOT_FOUND, "신고를 찾을 수 없습니다.", LogLevel.INFO),
+    CANNOT_REPORT_YOURSELF        (HttpStatus.BAD_REQUEST, "자신을 신고할 수 없습니다.", LogLevel.INFO),
+    ALREADY_REPORTED_MEMBER       (HttpStatus.CONFLICT, "이미 신고한 사용자입니다.", LogLevel.INFO),
+    REPORTED_MEMBER_SUSPENDED     (HttpStatus.FORBIDDEN, "신고가 누적된 사용자입니다. 서비스 이용이 제한되었습니다.", LogLevel.INFO),
 
     // AUTH
     INVALID_EMAIL_DOMAIN         (HttpStatus.BAD_REQUEST, "상명대학교 이메일(@sangmyung.kr)만 사용 가능합니다.", LogLevel.INFO),
