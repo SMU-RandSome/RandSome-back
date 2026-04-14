@@ -8,8 +8,8 @@ import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfi
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberTagsInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.member.entity.MemberRestriction;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
+import org.smu.randsome.randsomeback.domain.member.entity.MemberRestriction;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberRestricetionJpaRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
@@ -106,13 +106,25 @@ public class MemberManager {
         log.info("[MemberManager] 권한 변경 완료 - memberId={}, newRole={}", member.getId(), role);
     }
 
+    @Transactional
     public void suspend(Long memberId, String reason) {
         Member member = memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
 
+        member.suspend();
         memberRestricetionJpaRepository.save(MemberRestriction.create(member, reason));
 
-        log.info("[MemberManager] 회원 정지 처리 완료 - memberId = {}", memberId);
+        log.info("[MemberManager] 회원 정지 처리 완료 - memberId = {}", member.getId());
+    }
+
+    @Transactional
+    public void restore(Long memberId) {
+        Member member = memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.SUSPENDED)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
+
+        member.active();
+
+        log.info("[MemberManager] 회원 복구 처리 완료 - memberId = {}", member.getId());
     }
 
 }

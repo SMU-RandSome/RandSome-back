@@ -74,7 +74,8 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
         CouponEventAdminController.class,
         CouponEventController.class,
         CouponController.class,
-        ReportController.class
+        ReportController.class,
+        AdminReportController.class
 })
 public abstract class ControllerTestSupport {
 
