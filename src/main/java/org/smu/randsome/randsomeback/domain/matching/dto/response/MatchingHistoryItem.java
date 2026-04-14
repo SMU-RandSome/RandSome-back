@@ -5,6 +5,11 @@ import java.time.LocalDateTime;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 
+/**
+ * 매칭 신청 내역 응답 DTO다.
+ * <br/>회원의 과거 매칭 신청 목록을 조회할 때 반환되는 단건 정보를 담는다.
+ * <br/>신청 상태, 신청 시각, 신청 인원 수 등 필수 정보를 포함한다.
+ */
 @Schema(description = "매칭 신청 내역 단건 정보")
 public record MatchingHistoryItem(
         @Schema(description = "매칭 신청 ID", example = "101")
@@ -23,6 +28,12 @@ public record MatchingHistoryItem(
         int applicationCount
 ) {
 
+    /**
+     * MatchingApplication 엔티티를 응답 DTO로 변환한다.
+     *
+     * @param app 매칭 신청 엔티티
+     * @return 변환된 응답 DTO
+     */
     public static MatchingHistoryItem from(MatchingApplication app) {
         return new MatchingHistoryItem(
                 app.getId(),
