@@ -45,7 +45,7 @@ public abstract class MatchingControllerDocs {
             summary = "내 신청 내역 조회 API - JWT [O]",
             description = """
                     ### 내 신청 내역 조회 API입니다.
-                    - `status` 파라미터로 `PENDING`, `APPROVED`, `REJECTED`, `CANCELLED` 중 하나를 전달합니다.
+                    - `status` 파라미터로 `PENDING`, `APPROVED`, `FAIL`, `CANCELLED` 중 하나를 전달합니다.
                     - 탭 진입 시마다 해당 상태의 신청 내역만 조회됩니다.
                     - 성공 시 200 OK 와 함께 신청 내역 목록이 반환됩니다.
                     """
@@ -57,7 +57,7 @@ public abstract class MatchingControllerDocs {
     })
     public abstract ApiResponse<List<MatchingHistoryItem>> getMyApplications(
             @Parameter(
-                    description = "조회할 신청 상태 (PENDING, APPROVED, REJECTED, CANCELLED)",
+                    description = "조회할 신청 상태 (PENDING, APPROVED, FAIL, CANCELLED)",
                     in = ParameterIn.QUERY
             )
             ApplicationStatus status,
@@ -95,7 +95,7 @@ public abstract class MatchingControllerDocs {
             description = """
                     ### 매칭 신청 취소 API입니다.
                     - PENDING 상태의 매칭 신청만 취소할 수 있습니다.
-                    - 승인(APPROVED) 또는 거절(REJECTED)된 신청은 취소할 수 없습니다.
+                    - 승인(APPROVED) 또는 거절(FAIL)된 신청은 취소할 수 없습니다.
                     - 성공 시 200 OK 응답이 반환됩니다.
                     """
     )

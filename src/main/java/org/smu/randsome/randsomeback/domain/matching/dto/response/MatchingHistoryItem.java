@@ -20,16 +20,7 @@ public record MatchingHistoryItem(
         LocalDateTime appliedAt,
 
         @Schema(description = "해당 신청자의 신청 횟수", example = "3")
-        int applicationCount,
-
-        @Schema(description = "승인 시각 (승인 상태일 때만 값 존재)")
-        LocalDateTime approvedAt,
-
-        @Schema(description = "거절 시각 (거절 상태일 때만 값 존재)")
-        LocalDateTime rejectedAt,
-
-        @Schema(description = "거절 사유 (거절 상태일 때만 값 존재)", example = "조건에 맞는 상대가 없습니다.")
-        String rejectedReason
+        int applicationCount
 ) {
 
     public static MatchingHistoryItem from(MatchingApplication app) {
@@ -38,10 +29,7 @@ public record MatchingHistoryItem(
                 app.getMatchingType().getLabel(),
                 app.getApplicationStatus(),
                 app.getCreatedAt(),
-                app.getApplicationCount(),
-                app.getApprovedAt(),
-                app.getRejectedAt(),
-                app.getRejectedReason()
+                app.getApplicationCount()
         );
     }
 
