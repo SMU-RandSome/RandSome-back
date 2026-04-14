@@ -8,8 +8,6 @@ import org.smu.randsome.randsomeback.domain.candidate.event.CandidateAppliedEven
 import org.smu.randsome.randsomeback.domain.matching.event.MatchingAppliedEvent;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberDevice;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberDeviceReader;
-import org.smu.randsome.randsomeback.domain.payment.event.PaymentApprovedEvent;
-import org.smu.randsome.randsomeback.domain.payment.event.PaymentRejectedEvent;
 import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationSender;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
@@ -82,42 +80,7 @@ public class NotificationHandler {
                             + ", error: " + e.getMessage(), e);
         }
     }
-
-    @Async("notificationExecutor")
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void paymentApprovedNotify(PaymentApprovedEvent event) {
-        try {
-            List<MemberDevice> memberDevices = memberDeviceReader.findAllByMemberId(event.memberId());
-            sendNotificationToDevices(
-                    memberDevices,
-                    NotificationType.fromApproved(event.paymentType()),
-                    event.paymentId()
-            );
-        } catch (Exception e) {
-            log.error("[NotificationHandler] 결제 승인 알림 전송 중 오류 발생. paymentId={}", event.paymentId(), e);
-            errorNotificationSender.sendErrorNotification(
-                    "[NotificationHandler] 결제 승인 알림 전송 중 오류 발생. paymentId=" + event.paymentId() + ", error: " + e.getMessage(),
-                    e);
-        }
-    }
-
-    @Async("notificationExecutor")
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void paymentRejectedNotify(PaymentRejectedEvent event) {
-        try {
-            List<MemberDevice> memberDevices = memberDeviceReader.findAllByMemberId(event.memberId());
-            sendNotificationToDevices(
-                    memberDevices,
-                    NotificationType.fromRejected(event.paymentType()),
-                    event.paymentId()
-            );
-        } catch (Exception e) {
-            log.error("[NotificationHandler] 결제 거절 알림 전송 중 오류 발생. paymentId={}", event.paymentId(), e);
-            errorNotificationSender.sendErrorNotification(
-                    "[NotificationHandler] 결제 거절 알림 전송 중 오류 발생. paymentId=" + event.paymentId() + ", error: " + e.getMessage(),
-                    e);
-        }
-    }
+    // TODO: 후보자 승인/거절 알림
 
     private void sendNotificationToDevices(List<MemberDevice> devices, NotificationType type, long contextId) {
         if (devices.isEmpty()) {

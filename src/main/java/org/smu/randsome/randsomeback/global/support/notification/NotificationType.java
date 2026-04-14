@@ -2,7 +2,6 @@ package org.smu.randsome.randsomeback.global.support.notification;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
 
 @Getter
 @AllArgsConstructor
@@ -20,19 +19,5 @@ public enum NotificationType {
 
     private final String title;
     private final String message;
-
-    public static NotificationType fromApproved(PaymentType paymentType) {
-        return switch (paymentType) {
-            case CANDIDATE_REGISTRATION -> CANDIDATE_APPROVED;
-            case RANDOM_MATCHING, IDEAL_TYPE_MATCHING -> MATCHING_APPROVED;
-        };
-    }
-
-    public static NotificationType fromRejected(PaymentType paymentType) {
-        return switch (paymentType) {
-            case CANDIDATE_REGISTRATION -> CANDIDATE_REJECTED;
-            case RANDOM_MATCHING, IDEAL_TYPE_MATCHING -> MATCHING_REJECTED;
-        };
-    }
 
 }
