@@ -13,9 +13,9 @@ import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.admin.report.enums.AdminReportStatusFilter;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
 import org.smu.randsome.randsomeback.domain.report.entity.Report;
+import org.smu.randsome.randsomeback.domain.report.enums.ReportStatus;
 import org.smu.randsome.randsomeback.domain.report.implement.ReportManager;
 import org.smu.randsome.randsomeback.domain.report.implement.ReportReader;
-import org.smu.randsome.randsomeback.domain.report.enums.ReportStatus;
 
 class AdminReportServiceTest extends UnitTestSupport {
 

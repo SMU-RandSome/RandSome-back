@@ -25,7 +25,6 @@ import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.matching.event.MatchingAppliedEvent;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
-import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;

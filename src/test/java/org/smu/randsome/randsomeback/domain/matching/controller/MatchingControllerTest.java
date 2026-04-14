@@ -9,7 +9,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.dto.request.MatchingApplyRequest;
-import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

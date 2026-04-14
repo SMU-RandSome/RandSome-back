@@ -9,6 +9,8 @@ import org.smu.randsome.randsomeback.admin.member.controller.MemberAdminControll
 import org.smu.randsome.randsomeback.admin.member.service.MemberAdminService;
 import org.smu.randsome.randsomeback.admin.payment.controller.PaymentAdminController;
 import org.smu.randsome.randsomeback.admin.payment.service.PaymentAdminService;
+import org.smu.randsome.randsomeback.admin.report.controller.AdminReportController;
+import org.smu.randsome.randsomeback.admin.report.service.AdminReportService;
 import org.smu.randsome.randsomeback.admin.statistics.controller.StatisticsAdminController;
 import org.smu.randsome.randsomeback.admin.statistics.service.StatisticsAdminService;
 import org.smu.randsome.randsomeback.domain.announcement.controller.AnnouncementController;
@@ -21,14 +23,10 @@ import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationServic
 import org.smu.randsome.randsomeback.domain.bankaccount.service.BankAccountService;
 import org.smu.randsome.randsomeback.domain.candidate.controller.CandidateController;
 import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
-import org.smu.randsome.randsomeback.admin.report.controller.AdminReportController;
-import org.smu.randsome.randsomeback.admin.report.service.AdminReportService;
 import org.smu.randsome.randsomeback.domain.coupon.controller.CouponController;
 import org.smu.randsome.randsomeback.domain.coupon.controller.CouponEventController;
 import org.smu.randsome.randsomeback.domain.coupon.service.CouponEventService;
 import org.smu.randsome.randsomeback.domain.coupon.service.CouponService;
-import org.smu.randsome.randsomeback.domain.report.controller.ReportController;
-import org.smu.randsome.randsomeback.domain.report.service.ReportService;
 import org.smu.randsome.randsomeback.domain.feed.FeedController;
 import org.smu.randsome.randsomeback.domain.feed.FeedService;
 import org.smu.randsome.randsomeback.domain.matching.controller.MatchingController;
@@ -40,6 +38,8 @@ import org.smu.randsome.randsomeback.domain.payment.controller.PaymentController
 import org.smu.randsome.randsomeback.domain.payment.service.PaymentService;
 import org.smu.randsome.randsomeback.domain.qr.controller.QrController;
 import org.smu.randsome.randsomeback.domain.qr.service.QrService;
+import org.smu.randsome.randsomeback.domain.report.controller.ReportController;
+import org.smu.randsome.randsomeback.domain.report.service.ReportService;
 import org.smu.randsome.randsomeback.domain.statistics.controller.StatisticsController;
 import org.smu.randsome.randsomeback.domain.statistics.service.StatisticsService;
 import org.smu.randsome.randsomeback.domain.ticket.controller.TicketController;
