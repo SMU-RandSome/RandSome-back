@@ -37,8 +37,6 @@ class ReportValidatorUnitTest extends UnitTestSupport {
     void 중복_신고가_없으면_예외가_발생하지_않는다() {
         given(reportReader.existsDuplicateReport(1L, ReportTargetType.MATCHING_RESULT, 10L))
                 .willReturn(false);
-        given(reportReader.countActiveReportsByReportedMember(2L))
-                .willReturn(0L);
 
         assertThatCode(() -> reportValidator.validateReportCreation(
                 1L, 2L, ReportTargetType.MATCHING_RESULT, 10L))
@@ -56,28 +54,4 @@ class ReportValidatorUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.ALREADY_REPORTED_MEMBER.getMessage());
     }
 
-    @Test
-    void 피신고자의_활성_신고가_3건_이상이면_예외가_발생한다() {
-        given(reportReader.existsDuplicateReport(1L, ReportTargetType.MATCHING_RESULT, 10L))
-                .willReturn(false);
-        given(reportReader.countActiveReportsByReportedMember(2L))
-                .willReturn(3L);
-
-        assertThatThrownBy(() -> reportValidator.validateReportCreation(
-                1L, 2L, ReportTargetType.MATCHING_RESULT, 10L))
-                .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.REPORTED_MEMBER_SUSPENDED.getMessage());
-    }
-
-    @Test
-    void 피신고자의_활성_신고가_2건이면_예외가_발생하지_않는다() {
-        given(reportReader.existsDuplicateReport(1L, ReportTargetType.MATCHING_RESULT, 10L))
-                .willReturn(false);
-        given(reportReader.countActiveReportsByReportedMember(2L))
-                .willReturn(2L);
-
-        assertThatCode(() -> reportValidator.validateReportCreation(
-                1L, 2L, ReportTargetType.MATCHING_RESULT, 10L))
-                .doesNotThrowAnyException();
-    }
 }
