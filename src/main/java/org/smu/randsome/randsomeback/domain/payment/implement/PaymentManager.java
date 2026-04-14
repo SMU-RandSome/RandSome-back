@@ -4,14 +4,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.payment.entity.Payment;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentStatus;
 import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
 import org.smu.randsome.randsomeback.domain.payment.event.PaymentApprovedEvent;
 import org.smu.randsome.randsomeback.domain.payment.event.PaymentRejectedEvent;
 import org.smu.randsome.randsomeback.domain.payment.repository.PaymentJpaRepository;
-import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.context.ApplicationEventPublisher;
@@ -31,25 +29,7 @@ public class PaymentManager {
     private final List<PaymentApprovalStrategy> strategies;
     private final ApplicationEventPublisher eventPublisher;
 
-    /**
-     * 결제 엔티티를 생성하고 저장한다.
-     *
-     * @param member      결제 요청 회원
-     * @param paymentType 결제 유형
-     * @param referenceId 도메인 엔티티 식별자
-     * @param amount      결제 금액
-     */
-    public void register(Member member, PaymentType paymentType, Long referenceId, int amount) {
-        paymentJpaRepository.save(Payment.register(
-                member,
-                paymentType,
-                referenceId,
-                amount
-        ));
 
-        log.info("[PaymentManager] 결제 생성 완료 - memberId={}, paymentType={}, referenceId={}",
-                member.getId(), paymentType, referenceId);
-    }
 
     /**
      * 결제를 승인하고 결제 유형에 맞는 후속 도메인 로직을 수행한다.
@@ -102,18 +82,6 @@ public class PaymentManager {
                 payment.getReferenceId(),
                 currentStatus,
                 payment.getPaymentStatus());
-    }
-
-    @Transactional
-    public void cancel(Long memberId, PaymentType paymentType, Long referenceId) {
-        Payment payment = paymentJpaRepository.findByMemberIdAndPaymentTypeAndReferenceIdAndStatus(
-                memberId,
-                paymentType,
-                referenceId,
-                EntityStatus.ACTIVE
-        ).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_PAYMENT));
-
-        payment.cancel();
     }
 
     /**

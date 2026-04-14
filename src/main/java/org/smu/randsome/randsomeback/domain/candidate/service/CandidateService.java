@@ -9,8 +9,6 @@ import org.smu.randsome.randsomeback.domain.candidate.event.CandidateAppliedEven
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateReader;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateValidator;
-import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
-import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,20 +23,12 @@ public class CandidateService {
     private final CandidateValidator candidateValidator;
     private final CandidateManager candidateManager;
     private final CandidateReader candidateReader;
-    private final PaymentManager paymentManager;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void apply(Long memberId) {
         candidateValidator.validateApply(memberId);
         CandidateRegistration candidateRegistration = candidateManager.apply(memberId);
-
-        paymentManager.register(
-                candidateRegistration.getMember(),
-                PaymentType.CANDIDATE_REGISTRATION,
-                candidateRegistration.getId(),
-                CANDIDATE_REGISTRATION_AMOUNT
-        );
 
         eventPublisher.publishEvent(new CandidateAppliedEvent(candidateRegistration.getId()));
     }
@@ -65,7 +55,6 @@ public class CandidateService {
     @Transactional
     public void cancel(Long memberId) {
         CandidateRegistration cancelled = candidateManager.cancel(memberId);
-        paymentManager.cancel(memberId, PaymentType.CANDIDATE_REGISTRATION, cancelled.getId());
 
         log.info("[CandidateService] 후보자 등록 신청 취소 처리 완료 - registrationId={}, memberId={}",
                 cancelled.getId(),

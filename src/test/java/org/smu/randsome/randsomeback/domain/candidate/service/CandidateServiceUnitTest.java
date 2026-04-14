@@ -2,9 +2,6 @@ package org.smu.randsome.randsomeback.domain.candidate.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
@@ -20,9 +17,6 @@ import org.smu.randsome.randsomeback.domain.candidate.event.CandidateAppliedEven
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateReader;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateValidator;
-import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.payment.enums.PaymentType;
-import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.context.ApplicationEventPublisher;
@@ -42,19 +36,14 @@ class CandidateServiceUnitTest extends UnitTestSupport {
     CandidateReader candidateReader;
 
     @Mock
-    PaymentManager paymentManager;
-
-    @Mock
     ApplicationEventPublisher eventPublisher;
 
     @Test
     void 후보자_지원에_성공한다() {
         // given
         var memberId = 1L;
-        var member = mock(Member.class);
         var registration = mock(CandidateRegistration.class);
         given(candidateManager.apply(memberId)).willReturn(registration);
-        given(registration.getMember()).willReturn(member);
         given(registration.getId()).willReturn(1L);
 
         // when
@@ -63,7 +52,6 @@ class CandidateServiceUnitTest extends UnitTestSupport {
         // then
         verify(candidateValidator).validateApply(memberId);
         verify(candidateManager).apply(memberId);
-        verify(paymentManager).register(any(Member.class), any(PaymentType.class), anyLong(), anyInt());
 
         ArgumentCaptor<CandidateAppliedEvent> captor = ArgumentCaptor.forClass(CandidateAppliedEvent.class);
         verify(eventPublisher).publishEvent(captor.capture());
