@@ -8,11 +8,9 @@ import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
-import org.smu.randsome.randsomeback.domain.matching.event.MatchingAppliedEvent;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
 import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +22,6 @@ public class MatchingService {
     private final MatchingManager matchingManager;
     private final MatchingReader matchingReader;
     private final TicketHandler ticketHandler;
-    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 매칭 신청을 처리한다. 신청 시 회원의 티켓을 차감하고, 매칭 신청 정보를 저장한 후, 자동으로 매칭을 진행한다.
@@ -37,15 +34,13 @@ public class MatchingService {
         ticketHandler.deduct(memberId, newMatching);
 
         MatchingApplication matchingApplication = matchingManager.apply(newMatching, memberId);
-        matchingManager.approve(matchingApplication.getId(), LocalDateTime.now());
-
-        eventPublisher.publishEvent(new MatchingAppliedEvent(matchingApplication.getId()));
+        matchingManager.executeMatching(matchingApplication, LocalDateTime.now());
     }
 
     /**
      * 회원의 매칭 신청 내역을 조회한다.
      * @param memberId 회원 식별자
-     * @param status 조회할 신청 상태 (예: PENDING, APPROVED, REJECTED)
+     * @param status 조회할 신청 상태 (예: PENDING, APPROVED, FAIL)
      *
      * @return 해당 회원의 매칭 신청 내역 리스트
      * */

@@ -48,8 +48,7 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
                 MatchingApplication::getMatchingType,
                 MatchingApplication::getApplicationCount,
                 MatchingApplication::getApplicationStatus,
-                MatchingApplication::getApprovedAt,
-                MatchingApplication::getRejectedAt,
+                MatchingApplication::getCompletedAt,
                 MatchingApplication::getCancelledAt
         ).containsExactly(
                 result.getId(),
@@ -57,7 +56,6 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
                 MatchingType.RANDOM,
                 3,
                 ApplicationStatus.PENDING,
-                null,
                 null,
                 null
         );
@@ -115,7 +113,7 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void 매칭_신청을_승인하면_APPROVED_상태와_승인_시각이_저장된다() {
+    void 매칭을_실행하면_SUCCESS_상태와_완료_시각이_저장된다() {
         // given
         var member = memberJpaRepository.save(MemberFixture.create());
         var newMatching = NewMatching.builder()
@@ -123,78 +121,22 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
                 .applicationCount(3)
                 .build();
         var application = matchingManager.apply(newMatching, member.getId());
-        var approvedAt = TestDateTimeUtils.now();
+        var completedAt = TestDateTimeUtils.now();
 
         // when
-        matchingManager.approve(application.getId(), approvedAt);
+        matchingManager.executeMatching(application, completedAt);
 
         // then
         var result = matchingJpaRepository.findById(application.getId()).orElseThrow();
         assertThat(result).extracting(
                 MatchingApplication::getApplicationStatus,
-                MatchingApplication::getApprovedAt,
-                MatchingApplication::getRejectedAt,
-                MatchingApplication::getRejectedReason
+                MatchingApplication::getCompletedAt
         ).containsExactly(
-                ApplicationStatus.APPROVED,
-                approvedAt,
-                null,
-                null
+                ApplicationStatus.SUCCESS,
+                completedAt
         );
     }
 
-    @Test
-    void 존재하지_않는_매칭을_승인하면_NOT_FOUND_MATCHING을_던진다() {
-        // given
-        var nonExistentId = 999L;
-
-        // when & then
-        assertThatThrownBy(() -> matchingManager.approve(nonExistentId, TestDateTimeUtils.now()))
-                .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
-    }
-
-    @Test
-    void 매칭_신청을_거절하면_REJECTED_상태와_거절_사유_및_거절_시각이_저장된다() {
-        // given
-        var member = memberJpaRepository.save(MemberFixture.create());
-        var newMatching = NewMatching.builder()
-                .matchingType(MatchingType.IDEAL)
-                .applicationCount(2)
-                .build();
-        var application = matchingManager.apply(newMatching, member.getId());
-        var reason = "서류 미비";
-        var rejectedAt = TestDateTimeUtils.now();
-
-        // when
-        matchingManager.reject(application.getId(), reason, rejectedAt);
-
-        // then
-        MatchingApplication result = matchingJpaRepository.findById(application.getId()).orElseThrow();
-
-        assertThat(result).extracting(
-                MatchingApplication::getApplicationStatus,
-                MatchingApplication::getRejectedReason,
-                MatchingApplication::getRejectedAt,
-                MatchingApplication::getApprovedAt
-        ).containsExactly(
-                ApplicationStatus.REJECTED,
-                reason,
-                rejectedAt,
-                null
-        );
-    }
-
-    @Test
-    void 존재하지_않는_매칭을_거절하면_NOT_FOUND_MATCHING을_던진다() {
-        // given
-        var nonExistentId = 999L;
-
-        // when & then
-        assertThatThrownBy(() -> matchingManager.reject(nonExistentId, "사유", TestDateTimeUtils.now()))
-                .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
-    }
 
     @Test
     void PENDING_신청을_취소하면_CANCELLED_상태와_취소_시각이_저장된다() {
@@ -245,7 +187,7 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void APPROVED_신청을_취소하면_NOT_ALLOW_CANCEL_APPROVED를_던진다() {
+    void SUCCESS_신청을_취소하면_NOT_ALLOW_CANCEL_APPROVED를_던진다() {
         // given
         var member = memberJpaRepository.save(MemberFixture.create());
         var newMatching = NewMatching.builder()
@@ -253,29 +195,12 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
                 .applicationCount(3)
                 .build();
         var application = matchingManager.apply(newMatching, member.getId());
-        matchingManager.approve(application.getId(), TestDateTimeUtils.now());
+        matchingManager.executeMatching(application, TestDateTimeUtils.now());
 
         // when & then
         assertThatThrownBy(() -> matchingManager.cancel(application.getId(), member.getId()))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_ALLOW_CANCEL_APPROVED.getMessage());
-    }
-
-    @Test
-    void REJECTED_신청을_취소하면_NOT_ALLOW_CANCEL_REJECTED를_던진다() {
-        // given
-        var member = memberJpaRepository.save(MemberFixture.create());
-        var newMatching = NewMatching.builder()
-                .matchingType(MatchingType.RANDOM)
-                .applicationCount(2)
-                .build();
-        var application = matchingManager.apply(newMatching, member.getId());
-        matchingManager.reject(application.getId(), "사유", TestDateTimeUtils.now());
-
-        // when & then
-        assertThatThrownBy(() -> matchingManager.cancel(application.getId(), member.getId()))
-                .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_ALLOW_CANCEL_REJECTED.getMessage());
     }
 
 }
