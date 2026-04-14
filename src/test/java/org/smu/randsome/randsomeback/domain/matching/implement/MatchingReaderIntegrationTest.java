@@ -37,7 +37,7 @@ class MatchingReaderIntegrationTest extends IntegrationTestSupport {
         var member = memberJpaRepository.save(MemberFixture.create());
         var pending = matchingJpaRepository.save(MatchingApplication.apply(member, MatchingType.RANDOM, 2));
         var approved = matchingJpaRepository.save(MatchingApplication.apply(member, MatchingType.RANDOM, 1));
-        approved.approve(TestDateTimeUtils.now());
+        approved.complete(TestDateTimeUtils.now());
 
         // when
         List<MatchingApplication> result = matchingReader.findByMemberAndStatus(member.getId(), ApplicationStatus.PENDING);
@@ -54,10 +54,10 @@ class MatchingReaderIntegrationTest extends IntegrationTestSupport {
         var member = memberJpaRepository.save(MemberFixture.create());
         var pending = matchingJpaRepository.save(MatchingApplication.apply(member, MatchingType.RANDOM, 2));
         var approved = matchingJpaRepository.save(MatchingApplication.apply(member, MatchingType.RANDOM, 1));
-        approved.approve(TestDateTimeUtils.now());
+        approved.complete(TestDateTimeUtils.now());
 
         // when
-        List<MatchingApplication> result = matchingReader.findByMemberAndStatus(member.getId(), ApplicationStatus.APPROVED);
+        List<MatchingApplication> result = matchingReader.findByMemberAndStatus(member.getId(), ApplicationStatus.SUCCESS);
 
         // then
         assertThat(result).hasSize(1)
@@ -67,30 +67,7 @@ class MatchingReaderIntegrationTest extends IntegrationTestSupport {
                         MatchingApplication::getApplicationCount
                 )
                 .containsExactly(
-                        tuple(approved.getId(), ApplicationStatus.APPROVED, approved.getApplicationCount())
-                );
-    }
-
-    @Test
-    void REJECTED_상태의_신청_목록을_조회한다() {
-        // given
-        var member = memberJpaRepository.save(MemberFixture.create());
-        matchingJpaRepository.save(MatchingApplication.apply(member, MatchingType.RANDOM, 2));
-        var rejected = matchingJpaRepository.save(MatchingApplication.apply(member, MatchingType.RANDOM, 1));
-        rejected.reject(TestDateTimeUtils.now(), "서류 미비");
-
-        // when
-        List<MatchingApplication> result = matchingReader.findByMemberAndStatus(member.getId(), ApplicationStatus.REJECTED);
-
-        // then
-        assertThat(result).hasSize(1)
-                .extracting(
-                        MatchingApplication::getId,
-                        MatchingApplication::getApplicationStatus,
-                        MatchingApplication::getRejectedReason
-                )
-                .containsExactly(
-                        tuple(rejected.getId(), ApplicationStatus.REJECTED, "서류 미비")
+                        tuple(approved.getId(), ApplicationStatus.SUCCESS, approved.getApplicationCount())
                 );
     }
 
@@ -114,7 +91,7 @@ class MatchingReaderIntegrationTest extends IntegrationTestSupport {
         var member = memberJpaRepository.save(MemberFixture.create());
         var candidate = memberJpaRepository.save(MemberFixture.createWithGender("202399001@sangmyung.kr", Gender.FEMALE));
         var application = matchingJpaRepository.save(MatchingApplication.apply(member, MatchingType.RANDOM, 1));
-        application.approve(TestDateTimeUtils.now());
+        application.complete(TestDateTimeUtils.now());
         var result1 = matchingResultJpaRepository.save(MatchingResult.create(application, candidate));
 
         // when
@@ -144,7 +121,7 @@ class MatchingReaderIntegrationTest extends IntegrationTestSupport {
         var member = memberJpaRepository.save(MemberFixture.create());
         var other = memberJpaRepository.save(MemberFixture.createWithGender("202399002@sangmyung.kr", Gender.FEMALE));
         var application = matchingJpaRepository.save(MatchingApplication.apply(other, MatchingType.RANDOM, 1));
-        application.approve(TestDateTimeUtils.now());
+        application.complete(TestDateTimeUtils.now());
 
         // when & then
         assertThatThrownBy(() -> matchingReader.findApprovedByApplication(application.getId(), member.getId()))
@@ -161,11 +138,11 @@ class MatchingReaderIntegrationTest extends IntegrationTestSupport {
         var candidate = memberJpaRepository.save(MemberFixture.createWithGender("202310003@sangmyung.kr", Gender.FEMALE));
 
         var application1 = matchingJpaRepository.save(MatchingApplication.apply(applicant1, MatchingType.RANDOM, 1));
-        application1.approve(TestDateTimeUtils.now());
+        application1.complete(TestDateTimeUtils.now());
         var application2 = matchingJpaRepository.save(MatchingApplication.apply(applicant2, MatchingType.RANDOM, 1));
-        application2.approve(TestDateTimeUtils.now());
+        application2.complete(TestDateTimeUtils.now());
         var application3 = matchingJpaRepository.save(MatchingApplication.apply(applicant3, MatchingType.RANDOM, 1));
-        application3.approve(TestDateTimeUtils.now());
+        application3.complete(TestDateTimeUtils.now());
 
         matchingResultJpaRepository.save(MatchingResult.create(application1, candidate));
         matchingResultJpaRepository.save(MatchingResult.create(application2, candidate));
@@ -186,9 +163,9 @@ class MatchingReaderIntegrationTest extends IntegrationTestSupport {
         var candidate = memberJpaRepository.save(MemberFixture.createWithGender("202310003@sangmyung.kr", Gender.FEMALE));
 
         var application1 = matchingJpaRepository.save(MatchingApplication.apply(applicant1, MatchingType.RANDOM, 1));
-        application1.approve(TestDateTimeUtils.now());
+        application1.complete(TestDateTimeUtils.now());
         var application2 = matchingJpaRepository.save(MatchingApplication.apply(applicant2, MatchingType.RANDOM, 1));
-        application2.approve(TestDateTimeUtils.now());
+        application2.complete(TestDateTimeUtils.now());
 
         matchingResultJpaRepository.save(MatchingResult.create(application1, candidate));
         var deletedResult = matchingResultJpaRepository.save(MatchingResult.create(application2, candidate));
@@ -209,7 +186,7 @@ class MatchingReaderIntegrationTest extends IntegrationTestSupport {
         var otherCandidate = memberJpaRepository.save(MemberFixture.createWithGender("202310004@sangmyung.kr", Gender.FEMALE));
 
         var application = matchingJpaRepository.save(MatchingApplication.apply(applicant, MatchingType.RANDOM, 1));
-        application.approve(TestDateTimeUtils.now());
+        application.complete(TestDateTimeUtils.now());
 
         matchingResultJpaRepository.save(MatchingResult.create(application, candidate));
         matchingResultJpaRepository.save(MatchingResult.create(application, otherCandidate));

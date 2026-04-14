@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.announcement.event.AnnouncementRegisteredEvent;
 import org.smu.randsome.randsomeback.domain.candidate.event.CandidateAppliedEvent;
-import org.smu.randsome.randsomeback.domain.matching.event.MatchingAppliedEvent;
+import org.smu.randsome.randsomeback.domain.matching.event.MatchingApplicationCompletedEvent;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberDevice;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberDeviceReader;
 import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
@@ -46,18 +46,18 @@ public class NotificationHandler {
 
     @Async("notificationExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void matchingApplicationNotify(MatchingAppliedEvent event) {
+    public void matchingApplicationNotify(MatchingApplicationCompletedEvent event) {
         try {
             List<MemberDevice> memberDevices = memberDeviceReader.findAllByAdminRole();
             sendNotificationToDevices(
                     memberDevices,
                     NotificationType.MATCHING_APPLIED_TO_ADMIN,
-                    event.matchingApplicationId()
+                    event.applicationId()
             );
         } catch (Exception e) {
-            log.error("[NotificationHandler] 매칭 신청 알림 전송 중 오류 발생. matchingApplicationId={}", event.matchingApplicationId(), e);
+            log.error("[NotificationHandler] 매칭 완료 알림 전송 중 오류 발생. applicationId={}", event.applicationId(), e);
             errorNotificationSender.sendErrorNotification(
-                    "[NotificationHandler] 매칭 신청 알림 전송 중 오류 발생. matchingApplicationId=" + event.matchingApplicationId()
+                    "[NotificationHandler] 매칭 완료 알림 전송 중 오류 발생. applicationId=" + event.applicationId()
                             + ", error: " + e.getMessage(), e);
         }
     }

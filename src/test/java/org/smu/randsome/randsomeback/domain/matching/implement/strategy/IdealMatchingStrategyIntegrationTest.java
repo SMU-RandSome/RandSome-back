@@ -58,7 +58,7 @@ class IdealMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.approve(application.getId(), TestDateTimeUtils.now());
+        matchingManager.executeMatching(application, TestDateTimeUtils.now());
 
         // then
         var results = matchingResultJpaRepository.findAll();
@@ -97,7 +97,7 @@ class IdealMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.approve(application.getId(), TestDateTimeUtils.now());
+        matchingManager.executeMatching(application, TestDateTimeUtils.now());
 
         // then: 둘 다 점수가 1점으로 동일하므로 둘 중 하나가 선택됨
         var results = matchingResultJpaRepository.findAll();
@@ -137,7 +137,7 @@ class IdealMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.approve(application.getId(), TestDateTimeUtils.now());
+        matchingManager.executeMatching(application, TestDateTimeUtils.now());
 
         // then
         var results = matchingResultJpaRepository.findAll();
@@ -182,7 +182,7 @@ class IdealMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.approve(application.getId(), TestDateTimeUtils.now());
+        matchingManager.executeMatching(application, TestDateTimeUtils.now());
 
         // then
         var results = matchingResultJpaRepository.findAll();
@@ -219,7 +219,7 @@ class IdealMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.approve(application.getId(), TestDateTimeUtils.now());
+        matchingManager.executeMatching(application, TestDateTimeUtils.now());
 
         // then
         assertThat(matchingResultJpaRepository.findAll()).hasSize(1);
@@ -268,7 +268,7 @@ class IdealMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.approve(application.getId(), TestDateTimeUtils.now());
+        matchingManager.executeMatching(application, TestDateTimeUtils.now());
 
         // then: 3점(1명) + 2점(2명) + 1점(1명) 중 신청인원수(2명)만큼 상위를 선택
         var results = matchingResultJpaRepository.findAll();

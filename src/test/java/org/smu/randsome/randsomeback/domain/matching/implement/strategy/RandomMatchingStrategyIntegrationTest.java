@@ -47,7 +47,7 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.approve(application.getId(), TestDateTimeUtils.now());
+        matchingManager.executeMatching(application, TestDateTimeUtils.now());
 
         // then
         var results = matchingResultJpaRepository.findAll();
@@ -79,7 +79,7 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.approve(application.getId(), TestDateTimeUtils.now());
+        matchingManager.executeMatching(application, TestDateTimeUtils.now());
 
         // then
         assertThat(matchingResultJpaRepository.findAll()).hasSize(3);
@@ -98,7 +98,7 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.approve(application.getId(), TestDateTimeUtils.now());
+        matchingManager.executeMatching(application, TestDateTimeUtils.now());
 
         // then
         assertThat(matchingResultJpaRepository.findAll()).isEmpty();
@@ -126,7 +126,7 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.approve(application.getId(), TestDateTimeUtils.now());
+        matchingManager.executeMatching(application, TestDateTimeUtils.now());
 
         // then
         var results = matchingResultJpaRepository.findAll();
@@ -151,7 +151,7 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.approve(application.getId(), TestDateTimeUtils.now());
+        matchingManager.executeMatching(application, TestDateTimeUtils.now());
 
         // then
         assertThat(matchingResultJpaRepository.findAll()).hasSize(2);
@@ -176,7 +176,7 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.approve(application.getId(), TestDateTimeUtils.now());
+        matchingManager.executeMatching(application, TestDateTimeUtils.now());
 
         // then
         var result = matchingResultJpaRepository.findAll().getFirst();

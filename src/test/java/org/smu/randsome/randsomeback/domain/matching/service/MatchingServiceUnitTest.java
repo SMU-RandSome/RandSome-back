@@ -14,7 +14,6 @@ import static org.mockito.Mockito.verify;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
@@ -23,13 +22,11 @@ import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
-import org.smu.randsome.randsomeback.domain.matching.event.MatchingAppliedEvent;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
 import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
-import org.springframework.context.ApplicationEventPublisher;
 
 class MatchingServiceUnitTest extends UnitTestSupport {
 
@@ -45,9 +42,6 @@ class MatchingServiceUnitTest extends UnitTestSupport {
     @Mock
     TicketHandler ticketHandler;
 
-    @Mock
-    ApplicationEventPublisher eventPublisher;
-
     @Test
     void 매칭_신청에_성공한다() {
         // given
@@ -58,7 +52,6 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .build();
 
         var application = mock(MatchingApplication.class);
-        given(application.getId()).willReturn(10L);
         given(matchingManager.apply(newMatching, memberId)).willReturn(application);
 
         // when
@@ -67,11 +60,7 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         // then
         verify(ticketHandler).deduct(memberId, newMatching);
         verify(matchingManager).apply(newMatching, memberId);
-        verify(matchingManager).approve(eq(10L), any());
-
-        ArgumentCaptor<MatchingAppliedEvent> captor = ArgumentCaptor.forClass(MatchingAppliedEvent.class);
-        verify(eventPublisher).publishEvent(captor.capture());
-        assertThat(captor.getValue().matchingApplicationId()).isEqualTo(10L);
+        verify(matchingManager).executeMatching(eq(application), any());
     }
 
     @Test
@@ -91,7 +80,6 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.NOT_ENOUGH_TICKETS.getMessage());
 
         verify(matchingManager, never()).apply(any(), anyLong());
-        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test
@@ -104,7 +92,6 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .build();
 
         var application = mock(MatchingApplication.class);
-        given(application.getId()).willReturn(10L);
         given(matchingManager.apply(newMatching, memberId)).willReturn(application);
 
         var order = org.mockito.Mockito.inOrder(ticketHandler, matchingManager);
@@ -115,7 +102,7 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         // then
         order.verify(ticketHandler).deduct(memberId, newMatching);
         order.verify(matchingManager).apply(newMatching, memberId);
-        order.verify(matchingManager).approve(eq(10L), any());
+        order.verify(matchingManager).executeMatching(eq(application), any());
     }
 
     @Test
@@ -135,8 +122,7 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
 
         verify(ticketHandler).deduct(memberId, newMatching);
-        verify(matchingManager, never()).approve(anyLong(), any());
-        verify(eventPublisher, never()).publishEvent(any());
+        verify(matchingManager, never()).executeMatching(any(), any());
     }
 
     @Test

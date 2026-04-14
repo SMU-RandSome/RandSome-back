@@ -11,6 +11,12 @@ import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
 import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 
+/**
+ * 매칭 신청 요청 DTO다.
+ * <br/>클라이언트가 매칭 신청 API를 호출할 때 전달하는 요청 데이터를 담는다.
+ * <br/>RANDOM 매칭의 경우 이상형 조건 필드를 무시하고, IDEAL 매칭의 경우 이상형 조건을 포함하여 전달한다.
+ * <br/>신청 인원 수는 1~5명 범위에서만 유효하다.
+ */
 @Schema(name = "매칭 신청 요청 DTO")
 public record MatchingApplyRequest(
         @Schema(description = "매칭 인원 수", example = "2")
@@ -32,10 +38,22 @@ public record MatchingApplyRequest(
         DatingStyleTag preferredDatingStyleTag
 ) {
 
+    /**
+     * 랜덤 매칭 요청을 빠르게 생성하는 팩토리 메서드다.
+     *
+     * @param applicationCount 신청 인원 수
+     * @return 이상형 조건 없는 랜덤 매칭 요청
+     */
     public static MatchingApplyRequest forRandom(int applicationCount) {
         return new MatchingApplyRequest(applicationCount, MatchingType.RANDOM, null, null, null);
     }
 
+    /**
+     * Request DTO를 도메인 커맨드 DTO로 변환한다.
+     * <br/>매칭 타입에 따라 이상형 조건을 포함할지 결정한다.
+     *
+     * @return 변환된 커맨드 DTO
+     */
     public NewMatching toNewMatching() {
         IdealTypePreference idealTypePreference = matchingType == MatchingType.IDEAL
                 ? IdealTypePreference.of(preferredPersonalityTag, preferredFaceTypeTag, preferredDatingStyleTag)
