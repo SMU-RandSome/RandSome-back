@@ -79,7 +79,7 @@ class ReportServiceUnitTest extends UnitTestSupport {
         assertThat(reportId).isEqualTo(100L);
         verify(reportValidator).validateIsApplicant(reporterId, reporterId);
         verify(reportValidator).validateReportCreation(
-                eq(reporterId), any(), eq(ReportTargetType.MATCHING_RESULT), eq(matchingResultId)
+                eq(reporterId), any(Long.class), eq(ReportTargetType.MATCHING_RESULT), eq(matchingResultId)
         );
     }
 

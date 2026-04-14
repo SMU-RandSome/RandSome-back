@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ReportValidator {
 
-    private static final int MAX_ACTIVE_REPORTS = 3;
-
     private final ReportReader reportReader;
 
     public void validateIsApplicant(Long applicantId, Long reporterId) {
@@ -21,20 +19,19 @@ public class ReportValidator {
     }
 
     public void validateReportCreation(Long reporterId, Long reportedMemberId, ReportTargetType targetType, Long targetId) {
+        validateSelfReport(reporterId, reportedMemberId);
         validateNoDuplicateReport(reporterId, targetType, targetId);
-        validateReportedMemberNotSuspended(reportedMemberId);
+    }
+
+    private void validateSelfReport(Long reporterId, Long reportedMemberId) {
+        if (reporterId.equals(reportedMemberId)) {
+            throw new CoreException(ErrorType.CANNOT_REPORT_YOURSELF);
+        }
     }
 
     private void validateNoDuplicateReport(Long reporterId, ReportTargetType targetType, Long targetId) {
         if (reportReader.existsDuplicateReport(reporterId, targetType, targetId)) {
             throw new CoreException(ErrorType.ALREADY_REPORTED_MEMBER);
-        }
-    }
-
-    private void validateReportedMemberNotSuspended(Long reportedMemberId) {
-        long activeReportCount = reportReader.countActiveReportsByReportedMember(reportedMemberId);
-        if (activeReportCount >= MAX_ACTIVE_REPORTS) {
-            throw new CoreException(ErrorType.REPORTED_MEMBER_SUSPENDED);
         }
     }
 
