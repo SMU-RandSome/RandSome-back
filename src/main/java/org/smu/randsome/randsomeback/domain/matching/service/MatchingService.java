@@ -1,5 +1,6 @@
 package org.smu.randsome.randsomeback.domain.matching.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,7 @@ public class MatchingService {
     private final ApplicationEventPublisher eventPublisher;
 
     /**
-     * 매칭 신청을 처리한다. 신청 시 회원의 티켓을 차감하고, 매칭 신청 정보를 저장한 후, 매칭 신청 이벤트를 발행한다.
+     * 매칭 신청을 처리한다. 신청 시 회원의 티켓을 차감하고, 매칭 신청 정보를 저장한 후, 자동으로 매칭을 진행한다.
      *
      * @param newMatching 매칭 신청 커맨드
      * @param memberId 신청자 식별자
@@ -36,6 +37,7 @@ public class MatchingService {
         ticketHandler.deduct(memberId, newMatching);
 
         MatchingApplication matchingApplication = matchingManager.apply(newMatching, memberId);
+        matchingManager.approve(matchingApplication.getId(), LocalDateTime.now());
 
         eventPublisher.publishEvent(new MatchingAppliedEvent(matchingApplication.getId()));
     }

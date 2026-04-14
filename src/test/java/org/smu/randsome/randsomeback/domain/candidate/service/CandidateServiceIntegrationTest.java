@@ -17,10 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.candidate.repository.CandidateJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
-import org.smu.randsome.randsomeback.domain.payment.implement.PaymentManager;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -34,8 +32,6 @@ class CandidateServiceIntegrationTest extends IntegrationTestSupport {
     final EntityManagerFactory entityManagerFactory;
     final DataSource dataSource;
 
-    @MockitoBean
-    PaymentManager paymentManager;
 
     @AfterEach
     void tearDown() {

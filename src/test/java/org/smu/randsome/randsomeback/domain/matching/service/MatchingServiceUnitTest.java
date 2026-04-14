@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.doThrow;
@@ -66,6 +67,7 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         // then
         verify(ticketHandler).deduct(memberId, newMatching);
         verify(matchingManager).apply(newMatching, memberId);
+        verify(matchingManager).approve(eq(10L), any());
 
         ArgumentCaptor<MatchingAppliedEvent> captor = ArgumentCaptor.forClass(MatchingAppliedEvent.class);
         verify(eventPublisher).publishEvent(captor.capture());
@@ -102,6 +104,7 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .build();
 
         var application = mock(MatchingApplication.class);
+        given(application.getId()).willReturn(10L);
         given(matchingManager.apply(newMatching, memberId)).willReturn(application);
 
         var order = org.mockito.Mockito.inOrder(ticketHandler, matchingManager);
@@ -112,6 +115,7 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         // then
         order.verify(ticketHandler).deduct(memberId, newMatching);
         order.verify(matchingManager).apply(newMatching, memberId);
+        order.verify(matchingManager).approve(eq(10L), any());
     }
 
     @Test
@@ -131,6 +135,7 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
 
         verify(ticketHandler).deduct(memberId, newMatching);
+        verify(matchingManager, never()).approve(anyLong(), any());
         verify(eventPublisher, never()).publishEvent(any());
     }
 
@@ -222,17 +227,17 @@ class MatchingServiceUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 결제_취소_실패시_예외가_전파된다() {
+    void 매칭_신청_취소_실패시_예외가_전파된다() {
         // given
         var applicationId = 1L;
         var memberId = 1L;
-        doThrow(new CoreException(ErrorType.NOT_FOUND_PAYMENT))
+        doThrow(new CoreException(ErrorType.NOT_FOUND_MATCHING))
                 .when(matchingManager).cancel(applicationId, memberId);
 
         // when & then
         assertThatThrownBy(() -> matchingService.cancel(applicationId, memberId))
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_FOUND_PAYMENT.getMessage());
+                .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
     }
 
     @Test

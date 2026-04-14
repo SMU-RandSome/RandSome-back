@@ -9,6 +9,7 @@ import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
+import org.smu.randsome.randsomeback.domain.matching.event.MatchingApplicationApprovedEvent;
 import org.smu.randsome.randsomeback.domain.matching.implement.strategy.MatchingStrategy;
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingJpaRepository;
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingResultJpaRepository;
@@ -18,6 +19,7 @@ import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,7 @@ public class MatchingManager {
     private final RedisRepository redisRepository;
     private final MemberReader memberReader;
     private final List<MatchingStrategy> strategies;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 매칭 신청을 생성한다. <br> 동일한 회원이 동일한 매칭 타입과 신청 횟수로 10초 안에 중복 신청하는 것을 방지하기 위해, idempotencyKey를 활용하여 캐시에서 중복 여부를 확인한다.
@@ -68,21 +71,22 @@ public class MatchingManager {
     }
 
     /**
-     * 결제 승인 완료된 매칭 신청을 승인 상태로 전이하고, 타입별 전략으로 매칭 결과를 생성한다.
+     * 승인 완료된 매칭 신청을 승인 상태로 전이하고, 타입별 전략으로 매칭 결과를 생성한다.
+     * 매칭 승인 후 피드에 기록할 수 있도록 이벤트를 발행한다.
      *
-     * @param id         매칭 신청 식별자
+     * @param applicationId         매칭 신청 식별자
      * @param approvedAt 승인 시각
      * @throws CoreException 매칭 신청을 찾을 수 없거나 지원 전략이 없는 경우
      */
     @Transactional
-    public MatchingApplication approve(Long id, LocalDateTime approvedAt) {
-        MatchingApplication matchingApplication = matchingJpaRepository.findByIdAndStatusWithMember(id, EntityStatus.ACTIVE)
+    public MatchingApplication approve(Long applicationId, LocalDateTime approvedAt) {
+        MatchingApplication matchingApplication = matchingJpaRepository.findByIdAndStatusWithMember(applicationId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MATCHING));
 
         matchingApplication.approve(approvedAt);
 
         log.debug("[MatchingManager] 매칭 승인 처리 시작 - matchingApplicationId: {}, matchingType: {}, applicationCount: {}",
-                id, matchingApplication.getMatchingType(), matchingApplication.getApplicationCount());
+                applicationId, matchingApplication.getMatchingType(), matchingApplication.getApplicationCount());
 
         MatchingStrategy strategy = resolveStrategy(matchingApplication.getMatchingType());
         List<MatchingResult> results = strategy.execute(matchingApplication);
@@ -90,7 +94,12 @@ public class MatchingManager {
         matchingResultJpaRepository.saveAll(results);
 
         log.info("[MatchingManager] 매칭 완료 - matchingApplicationId: {}, matchingType: {}, applicationCount: {}, resultCount: {}",
-                id, matchingApplication.getMatchingType(), matchingApplication.getApplicationCount(), results.size());
+                applicationId, matchingApplication.getMatchingType(), matchingApplication.getApplicationCount(), results.size());
+
+        eventPublisher.publishEvent(new MatchingApplicationApprovedEvent(
+                matchingApplication.getMember().getNickname(),
+                matchingApplication.getApplicationCount()
+        ));
 
         return matchingApplication;
     }

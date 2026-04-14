@@ -7,8 +7,6 @@ import org.smu.randsome.randsomeback.admin.coupon.controller.CouponEventAdminCon
 import org.smu.randsome.randsomeback.admin.coupon.service.CouponEventAdminService;
 import org.smu.randsome.randsomeback.admin.member.controller.MemberAdminController;
 import org.smu.randsome.randsomeback.admin.member.service.MemberAdminService;
-import org.smu.randsome.randsomeback.admin.payment.controller.PaymentAdminController;
-import org.smu.randsome.randsomeback.admin.payment.service.PaymentAdminService;
 import org.smu.randsome.randsomeback.admin.report.controller.AdminReportController;
 import org.smu.randsome.randsomeback.admin.report.service.AdminReportService;
 import org.smu.randsome.randsomeback.admin.statistics.controller.StatisticsAdminController;
@@ -34,8 +32,6 @@ import org.smu.randsome.randsomeback.domain.matching.service.MatchingService;
 import org.smu.randsome.randsomeback.domain.member.controller.MemberController;
 import org.smu.randsome.randsomeback.domain.member.service.MemberDeviceService;
 import org.smu.randsome.randsomeback.domain.member.service.MemberService;
-import org.smu.randsome.randsomeback.domain.payment.controller.PaymentController;
-import org.smu.randsome.randsomeback.domain.payment.service.PaymentService;
 import org.smu.randsome.randsomeback.domain.qr.controller.QrController;
 import org.smu.randsome.randsomeback.domain.qr.service.QrService;
 import org.smu.randsome.randsomeback.domain.report.controller.ReportController;
@@ -64,8 +60,6 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
         MatchingController.class,
         MemberController.class,
         MemberAdminController.class,
-        PaymentController.class,
-        PaymentAdminController.class,
         StatisticsAdminController.class,
         StatisticsController.class,
         TicketController.class,
@@ -112,11 +106,6 @@ public abstract class ControllerTestSupport {
     @MockitoBean
     protected MemberDeviceService memberDeviceService;
 
-    @MockitoBean
-    protected PaymentService paymentService;
-
-    @MockitoBean
-    protected PaymentAdminService paymentAdminService;
 
     @MockitoBean
     protected StatisticsAdminService statisticsAdminService;
