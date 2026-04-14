@@ -13,7 +13,6 @@ import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponFilterType;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponReader;
-import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
 import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;

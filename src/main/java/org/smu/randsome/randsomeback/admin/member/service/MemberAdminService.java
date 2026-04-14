@@ -35,12 +35,6 @@ public class MemberAdminService {
         return MemberDetailResponse.of(member, bankAccount);
     }
 
-    /**
-     * 회원 정지 <br>
-     * - 회원 상태를 '정지'로 변경 <br>
-     * - 정지 사유 기록 <br>
-     **/
-    @Transactional
     public void suspendMember(Long memberId, String reason) {
         memberManager.suspend(memberId, reason);
     }

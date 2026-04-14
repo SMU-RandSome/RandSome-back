@@ -69,6 +69,14 @@ public abstract class BaseEntity {
         return status == EntityStatus.ACTIVE;
     }
 
+    public void suspend() {
+        status = EntityStatus.SUSPENDED;
+    }
+
+    public boolean isSuspended() {
+        return status == EntityStatus.SUSPENDED;
+    }
+
     public void delete() {
         status = EntityStatus.DELETED;
         deletedAt = LocalDateTime.now();

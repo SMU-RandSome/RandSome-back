@@ -7,11 +7,13 @@ import org.smu.randsome.randsomeback.domain.report.enums.ReportReason;
 import org.smu.randsome.randsomeback.domain.report.enums.ReportTargetType;
 import org.smu.randsome.randsomeback.domain.report.repository.ReportJpaRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
 public class ReportManager {
 
+    private final ReportReader reportReader;
     private final ReportJpaRepository reportJpaRepository;
 
     public Report create(
@@ -32,6 +34,18 @@ public class ReportManager {
                         description
                 )
         );
+    }
+
+    @Transactional
+    public void markAsResolved(Long reportId) {
+        Report report = reportReader.find(reportId);
+        report.markAsResolved();
+    }
+
+    @Transactional
+    public void markAsRejected(Long reportId) {
+        Report report = reportReader.find(reportId);
+        report.markAsRejected();
     }
 
 }
