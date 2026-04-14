@@ -20,7 +20,7 @@ class MatchingControllerTest extends ControllerTestSupport {
     @TestMember
     void 매칭_신청에_성공하면_200을_반환한다() throws Exception {
         // given
-        var request = new MatchingApplyRequest(2, MatchingType.RANDOM);
+        var request = MatchingApplyRequest.forRandom(2);
 
         // when & then
         assertThat(mvcTester.post().uri("/v1/matching")
@@ -36,7 +36,7 @@ class MatchingControllerTest extends ControllerTestSupport {
     @Test
     void 인증되지_않은_사용자는_403을_반환한다() throws Exception {
         // given
-        var request = new MatchingApplyRequest(2, MatchingType.RANDOM);
+        var request = MatchingApplyRequest.forRandom(2);
 
         // when & then
         assertThat(mvcTester.post().uri("/v1/matching")

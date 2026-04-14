@@ -64,6 +64,22 @@ public class MemberReader {
                 gender.name(), excludeDepartment.name(), count);
     }
 
+    /**
+     * 이상형 매칭 태그 스코어링을 위해 대상 성별의 전체 후보군을 조회한다.
+     * 무작위 정렬 없이 전체를 반환하며, 동점 처리는 호출 측에서 셔플로 수행한다.
+     *
+     * @param gender            대상 성별
+     * @param excludeDepartment 제외할 학과 (자율 전공은 제외 없음)
+     * @return 후보군 전체 목록
+     */
+    public List<Member> findAllCandidatesByGender(Gender gender, Department excludeDepartment) {
+        if (excludeDepartment.isSelfDirectedMajor()) {
+            return memberJpaRepository.findAllCandidatesByGender(gender, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE);
+        }
+        return memberJpaRepository.findAllCandidatesByGenderExcludingDepartment(
+                gender, excludeDepartment, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE);
+    }
+
     public Member findByRefreshToken(String refreshToken) {
         return memberJpaRepository.findByRefreshTokenAndStatus(TokenHasher.hash(refreshToken), EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN));
