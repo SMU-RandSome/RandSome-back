@@ -22,13 +22,13 @@ public record MatchingApplyRequest(
         @NotNull(message = "매칭 유형은 필수입니다.")
         MatchingType matchingType,
 
-        @Schema(description = "이상형 성격 태그 (이상형 매칭 시 필수)")
+        @Schema(description = "이상형 성격 태그 (선택)")
         PersonalityTag preferredPersonalityTag,
 
-        @Schema(description = "이상형 얼굴상 태그 (이상형 매칭 시 필수)")
+        @Schema(description = "이상형 얼굴상 태그 (선택)")
         FaceTypeTag preferredFaceTypeTag,
 
-        @Schema(description = "이상형 연애 스타일 태그 (이상형 매칭 시 필수)")
+        @Schema(description = "이상형 연애 스타일 태그 (선택)")
         DatingStyleTag preferredDatingStyleTag
 ) {
 
