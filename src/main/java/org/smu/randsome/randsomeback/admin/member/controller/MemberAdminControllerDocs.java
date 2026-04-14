@@ -41,7 +41,6 @@ public abstract class MemberAdminControllerDocs {
             description = """
                     #### 관리자 회원 상세 조회 API입니다.
                     - 특정 회원의 상세 정보를 반환합니다.
-                    - 해당 회원의 은행 계좌 정보까지 포함됩니다.
                     
                     **요청 경로 파라미터**
                     - memberId : 조회할 회원의 고유 ID

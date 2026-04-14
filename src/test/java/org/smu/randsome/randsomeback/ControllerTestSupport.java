@@ -18,7 +18,6 @@ import org.smu.randsome.randsomeback.domain.attendance.service.AttendanceService
 import org.smu.randsome.randsomeback.domain.auth.controller.AuthController;
 import org.smu.randsome.randsomeback.domain.auth.service.AuthService;
 import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationService;
-import org.smu.randsome.randsomeback.domain.bankaccount.service.BankAccountService;
 import org.smu.randsome.randsomeback.domain.candidate.controller.CandidateController;
 import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
 import org.smu.randsome.randsomeback.domain.coupon.controller.CouponController;
@@ -96,9 +95,6 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected MemberService memberService;
-
-    @MockitoBean
-    protected BankAccountService bankAccountService;
 
     @MockitoBean
     protected MemberAdminService memberAdminService;

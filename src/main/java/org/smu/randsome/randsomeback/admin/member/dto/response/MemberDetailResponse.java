@@ -1,7 +1,6 @@
 package org.smu.randsome.randsomeback.admin.member.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.smu.randsome.randsomeback.domain.bankaccount.entity.BankAccount;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
@@ -37,16 +36,10 @@ public record MemberDetailResponse(
         String selfIntroduction,
 
         @Schema(description = "이상형 소개", example = "성실하고 배려심 있는 사람이 좋아요.", nullable = true)
-        String idealDescription,
-
-        @Schema(description = "은행 이름", example = "국민은행")
-        String bankName,
-
-        @Schema(description = "계좌 번호", example = "123456789012")
-        String accountNumber
+        String idealDescription
 ) {
 
-    public static MemberDetailResponse of(Member member, BankAccount bankAccount) {
+    public static MemberDetailResponse of(Member member) {
         return new MemberDetailResponse(
                 member.getId(),
                 member.getNickname(),
@@ -57,9 +50,7 @@ public record MemberDetailResponse(
                 member.getRole(),
                 member.getSocialProfile().instagramId(),
                 member.getSocialProfile().selfIntroduction(),
-                member.getSocialProfile().idealDescription(),
-                bankAccount.getBankName(),
-                bankAccount.getAccountNumber()
+                member.getSocialProfile().idealDescription()
         );
     }
 

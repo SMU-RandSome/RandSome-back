@@ -3,8 +3,6 @@ package org.smu.randsome.randsomeback.admin.member.service;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberAdminResponse;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailResponse;
-import org.smu.randsome.randsomeback.domain.bankaccount.entity.BankAccount;
-import org.smu.randsome.randsomeback.domain.bankaccount.implement.BankAccountReader;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
@@ -19,7 +17,6 @@ public class MemberAdminService {
 
     private final MemberReader memberReader;
     private final MemberManager memberManager;
-    private final BankAccountReader bankAccountReader;
 
     @Transactional(readOnly = true)
     public Page<MemberAdminResponse> getMembers(Pageable pageable) {
@@ -30,9 +27,8 @@ public class MemberAdminService {
     @Transactional(readOnly = true)
     public MemberDetailResponse getMemberDetail(Long memberId) {
         Member member = memberReader.find(memberId);
-        BankAccount bankAccount = bankAccountReader.findByMemberId(memberId);
 
-        return MemberDetailResponse.of(member, bankAccount);
+        return MemberDetailResponse.of(member);
     }
 
     public void suspendMember(Long memberId, String reason) {
