@@ -15,10 +15,14 @@ import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.smu.randsome.randsomeback.domain.matching.entity.vo.IdealTypePreference;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
+import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
+import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 import org.smu.randsome.randsomeback.global.entity.BaseEntity;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -48,6 +52,18 @@ public class MatchingApplication extends BaseEntity {
 
     private String rejectedReason;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "preferred_personality_tag")
+    private PersonalityTag preferredPersonalityTag;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "preferred_face_type_tag")
+    private FaceTypeTag preferredFaceTypeTag;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "preferred_dating_style_tag")
+    private DatingStyleTag preferredDatingStyleTag;
+
     @Version
     private Long version;
 
@@ -61,6 +77,15 @@ public class MatchingApplication extends BaseEntity {
             Member member,
             MatchingType matchingType,
             Integer applicationCount
+    ) {
+        return apply(member, matchingType, applicationCount, null);
+    }
+
+    public static MatchingApplication apply(
+            Member member,
+            MatchingType matchingType,
+            Integer applicationCount,
+            IdealTypePreference idealTypePreference
     ) {
         validateApplicationCount(requireNonNull(applicationCount));
 
@@ -76,7 +101,21 @@ public class MatchingApplication extends BaseEntity {
         matchingApplication.rejectedAt = null;
         matchingApplication.cancelledAt = null;
 
+        if (idealTypePreference != null) {
+            matchingApplication.preferredPersonalityTag = idealTypePreference.preferredPersonalityTag();
+            matchingApplication.preferredFaceTypeTag = idealTypePreference.preferredFaceTypeTag();
+            matchingApplication.preferredDatingStyleTag = idealTypePreference.preferredDatingStyleTag();
+        }
+
         return matchingApplication;
+    }
+
+    public IdealTypePreference getIdealTypePreference() {
+        return IdealTypePreference.of(
+                preferredPersonalityTag,
+                preferredFaceTypeTag,
+                preferredDatingStyleTag
+        );
     }
 
     public void approve(LocalDateTime approvedAt) {

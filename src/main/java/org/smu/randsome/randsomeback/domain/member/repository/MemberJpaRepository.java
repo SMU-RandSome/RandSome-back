@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import org.smu.randsome.randsomeback.domain.member.dto.response.CandidateGenderCountItem;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.Department;
+import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.springframework.data.domain.Page;
@@ -64,6 +66,32 @@ public interface MemberJpaRepository extends JpaRepository<Member, Long> {
             """
     )
     List<CandidateGenderCountItem> findAllGenderCountBy(
+            @Param("role") Role role,
+            @Param("status") EntityStatus status
+    );
+
+    @Query("""
+                SELECT m FROM Member m
+                WHERE m.gender = :gender
+                  AND m.role = :role
+                  AND m.status = :status
+                  AND m.department <> :excludeDepartment
+            """)
+    List<Member> findAllCandidatesByGenderExcludingDepartment(
+            @Param("gender") Gender gender,
+            @Param("excludeDepartment") Department excludeDepartment,
+            @Param("role") Role role,
+            @Param("status") EntityStatus status
+    );
+
+    @Query("""
+                SELECT m FROM Member m
+                WHERE m.gender = :gender
+                  AND m.role = :role
+                  AND m.status = :status
+            """)
+    List<Member> findAllCandidatesByGender(
+            @Param("gender") Gender gender,
             @Param("role") Role role,
             @Param("status") EntityStatus status
     );

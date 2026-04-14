@@ -47,7 +47,8 @@ public class MatchingManager {
         MatchingApplication saved = matchingJpaRepository.save(MatchingApplication.apply(
                 member,
                 newMatching.matchingType(),
-                newMatching.applicationCount()
+                newMatching.applicationCount(),
+                newMatching.idealTypePreference()
         ));
 
         log.info("[MatchingManager] 매칭 신청 생성 완료 - matchingApplicationId: {}, memberId: {}, matchingType: {}, applicationCount: {}",
