@@ -21,10 +21,14 @@ import org.smu.randsome.randsomeback.domain.auth.service.EmailVerificationServic
 import org.smu.randsome.randsomeback.domain.bankaccount.service.BankAccountService;
 import org.smu.randsome.randsomeback.domain.candidate.controller.CandidateController;
 import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
+import org.smu.randsome.randsomeback.admin.report.controller.AdminReportController;
+import org.smu.randsome.randsomeback.admin.report.service.AdminReportService;
 import org.smu.randsome.randsomeback.domain.coupon.controller.CouponController;
 import org.smu.randsome.randsomeback.domain.coupon.controller.CouponEventController;
 import org.smu.randsome.randsomeback.domain.coupon.service.CouponEventService;
 import org.smu.randsome.randsomeback.domain.coupon.service.CouponService;
+import org.smu.randsome.randsomeback.domain.report.controller.ReportController;
+import org.smu.randsome.randsomeback.domain.report.service.ReportService;
 import org.smu.randsome.randsomeback.domain.feed.FeedController;
 import org.smu.randsome.randsomeback.domain.feed.FeedService;
 import org.smu.randsome.randsomeback.domain.matching.controller.MatchingController;
@@ -69,7 +73,8 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
         QrController.class,
         CouponEventAdminController.class,
         CouponEventController.class,
-        CouponController.class
+        CouponController.class,
+        ReportController.class
 })
 public abstract class ControllerTestSupport {
 
@@ -141,5 +146,11 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected CouponService couponService;
+
+    @MockitoBean
+    protected ReportService reportService;
+
+    @MockitoBean
+    protected AdminReportService adminReportService;
 
 }

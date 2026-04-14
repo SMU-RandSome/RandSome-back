@@ -46,6 +46,14 @@ public class MatchingReader {
         return matchingResults;
     }
 
+    /**
+     * 매칭 결과의 소유자인지 검증하고, 소유자라면 매칭 결과를 반환한다.
+     * */
+    public MatchingResult findMatchingResult(Long matchingResultId) {
+        return matchingResultJpaRepository.findByIdAndStatusWithMatchingApplication(matchingResultId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MATCHING_RESULT));
+    }
+
     @Transactional(readOnly = true)
     public long countExposures(Long memberId) {
         return matchingResultJpaRepository.countByCandidateIdAndStatus(memberId, EntityStatus.ACTIVE);
