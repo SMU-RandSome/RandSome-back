@@ -62,12 +62,9 @@ public class CandidateRegistration extends BaseEntity {
             return;
         }
         checkWithdraw();
-        // NOTE: FAIL → APPROVED 재승인 허용.
-        // 관리자 실수 정정을 위해 의도적으로 허용. 이 시점에 매칭 결과는 미생성이므로 중복 없음.
+        checkRejected();
         this.registrationStatus = RegistrationStatus.APPROVED;
         this.approvedAt = requireNonNull(approvedAt);
-        this.rejectedReason = null;
-        this.rejectedAt = null;
     }
 
     public void reject(String rejectedReason, LocalDateTime rejectedAt) {
@@ -108,4 +105,11 @@ public class CandidateRegistration extends BaseEntity {
             throw new CoreException(ErrorType.ALREADY_WITHDRAWN_CANDIDATE);
         }
     }
+
+    private void checkRejected() {
+        if (registrationStatus.equals(RegistrationStatus.REJECTED)) {
+            throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_REJECTED_REGISTRATION);
+        }
+    }
+
 }

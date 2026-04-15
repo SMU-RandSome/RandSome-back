@@ -38,22 +38,17 @@ public class CandidateManager {
     }
 
     @Transactional
-    public CandidateRegistration approve(Long registrationId, LocalDateTime approvedAt) {
+    public void approve(Long candidateRegistrationId) {
         CandidateRegistration registration = candidateJpaRepository.findByIdAndStatusWithMember(
-                registrationId,
+                candidateRegistrationId,
                 EntityStatus.ACTIVE
-        ).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_CANDIDATE));
+        ).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_CANDIDATE_REGISTRATION));
 
-        registration.approve(approvedAt);
+        registration.approve(LocalDateTime.now());
 
-        Member member = registration.getMember();
-        memberManager.updateRole(member, Role.ROLE_CANDIDATE);
+        memberManager.updateRole(registration.getMember(), Role.ROLE_CANDIDATE);
 
-        log.info("[CandidateManager] 후보자 등록 승인 처리 완료 - registrationId={}, memberId={}",
-                registrationId,
-                member.getId());
-
-        return registration;
+        log.info("[CandidateManager] 후보자 등록 승인 처리 완료 - candidateRegistrationId={}", candidateRegistrationId);
     }
 
     @Transactional

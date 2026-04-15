@@ -3,6 +3,8 @@ package org.smu.randsome.randsomeback;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.smu.randsome.randsomeback.admin.announcement.controller.AnnouncementAdminController;
 import org.smu.randsome.randsomeback.admin.announcement.service.AnnouncementAdminService;
+import org.smu.randsome.randsomeback.admin.candidate.controller.CandidateAdminController;
+import org.smu.randsome.randsomeback.admin.candidate.service.CandidateAdminService;
 import org.smu.randsome.randsomeback.admin.coupon.controller.CouponEventAdminController;
 import org.smu.randsome.randsomeback.admin.coupon.service.CouponEventAdminService;
 import org.smu.randsome.randsomeback.admin.member.controller.MemberAdminController;
@@ -51,24 +53,26 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
 @ActiveProfiles("test")
 @Import({TestSecurityConfig.class, MethodValidationPostProcessor.class})
 @WebMvcTest(controllers = {
-        AnnouncementAdminController.class,
         AnnouncementController.class,
         AuthController.class,
         CandidateController.class,
         FeedController.class,
         MatchingController.class,
         MemberController.class,
-        MemberAdminController.class,
-        StatisticsAdminController.class,
         StatisticsController.class,
         TicketController.class,
         AttendanceController.class,
         QrController.class,
-        CouponEventAdminController.class,
         CouponEventController.class,
         CouponController.class,
         ReportController.class,
-        AdminReportController.class
+
+        CouponEventAdminController.class,
+        MemberAdminController.class,
+        StatisticsAdminController.class,
+        AnnouncementAdminController.class,
+        AdminReportController.class,
+        CandidateAdminController.class
 })
 public abstract class ControllerTestSupport {
 
@@ -138,5 +142,8 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected AdminReportService adminReportService;
+
+    @MockitoBean
+    protected CandidateAdminService candidateAdminService;
 
 }
