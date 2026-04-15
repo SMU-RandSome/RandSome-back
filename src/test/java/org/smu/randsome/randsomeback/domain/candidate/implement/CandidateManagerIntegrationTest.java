@@ -14,7 +14,6 @@ import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepositor
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
-import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -46,13 +45,12 @@ class CandidateManagerIntegrationTest extends IntegrationTestSupport {
         var registration = candidateJpaRepository.save(CandidateRegistration.apply(member));
 
         // when
-        candidateManager.approve(registration.getId());
+        CandidateRegistration candidateRegistration = candidateManager.approve(registration.getId());
 
         // then
-        var resultRegistration = candidateJpaRepository.findById(registration.getId()).orElseThrow();
         var resultMember = memberJpaRepository.findById(member.getId()).orElseThrow();
 
-        assertThat(resultRegistration.getRegistrationStatus()).isEqualTo(RegistrationStatus.APPROVED);
+        assertThat(candidateRegistration.getRegistrationStatus()).isEqualTo(RegistrationStatus.APPROVED);
         assertThat(resultMember.getRole()).isEqualTo(Role.ROLE_CANDIDATE);
     }
 
@@ -73,7 +71,6 @@ class CandidateManagerIntegrationTest extends IntegrationTestSupport {
         var member = memberJpaRepository.save(MemberFixture.create());
         var registration = candidateJpaRepository.save(CandidateRegistration.apply(member));
         var reason = "자격 미달";
-        var rejectedAt = TestDateTimeUtils.now();
 
         // when
         candidateManager.reject(registration.getId(), reason);
@@ -101,7 +98,6 @@ class CandidateManagerIntegrationTest extends IntegrationTestSupport {
         // given
         var member = memberJpaRepository.save(MemberFixture.create());
         var registration = candidateJpaRepository.save(CandidateRegistration.apply(member));
-        var approvedAt = TestDateTimeUtils.now();
         candidateManager.approve(registration.getId());
 
         // when

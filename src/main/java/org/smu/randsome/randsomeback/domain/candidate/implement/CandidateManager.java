@@ -38,7 +38,7 @@ public class CandidateManager {
     }
 
     @Transactional
-    public void approve(Long candidateRegistrationId) {
+    public CandidateRegistration approve(Long candidateRegistrationId) {
         CandidateRegistration registration = candidateJpaRepository.findByIdAndStatusWithMember(
                 candidateRegistrationId,
                 EntityStatus.ACTIVE
@@ -49,6 +49,8 @@ public class CandidateManager {
         memberManager.updateRole(registration.getMember(), Role.ROLE_CANDIDATE);
 
         log.info("[CandidateManager] 후보자 등록 승인 처리 완료 - candidateRegistrationId={}", candidateRegistrationId);
+
+        return registration;
     }
 
     @Transactional
