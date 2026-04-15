@@ -47,12 +47,12 @@ class MatchingControllerTest extends ControllerTestSupport {
 
     @Test
     @TestMember
-    void 내_신청_내역_조회에_성공하면_200과_목록을_반환한다() {
+    void 매칭_신청_내역_목록_조회에_성공하면_200과_목록을_반환한다() {
         // given
-        given(matchingService.getMyApplications(any(), any())).willReturn(List.of());
+        given(matchingService.findMatchings(any())).willReturn(List.of());
 
         // when & then
-        assertThat(mvcTester.get().uri("/v1/matching/applications?status=PENDING"))
+        assertThat(mvcTester.get().uri("/v1/matchings"))
                 .apply(print())
                 .hasStatusOk()
                 .bodyJson()
@@ -61,9 +61,9 @@ class MatchingControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void 내_신청_내역_조회에서_인증되지_않은_사용자는_403을_반환한다() {
+    void 매칭_신청_내역_조회에서_인증되지_않은_사용자는_403을_반환한다() {
         // when & then
-        assertThat(mvcTester.get().uri("/v1/matching/applications?status=PENDING"))
+        assertThat(mvcTester.get().uri("/v1/matchings"))
                 .apply(print())
                 .hasStatus(HttpStatus.FORBIDDEN.value());
     }

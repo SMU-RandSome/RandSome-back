@@ -20,7 +20,6 @@ import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
-import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
@@ -143,29 +142,19 @@ class MatchingServiceUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 상태별_신청_내역을_조회한다() {
+    void 매칭_신청_내역_목록을_조회한다() {
         // given
         var memberId = 1L;
-        var application = mock(MatchingApplication.class);
-        given(matchingReader.findByMemberAndStatus(memberId, ApplicationStatus.PENDING))
-                .willReturn(List.of(application));
-        given(application.getMatchingType()).willReturn(MatchingType.RANDOM);
-        given(application.getApplicationStatus()).willReturn(ApplicationStatus.PENDING);
+        var matchingApplication = mock(MatchingApplication.class);
+        given(matchingReader.findMatchings(memberId))
+                .willReturn(List.of(matchingApplication));
 
         // when
-        List<MatchingApplication> result = matchingService.getMyApplications(memberId, ApplicationStatus.PENDING);
+        var result = matchingService.findMatchings(memberId);
 
         // then
         assertThat(result).hasSize(1);
-        assertThat(result.getFirst()).extracting(
-                MatchingApplication::getMatchingType,
-                MatchingApplication::getApplicationStatus
-        ).containsExactly(
-                application.getMatchingType(),
-                application.getApplicationStatus()
-        );
-
-        verify(matchingReader).findByMemberAndStatus(memberId, ApplicationStatus.PENDING);
+        verify(matchingReader).findMatchings(memberId);
     }
 
     @Test

@@ -9,7 +9,6 @@ import java.util.List;
 import org.smu.randsome.randsomeback.domain.matching.dto.request.MatchingApplyRequest;
 import org.smu.randsome.randsomeback.domain.matching.dto.response.MatchingHistoryItem;
 import org.smu.randsome.randsomeback.domain.matching.dto.response.MatchingResultDetailItem;
-import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
@@ -43,25 +42,19 @@ public abstract class MatchingControllerDocs {
     );
 
     @Operation(
-            summary = "내 신청 내역 조회 API - JWT [O]",
+            summary = "매칭 신청 내역 목록 조회 API - JWT [O]",
             description = """
-                    ### 내 신청 내역 조회 API입니다.
-                    - `status` 파라미터로 `PENDING`, `APPROVED`, `FAIL`, `CANCELLED` 중 하나를 전달합니다.
-                    - 탭 진입 시마다 해당 상태의 신청 내역만 조회됩니다.
-                    - 성공 시 200 OK 와 함께 신청 내역 목록이 반환됩니다.
+                    ### 매칭 신청 내역 목록 조회 API입니다.
+                    - 현재 로그인한 사용자의 모든 매칭 신청 내역을 조회합니다.
+                    - 최신 순(ID 내림차순)으로 정렬되어 반환됩니다.
+                    - 성공 시 200 OK 와 함께 매칭 신청 목록이 반환됩니다.
                     """
     )
     @ApiExceptions(values = {
-            ErrorType.BAD_REQUEST,
             ErrorType.UNAUTHORIZED_ERROR,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ApiResponse<List<MatchingHistoryItem>> getMyApplications(
-            @Parameter(
-                    description = "조회할 신청 상태 (PENDING, APPROVED, FAIL, CANCELLED)",
-                    in = ParameterIn.QUERY
-            )
-            ApplicationStatus status,
+    public abstract ApiResponse<List<MatchingHistoryItem>> findMatchings(
             @LoginMember Long memberId
     );
 

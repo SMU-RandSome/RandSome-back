@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
-import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
 import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
@@ -40,32 +39,6 @@ public class MatchingService {
     }
 
     /**
-     * 회원의 매칭 신청 내역을 상태별로 조회한다.
-     * <br/>신청 상태(`PENDING`, `SUCCESS`, `CANCELLED`)에 따라 필터링된 결과를 반환한다.
-     * <br/>APPROVED는 SUCCESS로 매칭되었을 때를 의미한다.
-     *
-     * @param memberId 회원 식별자
-     * @param status 조회할 신청 상태 (`PENDING`, `SUCCESS`, `CANCELLED`)
-     * @return 해당 회원의 매칭 신청 내역 리스트 (상태별 필터링)
-     */
-    public List<MatchingApplication> getMyApplications(Long memberId, ApplicationStatus status) {
-        return matchingReader.findByMemberAndStatus(memberId, status);
-    }
-
-    /**
-     * 특정 매칭 신청에 대해 매칭된 결과를 조회한다.
-     * <br/>신청이 SUCCESS 상태일 때만 매칭 결과를 반환할 수 있다.
-     * <br/>신청자(memberId)의 신청이 맞는지 보안 검증을 포함한다.
-     *
-     * @param applicationId 매칭 신청 식별자
-     * @param memberId 신청자 식별자 (보안 검증용)
-     * @return 해당 매칭 신청의 매칭 결과 리스트 (후보자 정보 포함)
-     */
-    public List<MatchingResult> getApprovedApplication(Long applicationId, Long memberId) {
-        return matchingReader.findApprovedByApplication(applicationId, memberId);
-    }
-
-    /**
      * 매칭 신청을 취소한다.
      * <br/>`PENDING` 상태의 신청만 취소 가능하며, 이미 매칭된 신청(`SUCCESS`)은 취소할 수 없다.
      * <br/>신청자(memberId)의 신청이 맞는지 보안 검증을 포함한다.
@@ -79,6 +52,28 @@ public class MatchingService {
 
         log.info("[MatchingService] 매칭 신청 취소 처리 완료 - applicationId: {}, memberId: {}",
                 applicationId, memberId);
+    }
+
+    /**
+     * 회원이 신청한 매칭 리스트를 조회한다.
+     * <br/>신청의 상태(`PENDING`, `SUCCESS`, `CANCELED`)와 신청 시각 등의 정보를 포함한다.
+     * <br/>회원이 신청한 모든 매칭 신청을 반환하며, 필요 시 페이징이나 필터링 기능을 추가할 수 있다.
+     * */
+    public List<MatchingApplication> findMatchings(Long memberId) {
+        return matchingReader.findMatchings(memberId);
+    }
+
+    /**
+     * 특정 매칭 신청에 대해 매칭된 결과를 조회한다.
+     * <br/>신청이 SUCCESS 상태일 때만 매칭 결과를 반환할 수 있다.
+     * <br/>신청자(memberId)의 신청이 맞는지 보안 검증을 포함한다.
+     *
+     * @param applicationId 매칭 신청 식별자
+     * @param memberId 신청자 식별자 (보안 검증용)
+     * @return 해당 매칭 신청의 매칭 결과 리스트 (후보자 정보 포함)
+     */
+    public List<MatchingResult> getApprovedApplication(Long applicationId, Long memberId) {
+        return matchingReader.findApprovedByApplication(applicationId, memberId);
     }
 
     /**
