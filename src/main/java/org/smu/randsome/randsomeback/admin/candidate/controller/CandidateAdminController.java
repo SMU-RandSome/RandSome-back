@@ -17,7 +17,7 @@ public class CandidateAdminController extends CandidateAdminControllerDocs {
     private final CandidateAdminService candidateAdminService;
 
     @Override
-    @PostMapping("/v1/admin/candidates/{candidateRegistrationId}/approve")
+    @PostMapping("/v1/admin/candidate-registrations/{candidateRegistrationId}/approve")
     public ApiResponse<?> approve(@PathVariable Long candidateRegistrationId) {
         candidateAdminService.approve(candidateRegistrationId);
 
@@ -25,7 +25,7 @@ public class CandidateAdminController extends CandidateAdminControllerDocs {
     }
 
     @Override
-    @PostMapping("/v1/admin/candidates/{candidateRegistrationId}/reject")
+    @PostMapping("/v1/admin/candidate-registrations/{candidateRegistrationId}/reject")
     public ApiResponse<?> reject(
             @PathVariable Long candidateRegistrationId,
             @RequestBody @Valid CandidateRejectRequest request
@@ -34,5 +34,6 @@ public class CandidateAdminController extends CandidateAdminControllerDocs {
 
         return ApiResponse.success();
     }
+
 
 }
