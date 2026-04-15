@@ -72,8 +72,8 @@ public class MatchingService {
      * @param memberId 신청자 식별자 (보안 검증용)
      * @return 해당 매칭 신청의 매칭 결과 리스트 (후보자 정보 포함)
      */
-    public List<MatchingResult> getApprovedApplication(Long applicationId, Long memberId) {
-        return matchingReader.findApprovedByApplication(applicationId, memberId);
+    public List<MatchingResult> findApplication(Long applicationId, Long memberId) {
+        return matchingReader.findApplication(applicationId, memberId);
     }
 
     /**

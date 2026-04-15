@@ -11,12 +11,15 @@ public interface MatchingResultJpaRepository extends JpaRepository<MatchingResul
 
     @Query("SELECT mr FROM MatchingResult mr " +
             "JOIN FETCH mr.candidate " +
-            "JOIN FETCH mr.matchingApplication " +
             "WHERE mr.matchingApplication.id = :applicationId " +
             "AND mr.matchingApplication.member.id = :memberId " +
             "AND mr.status = :status"
     )
-    List<MatchingResult> findAllByApplicationAndMemberIdAndStatus(Long applicationId, Long memberId, EntityStatus status);
+    List<MatchingResult> findAllByApplicationAndMemberIdAndStatus(
+            Long applicationId,
+            Long memberId,
+            EntityStatus status
+    );
 
     long countByCandidateIdAndStatus(Long candidateId, EntityStatus status);
 

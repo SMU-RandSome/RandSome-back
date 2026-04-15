@@ -72,10 +72,10 @@ class MatchingControllerTest extends ControllerTestSupport {
     @TestMember
     void 승인된_신청_상세_조회에_성공하면_200과_목록을_반환한다() {
         // given
-        given(matchingService.getApprovedApplication(any(), any())).willReturn(List.of());
+        given(matchingService.findApplication(any(), any())).willReturn(List.of());
 
         // when & then
-        assertThat(mvcTester.get().uri("/v1/matchings/applications/1/approved"))
+        assertThat(mvcTester.get().uri("/v1/matchings/applications/{applicationId}", 1L))
                 .apply(print())
                 .hasStatusOk()
                 .bodyJson()

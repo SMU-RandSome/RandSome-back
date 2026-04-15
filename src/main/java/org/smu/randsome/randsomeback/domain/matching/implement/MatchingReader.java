@@ -4,7 +4,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
-import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingJpaRepository;
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingResultJpaRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
@@ -44,7 +43,7 @@ public class MatchingReader {
      * @throws CoreException 결과가 없거나 신청자가 일치하지 않는 경우
      */
     @Transactional(readOnly = true)
-    public List<MatchingResult> findApprovedByApplication(Long applicationId, Long memberId) {
+    public List<MatchingResult> findApplication(Long applicationId, Long memberId) {
         List<MatchingResult> matchingResults = matchingResultJpaRepository.findAllByApplicationAndMemberIdAndStatus(
                 applicationId,
                 memberId,

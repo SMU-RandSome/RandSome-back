@@ -59,7 +59,7 @@ public abstract class MatchingControllerDocs {
     );
 
     @Operation(
-            summary = "승인된 신청 내역 조회 API - JWT [O]",
+            summary = "신청 내역 조회 API - JWT [O]",
             description = """
                     ### 승인된 신청 내역 조회 API입니다.
                     - `applicationId` 경로 변수로 신청 ID를 전달합니다.
@@ -73,7 +73,7 @@ public abstract class MatchingControllerDocs {
             ErrorType.NOT_FOUND_APPROVED_MATCHING,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ApiResponse<List<MatchingResultDetailItem>> getApprovedApplication(
+    public abstract ApiResponse<List<MatchingResultDetailItem>> findApplication(
             @Parameter(
                     description = "신청 ID",
                     required = true,

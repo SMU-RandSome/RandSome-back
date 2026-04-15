@@ -5,8 +5,11 @@ import lombok.Builder;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
+import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
+import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
+import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 
 /**
  * 매칭 결과 상세 정보 응답 DTO다.
@@ -16,13 +19,35 @@ import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 @Schema(description = "매칭 상세 응답 DTO")
 @Builder
 public record MatchingResultDetailItem(
+        @Schema(description = "매칭 결과 ID", example = "1")
         Long id,
+
+        @Schema(description = "후보자 닉네임", example = "홍길동")
         String nickname,
+
+        @Schema(description = "후보자 성별", example = "MALE")
         Gender gender,
+
+        @Schema(description = "후보자 MBTI", example = "INTJ")
         Mbti mbti,
+
+        @Schema(description = "후보자 인스타그램 아이디", example = "hong_gildong")
         String instagramId,
+
+        @Schema(description = "후보자 자기소개", example = "안녕하세요! 저는 홍길동입니다.")
         String selfIntroduction,
-        String idealDescription
+
+        @Schema(description = "후보자 이상형 설명", example = "저는 따뜻하고 이해심 많은 사람을 좋아해요.")
+        String idealDescription,
+
+        @Schema(description = "후보자 성격 태그", example = "OUTGOING")
+        PersonalityTag personalityTag,
+
+        @Schema(description = "후보자 얼굴상 태그", example = "CUTE")
+        FaceTypeTag faceTypeTag,
+
+        @Schema(description = "후보자 연애 스타일 태그", example = "SERIOUS")
+        DatingStyleTag datingStyleTag
 ) {
 
     /**
@@ -44,6 +69,9 @@ public record MatchingResultDetailItem(
                 .instagramId(socialProfile.instagramId())
                 .selfIntroduction(socialProfile.selfIntroduction())
                 .idealDescription(socialProfile.idealDescription())
+                .personalityTag(candidate.getMyProfileTags().personalityTag())
+                .faceTypeTag(candidate.getMyProfileTags().faceTypeTag())
+                .datingStyleTag(candidate.getMyProfileTags().datingStyleTag())
                 .build();
     }
 

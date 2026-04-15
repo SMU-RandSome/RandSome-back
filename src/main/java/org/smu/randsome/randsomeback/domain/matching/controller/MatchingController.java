@@ -44,12 +44,12 @@ public class MatchingController extends MatchingControllerDocs {
     }
 
     @Override
-    @GetMapping("/v1/matchings/applications/{applicationId}/approved")
-    public ApiResponse<List<MatchingResultDetailItem>> getApprovedApplication(
+    @GetMapping("/v1/matchings/applications/{applicationId}")
+    public ApiResponse<List<MatchingResultDetailItem>> findApplication(
             @PathVariable Long applicationId,
             @LoginMember Long memberId
     ) {
-        List<MatchingResultDetailItem> response = matchingService.getApprovedApplication(applicationId, memberId)
+        List<MatchingResultDetailItem> response = matchingService.findApplication(applicationId, memberId)
                 .stream()
                 .map(MatchingResultDetailItem::from)
                 .toList();

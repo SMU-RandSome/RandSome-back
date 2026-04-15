@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
-import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,7 +19,6 @@ public interface MatchingJpaRepository extends JpaRepository<MatchingApplication
 
     @Query("""
             SELECT ma FROM MatchingApplication ma
-            JOIN FETCH ma.member m
             WHERE ma.member.id = :memberId
               AND ma.status = :status
             ORDER BY ma.id DESC
