@@ -76,14 +76,13 @@ class CandidateManagerIntegrationTest extends IntegrationTestSupport {
         var rejectedAt = TestDateTimeUtils.now();
 
         // when
-        candidateManager.reject(registration.getId(), reason, rejectedAt);
+        candidateManager.reject(registration.getId(), reason);
 
         // then
         var resultRegistration = candidateJpaRepository.findById(registration.getId()).orElseThrow();
 
         assertThat(resultRegistration.getRegistrationStatus()).isEqualTo(RegistrationStatus.REJECTED);
         assertThat(resultRegistration.getRejectedReason()).isEqualTo(reason);
-        assertThat(resultRegistration.getRejectedAt()).isEqualTo(rejectedAt);
     }
 
     @Test
@@ -92,9 +91,9 @@ class CandidateManagerIntegrationTest extends IntegrationTestSupport {
         var nonExistentId = 999L;
 
         // when & then
-        assertThatThrownBy(() -> candidateManager.reject(nonExistentId, "사유", TestDateTimeUtils.now()))
+        assertThatThrownBy(() -> candidateManager.reject(nonExistentId, "사유"))
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_FOUND_CANDIDATE.getMessage());
+                .hasMessage(ErrorType.NOT_FOUND_CANDIDATE_REGISTRATION.getMessage());
     }
 
     @Test

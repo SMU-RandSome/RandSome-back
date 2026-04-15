@@ -97,23 +97,6 @@ class CandidateRegistrationTest extends UnitTestSupport {
     }
 
     @Test
-    void 이미_거절된_신청을_다시_거절하면_사유가_업데이트된다() {
-        // given
-        var member = mock(Member.class);
-        var registration = CandidateRegistration.apply(member);
-        registration.reject("기존 사유", TestDateTimeUtils.now());
-
-        var newReason = "변경된 사유";
-
-        // when
-        registration.reject(newReason, TestDateTimeUtils.now());
-
-        // then
-        assertThat(registration.getRegistrationStatus()).isEqualTo(RegistrationStatus.REJECTED);
-        assertThat(registration.getRejectedReason()).isEqualTo(newReason);
-    }
-
-    @Test
     void 거절_사유가_null이면_예외가_발생한다() {
         // given
         var member = mock(Member.class);

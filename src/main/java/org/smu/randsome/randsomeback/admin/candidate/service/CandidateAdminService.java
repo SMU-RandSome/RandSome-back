@@ -19,4 +19,14 @@ public class CandidateAdminService {
         candidateManager.approve(candidateRegistrationId);
     }
 
+    /**
+     * 후보자 등록 거절 <br>
+     * 거절된 후보자 등록은 매칭 대상에서 제외됨 <br>
+     * @param candidateRegistrationId 거절할 후보자 등록 ID
+     * @param rejectedReason 거절 사유 (관리자 입력)
+     **/
+    public void reject(Long candidateRegistrationId, String rejectedReason) {
+        candidateManager.reject(candidateRegistrationId, rejectedReason);
+    }
+
 }
