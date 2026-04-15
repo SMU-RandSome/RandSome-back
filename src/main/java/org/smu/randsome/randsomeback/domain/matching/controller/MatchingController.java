@@ -22,7 +22,7 @@ public class MatchingController extends MatchingControllerDocs {
     private final MatchingService matchingService;
 
     @Override
-    @PostMapping("/v1/matching")
+    @PostMapping("/v1/matchings")
     public ApiResponse<?> apply(
             @RequestBody @Valid MatchingApplyRequest request,
             @LoginMember Long memberId
@@ -44,7 +44,7 @@ public class MatchingController extends MatchingControllerDocs {
     }
 
     @Override
-    @GetMapping("/v1/matching/applications/{applicationId}/approved")
+    @GetMapping("/v1/matchings/applications/{applicationId}/approved")
     public ApiResponse<List<MatchingResultDetailItem>> getApprovedApplication(
             @PathVariable Long applicationId,
             @LoginMember Long memberId
@@ -58,7 +58,7 @@ public class MatchingController extends MatchingControllerDocs {
     }
 
     @Override
-    @PostMapping("/v1/matching/applications/{applicationId}/cancel")
+    @PostMapping("/v1/matchings/applications/{applicationId}/cancel")
     public ApiResponse<?> cancel(
             @PathVariable Long applicationId,
             @LoginMember Long memberId
