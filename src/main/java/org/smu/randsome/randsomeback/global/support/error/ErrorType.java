@@ -43,6 +43,7 @@ public enum ErrorType {
     ALREADY_WITHDRAWN_CANDIDATE             (HttpStatus.BAD_REQUEST, "이미 철회된 후보자입니다.", LogLevel.INFO),
     NOT_ALLOW_ALREADY_APPROVED_REGISTRATION (HttpStatus.BAD_REQUEST, "이미 승인된 후보자 등록은 거절이 불가능합니다.", LogLevel.INFO),
     NOT_ALLOW_ALREADY_REJECTED_REGISTRATION (HttpStatus.BAD_REQUEST, "이미 거절된 후보자 신청은 승인이 불가능합니다.", LogLevel.INFO),
+    NOT_ALLOW_ALREADY_CANCELED_REGISTRATION (HttpStatus.BAD_REQUEST, "이미 취소된 후보자 신청은 승인/거절이 불가능합니다.", LogLevel.INFO),
     NOT_FOUND_CANDIDATE                     (HttpStatus.NOT_FOUND, "후보자를 찾을 수 없습니다.", LogLevel.INFO),
     NOT_FOUND_CANDIDATE_REGISTRATION        (HttpStatus.NOT_FOUND, "후보자 신청 정보를 찾을 수 없습니다.", LogLevel.INFO),
     DUPLICATE_CANDIDATE                     (HttpStatus.CONFLICT, "이미 등록된 후보자 입니다.", LogLevel.INFO),
