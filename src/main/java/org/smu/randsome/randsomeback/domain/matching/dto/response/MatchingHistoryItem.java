@@ -16,7 +16,7 @@ public record MatchingHistoryItem(
         @Schema(description = "매칭 신청 ID", example = "101")
         Long id,
 
-        @Schema(description = "매칭 유형 라벨", example = "이상형 매칭")
+        @Schema(description = "매칭 유형 라벨", example = "RANDOM")
         MatchingType matchingType,
 
         @Schema(description = "매칭 신청 상태", example = "PENDING")

@@ -163,15 +163,15 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         var applicationId = 1L;
         var memberId = 1L;
         var matchingResult = mock(MatchingResult.class);
-        given(matchingReader.findApprovedByApplication(applicationId, memberId))
+        given(matchingReader.findApplication(applicationId, memberId))
                 .willReturn(List.of(matchingResult));
 
         // when
-        var result = matchingService.getApprovedApplication(applicationId, memberId);
+        var result = matchingService.findApplication(applicationId, memberId);
 
         // then
         assertThat(result).hasSize(1);
-        verify(matchingReader).findApprovedByApplication(applicationId, memberId);
+        verify(matchingReader).findApplication(applicationId, memberId);
     }
 
     @Test
@@ -180,10 +180,10 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         var applicationId = 1L;
         var memberId = 1L;
         willThrow(new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING))
-                .given(matchingReader).findApprovedByApplication(applicationId, memberId);
+                .given(matchingReader).findApplication(applicationId, memberId);
 
         // when & then
-        assertThatThrownBy(() -> matchingService.getApprovedApplication(applicationId, memberId))
+        assertThatThrownBy(() -> matchingService.findApplication(applicationId, memberId))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING.getMessage());
     }
