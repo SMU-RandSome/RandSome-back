@@ -44,17 +44,15 @@ class CandidateManagerIntegrationTest extends IntegrationTestSupport {
         // given
         var member = memberJpaRepository.save(MemberFixture.create());
         var registration = candidateJpaRepository.save(CandidateRegistration.apply(member));
-        var approvedAt = TestDateTimeUtils.now();
 
         // when
-        candidateManager.approve(registration.getId(), approvedAt);
+        candidateManager.approve(registration.getId());
 
         // then
         var resultRegistration = candidateJpaRepository.findById(registration.getId()).orElseThrow();
         var resultMember = memberJpaRepository.findById(member.getId()).orElseThrow();
 
         assertThat(resultRegistration.getRegistrationStatus()).isEqualTo(RegistrationStatus.APPROVED);
-        assertThat(resultRegistration.getApprovedAt()).isEqualTo(approvedAt);
         assertThat(resultMember.getRole()).isEqualTo(Role.ROLE_CANDIDATE);
     }
 
@@ -64,9 +62,9 @@ class CandidateManagerIntegrationTest extends IntegrationTestSupport {
         var nonExistentId = 999L;
 
         // when & then
-        assertThatThrownBy(() -> candidateManager.approve(nonExistentId, TestDateTimeUtils.now()))
+        assertThatThrownBy(() -> candidateManager.approve(nonExistentId))
                 .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_FOUND_CANDIDATE.getMessage());
+                .hasMessage(ErrorType.NOT_FOUND_CANDIDATE_REGISTRATION.getMessage());
     }
 
     @Test
@@ -105,7 +103,7 @@ class CandidateManagerIntegrationTest extends IntegrationTestSupport {
         var member = memberJpaRepository.save(MemberFixture.create());
         var registration = candidateJpaRepository.save(CandidateRegistration.apply(member));
         var approvedAt = TestDateTimeUtils.now();
-        candidateManager.approve(registration.getId(), approvedAt);
+        candidateManager.approve(registration.getId());
 
         // when
         candidateManager.withdraw(member.getId());
