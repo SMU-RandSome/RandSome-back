@@ -16,7 +16,7 @@ class CandidateAdminControllerTest extends ControllerTestSupport {
     @Test
     void 관리자가_후보자_신청_승인을_한다() {
         // when & then
-        assertThat(mvcTester.post().uri("/v1/admin/candidates/{candidateRegistrationId}/approve", 1L))
+        assertThat(mvcTester.post().uri("/v1/admin/candidate-registrations/{candidateRegistrationId}/approve", 1L))
                 .apply(print())
                 .hasStatusOk();
     }
@@ -28,7 +28,7 @@ class CandidateAdminControllerTest extends ControllerTestSupport {
         var request = new CandidateRejectRequest("부적절한 지원입니다.");
 
         // when & then
-        assertThat(mvcTester.post().uri("/v1/admin/candidates/{candidateRegistrationId}/reject", 1L)
+        assertThat(mvcTester.post().uri("/v1/admin/candidate-registrations/{candidateRegistrationId}/reject", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .apply(print())
