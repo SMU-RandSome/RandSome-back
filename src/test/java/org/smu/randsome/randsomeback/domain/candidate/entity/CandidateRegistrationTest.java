@@ -78,7 +78,24 @@ class CandidateRegistrationTest extends UnitTestSupport {
         // when & then
         assertThatThrownBy(() -> registration.reject("사유", TestDateTimeUtils.now()))
                 .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorType", ErrorType.NOT_ALLOW_ALREADY_APPROVED_REGISTRATION);
+                .hasMessage(ErrorType.NOT_ALLOW_ALREADY_APPROVED_REGISTRATION.getMessage());
+    }
+
+    @Test
+    void 이미_취소된_신청을_승인_또는_거절하면_예외가_발생한다() {
+        // given
+        var member = mock(Member.class);
+        var registration = CandidateRegistration.apply(member);
+        registration.cancel();
+
+        // when & then
+        assertThatThrownBy(() -> registration.reject("사유", TestDateTimeUtils.now()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_ALLOW_ALREADY_CANCELED_REGISTRATION.getMessage());
+
+        assertThatThrownBy(() -> registration.approve(TestDateTimeUtils.now()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_ALLOW_ALREADY_CANCELED_REGISTRATION.getMessage());
     }
 
     @Test

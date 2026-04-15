@@ -61,8 +61,11 @@ public class CandidateRegistration extends BaseEntity {
         if (registrationStatus.equals(RegistrationStatus.APPROVED)) {
             return;
         }
+
         checkWithdraw();
         checkRejected();
+        checkCanceled();
+
         this.registrationStatus = RegistrationStatus.APPROVED;
         this.approvedAt = requireNonNull(approvedAt);
     }
@@ -71,8 +74,10 @@ public class CandidateRegistration extends BaseEntity {
         if (registrationStatus.equals(RegistrationStatus.REJECTED)) {
             return;
         }
+
         checkAlreadyApproved();
         checkWithdraw();
+        checkCanceled();
 
         this.registrationStatus = RegistrationStatus.REJECTED;
         this.rejectedAt = requireNonNull(rejectedAt);
@@ -116,6 +121,12 @@ public class CandidateRegistration extends BaseEntity {
     private void checkAlreadyApproved() {
         if (registrationStatus.equals(RegistrationStatus.APPROVED)) {
             throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_REGISTRATION);
+        }
+    }
+
+    private void checkCanceled() {
+        if (registrationStatus.equals(RegistrationStatus.CANCELED)) {
+            throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_CANCELED_REGISTRATION);
         }
     }
 
