@@ -68,9 +68,10 @@ public class CandidateRegistration extends BaseEntity {
     }
 
     public void reject(String rejectedReason, LocalDateTime rejectedAt) {
-        if (registrationStatus.equals(RegistrationStatus.APPROVED)) {
-            throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_REGISTRATION);
+        if (registrationStatus.equals(RegistrationStatus.REJECTED)) {
+            return;
         }
+        checkAlreadyApproved();
         checkWithdraw();
 
         this.registrationStatus = RegistrationStatus.REJECTED;
@@ -109,6 +110,12 @@ public class CandidateRegistration extends BaseEntity {
     private void checkRejected() {
         if (registrationStatus.equals(RegistrationStatus.REJECTED)) {
             throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_REJECTED_REGISTRATION);
+        }
+    }
+
+    private void checkAlreadyApproved() {
+        if (registrationStatus.equals(RegistrationStatus.APPROVED)) {
+            throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_REGISTRATION);
         }
     }
 

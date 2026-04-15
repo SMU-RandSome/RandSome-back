@@ -52,11 +52,13 @@ public class CandidateManager {
     }
 
     @Transactional
-    public void reject(Long registrationId, String rejectedReason, LocalDateTime rejectedAt) {
-        CandidateRegistration registration = candidateJpaRepository.findByIdAndStatus(registrationId, EntityStatus.ACTIVE)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_CANDIDATE));
+    public void reject(Long registrationId, String rejectedReason) {
+        CandidateRegistration registration = candidateJpaRepository.findByIdAndStatus(
+                registrationId,
+                EntityStatus.ACTIVE
+        ).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_CANDIDATE_REGISTRATION));
 
-        registration.reject(rejectedReason, rejectedAt);
+        registration.reject(rejectedReason, LocalDateTime.now());
 
         log.info("[CandidateManager] 후보자 등록 거절 처리 완료 - registrationId={}", registrationId);
     }
@@ -64,7 +66,8 @@ public class CandidateManager {
     @Transactional
     public void withdraw(Long memberId) {
         // 회원의 활성화된 신청이 존재하는지 확인 (APPROVED 여부 무관)
-        List<CandidateRegistration> registrations = candidateJpaRepository.findAllByMemberIdAndStatus(memberId, EntityStatus.ACTIVE);
+        List<CandidateRegistration> registrations = candidateJpaRepository.findAllByMemberIdAndStatus(memberId,
+                EntityStatus.ACTIVE);
 
         if (registrations.isEmpty()) {
             throw new CoreException(ErrorType.NOT_FOUND_CANDIDATE);
