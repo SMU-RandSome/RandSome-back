@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
+import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 
 /**
  * 매칭 신청 내역 응답 DTO다.
@@ -16,7 +17,7 @@ public record MatchingHistoryItem(
         Long id,
 
         @Schema(description = "매칭 유형 라벨", example = "이상형 매칭")
-        String matchingTypeLabel,
+        MatchingType matchingType,
 
         @Schema(description = "매칭 신청 상태", example = "PENDING")
         ApplicationStatus applicationStatus,
@@ -37,7 +38,7 @@ public record MatchingHistoryItem(
     public static MatchingHistoryItem from(MatchingApplication app) {
         return new MatchingHistoryItem(
                 app.getId(),
-                app.getMatchingType().getLabel(),
+                app.getMatchingType(),
                 app.getApplicationStatus(),
                 app.getCreatedAt(),
                 app.getApplicationCount()

@@ -18,33 +18,16 @@ public interface MatchingJpaRepository extends JpaRepository<MatchingApplication
 
     long countByCreatedAtBetweenAndStatus(LocalDateTime start, LocalDateTime end, EntityStatus status);
 
-    @Query(""" 
-            SELECT ma FROM MatchingApplication ma
-            JOIN FETCH ma.member m
-            WHERE ma.id = :id AND ma.status = :status
-            """
-    )
-    Optional<MatchingApplication> findByIdAndStatusWithMember(@Param("id") Long id, @Param("status") EntityStatus status);
-
     @Query("""
             SELECT ma FROM MatchingApplication ma
             JOIN FETCH ma.member m
             WHERE ma.member.id = :memberId
-              AND ma.applicationStatus = :applicationStatus
-              AND ma.status = :entityStatus
-            ORDER BY ma.createdAt DESC
+              AND ma.status = :status
+            ORDER BY ma.id DESC
             """)
-    List<MatchingApplication> findAllByMemberIdAndApplicationStatusAndStatus(
+    List<MatchingApplication> findAllByMemberIdAndStatus(
             @Param("memberId") Long memberId,
-            @Param("applicationStatus") ApplicationStatus applicationStatus,
-            @Param("entityStatus") EntityStatus entityStatus
-    );
-
-    boolean existsByIdAndMemberIdAndApplicationStatusAndStatus(
-            Long applicationId,
-            Long memberId,
-            ApplicationStatus applicationStatus,
-            EntityStatus status
+            @Param("status") EntityStatus status
     );
 
     Optional<MatchingApplication> findByIdAndMemberIdAndStatus(Long id, Long memberId, EntityStatus status);

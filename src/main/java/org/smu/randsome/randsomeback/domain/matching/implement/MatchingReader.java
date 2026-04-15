@@ -24,19 +24,11 @@ public class MatchingReader {
     private final MatchingJpaRepository matchingJpaRepository;
     private final MatchingResultJpaRepository matchingResultJpaRepository;
 
-    /**
-     * 회원의 매칭 신청을 상태별로 조회한다.
-     * <br/>페이징은 구현하지 않으며, 활성 상태의 신청만 반환한다.
-     *
-     * @param memberId 회원 식별자
-     * @param applicationStatus 조회할 신청 상태
-     * @return 해당 회원의 매칭 신청 리스트 (상태 필터링)
-     */
+    // NOTE: 회원당 매칭 수가 많지 않을 것으로 예상되어 페이징 없이 전체 조회한다. 필요 시 페이징 추가 가능하다.
     @Transactional(readOnly = true)
-    public List<MatchingApplication> findByMemberAndStatus(Long memberId, ApplicationStatus applicationStatus) {
-        return matchingJpaRepository.findAllByMemberIdAndApplicationStatusAndStatus(
+    public List<MatchingApplication> findMatchings(Long memberId) {
+        return matchingJpaRepository.findAllByMemberIdAndStatus(
                 memberId,
-                applicationStatus,
                 EntityStatus.ACTIVE
         );
     }

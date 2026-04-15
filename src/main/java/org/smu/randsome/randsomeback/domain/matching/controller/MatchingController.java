@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.matching.dto.request.MatchingApplyRequest;
 import org.smu.randsome.randsomeback.domain.matching.dto.response.MatchingHistoryItem;
 import org.smu.randsome.randsomeback.domain.matching.dto.response.MatchingResultDetailItem;
-import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.service.MatchingService;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -35,12 +33,9 @@ public class MatchingController extends MatchingControllerDocs {
     }
 
     @Override
-    @GetMapping("/v1/matching/applications")
-    public ApiResponse<List<MatchingHistoryItem>> getMyApplications(
-            @RequestParam(defaultValue = "PENDING", required = false) ApplicationStatus status,
-            @LoginMember Long memberId
-    ) {
-        List<MatchingHistoryItem> response = matchingService.getMyApplications(memberId, status)
+    @GetMapping("/v1/matchings")
+    public ApiResponse<List<MatchingHistoryItem>> findMatchings(@LoginMember Long memberId) {
+        List<MatchingHistoryItem> response = matchingService.findMatchings(memberId)
                 .stream()
                 .map(MatchingHistoryItem::from)
                 .toList();
