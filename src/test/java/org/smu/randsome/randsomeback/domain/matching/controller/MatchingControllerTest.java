@@ -22,7 +22,7 @@ class MatchingControllerTest extends ControllerTestSupport {
         var request = MatchingApplyRequest.forRandom(2);
 
         // when & then
-        assertThat(mvcTester.post().uri("/v1/matching")
+        assertThat(mvcTester.post().uri("/v1/matchings")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .apply(print())
@@ -38,7 +38,7 @@ class MatchingControllerTest extends ControllerTestSupport {
         var request = MatchingApplyRequest.forRandom(2);
 
         // when & then
-        assertThat(mvcTester.post().uri("/v1/matching")
+        assertThat(mvcTester.post().uri("/v1/matchings")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .apply(print())
@@ -75,7 +75,7 @@ class MatchingControllerTest extends ControllerTestSupport {
         given(matchingService.getApprovedApplication(any(), any())).willReturn(List.of());
 
         // when & then
-        assertThat(mvcTester.get().uri("/v1/matching/applications/1/approved"))
+        assertThat(mvcTester.get().uri("/v1/matchings/applications/1/approved"))
                 .apply(print())
                 .hasStatusOk()
                 .bodyJson()
@@ -86,7 +86,7 @@ class MatchingControllerTest extends ControllerTestSupport {
     @Test
     void 승인된_신청_상세_조회에서_인증되지_않은_사용자는_403을_반환한다() {
         // when & then
-        assertThat(mvcTester.get().uri("/v1/matching/applications/1/approved"))
+        assertThat(mvcTester.get().uri("/v1/matchings/applications/1/approved"))
                 .apply(print())
                 .hasStatus(HttpStatus.FORBIDDEN.value());
     }
@@ -95,7 +95,7 @@ class MatchingControllerTest extends ControllerTestSupport {
     @TestMember
     void 매칭_신청_취소에_성공하면_200을_반환한다() {
         // when & then
-        assertThat(mvcTester.post().uri("/v1/matching/applications/1/cancel"))
+        assertThat(mvcTester.post().uri("/v1/matchings/applications/1/cancel"))
                 .apply(print())
                 .hasStatusOk()
                 .bodyJson()
@@ -106,7 +106,7 @@ class MatchingControllerTest extends ControllerTestSupport {
     @Test
     void 취소_요청에서_인증되지_않은_사용자는_403을_반환한다() {
         // when & then
-        assertThat(mvcTester.post().uri("/v1/matching/applications/1/cancel"))
+        assertThat(mvcTester.post().uri("/v1/matchings/applications/1/cancel"))
                 .apply(print())
                 .hasStatus(HttpStatus.FORBIDDEN.value());
     }
