@@ -125,7 +125,7 @@ public class TicketHandler {
                 ticketType,
                 TicketActionType.EARN,
                 TicketSource.ADMIN,
-                ticketType.getDefaultQuantity(),
+                amount,
                 "소프트웨어 부스 이용으로 인한 티켓 지급"
         ));
 
