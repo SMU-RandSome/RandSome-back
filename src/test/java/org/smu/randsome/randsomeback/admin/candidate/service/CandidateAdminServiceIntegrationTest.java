@@ -1,7 +1,9 @@
 package org.smu.randsome.randsomeback.admin.candidate.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +44,7 @@ class CandidateAdminServiceIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void 후보자_승인_시_알림_내역과_피드_이벤트가_저장된다() throws InterruptedException {
+    void 후보자_승인_시_알림_내역과_피드_이벤트가_저장된다() {
         // given
         Member member = MemberFixture.create();
         memberJpaRepository.save(member);
@@ -57,27 +59,30 @@ class CandidateAdminServiceIntegrationTest extends IntegrationTestSupport {
         // when
         candidateAdminService.approve(registrationId);
 
-        // 비동기 작업 완료 대기
-        Thread.sleep(500);
-
         // then - 피드 (동기, REQUIRES_NEW로 즉시 저장)
-        List<MatchingFeedEvent> events = matchingFeedEventRepository.findAll();
-        assertThat(events).hasSize(1)
+        assertThat(matchingFeedEventRepository.findAll())
+                .hasSize(1)
                 .extracting(MatchingFeedEvent::getNickname)
                 .contains(member.getNickname());
 
-        // then - 알림 (비동기, 대기 후 확인)
-        List<Notification> notifications = notificationJpaRepository.findAllByMemberIdAndStatus(
-                member.getId(),
-                EntityStatus.ACTIVE
-        );
+        // then - 알림 (비동기, Awaitility로 조건 충족까지 대기)
+        await()
+                .atMost(Duration.ofSeconds(5))
+                .pollInterval(Duration.ofMillis(100))
+                .untilAsserted(() -> {
+                    List<Notification> notifications = notificationJpaRepository.findAllByMemberIdAndStatus(
+                            member.getId(),
+                            EntityStatus.ACTIVE
+                    );
+                    assertThat(notifications).hasSize(1)
+                            .extracting(Notification::getMemberId)
+                            .contains(member.getId());
+                });
 
-        assertThat(notifications).hasSize(1)
-                .extracting(Notification::getMemberId)
-                .contains(member.getId());
-
-        var candidate = memberJpaRepository.findByIdAndStatus(member.getId(), EntityStatus.ACTIVE).orElseThrow();
-        assertThat(candidate.getRole()).isEqualTo(Role.ROLE_CANDIDATE);
+        // then - 권한 업데이트 확인
+        Member updatedMember = memberJpaRepository.findByIdAndStatus(member.getId(), EntityStatus.ACTIVE)
+                .orElseThrow();
+        assertThat(updatedMember.getRole()).isEqualTo(Role.ROLE_CANDIDATE);
     }
 
 }
