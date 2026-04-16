@@ -4,7 +4,10 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.announcement.event.AnnouncementRegisteredEvent;
+import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.candidate.event.CandidateAppliedEvent;
+import org.smu.randsome.randsomeback.domain.candidate.event.CandidateRegistrationNotificationEvent;
+import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateReader;
 import org.smu.randsome.randsomeback.domain.matching.event.MatchingApplicationCompletedEvent;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberDevice;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberDeviceReader;
@@ -24,6 +27,7 @@ public class NotificationHandler {
     private final MemberDeviceReader memberDeviceReader;
     private final NotificationManager notificationManager;
     private final NotificationSender notificationSender;
+    private final CandidateReader candidateReader;
     private final ErrorNotificationSender errorNotificationSender;
 
     @Async("notificationExecutor")
@@ -80,7 +84,29 @@ public class NotificationHandler {
                             + ", error: " + e.getMessage(), e);
         }
     }
+
     // TODO: 후보자 승인/거절 알림
+    @Async("notificationExecutor")
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void notifyCandidateRegistrationResult(CandidateRegistrationNotificationEvent event) {
+        try {
+            CandidateRegistration candidateRegistration = candidateReader.findWithMember(event.candidateRegistrationId());
+            List<MemberDevice> memberDevices = memberDeviceReader.findAllByMemberId(candidateRegistration.getMember().getId());
+            sendNotificationToDevices(
+                    memberDevices,
+                    event.notificationType(),
+                    event.candidateRegistrationId()
+            );
+        } catch (Exception e) {
+            log.error("[NotificationHandler] 후보자 승인 또는 거절 알림 전송 중 오류 발생. candidateRegistrationId={}",
+                    event.candidateRegistrationId(),
+                    e);
+            errorNotificationSender.sendErrorNotification(
+                    "[NotificationHandler] 후보자 승인 또는 거절 알림 전송 중 오류 발생. candidateRegistrationId=" + event.candidateRegistrationId()
+                            + ", error: " + e.getMessage(), e);
+        }
+
+    }
 
     private void sendNotificationToDevices(List<MemberDevice> devices, NotificationType type, long contextId) {
         if (devices.isEmpty()) {

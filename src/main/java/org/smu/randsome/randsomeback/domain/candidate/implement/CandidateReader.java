@@ -8,10 +8,14 @@ import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistrati
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.repository.CandidateRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.Cursor;
 import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Component
 public class CandidateReader {
@@ -41,6 +45,11 @@ public class CandidateReader {
 
     public long countPending() {
         return candidateRepository.countByRegistrationStatusAndStatus(RegistrationStatus.PENDING, EntityStatus.ACTIVE);
+    }
+
+    public CandidateRegistration findWithMember(Long candidateRegistrationId) {
+        return candidateRepository.findByIdAndStatusWithMember(candidateRegistrationId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_CANDIDATE_REGISTRATION));
     }
 
 }

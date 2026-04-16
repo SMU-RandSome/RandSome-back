@@ -12,8 +12,10 @@ import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.candidate.event.CandidateRegistrationApprovedEvent;
+import org.smu.randsome.randsomeback.domain.candidate.event.CandidateRegistrationNotificationEvent;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 import org.springframework.context.ApplicationEventPublisher;
 
 class CandidateAdminServiceUnitTest extends UnitTestSupport {
@@ -47,11 +49,17 @@ class CandidateAdminServiceUnitTest extends UnitTestSupport {
 
         // then
         ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
-        then(eventPublisher).should().publishEvent(captor.capture());
+        then(eventPublisher).should(org.mockito.Mockito.times(2)).publishEvent(captor.capture());
 
-        Object publishedEvent = captor.getValue();
-        assertThat(publishedEvent).isInstanceOf(CandidateRegistrationApprovedEvent.class);
-        assertThat(((CandidateRegistrationApprovedEvent) publishedEvent).nickname()).isEqualTo(nickname);
+        var publishedEvents = captor.getAllValues();
+        assertThat(publishedEvents).anyMatch(CandidateRegistrationApprovedEvent.class::isInstance);
+        assertThat(publishedEvents).anyMatch(CandidateRegistrationNotificationEvent.class::isInstance);
+
+        CandidateRegistrationApprovedEvent approvedEvent = (CandidateRegistrationApprovedEvent) publishedEvents.stream()
+                .filter(e -> e instanceof CandidateRegistrationApprovedEvent)
+                .findFirst()
+                .orElseThrow();
+        assertThat(approvedEvent.nickname()).isEqualTo(nickname);
     }
 
     @Test
@@ -83,6 +91,24 @@ class CandidateAdminServiceUnitTest extends UnitTestSupport {
 
         // then
         then(candidateManager).should().reject(registrationId, rejectionReason);
+    }
+
+    @Test
+    void 후보자_거절시_알림_이벤트가_발행된다() {
+        // given
+        Long registrationId = 1L;
+        String rejectedReason = "부적절한 프로필";
+
+        // when
+        candidateAdminService.reject(registrationId, rejectedReason);
+
+        // then
+        ArgumentCaptor<CandidateRegistrationNotificationEvent> captor = ArgumentCaptor.forClass(CandidateRegistrationNotificationEvent.class);
+        then(eventPublisher).should().publishEvent(captor.capture());
+
+        CandidateRegistrationNotificationEvent event = captor.getValue();
+        assertThat(event.candidateRegistrationId()).isEqualTo(registrationId);
+        assertThat(event.notificationType()).isEqualTo(NotificationType.CANDIDATE_REJECTED);
     }
 
 }
