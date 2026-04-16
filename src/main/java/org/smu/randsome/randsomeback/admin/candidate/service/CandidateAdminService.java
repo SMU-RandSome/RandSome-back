@@ -48,7 +48,6 @@ public class CandidateAdminService {
         candidateManager.reject(candidateRegistrationId, rejectedReason);
 
         eventPublisher.publishEvent(new CandidateRegistrationNotificationEvent(candidateRegistrationId, NotificationType.CANDIDATE_REJECTED));
-
     }
 
     /**
