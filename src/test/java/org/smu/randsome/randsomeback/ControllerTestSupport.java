@@ -33,6 +33,7 @@ import org.smu.randsome.randsomeback.domain.matching.service.MatchingService;
 import org.smu.randsome.randsomeback.domain.member.controller.MemberController;
 import org.smu.randsome.randsomeback.domain.member.service.MemberDeviceService;
 import org.smu.randsome.randsomeback.domain.member.service.MemberService;
+import org.smu.randsome.randsomeback.admin.qr.service.QrAdminService;
 import org.smu.randsome.randsomeback.domain.qr.controller.QrController;
 import org.smu.randsome.randsomeback.domain.qr.service.QrService;
 import org.smu.randsome.randsomeback.domain.report.controller.ReportController;
@@ -72,7 +73,9 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
         StatisticsAdminController.class,
         AnnouncementAdminController.class,
         AdminReportController.class,
-        CandidateAdminController.class
+        CandidateAdminController.class,
+
+        org.smu.randsome.randsomeback.admin.qr.controller.QrAdminController.class
 })
 public abstract class ControllerTestSupport {
 
@@ -127,6 +130,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected QrService qrService;
+
+    @MockitoBean
+    protected QrAdminService qrAdminService;
 
     @MockitoBean
     protected CouponEventAdminService couponEventAdminService;

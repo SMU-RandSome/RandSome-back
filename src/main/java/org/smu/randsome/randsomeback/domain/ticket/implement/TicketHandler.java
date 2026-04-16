@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.domain.ticket.entity.Ticket;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketActionType;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketSource;
@@ -21,8 +22,14 @@ public class TicketHandler {
     private static final int ATTENDANCE_REWARD_AMOUNT = 1;
 
     private final TicketManager ticketManager;
+    private final MemberReader memberReader;
     private final ApplicationEventPublisher eventPublisher;
 
+    /**
+     * 회원 가입 시 초기 티켓을 지급한다.
+     * @param member 가입한 회원 정보
+     *
+     * */
     public void issue(Member member) {
         List<Ticket> tickets = ticketManager.create(member);
 
@@ -99,6 +106,30 @@ public class TicketHandler {
         ));
 
         log.info("[TicketHandler] 출석 보상 티켓 생성 완료 - memberId={}", memberId);
+    }
+
+    /**
+     * 관리자에 의한 티켓 지급
+     * @param memberId   회원 식별자
+     * @param ticketType 지급할 티켓 종류
+     * @param amount     지급할 티켓 수량
+     **/
+    public void issueForAdmin(Long memberId, TicketType ticketType, int amount) {
+        // 회원이 존재하는지 확인 (예외 발생 시 티켓 지급 중단)
+        memberReader.find(memberId);
+
+        ticketManager.earn(memberId, ticketType, amount);
+
+        eventPublisher.publishEvent(new TicketHistoryRegisterEvent(
+                memberId,
+                ticketType,
+                TicketActionType.EARN,
+                TicketSource.ADMIN,
+                ticketType.getDefaultQuantity(),
+                "소프트웨어 부스 이용으로 인한 티켓 지급"
+        ));
+
+        log.info("[TicketHandler] 관리자에 의한 티켓 지급 완료 - memberId={}, ticketType={}, amount={}", memberId, ticketType, amount);
     }
 
 }
