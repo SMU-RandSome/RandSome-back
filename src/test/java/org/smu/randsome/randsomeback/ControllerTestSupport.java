@@ -9,6 +9,8 @@ import org.smu.randsome.randsomeback.admin.coupon.controller.CouponEventAdminCon
 import org.smu.randsome.randsomeback.admin.coupon.service.CouponEventAdminService;
 import org.smu.randsome.randsomeback.admin.member.controller.MemberAdminController;
 import org.smu.randsome.randsomeback.admin.member.service.MemberAdminService;
+import org.smu.randsome.randsomeback.admin.matching.controller.AdminMatchingController;
+import org.smu.randsome.randsomeback.admin.matching.service.AdminMatchingService;
 import org.smu.randsome.randsomeback.admin.report.controller.AdminReportController;
 import org.smu.randsome.randsomeback.admin.report.service.AdminReportService;
 import org.smu.randsome.randsomeback.admin.statistics.controller.StatisticsAdminController;
@@ -74,6 +76,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
         AnnouncementAdminController.class,
         AdminReportController.class,
         CandidateAdminController.class,
+        AdminMatchingController.class,
 
         org.smu.randsome.randsomeback.admin.qr.controller.QrAdminController.class
 })
@@ -151,5 +154,8 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected CandidateAdminService candidateAdminService;
+
+    @MockitoBean
+    protected AdminMatchingService adminMatchingService;
 
 }
