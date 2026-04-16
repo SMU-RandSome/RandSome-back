@@ -6,7 +6,7 @@ import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 
 public interface MatchingQueryDslRepository {
 
-    List<MatchingApplication> findAllByFilter(MatchingSearchCondition condition, long page, long size);
+    List<MatchingApplication> findAllByFilter(MatchingSearchCondition condition, long offset, long limit);
 
     long countByFilter(MatchingSearchCondition condition);
 
