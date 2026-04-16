@@ -37,7 +37,6 @@ public class CandidateManager {
         return registration;
     }
 
-    @Transactional
     public CandidateRegistration approve(Long candidateRegistrationId) {
         CandidateRegistration registration = candidateJpaRepository.findByIdAndStatusWithMember(
                 candidateRegistrationId,
@@ -53,7 +52,6 @@ public class CandidateManager {
         return registration;
     }
 
-    @Transactional
     public void reject(Long registrationId, String rejectedReason) {
         CandidateRegistration registration = candidateJpaRepository.findByIdAndStatus(
                 registrationId,
