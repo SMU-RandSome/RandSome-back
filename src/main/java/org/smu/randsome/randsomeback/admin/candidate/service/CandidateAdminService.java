@@ -12,6 +12,7 @@ import org.smu.randsome.randsomeback.global.support.response.Cursor;
 import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -27,6 +28,7 @@ public class CandidateAdminService {
      * 승인 시 후보자 등록 승인 이벤트가 발행되어 관련된 후속 작업이 트리거됨 (예: 승인 알림 발송 등) <br>
      * @param candidateRegistrationId 승인할 후보자 등록 ID
      * */
+    @Transactional
     public void approve(Long candidateRegistrationId) {
         CandidateRegistration candidateRegistration = candidateManager.approve(candidateRegistrationId);
 
@@ -41,6 +43,7 @@ public class CandidateAdminService {
      * @param candidateRegistrationId 거절할 후보자 등록 ID
      * @param rejectedReason 거절 사유 (관리자 입력)
      **/
+    @Transactional
     public void reject(Long candidateRegistrationId, String rejectedReason) {
         candidateManager.reject(candidateRegistrationId, rejectedReason);
 

@@ -85,7 +85,13 @@ public class NotificationHandler {
         }
     }
 
-    // TODO: 후보자 승인/거절 알림
+    /**
+     * 후보자 승인/거절 알림 전송.
+     * <p>
+     * NOTE: 트랜잭션 점유를 최소화 하기 위해 트랜잭션 없음 — candidateReader.findWithMember()가 패치조인으로 Member를 즉시 로드하므로
+     * Lazy 로딩이 발생하지 않습니다. findWithMember()의 구현이 변경되면 @Transactional 추가 필요.
+     *
+     */
     @Async("notificationExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void notifyCandidateRegistrationResult(CandidateRegistrationNotificationEvent event) {
