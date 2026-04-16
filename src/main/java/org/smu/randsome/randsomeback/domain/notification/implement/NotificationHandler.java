@@ -88,7 +88,7 @@ public class NotificationHandler {
     // TODO: 후보자 승인/거절 알림
     @Async("notificationExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void sendTestNotification(CandidateRegistrationNotificationEvent event) {
+    public void notifyCandidateRegistrationResult(CandidateRegistrationNotificationEvent event) {
         try {
             CandidateRegistration candidateRegistration = candidateReader.findWithMember(event.candidateRegistrationId());
             List<MemberDevice> memberDevices = memberDeviceReader.findAllByMemberId(candidateRegistration.getMember().getId());
