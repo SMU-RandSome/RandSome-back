@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.candidate.dto.command.CandidateRegistrationSearchCondition;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
 import org.smu.randsome.randsomeback.domain.candidate.event.CandidateRegistrationApprovedEvent;
+import org.smu.randsome.randsomeback.domain.candidate.event.CandidateRegistrationNotificationEvent;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateReader;
+import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 import org.smu.randsome.randsomeback.global.support.response.Cursor;
 import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
 import org.springframework.context.ApplicationEventPublisher;
@@ -28,17 +30,22 @@ public class CandidateAdminService {
     public void approve(Long candidateRegistrationId) {
         CandidateRegistration candidateRegistration = candidateManager.approve(candidateRegistrationId);
 
+        eventPublisher.publishEvent(new CandidateRegistrationNotificationEvent(candidateRegistration.getId(), NotificationType.CANDIDATE_APPROVED));
         eventPublisher.publishEvent(new CandidateRegistrationApprovedEvent(candidateRegistration.getMember().getNickname()));
     }
 
     /**
      * 후보자 등록 거절 <br>
      * 거절된 후보자 등록은 매칭 대상에서 제외됨 <br>
+     * 거절 시 후보자 등록 거절 이벤트가 발행되어 관련된 후속 작업이 트리거됨 (예: 거절 알림 발송 등) <br>
      * @param candidateRegistrationId 거절할 후보자 등록 ID
      * @param rejectedReason 거절 사유 (관리자 입력)
      **/
     public void reject(Long candidateRegistrationId, String rejectedReason) {
         candidateManager.reject(candidateRegistrationId, rejectedReason);
+
+        eventPublisher.publishEvent(new CandidateRegistrationNotificationEvent(candidateRegistrationId, NotificationType.CANDIDATE_REJECTED));
+
     }
 
     /**
