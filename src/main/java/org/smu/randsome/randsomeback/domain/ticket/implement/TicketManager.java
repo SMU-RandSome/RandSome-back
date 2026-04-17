@@ -38,4 +38,11 @@ public class TicketManager {
         ticket.earn(amount);
     }
 
+    @Transactional
+    public void refund(Long memberId, TicketType ticketType, int amount) {
+        Ticket ticket = ticketReader.findByMemberAndType(memberId, ticketType);
+
+        ticket.refund(amount);
+    }
+
 }

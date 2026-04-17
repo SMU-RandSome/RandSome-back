@@ -84,7 +84,7 @@ public class MatchingManager {
         List<MatchingResult> results = strategy.execute(matchingApplication);
 
         matchingResultJpaRepository.saveAll(results);
-        matchingApplication.complete(completedAt);
+        matchingApplication.complete(completedAt, results.size());
 
         log.info("[MatchingManager] 매칭 완료 - matchingApplicationId: {}, matchingType: {}, applicationCount: {}, resultCount: {}",
                 matchingApplication.getId(), matchingApplication.getMatchingType(), matchingApplication.getApplicationCount(), results.size());

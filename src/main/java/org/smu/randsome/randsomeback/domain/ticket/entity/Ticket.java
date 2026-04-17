@@ -56,6 +56,10 @@ public class Ticket extends BaseEntity {
         this.quantity = this.quantity.plus(amount);
     }
 
+    public void refund(int amount) {
+        this.quantity = this.quantity.plus(amount);
+    }
+
     public void use(int amount) {
         this.quantity = this.quantity.minus(amount);
     }

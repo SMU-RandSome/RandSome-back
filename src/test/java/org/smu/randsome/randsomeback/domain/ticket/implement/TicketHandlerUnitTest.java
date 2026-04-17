@@ -19,6 +19,7 @@ import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.domain.ticket.entity.Ticket;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketActionType;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketSource;
@@ -39,6 +40,9 @@ class TicketHandlerUnitTest extends UnitTestSupport {
 
     @Mock
     ApplicationEventPublisher eventPublisher;
+
+    @Mock
+    MemberReader memberReader;
 
     @Test
     void 티켓을_생성한다() {
@@ -204,6 +208,87 @@ class TicketHandlerUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.NOT_FOUND_TICKET.getMessage());
 
         verify(eventPublisher, never()).publishEvent(any());
+    }
+
+    @Test
+    void 완전_매칭_시_refundForPartialMatch는_환불하지_않는다() {
+        // given
+        var memberId = 1L;
+        int requestedCount = 3;
+        int matchedCount = 3;
+
+        // when
+        ticketHandler.refundForPartialMatch(memberId, MatchingType.RANDOM, requestedCount, matchedCount);
+
+        // then
+        verify(ticketManager, never()).refund(any(), any(), any(Integer.class));
+        verify(eventPublisher, never()).publishEvent(any(TicketHistoryRegisterEvent.class));
+    }
+
+    @Test
+    void 부분_매칭_시_차액만큼_PARTIAL_MATCH_REFUND_source로_환불한다() {
+        // given
+        var memberId = 1L;
+        int requestedCount = 5;
+        int matchedCount = 3;
+        int expectedRefund = 2;
+
+        // when
+        ticketHandler.refundForPartialMatch(memberId, MatchingType.RANDOM, requestedCount, matchedCount);
+
+        // then
+        verify(ticketManager).refund(memberId, TicketType.RANDOM, expectedRefund);
+
+        ArgumentCaptor<TicketHistoryRegisterEvent> captor = ArgumentCaptor.forClass(TicketHistoryRegisterEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+
+        TicketHistoryRegisterEvent event = captor.getValue();
+        assertThat(event).extracting(
+                TicketHistoryRegisterEvent::memberId,
+                TicketHistoryRegisterEvent::ticketType,
+                TicketHistoryRegisterEvent::actionType,
+                TicketHistoryRegisterEvent::source,
+                TicketHistoryRegisterEvent::amount
+        ).containsExactly(
+                memberId,
+                TicketType.RANDOM,
+                TicketActionType.REFUND,
+                TicketSource.PARTIAL_MATCH_REFUND,
+                expectedRefund
+        );
+    }
+
+    @Test
+    void 매칭_결과_없을_시_전체를_NO_MATCH_REFUND_source로_환불한다() {
+        // given
+        var memberId = 1L;
+        int requestedCount = 3;
+        int matchedCount = 0;
+
+        // when
+        ticketHandler.refundForPartialMatch(memberId, MatchingType.RANDOM, requestedCount, matchedCount);
+
+        // then
+        verify(ticketManager).refund(memberId, TicketType.RANDOM, requestedCount);
+
+        ArgumentCaptor<TicketHistoryRegisterEvent> captor = ArgumentCaptor.forClass(TicketHistoryRegisterEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+
+        assertThat(captor.getValue().source()).isEqualTo(TicketSource.NO_MATCH_REFUND);
+    }
+
+    @Test
+    void IDEAL_부분_매칭_시_IDEAL_티켓을_환불한다() {
+        // given
+        var memberId = 1L;
+        int requestedCount = 2;
+        int matchedCount = 1;
+
+        // when
+        ticketHandler.refundForPartialMatch(memberId, MatchingType.IDEAL, requestedCount, matchedCount);
+
+        // then
+        verify(ticketManager).refund(memberId, TicketType.IDEAL, 1);
     }
 
     @Test

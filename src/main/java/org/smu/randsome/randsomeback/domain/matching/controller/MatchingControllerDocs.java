@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.smu.randsome.randsomeback.domain.matching.dto.request.MatchingApplyRequest;
+import org.smu.randsome.randsomeback.domain.matching.dto.response.MatchingApplicationResponse;
 import org.smu.randsome.randsomeback.domain.matching.dto.response.MatchingHistoryItem;
 import org.smu.randsome.randsomeback.domain.matching.dto.response.MatchingResultDetailItem;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
@@ -26,7 +27,8 @@ public abstract class MatchingControllerDocs {
                     - 신청 시 요청 인원에 해당하는 티켓이 자동으로 차감됩니다.
                     - 신청이 생성되면 즉시 매칭 알고리즘이 실행되어 매칭 결과가 생성됩니다.
                     - `IDEAL` 매칭인 경우 요청 DTO에 이상형 조건(성격, 얼굴상, 연애 스타일)을 포함할 수 있습니다.
-                    - 성공 시 200 OK 응답이 반환됩니다.
+                    - 후보자 부족으로 요청 인원보다 적게 매칭된 경우, 미매칭 수량만큼 티켓이 자동 환불됩니다.
+                    - 성공 시 200 OK 와 함께 매칭 결과(매칭 수, 환불 티켓 수, 부분 매칭 여부)가 반환됩니다.
                     """
     )
     @ApiExceptions(values = {
@@ -36,7 +38,7 @@ public abstract class MatchingControllerDocs {
             ErrorType.INVALID_PERSON_COUNT,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ApiResponse<?> apply(
+    public abstract ApiResponse<MatchingApplicationResponse> apply(
             @RequestBody @Valid MatchingApplyRequest request,
             @LoginMember Long memberId
     );
@@ -70,7 +72,8 @@ public abstract class MatchingControllerDocs {
     @ApiExceptions(values = {
             ErrorType.BAD_REQUEST,
             ErrorType.UNAUTHORIZED_ERROR,
-            ErrorType.NOT_FOUND_APPROVED_MATCHING,
+            ErrorType.NOT_FOUND_MATCHING,
+            ErrorType.NOT_FOUND_MATCHING_RESULT,
             ErrorType.DEFAULT_ERROR
     })
     public abstract ApiResponse<List<MatchingResultDetailItem>> findApplication(

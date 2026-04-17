@@ -31,11 +31,20 @@ public class MatchingService {
      * @param memberId 신청자 식별자
      */
     @Transactional
-    public void apply(NewMatching newMatching, Long memberId) {
+    public MatchingApplication apply(NewMatching newMatching, Long memberId) {
         ticketHandler.deduct(memberId, newMatching);
 
         MatchingApplication matchingApplication = matchingManager.apply(newMatching, memberId);
         matchingManager.executeMatching(matchingApplication, LocalDateTime.now());
+
+        ticketHandler.refundForPartialMatch(
+                memberId,
+                newMatching.matchingType(),
+                matchingApplication.getApplicationCount(),
+                matchingApplication.getMatchedCount()
+        );
+
+        return matchingApplication;
     }
 
     /**

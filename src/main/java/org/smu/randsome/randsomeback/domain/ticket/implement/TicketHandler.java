@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
+import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.domain.ticket.entity.Ticket;
@@ -130,6 +131,39 @@ public class TicketHandler {
         ));
 
         log.info("[TicketHandler] 관리자에 의한 티켓 지급 완료 - memberId={}, ticketType={}, amount={}", memberId, ticketType, amount);
+    }
+
+    /**
+     * 부분 매칭으로 인한 티켓 환불을 처리한다.
+     * <br/>요청 인원보다 매칭 인원이 적을 경우에만 차액만큼 환불한다.
+     *
+     * @param memberId       회원 식별자
+     * @param matchingType   매칭 타입 (환불할 티켓 종류 결정에 사용)
+     * @param requestedCount 신청 인원 수
+     * @param matchedCount   실제 매칭된 인원 수
+     */
+    public void refundForPartialMatch(Long memberId, MatchingType matchingType, int requestedCount, int matchedCount) {
+        int refundedTickets = requestedCount - matchedCount;
+        if (refundedTickets <= 0) {
+            return;
+        }
+        TicketSource ticketSource = matchedCount == 0 ? TicketSource.NO_MATCH_REFUND : TicketSource.PARTIAL_MATCH_REFUND;
+        refund(memberId, TicketType.from(matchingType), refundedTickets, ticketSource);
+    }
+
+    private void refund(Long memberId, TicketType ticketType, int amount, TicketSource ticketSource) {
+        ticketManager.refund(memberId, ticketType, amount);
+
+        eventPublisher.publishEvent(new TicketHistoryRegisterEvent(
+                memberId,
+                ticketType,
+                TicketActionType.REFUND,
+                ticketSource,
+                amount,
+                ticketSource.getDescription()
+        ));
+
+        log.info("[TicketHandler] 매칭 티켓 환불 완료 - memberId={}, ticketType={}, amount={}", memberId, ticketType, amount);
     }
 
 }
