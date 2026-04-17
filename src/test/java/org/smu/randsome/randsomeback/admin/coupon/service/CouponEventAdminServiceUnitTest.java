@@ -37,16 +37,15 @@ class CouponEventAdminServiceUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 쿠폰_이벤트를_비활성화하면_Redis에_재고를_삭제한다() {
+    void 쿠폰_이벤트를_비활성화하면_Manager의_deactivate를_호출한다() {
         // given
         Long eventId = 1L;
 
         // when
         couponEventAdminService.deactivateCouponEvent(eventId);
 
-        // then
+        // then: Redis 삭제는 AFTER_COMMIT 이벤트 리스너에 위임되므로 Manager 호출만 검증
         verify(couponEventManager).deactivate(eventId);
-        verify(couponCacheManager).deleteStock(eventId);
     }
 
 }

@@ -74,13 +74,12 @@ public class CouponEventAdminService {
     }
 
     /**
-     * 쿠폰 이벤트 비활성화 및 Redis stock 삭제
+     * 쿠폰 이벤트 비활성화
+     * DB 커밋 후 이벤트 리스너가 Redis stock을 삭제한다.
      * @param couponEventId 비활성화할 쿠폰 이벤트 ID
      * */
-    @Transactional
     public void deactivateCouponEvent(Long couponEventId) {
         couponEventManager.deactivate(couponEventId);
-        couponCacheManager.deleteStock(couponEventId);
     }
 
 }

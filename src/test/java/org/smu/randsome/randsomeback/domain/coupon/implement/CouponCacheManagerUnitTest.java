@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
+import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventDeactivatedEvent;
 import org.smu.randsome.randsomeback.global.config.CacheKeys;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -158,6 +159,42 @@ class CouponCacheManagerUnitTest extends UnitTestSupport {
         verify(errorNotificationSender).sendErrorNotification(
                 eq(String.format("쿠폰 재고 Redis 초기화 실패 - 쿠폰 ID: %d, 총 재고: %d, 만료 시각: %s, 원인: %s",
                         eventId, totalQuantity, expiresAt, "Connection timeout")),
+                eq(cause)
+        );
+    }
+
+    // ── onCouponEventDeactivated ─────────────────────────────────────
+
+    @Test
+    void 비활성화_시_올바른_키로_Redis에서_재고를_삭제한다() {
+        // given
+        Long eventId = 1L;
+        CouponEventDeactivatedEvent event = new CouponEventDeactivatedEvent(eventId);
+
+        // when
+        couponCacheManager.onCouponEventDeactivated(event);
+
+        // then
+        verify(redisRepository).delete(eq(CacheKeys.couponStock(eventId)));
+    }
+
+    // ── recoverFromDeactivationFailure ───────────────────────────────
+
+    @Test
+    void 비활성화_재시도_최종_실패_시_recover_메서드가_호출되고_알림이_발송된다() {
+        // given: Redis 연결 실패
+        Long eventId = 1L;
+        CouponEventDeactivatedEvent event = new CouponEventDeactivatedEvent(eventId);
+        RedisConnectionFailureException cause = new RedisConnectionFailureException("Connection timeout");
+
+        // when: recover 메서드 직접 호출 (재시도 실패 후 @Recover가 호출하는 시뮬레이션)
+        assertThatCode(() -> couponCacheManager.recoverFromDeactivationFailure(cause, event))
+                .doesNotThrowAnyException();
+
+        // then: 로깅 + 에러 알림 발송 확인 (DB는 이미 커밋됨)
+        verify(errorNotificationSender).sendErrorNotification(
+                eq(String.format("쿠폰 재고 Redis 삭제 실패 - 쿠폰 ID: %d, 원인: %s",
+                        eventId, "Connection timeout")),
                 eq(cause)
         );
     }

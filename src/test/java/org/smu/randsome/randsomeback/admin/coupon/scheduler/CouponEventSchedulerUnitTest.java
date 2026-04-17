@@ -107,8 +107,8 @@ class CouponEventSchedulerUnitTest extends UnitTestSupport {
 
         // then
         verify(couponEventReader).findActiveEventsReadyToEnd(any(LocalDateTime.class));
-        verify(couponEventAdminService).deactivateCouponEvent(1L);
-        verify(couponEventAdminService).deactivateCouponEvent(2L);
+        verify(couponEventManager).deactivate(1L);
+        verify(couponEventManager).deactivate(2L);
     }
 
     @Test
@@ -122,14 +122,14 @@ class CouponEventSchedulerUnitTest extends UnitTestSupport {
         given(couponEventReader.findActiveEventsReadyToEnd(any(LocalDateTime.class)))
                 .willReturn(List.of(event1, event2));
         willThrow(new RuntimeException("종료 실패"))
-                .given(couponEventAdminService).deactivateCouponEvent(1L);
+                .given(couponEventManager).deactivate(1L);
 
         // when
         couponEventScheduler.deactivateDueEvents();
 
         // then
-        verify(couponEventAdminService).deactivateCouponEvent(1L);
-        verify(couponEventAdminService).deactivateCouponEvent(2L);
+        verify(couponEventManager).deactivate(1L);
+        verify(couponEventManager).deactivate(2L);
     }
 
     @Test
@@ -143,7 +143,7 @@ class CouponEventSchedulerUnitTest extends UnitTestSupport {
 
         // then
         verify(couponEventReader).findActiveEventsReadyToEnd(any(LocalDateTime.class));
-        verify(couponEventAdminService, never()).deactivateCouponEvent(any(Long.class));
+        verify(couponEventManager, never()).deactivate(any(Long.class));
     }
 
 }

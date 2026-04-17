@@ -17,6 +17,7 @@ import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
+import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventDeactivatedEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -50,7 +51,7 @@ class CouponEventManagerUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 쿠폰_이벤트를_비활성화하면_상태가_ENDED로_변경된다() {
+    void 쿠폰_이벤트를_비활성화하면_상태가_ENDED로_변경되고_이벤트가_발행된다() {
         // given
         Long eventId = 1L;
         CouponEvent event = CuponFixture.createCuponEvent();
@@ -65,6 +66,7 @@ class CouponEventManagerUnitTest extends UnitTestSupport {
         // then
         verify(couponEventJpaRepository).findByIdAndStatus(eventId, EntityStatus.ACTIVE);
         assertThat(event.getEventStatus()).isEqualTo(CouponEventStatus.ENDED);
+        verify(eventPublisher).publishEvent(any(CouponEventDeactivatedEvent.class));
     }
 
 }

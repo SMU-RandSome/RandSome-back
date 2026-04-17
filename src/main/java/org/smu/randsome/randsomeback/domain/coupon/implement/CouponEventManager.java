@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.domain.coupon.implement;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
+import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventDeactivatedEvent;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.NewCouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.UpdateCouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
@@ -78,12 +79,19 @@ public class CouponEventManager {
         eventPublisher.publishEvent(new CouponEventActivatedEvent(event.getId(), event.getTotalQuantity(), event.getExpiresAt()));
     }
 
+    /**
+     * 쿠폰 이벤트 비활성화 <br>
+     * - 이벤트 상태를 종료로 변경한다. <br>
+     * - 커밋 후 CouponEventDeactivatedEvent를 발행하여 Redis에서 재고를 삭제하도록 트리거한다. <br>
+     * */
     @Transactional
     public void deactivate(Long couponEventId) {
         CouponEvent event = couponEventJpaRepository.findByIdAndStatus(couponEventId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_COUPON_EVENT));
 
         event.end();
+
+        eventPublisher.publishEvent(new CouponEventDeactivatedEvent(event.getId()));
     }
 
 }

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
+import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventDeactivatedEvent;
 import org.smu.randsome.randsomeback.global.config.CacheKeys;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -80,10 +81,17 @@ public class CouponCacheManager {
     }
 
     /**
-     * 이벤트 종료 시 Redis에 저장된 재고 캐시를 삭제한다.
+     * 이벤트 비활성화 시 Redis에 저장된 재고 캐시를 삭제한다.
+     * Redis 연결 실패 시 최대 3회(1s → 2s 간격) 재시도한다.
      */
-    public void deleteStock(Long eventId) {
-        String key = CacheKeys.couponStock(eventId);
+    @Retryable(
+            retryFor = RedisConnectionFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onCouponEventDeactivated(CouponEventDeactivatedEvent event) {
+        String key = CacheKeys.couponStock(event.couponEventId());
         redisRepository.delete(key);
     }
 
@@ -98,6 +106,21 @@ public class CouponCacheManager {
                 event.couponEventId(),
                 event.totalQuantity(),
                 event.expiresAt(),
+                ex.getMessage()
+        );
+        log.error(logMessage, ex);
+        errorNotificationSender.sendErrorNotification(logMessage, ex);
+    }
+
+    /**
+     * onCouponEventDeactivated 재시도 최종 실패 시 호출된다.
+     * DB는 이미 ENDED로 커밋되었으므로, Redis 불일치 상황을 로깅하고 모니터링을 위한 알림을 기록한다.
+     * 관리자는 로그를 모니터링하여 수동으로 Redis를 삭제해야 한다.
+     */
+    @Recover
+    public void recoverFromDeactivationFailure(RedisConnectionFailureException ex, CouponEventDeactivatedEvent event) {
+        String logMessage = String.format("쿠폰 재고 Redis 삭제 실패 - 쿠폰 ID: %d, 원인: %s",
+                event.couponEventId(),
                 ex.getMessage()
         );
         log.error(logMessage, ex);
