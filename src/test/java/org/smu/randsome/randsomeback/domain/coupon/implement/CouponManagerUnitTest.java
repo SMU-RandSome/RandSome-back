@@ -150,14 +150,14 @@ class CouponManagerUnitTest extends UnitTestSupport {
 
         given(couponEventReader.find(eventId)).willReturn(couponEvent);
         given(memberReader.getReference(memberId)).willReturn(member);
-        given(couponRepository.save(any(Coupon.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(couponRepository.saveAndFlush(any(Coupon.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         // when
         couponManager.issueCoupon(eventId, memberId, now);
 
         // then
         ArgumentCaptor<Coupon> captor = ArgumentCaptor.forClass(Coupon.class);
-        verify(couponRepository).save(captor.capture());
+        verify(couponRepository).saveAndFlush(captor.capture());
 
         Coupon capturedCoupon = captor.getValue();
         assertThat(capturedCoupon.getCouponEvent()).isEqualTo(couponEvent);
@@ -176,7 +176,7 @@ class CouponManagerUnitTest extends UnitTestSupport {
 
         given(couponEventReader.find(eventId)).willReturn(couponEvent);
         given(memberReader.getReference(memberId)).willReturn(member);
-        given(couponRepository.save(any(Coupon.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(couponRepository.saveAndFlush(any(Coupon.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         // when
         couponManager.issueCoupon(eventId, memberId, now);
