@@ -8,11 +8,9 @@ import org.smu.randsome.randsomeback.domain.report.entity.Report;
 import org.smu.randsome.randsomeback.domain.report.implement.ReportManager;
 import org.smu.randsome.randsomeback.domain.report.implement.ReportReader;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class AdminReportService {
 
     private final ReportReader reportReader;
