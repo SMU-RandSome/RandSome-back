@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.domain.coupon.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -15,6 +16,8 @@ import org.smu.randsome.randsomeback.domain.coupon.repository.CouponEventJpaRepo
 import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
+import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 class CouponEventManagerUnitTest extends UnitTestSupport {
@@ -25,8 +28,11 @@ class CouponEventManagerUnitTest extends UnitTestSupport {
     @Mock
     CouponEventJpaRepository couponEventJpaRepository;
 
+    @Mock
+    ApplicationEventPublisher eventPublisher;
+
     @Test
-    void 쿠폰_이벤트를_활성화하면_상태가_ACTIVE로_변경된다() {
+    void 쿠폰_이벤트를_활성화하면_상태가_ACTIVE로_변경되고_이벤트가_발행된다() {
         // given
         Long eventId = 1L;
         CouponEvent event = CuponFixture.createCuponEvent();
@@ -35,11 +41,12 @@ class CouponEventManagerUnitTest extends UnitTestSupport {
                 .willReturn(Optional.of(event));
 
         // when
-        CouponEvent activatedEvent = couponEventManager.activate(eventId);
+        couponEventManager.activate(eventId);
 
         // then
         verify(couponEventJpaRepository).findByIdAndStatus(eventId, EntityStatus.ACTIVE);
-        assertThat(activatedEvent.getEventStatus()).isEqualTo(CouponEventStatus.ACTIVE);
+        assertThat(event.getEventStatus()).isEqualTo(CouponEventStatus.ACTIVE);
+        verify(eventPublisher).publishEvent(any(CouponEventActivatedEvent.class));
     }
 
     @Test

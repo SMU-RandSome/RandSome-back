@@ -1,26 +1,46 @@
 package org.smu.randsome.randsomeback.domain.coupon.implement;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
 import org.smu.randsome.randsomeback.global.config.CacheKeys;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
+import org.springframework.data.redis.RedisConnectionFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CouponCacheManager {
 
     private final RedisRepository redisRepository;
+    private final ErrorNotificationSender errorNotificationSender;
 
     /**
      * 이벤트 활성화 시 Redis에 재고 키를 초기화한다.
      * TTL은 이벤트 만료 시각까지의 남은 시간으로 설정한다.
+     * Redis 연결 실패 시 최대 3회(1s → 2s 간격) 재시도한다.
      */
-    public void initializeStock(Long eventId, int totalQuantity, Duration ttl) {
-        String key = CacheKeys.couponStock(eventId);
-        redisRepository.put(key, String.valueOf(totalQuantity), ttl);
+    @Retryable(
+            retryFor = RedisConnectionFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onCouponEventActivated(CouponEventActivatedEvent event) {
+        String key = CacheKeys.couponStock(event.couponEventId());
+        Duration ttl = Duration.between(LocalDateTime.now(), event.expiresAt());
+        redisRepository.put(key, String.valueOf(event.totalQuantity()), ttl);
     }
 
     /**
@@ -65,6 +85,23 @@ public class CouponCacheManager {
     public void deleteStock(Long eventId) {
         String key = CacheKeys.couponStock(eventId);
         redisRepository.delete(key);
+    }
+
+    /**
+     * onCouponEventActivated 재시도 최종 실패 시 호출된다.
+     * DB는 이미 ACTIVE로 커밋되었으므로, Redis 불일치 상황을 로깅하고 모니터링을 위한 알림을 기록한다.
+     * 관리자는 로그를 모니터링하여 수동으로 Redis를 초기화해야 한다.
+     */
+    @Recover
+    public void recoverFromActivationFailure(RedisConnectionFailureException ex, CouponEventActivatedEvent event) {
+        String logMessage = String.format("쿠폰 재고 Redis 초기화 실패 - 쿠폰 ID: %d, 총 재고: %d, 만료 시각: %s, 원인: %s",
+                event.couponEventId(),
+                event.totalQuantity(),
+                event.expiresAt(),
+                ex.getMessage()
+        );
+        log.error(logMessage, ex);
+        errorNotificationSender.sendErrorNotification(logMessage, ex);
     }
 
 }

@@ -2,18 +2,24 @@ package org.smu.randsome.randsomeback.domain.coupon.implement;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.smu.randsome.randsomeback.UnitTestSupport;
+import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
 import org.smu.randsome.randsomeback.global.config.CacheKeys;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
 
 class CouponCacheManagerUnitTest extends UnitTestSupport {
@@ -24,20 +30,28 @@ class CouponCacheManagerUnitTest extends UnitTestSupport {
     @Mock
     RedisRepository redisRepository;
 
-    // ── initializeStock ──────────────────────────────────────────────
+    @Mock
+    ErrorNotificationSender errorNotificationSender;
+
+    // ── onCouponEventActivated ───────────────────────────────────────
 
     @Test
     void 재고_초기화_시_올바른_키와_값으로_Redis에_저장한다() {
         // given
         Long eventId = 1L;
         int totalQuantity = 100;
-        Duration ttl = Duration.ofHours(1);
+        CouponEventActivatedEvent event = new CouponEventActivatedEvent(
+                eventId, totalQuantity, LocalDateTime.now().plusHours(1));
 
         // when
-        couponCacheManager.initializeStock(eventId, totalQuantity, ttl);
+        couponCacheManager.onCouponEventActivated(event);
 
         // then
-        verify(redisRepository).put(CacheKeys.couponStock(eventId), "100", ttl);
+        verify(redisRepository).put(
+                eq(CacheKeys.couponStock(eventId)),
+                eq("100"),
+                any(Duration.class)
+        );
     }
 
     // ── acquireMemberLockOrThrow ──────────────────────────────────────
@@ -123,6 +137,29 @@ class CouponCacheManagerUnitTest extends UnitTestSupport {
         // 보상 로직: 재고 복구 + 멤버 락 해제
         verify(redisRepository).increment(CacheKeys.couponStock(eventId));
         verify(redisRepository).delete(CacheKeys.couponMemberLock(eventId, memberId));
+    }
+
+    // ── recoverFromActivationFailure ─────────────────────────────────
+
+    @Test
+    void 재시도_최종_실패_시_recover_메서드가_호출되고_알림이_발송된다() {
+        // given: Redis 연결 실패
+        Long eventId = 1L;
+        int totalQuantity = 100;
+        LocalDateTime expiresAt = LocalDateTime.now().plusHours(1);
+        CouponEventActivatedEvent event = new CouponEventActivatedEvent(eventId, totalQuantity, expiresAt);
+        RedisConnectionFailureException cause = new RedisConnectionFailureException("Connection timeout");
+
+        // when: recover 메서드 직접 호출 (재시도 실패 후 @Recover가 호출하는 시뮬레이션)
+        assertThatCode(() -> couponCacheManager.recoverFromActivationFailure(cause, event))
+                .doesNotThrowAnyException();
+
+        // then: 로깅 + 에러 알림 발송 확인 (DB는 이미 커밋됨)
+        verify(errorNotificationSender).sendErrorNotification(
+                eq(String.format("쿠폰 재고 Redis 초기화 실패 - 쿠폰 ID: %d, 총 재고: %d, 만료 시각: %s, 원인: %s",
+                        eventId, totalQuantity, expiresAt, "Connection timeout")),
+                eq(cause)
+        );
     }
 
 }

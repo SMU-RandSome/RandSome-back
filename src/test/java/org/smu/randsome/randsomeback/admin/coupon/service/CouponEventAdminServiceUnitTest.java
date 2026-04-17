@@ -1,20 +1,14 @@
 package org.smu.randsome.randsomeback.admin.coupon.service;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
-import java.time.Duration;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
-import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponCacheManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventManager;
-import org.smu.randsome.randsomeback.fixture.CuponFixture;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventReader;
 
 class CouponEventAdminServiceUnitTest extends UnitTestSupport {
 
@@ -25,26 +19,21 @@ class CouponEventAdminServiceUnitTest extends UnitTestSupport {
     CouponEventManager couponEventManager;
 
     @Mock
+    CouponEventReader couponEventReader;
+
+    @Mock
     CouponCacheManager couponCacheManager;
 
     @Test
-    void 쿠폰_이벤트를_활성화하면_Redis에_재고를_초기화한다() {
+    void 쿠폰_이벤트를_활성화하면_Manager의_activate를_호출한다() {
         // given
         Long eventId = 1L;
-        CouponEvent event = CuponFixture.createCuponEvent();
-        ReflectionTestUtils.setField(event, "id", eventId);
-        given(couponEventManager.activate(eventId)).willReturn(event);
 
         // when
         couponEventAdminService.activateCouponEvent(eventId);
 
-        // then
+        // then: Redis 초기화는 AFTER_COMMIT 이벤트 리스너에 위임되므로 Manager 호출만 검증
         verify(couponEventManager).activate(eventId);
-        verify(couponCacheManager).initializeStock(
-                eq(eventId),
-                eq(event.getTotalQuantity()),
-                any(Duration.class)
-        );
     }
 
     @Test

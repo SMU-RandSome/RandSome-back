@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.domain.coupon.implement;
 
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.NewCouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.UpdateCouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
@@ -9,6 +10,7 @@ import org.smu.randsome.randsomeback.domain.coupon.repository.CouponEventJpaRepo
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponEventManager {
 
     private final CouponEventJpaRepository couponEventJpaRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public CouponEvent register(NewCouponEvent newCouponEvent) {
@@ -60,14 +63,19 @@ public class CouponEventManager {
         event.delete();
     }
 
+    /**
+     * 쿠폰 이벤트 활성화 <br>
+     * - 이벤트 상태를 활성화로 변경한다. <br>
+     * - 커밋 후 CouponEventActivatedEvent를 발행하여 Redis에 재고 초기화 및 락 설정을 트리거한다. <br>
+     * */
     @Transactional
-    public CouponEvent activate(Long couponEventId) {
+    public void activate(Long couponEventId) {
         CouponEvent event = couponEventJpaRepository.findByIdAndStatus(couponEventId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_COUPON_EVENT));
 
         event.activate(LocalDateTime.now());
 
-        return event;
+        eventPublisher.publishEvent(new CouponEventActivatedEvent(event.getId(), event.getTotalQuantity(), event.getExpiresAt()));
     }
 
     @Transactional
