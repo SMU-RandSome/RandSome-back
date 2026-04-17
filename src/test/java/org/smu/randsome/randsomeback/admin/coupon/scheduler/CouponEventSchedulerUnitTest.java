@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.admin.coupon.service.CouponEventAdminService;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
+import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventReader;
 import org.smu.randsome.randsomeback.domain.scheduler.CouponEventScheduler;
 import org.smu.randsome.randsomeback.fixture.CuponFixture;
@@ -26,6 +27,9 @@ class CouponEventSchedulerUnitTest extends UnitTestSupport {
 
     @Mock
     CouponEventReader couponEventReader;
+
+    @Mock
+    CouponEventManager couponEventManager;
 
     @Mock
     CouponEventAdminService couponEventAdminService;
@@ -47,8 +51,8 @@ class CouponEventSchedulerUnitTest extends UnitTestSupport {
 
         // then
         verify(couponEventReader).findDraftEventsReadyToActivate(any(LocalDateTime.class));
-        verify(couponEventAdminService).activateCouponEvent(1L);
-        verify(couponEventAdminService).activateCouponEvent(2L);
+        verify(couponEventManager).activate(1L);
+        verify(couponEventManager).activate(2L);
     }
 
     @Test
@@ -62,7 +66,7 @@ class CouponEventSchedulerUnitTest extends UnitTestSupport {
 
         // then
         verify(couponEventReader).findDraftEventsReadyToActivate(any(LocalDateTime.class));
-        verify(couponEventAdminService, never()).activateCouponEvent(any(Long.class));
+        verify(couponEventManager, never()).activate(any(Long.class));
     }
 
     @Test
@@ -76,14 +80,14 @@ class CouponEventSchedulerUnitTest extends UnitTestSupport {
         given(couponEventReader.findDraftEventsReadyToActivate(any(LocalDateTime.class)))
                 .willReturn(List.of(event1, event2));
         willThrow(new RuntimeException("활성화 실패"))
-                .given(couponEventAdminService).activateCouponEvent(1L);
+                .given(couponEventManager).activate(1L);
 
         // when
         couponEventScheduler.activateDueEvents();
 
         // then
-        verify(couponEventAdminService).activateCouponEvent(1L);
-        verify(couponEventAdminService).activateCouponEvent(2L);
+        verify(couponEventManager).activate(1L);
+        verify(couponEventManager).activate(2L);
     }
 
     @Test
@@ -103,8 +107,8 @@ class CouponEventSchedulerUnitTest extends UnitTestSupport {
 
         // then
         verify(couponEventReader).findActiveEventsReadyToEnd(any(LocalDateTime.class));
-        verify(couponEventAdminService).deactivateCouponEvent(1L);
-        verify(couponEventAdminService).deactivateCouponEvent(2L);
+        verify(couponEventManager).deactivate(1L);
+        verify(couponEventManager).deactivate(2L);
     }
 
     @Test
@@ -118,14 +122,14 @@ class CouponEventSchedulerUnitTest extends UnitTestSupport {
         given(couponEventReader.findActiveEventsReadyToEnd(any(LocalDateTime.class)))
                 .willReturn(List.of(event1, event2));
         willThrow(new RuntimeException("종료 실패"))
-                .given(couponEventAdminService).deactivateCouponEvent(1L);
+                .given(couponEventManager).deactivate(1L);
 
         // when
         couponEventScheduler.deactivateDueEvents();
 
         // then
-        verify(couponEventAdminService).deactivateCouponEvent(1L);
-        verify(couponEventAdminService).deactivateCouponEvent(2L);
+        verify(couponEventManager).deactivate(1L);
+        verify(couponEventManager).deactivate(2L);
     }
 
     @Test
@@ -139,7 +143,7 @@ class CouponEventSchedulerUnitTest extends UnitTestSupport {
 
         // then
         verify(couponEventReader).findActiveEventsReadyToEnd(any(LocalDateTime.class));
-        verify(couponEventAdminService, never()).deactivateCouponEvent(any(Long.class));
+        verify(couponEventManager, never()).deactivate(any(Long.class));
     }
 
 }

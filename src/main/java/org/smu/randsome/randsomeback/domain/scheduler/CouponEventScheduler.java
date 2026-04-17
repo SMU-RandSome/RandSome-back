@@ -5,8 +5,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
-import org.smu.randsome.randsomeback.admin.coupon.service.CouponEventAdminService;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
+import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventReader;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 public class CouponEventScheduler {
 
     private final CouponEventReader couponEventReader;
-    private final CouponEventAdminService couponEventAdminService;
+    private final CouponEventManager couponEventManager;
 
     /**
      * 쿠폰 이벤트 활성화 스케줄러 <br>
@@ -30,7 +30,7 @@ public class CouponEventScheduler {
         List<CouponEvent> events = couponEventReader.findDraftEventsReadyToActivate(LocalDateTime.now());
         events.forEach(event -> {
             try {
-                couponEventAdminService.activateCouponEvent(event.getId());
+                couponEventManager.activate(event.getId());
             } catch (Exception e) {
                 log.error("[CouponEventScheduler] 쿠폰 이벤트 활성화 실패 - eventId: {}", event.getId(), e);
             }
@@ -48,7 +48,7 @@ public class CouponEventScheduler {
         List<CouponEvent> events = couponEventReader.findActiveEventsReadyToEnd(LocalDateTime.now());
         events.forEach(event -> {
             try {
-                couponEventAdminService.deactivateCouponEvent(event.getId());
+                couponEventManager.deactivate(event.getId());
             } catch (Exception e) {
                 log.error("[CouponEventScheduler] 쿠폰 이벤트 종료 실패 - eventId: {}", event.getId(), e);
             }

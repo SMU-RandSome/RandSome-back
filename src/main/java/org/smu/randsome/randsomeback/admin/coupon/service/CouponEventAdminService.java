@@ -1,7 +1,5 @@
 package org.smu.randsome.randsomeback.admin.coupon.service;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.NewCouponEvent;
@@ -67,25 +65,21 @@ public class CouponEventAdminService {
     }
 
     /**
-     * 쿠폰 이벤트 활성화 및 Redis stock 초기화
+     * 쿠폰 이벤트 활성화
+     * DB 커밋 후 이벤트 리스너가 Redis stock을 초기화한다.
      * @param couponEventId 활성화할 쿠폰 이벤트 ID
      * */
-    @Transactional
     public void activateCouponEvent(Long couponEventId) {
-        CouponEvent event = couponEventManager.activate(couponEventId);
-
-        Duration ttl = Duration.between(LocalDateTime.now(), event.getExpiresAt());
-        couponCacheManager.initializeStock(couponEventId, event.getTotalQuantity(), ttl);
+        couponEventManager.activate(couponEventId);
     }
 
     /**
-     * 쿠폰 이벤트 비활성화 및 Redis stock 삭제
+     * 쿠폰 이벤트 비활성화
+     * DB 커밋 후 이벤트 리스너가 Redis stock을 삭제한다.
      * @param couponEventId 비활성화할 쿠폰 이벤트 ID
      * */
-    @Transactional
     public void deactivateCouponEvent(Long couponEventId) {
         couponEventManager.deactivate(couponEventId);
-        couponCacheManager.deleteStock(couponEventId);
     }
 
 }
