@@ -83,6 +83,9 @@ public class CouponCacheManager {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCompletion(int status) {
+                if (status != TransactionSynchronization.STATUS_ROLLED_BACK) {
+                    return;
+                }
                 try {
                     compensate(eventId, memberId);
                     log.warn("쿠폰 발급 트랜잭션 롤백 감지 - Redis 보상 처리 완료: eventId={}, memberId={}", eventId, memberId);
