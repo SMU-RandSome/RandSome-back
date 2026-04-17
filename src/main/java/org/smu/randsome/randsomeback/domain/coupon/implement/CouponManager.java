@@ -11,12 +11,15 @@ import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
 public class CouponManager {
+
+    private static final Duration MEMBER_LOCK_TTL = Duration.ofMinutes(5);
 
     private final CouponReader couponReader;
     private final CouponEventReader couponEventReader;
@@ -47,13 +50,18 @@ public class CouponManager {
         Member member = memberReader.getReference(memberId);
 
         // Redis 기반 동시성 제어
-        Duration ttl = calculateTtl(couponEvent, now);
-        couponCacheManager.acquireMemberLockOrThrow(couponEventId, memberId, ttl);
+        // TTL을 짧게 고정해 크래시 발생 시 사용자가 단시간 내 재시도할 수 있도록 한다.
+        // 실제 중복 발급 방지는 DB unique constraint(UK_CUPON_EVENT_MEMBER)가 보장한다.
+        couponCacheManager.acquireMemberLockOrThrow(couponEventId, memberId, MEMBER_LOCK_TTL);
         couponCacheManager.decrementStockOrThrow(couponEventId, memberId);
 
         Coupon coupon = Coupon.issue(couponEvent, member);
 
-        return couponRepository.save(coupon).getId();
+        try {
+            return couponRepository.saveAndFlush(coupon).getId();
+        } catch (DataIntegrityViolationException e) {
+            throw new CoreException(ErrorType.ALREADY_ISSUED_COUPON);
+        }
     }
 
     @Transactional
@@ -64,8 +72,5 @@ public class CouponManager {
         couponRepository.saveAll(coupons);
     }
 
-    private Duration calculateTtl(CouponEvent couponEvent, LocalDateTime now) {
-        return Duration.between(now, couponEvent.getExpiresAt());
-    }
 
 }

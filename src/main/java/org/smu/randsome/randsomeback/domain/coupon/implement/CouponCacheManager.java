@@ -1,7 +1,6 @@
 package org.smu.randsome.randsomeback.domain.coupon.implement;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
@@ -18,6 +17,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Component
@@ -60,6 +61,8 @@ public class CouponCacheManager {
     /**
      * 재고를 원자적으로 1 감소시킨다.
      * 반환값이 음수이면 재고가 소진된 것이므로 보상 후 예외를 던진다.
+     * DB 트랜잭션 롤백 시(Soft fail) Redis 상태를 원상복구하도록 보상 콜백을 등록한다.
+     * Hard crash(OOM, kill -9) 시에는 콜백이 실행되지 않으므로, member lock의 짧은 TTL로 복구를 보완한다.
      */
     public void decrementStockOrThrow(Long eventId, Long memberId) {
         String stockKey = CacheKeys.couponStock(eventId);
@@ -69,6 +72,25 @@ public class CouponCacheManager {
             compensate(eventId, memberId);
             throw new CoreException(ErrorType.COUPON_SOLD_OUT);
         }
+
+        registerRollbackCompensation(eventId, memberId);
+    }
+
+    private void registerRollbackCompensation(Long eventId, Long memberId) {
+        if (!TransactionSynchronizationManager.isActualTransactionActive()) {
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                try {
+                    compensate(eventId, memberId);
+                    log.warn("쿠폰 발급 트랜잭션 롤백 감지 - Redis 보상 처리 완료: eventId={}, memberId={}", eventId, memberId);
+                } catch (Exception e) {
+                    log.error("쿠폰 발급 트랜잭션 롤백 보상 처리 중 실패: eventId={}, memberId={}", eventId, memberId, e);
+                }
+            }
+        });
     }
 
     /**
