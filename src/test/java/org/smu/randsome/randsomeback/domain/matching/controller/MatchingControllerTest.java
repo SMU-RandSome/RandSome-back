@@ -7,8 +7,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.dto.request.MatchingApplyRequest;
+import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
+import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
+import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,9 +21,16 @@ class MatchingControllerTest extends ControllerTestSupport {
 
     @Test
     @TestMember
-    void 매칭_신청에_성공하면_200을_반환한다() throws Exception {
+    void 매칭_신청에_성공하면_200과_매칭_결과를_반환한다() throws Exception {
         // given
         var request = MatchingApplyRequest.forRandom(2);
+
+        given(matchingService.apply(any(), any()))
+                .willReturn(MatchingApplication.apply(
+                        Mockito.mock(Member.class),
+                        MatchingType.RANDOM,
+                        3
+                ));
 
         // when & then
         assertThat(mvcTester.post().uri("/v1/matchings")
@@ -29,6 +40,12 @@ class MatchingControllerTest extends ControllerTestSupport {
                 .hasStatusOk()
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data", v -> v.assertThat().isNotNull())
+                .hasPathSatisfying("$.data.requestedCount", v -> v.assertThat().isEqualTo(3))
+                .hasPathSatisfying("$.data.matchingType", v -> v.assertThat().isEqualTo("RANDOM"))
+                .hasPathSatisfying("$.data.matchedCount", v -> v.assertThat().isNotNull())
+                .hasPathSatisfying("$.data.refundedTickets", v -> v.assertThat().isNotNull())
+                .hasPathSatisfying("$.data.isPartialMatch", v -> v.assertThat().isNotNull())
                 .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
     }
 

@@ -67,6 +67,8 @@ public class MatchingApplication extends BaseEntity {
     @Version
     private Long version;
 
+    private Integer matchedCount;
+
     private LocalDateTime completedAt;
 
     private LocalDateTime cancelledAt;
@@ -113,6 +115,8 @@ public class MatchingApplication extends BaseEntity {
         matchingApplication.applicationCount = applicationCount;
         matchingApplication.applicationStatus = ApplicationStatus.PENDING;
         matchingApplication.cancelledAt = null;
+        matchingApplication.completedAt = null;
+        matchingApplication.matchedCount = null;
 
         if (idealTypePreference != null) {
             matchingApplication.preferredPersonalityTag = idealTypePreference.preferredPersonalityTag();
@@ -143,9 +147,10 @@ public class MatchingApplication extends BaseEntity {
      *
      * @param completedAt 매칭 완료 시각
      */
-    public void complete(LocalDateTime completedAt) {
+    public void complete(LocalDateTime completedAt, int matchedCount) {
         this.applicationStatus = ApplicationStatus.SUCCESS;
         this.completedAt = requireNonNull(completedAt);
+        this.matchedCount = matchedCount;
     }
 
     /**

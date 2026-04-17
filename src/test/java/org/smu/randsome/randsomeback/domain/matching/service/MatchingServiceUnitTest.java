@@ -51,15 +51,60 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .build();
 
         var application = mock(MatchingApplication.class);
+        given(application.getApplicationCount()).willReturn(2);
+        given(application.getMatchedCount()).willReturn(2);
+        given(matchingManager.apply(newMatching, memberId)).willReturn(application);
+
+        // when
+        var result = matchingService.apply(newMatching, memberId);
+
+        // then
+        assertThat(result).isEqualTo(application);
+        verify(ticketHandler).deduct(memberId, newMatching);
+        verify(matchingManager).apply(newMatching, memberId);
+        verify(matchingManager).executeMatching(eq(application), any());
+    }
+
+    @Test
+    void 부분_매칭_시_refundForPartialMatch를_호출한다() {
+        // given
+        var memberId = 1L;
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(3)
+                .build();
+
+        var application = mock(MatchingApplication.class);
+        given(application.getApplicationCount()).willReturn(3);
+        given(application.getMatchedCount()).willReturn(1);
         given(matchingManager.apply(newMatching, memberId)).willReturn(application);
 
         // when
         matchingService.apply(newMatching, memberId);
 
         // then
-        verify(ticketHandler).deduct(memberId, newMatching);
-        verify(matchingManager).apply(newMatching, memberId);
-        verify(matchingManager).executeMatching(eq(application), any());
+        verify(ticketHandler).refundForPartialMatch(memberId, MatchingType.RANDOM, 3, 1);
+    }
+
+    @Test
+    void 완전_매칭_시_refundForPartialMatch를_호출한다() {
+        // given: refundForPartialMatch는 내부에서 refund 필요 여부를 판단하므로 항상 호출됨
+        var memberId = 1L;
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(2)
+                .build();
+
+        var application = mock(MatchingApplication.class);
+        given(application.getApplicationCount()).willReturn(2);
+        given(application.getMatchedCount()).willReturn(2);
+        given(matchingManager.apply(newMatching, memberId)).willReturn(application);
+
+        // when
+        matchingService.apply(newMatching, memberId);
+
+        // then
+        verify(ticketHandler).refundForPartialMatch(memberId, MatchingType.RANDOM, 2, 2);
     }
 
     @Test
@@ -82,7 +127,7 @@ class MatchingServiceUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 티켓_차감_순서는_매칭_신청_생성보다_먼저다() {
+    void 실행_순서는_차감_신청_실행_환불_순이다() {
         // given
         var memberId = 1L;
         var newMatching = NewMatching.builder()
@@ -91,6 +136,8 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .build();
 
         var application = mock(MatchingApplication.class);
+        given(application.getApplicationCount()).willReturn(2);
+        given(application.getMatchedCount()).willReturn(2);
         given(matchingManager.apply(newMatching, memberId)).willReturn(application);
 
         var order = org.mockito.Mockito.inOrder(ticketHandler, matchingManager);
@@ -102,6 +149,7 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         order.verify(ticketHandler).deduct(memberId, newMatching);
         order.verify(matchingManager).apply(newMatching, memberId);
         order.verify(matchingManager).executeMatching(eq(application), any());
+        order.verify(ticketHandler).refundForPartialMatch(memberId, MatchingType.RANDOM, 2, 2);
     }
 
     @Test

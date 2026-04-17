@@ -62,20 +62,52 @@ class MatchingApplicationTest extends UnitTestSupport {
     void 매칭_신청을_완료한다() {
         // given
         var member = mock(Member.class);
-        var application = MatchingApplication.apply(member, MatchingType.RANDOM, 2);
+        var application = MatchingApplication.apply(member, MatchingType.RANDOM, 3);
         var now = TestDateTimeUtils.now();
 
         // when
-        application.complete(now);
+        application.complete(now, 3);
 
         // then
         assertThat(application).extracting(
                 MatchingApplication::getApplicationStatus,
-                MatchingApplication::getCompletedAt
+                MatchingApplication::getCompletedAt,
+                MatchingApplication::getMatchedCount
         ).containsExactly(
                 ApplicationStatus.SUCCESS,
-                now
+                now,
+                3
         );
+    }
+
+    @Test
+    void 부분_매칭_완료_시_matchedCount에_실제_매칭_수가_저장된다() {
+        // given
+        var member = mock(Member.class);
+        var application = MatchingApplication.apply(member, MatchingType.RANDOM, 5);
+        var now = TestDateTimeUtils.now();
+
+        // when
+        application.complete(now, 3);
+
+        // then
+        assertThat(application.getMatchedCount()).isEqualTo(3);
+        assertThat(application.getApplicationCount()).isEqualTo(5);
+        assertThat(application.getApplicationStatus()).isEqualTo(ApplicationStatus.SUCCESS);
+    }
+
+    @Test
+    void 후보자_없이_완료_시_matchedCount가_0이다() {
+        // given
+        var member = mock(Member.class);
+        var application = MatchingApplication.apply(member, MatchingType.RANDOM, 3);
+
+        // when
+        application.complete(TestDateTimeUtils.now(), 0);
+
+        // then
+        assertThat(application.getMatchedCount()).isZero();
+        assertThat(application.getApplicationStatus()).isEqualTo(ApplicationStatus.SUCCESS);
     }
 
     @Test
@@ -103,7 +135,7 @@ class MatchingApplicationTest extends UnitTestSupport {
         // given
         var member = mock(Member.class);
         var application = MatchingApplication.apply(member, MatchingType.RANDOM, 2);
-        application.complete(TestDateTimeUtils.now());
+        application.complete(TestDateTimeUtils.now(), 2);
 
         // when & then
         assertThatThrownBy(() -> application.cancel(TestDateTimeUtils.now()))

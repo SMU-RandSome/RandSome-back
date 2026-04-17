@@ -4,8 +4,10 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.matching.dto.request.MatchingApplyRequest;
+import org.smu.randsome.randsomeback.domain.matching.dto.response.MatchingApplicationResponse;
 import org.smu.randsome.randsomeback.domain.matching.dto.response.MatchingHistoryItem;
 import org.smu.randsome.randsomeback.domain.matching.dto.response.MatchingResultDetailItem;
+import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.service.MatchingService;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
@@ -23,13 +25,13 @@ public class MatchingController extends MatchingControllerDocs {
 
     @Override
     @PostMapping("/v1/matchings")
-    public ApiResponse<?> apply(
+    public ApiResponse<MatchingApplicationResponse> apply(
             @RequestBody @Valid MatchingApplyRequest request,
             @LoginMember Long memberId
     ) {
-        matchingService.apply(request.toNewMatching(), memberId);
+        MatchingApplication matchingApplication = matchingService.apply(request.toNewMatching(), memberId);
 
-        return ApiResponse.success();
+        return ApiResponse.success(MatchingApplicationResponse.of(matchingApplication));
     }
 
     @Override

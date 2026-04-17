@@ -113,7 +113,7 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void 매칭을_실행하면_SUCCESS_상태와_완료_시각이_저장된다() {
+    void 매칭을_실행하면_SUCCESS_상태와_완료_시각과_매칭_수가_저장된다() {
         // given
         var member = memberJpaRepository.save(MemberFixture.create());
         var newMatching = NewMatching.builder()
@@ -126,14 +126,16 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
         // when
         matchingManager.executeMatching(application, completedAt);
 
-        // then
+        // then: 후보자 없으므로 matchedCount=0, 상태는 SUCCESS
         var result = matchingJpaRepository.findById(application.getId()).orElseThrow();
         assertThat(result).extracting(
                 MatchingApplication::getApplicationStatus,
-                MatchingApplication::getCompletedAt
+                MatchingApplication::getCompletedAt,
+                MatchingApplication::getMatchedCount
         ).containsExactly(
                 ApplicationStatus.SUCCESS,
-                completedAt
+                completedAt,
+                0
         );
     }
 
