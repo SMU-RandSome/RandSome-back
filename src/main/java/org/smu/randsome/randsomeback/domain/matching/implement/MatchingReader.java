@@ -49,9 +49,11 @@ public class MatchingReader {
                 EntityStatus.ACTIVE
         );
 
-        // 매칭이 완료되었다면 결과가 존재해야 한다. 결과가 없다면 승인된 매칭이 없는 것으로 간주한다.
         if (matchingResults.isEmpty()) {
-            throw new CoreException(ErrorType.NOT_FOUND_APPROVED_MATCHING);
+            if (matchingRepository.existsByIdAndMemberIdAndStatus(applicationId, memberId, EntityStatus.ACTIVE)) {
+                throw new CoreException(ErrorType.NOT_FOUND_MATCHING_RESULT);
+            }
+            throw new CoreException(ErrorType.NOT_FOUND_MATCHING);
         }
 
         return matchingResults;
