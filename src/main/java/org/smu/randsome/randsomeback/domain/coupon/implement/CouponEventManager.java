@@ -71,12 +71,13 @@ public class CouponEventManager {
      * */
     @Transactional
     public void activate(Long couponEventId) {
+        LocalDateTime now = LocalDateTime.now();
         CouponEvent event = couponEventJpaRepository.findByIdAndStatus(couponEventId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_COUPON_EVENT));
 
-        event.activate(LocalDateTime.now());
+        event.activate(now);
 
-        eventPublisher.publishEvent(new CouponEventActivatedEvent(event.getId(), event.getTotalQuantity(), event.getExpiresAt()));
+        eventPublisher.publishEvent(new CouponEventActivatedEvent(event.getId(), event.getTotalQuantity(), now, event.getExpiresAt()));
     }
 
     /**

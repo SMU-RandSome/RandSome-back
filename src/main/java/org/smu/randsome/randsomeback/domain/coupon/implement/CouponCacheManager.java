@@ -30,6 +30,7 @@ public class CouponCacheManager {
     /**
      * 이벤트 활성화 시 Redis에 재고 키를 초기화한다.
      * TTL은 이벤트 만료 시각까지의 남은 시간으로 설정한다.
+     * activatedAt은 activate() 검증 시점과 동일하므로, TTL은 항상 양수임이 보장된다.
      * Redis 연결 실패 시 최대 3회(1s → 2s 간격) 재시도한다.
      */
     @Retryable(
@@ -40,7 +41,7 @@ public class CouponCacheManager {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onCouponEventActivated(CouponEventActivatedEvent event) {
         String key = CacheKeys.couponStock(event.couponEventId());
-        Duration ttl = Duration.between(LocalDateTime.now(), event.expiresAt());
+        Duration ttl = Duration.between(event.activatedAt(), event.expiresAt());
         redisRepository.put(key, String.valueOf(event.totalQuantity()), ttl);
     }
 

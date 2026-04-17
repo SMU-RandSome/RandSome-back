@@ -41,8 +41,9 @@ class CouponCacheManagerUnitTest extends UnitTestSupport {
         // given
         Long eventId = 1L;
         int totalQuantity = 100;
+        LocalDateTime activatedAt = LocalDateTime.now();
         CouponEventActivatedEvent event = new CouponEventActivatedEvent(
-                eventId, totalQuantity, LocalDateTime.now().plusHours(1));
+                eventId, totalQuantity, activatedAt, activatedAt.plusHours(1));
 
         // when
         couponCacheManager.onCouponEventActivated(event);
@@ -147,8 +148,9 @@ class CouponCacheManagerUnitTest extends UnitTestSupport {
         // given: Redis 연결 실패
         Long eventId = 1L;
         int totalQuantity = 100;
-        LocalDateTime expiresAt = LocalDateTime.now().plusHours(1);
-        CouponEventActivatedEvent event = new CouponEventActivatedEvent(eventId, totalQuantity, expiresAt);
+        LocalDateTime activatedAt = LocalDateTime.now();
+        LocalDateTime expiresAt = activatedAt.plusHours(1);
+        CouponEventActivatedEvent event = new CouponEventActivatedEvent(eventId, totalQuantity, activatedAt, expiresAt);
         RedisConnectionFailureException cause = new RedisConnectionFailureException("Connection timeout");
 
         // when: recover 메서드 직접 호출 (재시도 실패 후 @Recover가 호출하는 시뮬레이션)
