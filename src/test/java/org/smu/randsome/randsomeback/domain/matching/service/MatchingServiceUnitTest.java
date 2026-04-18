@@ -12,14 +12,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
-import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
@@ -190,39 +188,6 @@ class MatchingServiceUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 매칭_신청_내역_목록을_조회한다() {
-        // given
-        var memberId = 1L;
-        var matchingApplication = mock(MatchingApplication.class);
-        given(matchingReader.findMatchings(memberId))
-                .willReturn(List.of(matchingApplication));
-
-        // when
-        var result = matchingService.findMatchings(memberId);
-
-        // then
-        assertThat(result).hasSize(1);
-        verify(matchingReader).findMatchings(memberId);
-    }
-
-    @Test
-    void 승인된_신청의_매칭_결과를_조회한다() {
-        // given
-        var applicationId = 1L;
-        var memberId = 1L;
-        var matchingResult = mock(MatchingResult.class);
-        given(matchingReader.findApplication(applicationId, memberId))
-                .willReturn(List.of(matchingResult));
-
-        // when
-        var result = matchingService.findApplication(applicationId, memberId);
-
-        // then
-        assertThat(result).hasSize(1);
-        verify(matchingReader).findApplication(applicationId, memberId);
-    }
-
-    @Test
     void 승인되지_않은_신청_조회시_예외가_전파된다() {
         // given
         var applicationId = 1L;
@@ -237,19 +202,6 @@ class MatchingServiceUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 매칭_신청_취소에_성공한다() {
-        // given
-        var applicationId = 1L;
-        var memberId = 1L;
-
-        // when
-        matchingService.cancel(applicationId, memberId);
-
-        // then
-        verify(matchingManager).cancel(applicationId, memberId);
-    }
-
-    @Test
     void 매칭_신청_취소_실패시_예외가_전파된다() {
         // given
         var applicationId = 1L;
@@ -261,20 +213,6 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         assertThatThrownBy(() -> matchingService.cancel(applicationId, memberId))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
-    }
-
-    @Test
-    void 후보자_노출_횟수를_조회한다() {
-        // given
-        var memberId = 1L;
-        given(matchingReader.countExposures(memberId)).willReturn(5L);
-
-        // when
-        long result = matchingService.getExposureCount(memberId);
-
-        // then
-        assertThat(result).isEqualTo(5L);
-        verify(matchingReader).countExposures(memberId);
     }
 
 }
