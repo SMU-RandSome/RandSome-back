@@ -14,6 +14,7 @@ import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.security.annotation.TestMember;
+import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -25,12 +26,14 @@ class MatchingControllerTest extends ControllerTestSupport {
         // given
         var request = MatchingApplyRequest.forRandom(2);
 
+        var matchingApplication = MatchingApplication.apply(
+                Mockito.mock(Member.class),
+                MatchingType.RANDOM,
+                3
+        );
+        matchingApplication.complete(TestDateTimeUtils.now(), 3);
         given(matchingService.apply(any(), any()))
-                .willReturn(MatchingApplication.apply(
-                        Mockito.mock(Member.class),
-                        MatchingType.RANDOM,
-                        3
-                ));
+                .willReturn(matchingApplication);
 
         // when & then
         assertThat(mvcTester.post().uri("/v1/matchings")
@@ -43,7 +46,7 @@ class MatchingControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.data", v -> v.assertThat().isNotNull())
                 .hasPathSatisfying("$.data.requestedCount", v -> v.assertThat().isEqualTo(3))
                 .hasPathSatisfying("$.data.matchingType", v -> v.assertThat().isEqualTo("RANDOM"))
-                .hasPathSatisfying("$.data.matchedCount", v -> v.assertThat().isNotNull())
+                .hasPathSatisfying("$.data.matchedCount", v -> v.assertThat().isEqualTo(3))
                 .hasPathSatisfying("$.data.refundedTickets", v -> v.assertThat().isNotNull())
                 .hasPathSatisfying("$.data.isPartialMatch", v -> v.assertThat().isNotNull())
                 .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
