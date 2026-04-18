@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.domain.feed;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ class FeedReaderIntegrationTest extends IntegrationTestSupport {
 
     final FeedReader feedReader;
     final MatchingFeedEventRepository matchingFeedEventRepository;
+    final EntityManager entityManager;
 
     @Test
     void 최신_피드를_최대_10건_최신순으로_반환한다() {
@@ -66,6 +68,7 @@ class FeedReaderIntegrationTest extends IntegrationTestSupport {
         var active = matchingFeedEventRepository.save(MatchingFeedEvent.recordMatchRequest("남성#EEEEEE05", 1));
         var deleted = matchingFeedEventRepository.save(MatchingFeedEvent.recordCandidateRegister("여성#FFFFFF06"));
         deleted.delete();
+        entityManager.flush();
 
         // when
         List<MatchingFeedEvent> result = feedReader.getLatest();
