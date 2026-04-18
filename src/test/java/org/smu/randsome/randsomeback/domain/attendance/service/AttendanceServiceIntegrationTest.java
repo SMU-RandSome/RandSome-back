@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.attendance.repository.AttendanceJpaRepository;
@@ -23,14 +23,13 @@ import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
 import org.smu.randsome.randsomeback.domain.ticket.repository.TicketHistoryRepository;
 import org.smu.randsome.randsomeback.domain.ticket.repository.TicketJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
+import org.smu.randsome.randsomeback.global.config.CacheKeys;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
 @RequiredArgsConstructor
 class AttendanceServiceIntegrationTest extends IntegrationTestSupport {
 
@@ -44,12 +43,16 @@ class AttendanceServiceIntegrationTest extends IntegrationTestSupport {
     final RedisRepository redisRepository;
     final StringRedisTemplate redisTemplate;
 
-    @BeforeEach
-    void setUp() {
+    @AfterEach
+    void tearDown() {
         Set<String> keys = redisTemplate.keys("attendance:*");
         if (!keys.isEmpty()) {
             redisTemplate.delete(keys);
         }
+        ticketHistoryRepository.deleteAll();
+        attendanceJpaRepository.deleteAll();
+        ticketJpaRepository.deleteAll();
+        memberJpaRepository.deleteAll();
     }
 
     @Test
@@ -84,8 +87,8 @@ class AttendanceServiceIntegrationTest extends IntegrationTestSupport {
                 tuple(TicketType.RANDOM, TicketActionType.EARN, TicketSource.ATTENDANCE)
         );
 
-        // 4. Redis 캐시 확인
-        assertThat(redisRepository.get("attendance:" + memberId + ":" + today)).isNotNull();
+        // 4. DB 커밋 이후 Redis 캐시 기록 확인
+        assertThat(redisRepository.get(CacheKeys.attendance(memberId, today))).isNotNull();
     }
 
     @Test
@@ -97,7 +100,7 @@ class AttendanceServiceIntegrationTest extends IntegrationTestSupport {
         LocalDate today = LocalDate.now();
 
         attendanceService.attend(memberId);
-        assertThat(redisRepository.get("attendance:" + memberId + ":" + today)).isNotNull();
+        assertThat(redisRepository.get(CacheKeys.attendance(memberId, today))).isNotNull();
 
         // when & then
         assertThatThrownBy(() -> attendanceService.attend(memberId))
@@ -118,7 +121,7 @@ class AttendanceServiceIntegrationTest extends IntegrationTestSupport {
         // 캐시 강제 삭제 (DB에는 기록이 남아있는 상태)
         Set<String> keys = redisTemplate.keys("attendance:" + memberId + ":*");
         redisTemplate.delete(keys);
-        assertThat(redisRepository.get("attendance:" + memberId + ":" + today)).isNull();
+        assertThat(redisRepository.get(CacheKeys.attendance(memberId, today))).isNull();
 
         // when & then
         assertThatThrownBy(() -> attendanceService.attend(memberId))
