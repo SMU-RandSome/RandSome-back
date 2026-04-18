@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.data.redis.RedisConnectionFailureException;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
 import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventDeactivatedEvent;
@@ -22,6 +21,7 @@ import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
+import org.springframework.data.redis.RedisConnectionFailureException;
 
 class CouponCacheManagerUnitTest extends UnitTestSupport {
 
