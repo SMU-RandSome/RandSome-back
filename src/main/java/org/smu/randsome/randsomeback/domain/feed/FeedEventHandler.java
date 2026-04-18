@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.candidate.event.CandidateRegistrationApprovedEvent;
 import org.smu.randsome.randsomeback.domain.matching.event.MatchingApplicationCompletedEvent;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ public class FeedEventHandler {
 
     private final FeedManager feedManager;
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onCandidateRegistrationApproved(CandidateRegistrationApprovedEvent event) {
@@ -31,6 +33,7 @@ public class FeedEventHandler {
         }
     }
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onMatchingApplicationSuccess(MatchingApplicationCompletedEvent event) {
