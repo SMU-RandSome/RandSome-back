@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
+import org.smu.randsome.randsomeback.domain.attendance.event.AttendanceCheckedEvent;
 import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
 
 class AttendanceCacheManagerUnitTest extends UnitTestSupport {
@@ -28,7 +29,7 @@ class AttendanceCacheManagerUnitTest extends UnitTestSupport {
         String expectedKey = "attendance:" + memberId + ":" + today;
 
         // when
-        attendanceCacheManager.markAttendedToday(memberId, today);
+        attendanceCacheManager.handle(new AttendanceCheckedEvent(memberId, today));
 
         // then
         verify(redisRepository).put(eq(expectedKey), eq("1"), any(Duration.class));
