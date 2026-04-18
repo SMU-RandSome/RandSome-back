@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,11 @@ class FeedReaderIntegrationTest extends IntegrationTestSupport {
     final FeedReader feedReader;
     final MatchingFeedEventRepository matchingFeedEventRepository;
     final EntityManager entityManager;
+
+    @BeforeEach
+    void setUp() {
+        matchingFeedEventRepository.deleteAll();
+    }
 
     @Test
     void 최신_피드를_최대_10건_최신순으로_반환한다() {
