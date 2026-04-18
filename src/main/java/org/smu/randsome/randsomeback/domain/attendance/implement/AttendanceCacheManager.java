@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.smu.randsome.randsomeback.global.config.CacheKeys;
 import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
 import org.springframework.stereotype.Component;
 
@@ -13,18 +14,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AttendanceCacheManager {
 
-    protected static final String KEY_PREFIX = "attendance:";
-
     private final RedisRepository redisRepository;
 
     public void markAttendedToday(Long memberId, LocalDate date) {
-        redisRepository.put(buildKey(memberId, date), "1", calculateTtlUntilMidnight(date));
+        redisRepository.put(CacheKeys.attendance(memberId, date), "1", calculateTtlUntilMidnight(date));
 
         log.info("[AttendanceCacheManager] 출석 체크 Redis 캐시에 저장 - memberId={}, date={}", memberId, date);
-    }
-
-    private String buildKey(Long memberId, LocalDate date) {
-        return KEY_PREFIX + memberId + ":" + date;
     }
 
     private Duration calculateTtlUntilMidnight(LocalDate date) {

@@ -1,9 +1,8 @@
 package org.smu.randsome.randsomeback.domain.attendance.implement;
 
-import static org.smu.randsome.randsomeback.domain.attendance.implement.AttendanceCacheManager.KEY_PREFIX;
-
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.global.config.CacheKeys;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
@@ -22,11 +21,7 @@ public class AttendanceValidator {
     }
 
     private boolean isAttendedToday(Long memberId, LocalDate date) {
-        return redisRepository.get(buildKey(memberId, date)) != null;
-    }
-
-    private String buildKey(Long memberId, LocalDate date) {
-        return KEY_PREFIX + memberId + ":" + date;
+        return redisRepository.get(CacheKeys.attendance(memberId, date)) != null;
     }
 
 }
