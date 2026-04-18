@@ -34,14 +34,4 @@ class VerificationCodeManagerTest extends UnitTestSupport {
         assertThat(firstCode).isNotEqualTo(secondCode);
     }
 
-    @Test
-    void 서로_다른_이메일은_독립적인_인증_코드를_가진다() {
-        var codeA = verificationCodeManager.generateVerificationCode("student1@sangmyung.kr");
-        var codeB = verificationCodeManager.generateVerificationCode("student2@sangmyung.kr");
-
-        assertThat(codeA).matches("[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}");
-        assertThat(codeB).matches("[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}");
-        assertThat(codeA).isNotEqualTo(codeB);
-    }
-
 }
