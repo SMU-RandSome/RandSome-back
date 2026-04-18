@@ -69,6 +69,7 @@ class FeedReaderIntegrationTest extends IntegrationTestSupport {
         var deleted = matchingFeedEventRepository.save(MatchingFeedEvent.recordCandidateRegister("여성#FFFFFF06"));
         deleted.delete();
         entityManager.flush();
+        entityManager.clear();
 
         // when
         List<MatchingFeedEvent> result = feedReader.getLatest();
