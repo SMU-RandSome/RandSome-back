@@ -9,7 +9,6 @@ import org.smu.randsome.randsomeback.domain.coupon.implement.CouponCacheManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventReader;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service

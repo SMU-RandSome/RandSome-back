@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.smu.randsome.randsomeback.domain.qr.dto.request.QrVerifyRequest;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "관리자 QR 인증", description = "관리자 전용 QR 코드 인증 및 티켓 발급 API")

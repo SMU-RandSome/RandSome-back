@@ -11,7 +11,7 @@ import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberRestriction;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
-import org.smu.randsome.randsomeback.domain.member.repository.MemberRestricetionJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.repository.MemberRestrictionJpaRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberManager {
 
     private final MemberJpaRepository memberJpaRepository;
-    private final MemberRestricetionJpaRepository memberRestricetionJpaRepository;
+    private final MemberRestrictionJpaRepository memberRestrictionJpaRepository;
     private final PasswordEncoder passwordEncoder;
 
     public Member create(
@@ -112,7 +112,7 @@ public class MemberManager {
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
 
         member.suspend();
-        memberRestricetionJpaRepository.save(MemberRestriction.create(member, reason));
+        memberRestrictionJpaRepository.save(MemberRestriction.create(member, reason));
 
         log.info("[MemberManager] 회원 정지 처리 완료 - memberId = {}", member.getId());
     }

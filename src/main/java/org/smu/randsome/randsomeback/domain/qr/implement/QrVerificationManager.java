@@ -1,6 +1,6 @@
 package org.smu.randsome.randsomeback.domain.qr.implement;
 
-import static org.smu.randsome.randsomeback.domain.qr.implement.QrTokenProvider.*;
+import static org.smu.randsome.randsomeback.domain.qr.implement.QrTokenProvider.ParsedQrToken;
 
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;

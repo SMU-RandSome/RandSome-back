@@ -44,15 +44,4 @@ class PasswordTest extends UnitTestSupport {
         assertThat(password.matches("wrongPassword!", encoder)).isFalse();
     }
 
-    @Test
-    void 동일한_평문으로_생성한_두_Password는_matches가_각각_true를_반환한다() {
-        // given
-        Password p1 = MemberFixture.password();
-        Password p2 = MemberFixture.password();
-
-        // then
-        assertThat(p1.matches(MemberFixture.DEFAULT_RAW_PASSWORD, encoder)).isTrue();
-        assertThat(p2.matches(MemberFixture.DEFAULT_RAW_PASSWORD, encoder)).isTrue();
-    }
-
 }

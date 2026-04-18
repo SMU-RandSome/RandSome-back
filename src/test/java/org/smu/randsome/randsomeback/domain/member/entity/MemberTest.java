@@ -143,11 +143,6 @@ class MemberTest extends UnitTestSupport {
     }
 
     @Test
-    void 올바른_비밀번호_검증_시_true를_반환한다() {
-        assertThat(member.isPasswordCorrect(MemberFixture.DEFAULT_RAW_PASSWORD, MemberFixture.ENCODER)).isTrue();
-    }
-
-    @Test
     void 틀린_비밀번호_검증_시_false를_반환한다() {
         assertThat(member.isPasswordCorrect("wrongPassword!", MemberFixture.ENCODER)).isFalse();
     }

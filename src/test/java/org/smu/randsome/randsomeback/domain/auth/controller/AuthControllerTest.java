@@ -149,4 +149,19 @@ class AuthControllerTest extends ControllerTestSupport {
                 .hasStatus(HttpStatus.FORBIDDEN.value());
     }
 
+    @Test
+    void 상명대_이메일이_아닌_경우_인증_코드_전송_요청_시_400을_반환한다() throws Exception {
+        // given — @sangmyung.kr 도메인이 아닌 이메일은 API 계약상 거부된다
+        var request = new EmailVerificationRequest("student@gmail.com");
+
+        // when & then
+        assertThat(mvcTester.post().uri("/v1/auth/email/verification-codes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
+
+        verifyNoInteractions(emailVerificationService);
+    }
+
 }

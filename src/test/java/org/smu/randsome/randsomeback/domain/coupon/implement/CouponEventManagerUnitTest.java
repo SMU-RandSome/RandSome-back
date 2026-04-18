@@ -10,14 +10,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
+import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
+import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventDeactivatedEvent;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventStatus;
 import org.smu.randsome.randsomeback.domain.coupon.repository.CouponEventJpaRepository;
 import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
-import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
-import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventDeactivatedEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 

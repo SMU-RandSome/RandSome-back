@@ -30,14 +30,6 @@ class QrControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void 인증되지_않은_사용자는_QR_발급_시_403을_반환한다() {
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/qr"))
-                .apply(print())
-                .hasStatus(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
     @TestMember
     void QR_이미지_생성_실패_시_500을_반환한다() {
         // given

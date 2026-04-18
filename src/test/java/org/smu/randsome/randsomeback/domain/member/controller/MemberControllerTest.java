@@ -205,6 +205,7 @@ class MemberControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
     }
 
+
     private MemberCreateRequest createValidRequest() {
         return new MemberCreateRequest(
                 "email.verification.token",

@@ -53,15 +53,20 @@ class CouponTest {
     }
 
     @Test
-    void 쿠폰을_사용한다() {
-        // given
-
+    void 쿠폰을_사용하면_상태가_USED로_변경된다() {
         // when
         coupon.use();
 
         // then
         assertThat(coupon.getCouponStatus()).isEqualTo(CouponStatus.USED);
+    }
 
+    @Test
+    void 이미_사용된_쿠폰을_사용하면_COUPON_NOT_USABLE_예외가_발생한다() {
+        // given
+        coupon.use();
+
+        // when & then
         assertThatThrownBy(() -> coupon.use())
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.COUPON_NOT_USABLE.getMessage());
