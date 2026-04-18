@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
@@ -90,17 +91,23 @@ class AnnouncementReaderUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 공지사항이_없으면_빈_목록을_반환한다() throws Exception {
-        // given
-        given(redisRepository.get(CacheKeys.ANNOUNCEMENTS)).willReturn(null);
-        given(announcementJpaRepository.findAllByStatusOrderByIdDesc(EntityStatus.ACTIVE)).willReturn(List.of());
+    void 캐시_역직렬화_실패_시_DB를_재조회한다() throws Exception {
+        // given — 캐시에 값이 있지만 역직렬화 불가능한 상태
+        String malformedJson = "invalid-json";
+        given(redisRepository.get(CacheKeys.ANNOUNCEMENTS)).willReturn(malformedJson);
+        given(objectMapper.readValue(eq(malformedJson), any(TypeReference.class)))
+                .willThrow(new JsonProcessingException("역직렬화 실패") {});
+        var admin = mock(Member.class);
+        given(announcementJpaRepository.findAllByStatusOrderByIdDesc(EntityStatus.ACTIVE))
+                .willReturn(List.of(Announcement.register(admin, "제목", "내용")));
         given(objectMapper.writeValueAsString(any())).willReturn("[]");
 
         // when
         List<AnnouncementItem> result = announcementReader.findAnnouncements();
 
-        // then
-        assertThat(result).isEmpty();
+        // then — 역직렬화 실패 시 DB 재조회로 폴백한다
+        assertThat(result).hasSize(1);
+        verify(announcementJpaRepository).findAllByStatusOrderByIdDesc(EntityStatus.ACTIVE);
     }
 
 }
