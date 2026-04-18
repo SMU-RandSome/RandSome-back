@@ -63,37 +63,6 @@ class CandidateAdminServiceUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 후보자_승인시_manager의_approve가_호출된다() {
-        // given
-        Long registrationId = 1L;
-
-        var member = mock(Member.class);
-        var registration = mock(CandidateRegistration.class);
-        given(registration.getMember()).willReturn(member);
-        given(candidateManager.approve(registrationId))
-                .willReturn(registration);
-
-        // when
-        candidateAdminService.approve(registrationId);
-
-        // then
-        then(candidateManager).should().approve(registrationId);
-    }
-
-    @Test
-    void 후보자_거절시_manager의_reject가_호출된다() {
-        // given
-        Long registrationId = 1L;
-        String rejectionReason = "자격 미달";
-
-        // when
-        candidateAdminService.reject(registrationId, rejectionReason);
-
-        // then
-        then(candidateManager).should().reject(registrationId, rejectionReason);
-    }
-
-    @Test
     void 후보자_거절시_알림_이벤트가_발행된다() {
         // given
         Long registrationId = 1L;

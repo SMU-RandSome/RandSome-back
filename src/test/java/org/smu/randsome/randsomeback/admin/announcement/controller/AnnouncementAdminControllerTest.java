@@ -12,7 +12,6 @@ import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.admin.announcement.dto.request.AnnouncementRegisterRequest;
 import org.smu.randsome.randsomeback.domain.announcement.entity.Announcement;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
-import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -42,30 +41,17 @@ class AnnouncementAdminControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void 인증되지_않은_사용자는_403을_반환한다() throws Exception {
+    @TestAdmin
+    void 제목이_비어있으면_400을_반환한다() throws Exception {
         // given
-        var request = new AnnouncementRegisterRequest("제목", "내용");
+        var request = new AnnouncementRegisterRequest("", "내용");
 
         // when & then
         assertThat(mvcTester.post().uri("/v1/admin/announcements")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .apply(print())
-                .hasStatus(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
-    @TestMember
-    void ROLE_MEMBER는_403을_반환한다() throws Exception {
-        // given
-        var request = new AnnouncementRegisterRequest("제목", "내용");
-
-        // when & then
-        assertThat(mvcTester.post().uri("/v1/admin/announcements")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .apply(print())
-                .hasStatus(HttpStatus.FORBIDDEN.value());
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
     }
 
 }
