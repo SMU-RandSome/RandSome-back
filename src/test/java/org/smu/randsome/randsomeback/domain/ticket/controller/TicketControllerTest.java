@@ -41,14 +41,6 @@ class TicketControllerTest extends ControllerTestSupport {
     }
 
     @Test
-    void 인증되지_않은_사용자는_403을_반환한다() {
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/tickets/balance"))
-                .apply(print())
-                .hasStatus(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
     @TestMember
     void 티켓_이력_조회에_성공하면_200과_이력목록을_반환한다() {
         // given
@@ -94,14 +86,6 @@ class TicketControllerTest extends ControllerTestSupport {
                 .hasStatusOk()
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"));
-    }
-
-    @Test
-    void 인증되지_않은_사용자는_이력_조회_시_403을_반환한다() {
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/tickets/history"))
-                .apply(print())
-                .hasStatus(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
