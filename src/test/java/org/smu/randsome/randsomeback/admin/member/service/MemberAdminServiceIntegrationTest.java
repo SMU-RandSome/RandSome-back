@@ -7,7 +7,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
-import org.smu.randsome.randsomeback.domain.member.repository.MemberRestricetionJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.repository.MemberRestrictionJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.springframework.data.domain.PageRequest;
@@ -17,11 +17,11 @@ class MemberAdminServiceIntegrationTest extends IntegrationTestSupport {
 
     final MemberAdminService memberAdminService;
     final MemberJpaRepository memberJpaRepository;
-    final MemberRestricetionJpaRepository memberRestricetionJpaRepository;
+    final MemberRestrictionJpaRepository memberRestrictionJpaRepository;
 
     @AfterEach
     void tearDown() {
-        memberRestricetionJpaRepository.deleteAll();
+        memberRestrictionJpaRepository.deleteAll();
         memberJpaRepository.deleteAll();
     }
 

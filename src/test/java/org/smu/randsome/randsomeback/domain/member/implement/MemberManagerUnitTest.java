@@ -21,7 +21,7 @@ import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
-import org.smu.randsome.randsomeback.domain.member.repository.MemberRestricetionJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.repository.MemberRestrictionJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -38,7 +38,7 @@ class MemberManagerUnitTest extends UnitTestSupport {
     MemberJpaRepository memberJpaRepository;
 
     @Mock
-    MemberRestricetionJpaRepository memberRestricetionJpaRepository;
+    MemberRestrictionJpaRepository memberRestrictionJpaRepository;
 
     @Mock
     PasswordEncoder passwordEncoder;
@@ -212,7 +212,7 @@ class MemberManagerUnitTest extends UnitTestSupport {
         memberManager.suspend(memberId, reason);
 
         // then
-        verify(memberRestricetionJpaRepository).save(any(MemberRestriction.class));
+        verify(memberRestrictionJpaRepository).save(any(MemberRestriction.class));
     }
 
 }

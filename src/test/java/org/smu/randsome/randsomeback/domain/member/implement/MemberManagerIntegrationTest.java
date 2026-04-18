@@ -7,7 +7,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
-import org.smu.randsome.randsomeback.domain.member.repository.MemberRestricetionJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.repository.MemberRestrictionJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 
@@ -16,11 +16,11 @@ class MemberManagerIntegrationTest extends IntegrationTestSupport {
 
     final MemberManager memberManager;
     final MemberJpaRepository memberJpaRepository;
-    final MemberRestricetionJpaRepository memberRestricetionJpaRepository;
+    final MemberRestrictionJpaRepository memberRestrictionJpaRepository;
 
     @AfterEach
     void tearDown() {
-        memberRestricetionJpaRepository.deleteAll();
+        memberRestrictionJpaRepository.deleteAll();
         memberJpaRepository.deleteAll();
     }
 
@@ -37,7 +37,7 @@ class MemberManagerIntegrationTest extends IntegrationTestSupport {
         var updated = memberJpaRepository.findById(member.getId()).orElseThrow();
         assertThat(updated.getStatus()).isEqualTo(EntityStatus.SUSPENDED);
 
-        var restrictions = memberRestricetionJpaRepository.findAll();
+        var restrictions = memberRestrictionJpaRepository.findAll();
         assertThat(restrictions).hasSize(1);
         assertThat(restrictions.get(0).getReason()).isEqualTo(reason);
     }
