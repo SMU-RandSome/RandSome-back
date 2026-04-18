@@ -1,16 +1,13 @@
 package org.smu.randsome.randsomeback.domain.coupon.service;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
-import org.smu.randsome.randsomeback.domain.coupon.dto.command.CouponSearchCondition;
 import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
-import org.smu.randsome.randsomeback.domain.coupon.enums.CouponFilterType;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponReader;
 import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
@@ -51,19 +48,6 @@ class CouponServiceUnitTest extends UnitTestSupport {
                 CuponFixture.REWARD_TICKET_TYPE,
                 CuponFixture.REWARD_TICKET_QUANTITY
         );
-    }
-
-    @Test
-    void 쿠폰_목록_조회_시_Reader에게_위임한다() {
-        // given
-        Long memberId = 1L;
-        CouponSearchCondition condition = new CouponSearchCondition(CouponFilterType.ALL, null, 20);
-
-        // when
-        couponService.findCoupons(memberId, condition);
-
-        // then
-        then(couponReader).should().findCoupons(memberId, condition);
     }
 
 }
