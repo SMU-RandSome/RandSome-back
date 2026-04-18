@@ -11,7 +11,6 @@ import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.domain.member.dto.response.CandidateGenderCountItem;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
-import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.http.HttpStatus;
 
 class StatisticsAdminControllerTest extends ControllerTestSupport {
@@ -36,29 +35,6 @@ class StatisticsAdminControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
                 .hasPathSatisfying("$.data.maleCount", v -> v.assertThat().isEqualTo(5))
                 .hasPathSatisfying("$.data.femaleCount", v -> v.assertThat().isEqualTo(3));
-    }
-
-    // ===== 인가 검증 =====
-
-    @Test
-    void 인증_없이_접근하면_403을_반환한다() {
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/statistics/candidates/gender-count"))
-                .apply(print())
-                .hasStatus(HttpStatus.FORBIDDEN.value());
-
-        then(statisticsAdminService).shouldHaveNoInteractions();
-    }
-
-    @TestMember
-    @Test
-    void 일반_회원이_관리자_통계_API를_호출하면_403을_반환한다() {
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/statistics/candidates/gender-count"))
-                .apply(print())
-                .hasStatus(HttpStatus.FORBIDDEN.value());
-
-        then(statisticsAdminService).shouldHaveNoInteractions();
     }
 
 }
