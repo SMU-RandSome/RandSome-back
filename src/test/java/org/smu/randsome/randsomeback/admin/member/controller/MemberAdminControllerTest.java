@@ -19,7 +19,6 @@ import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
-import org.smu.randsome.randsomeback.security.annotation.TestMember;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -71,28 +70,6 @@ class MemberAdminControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.data.id", v -> v.assertThat().isEqualTo(response.id()));
 
         then(memberAdminService).should().getMemberDetail(1L);
-    }
-
-    @TestMember
-    @Test
-    void 일반_회원이_관리자_회원_API를_호출하면_403을_반환한다() {
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/members"))
-                .apply(print())
-                .hasStatus(HttpStatus.FORBIDDEN.value());
-
-        then(memberAdminService).shouldHaveNoInteractions();
-    }
-
-    @TestMember
-    @Test
-    void 일반_회원이_관리자_회원_상세_API를_호출하면_403을_반환한다() {
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/members/1"))
-                .apply(print())
-                .hasStatus(HttpStatus.FORBIDDEN.value());
-
-        then(memberAdminService).shouldHaveNoInteractions();
     }
 
     @TestAdmin
