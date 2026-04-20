@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.domain.matching.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
+import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 
 @Schema(description = "매칭 신청 결과 응답 DTO")
@@ -13,6 +14,9 @@ public record MatchingApplicationResponse(
 
         @Schema(description = "매칭 타입", example = "RANDOM")
         MatchingType matchingType,
+
+        @Schema(description = "매칭 신청 상태", example = "SUCCESS")
+        ApplicationStatus applicationStatus,
 
         @Schema(description = "매칭 신청 인원", example = "2")
         int requestedCount,
@@ -33,10 +37,11 @@ public record MatchingApplicationResponse(
         return MatchingApplicationResponse.builder()
                 .matchingApplicationId(application.getId())
                 .matchingType(application.getMatchingType())
+                .applicationStatus(application.getApplicationStatus())
                 .requestedCount(application.getApplicationCount())
                 .matchedCount(matchedCount)
                 .refundedTickets(refundedTickets)
-                .isPartialMatch(refundedTickets > 0)
+                .isPartialMatch(application.getApplicationStatus() == ApplicationStatus.PARTIAL_MATCH)
                 .build();
     }
 

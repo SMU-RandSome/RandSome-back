@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.announcement.event.AnnouncementRegisteredEvent;
 import org.smu.randsome.randsomeback.domain.candidate.event.CandidateAppliedEvent;
+import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.event.MatchingApplicationCompletedEvent;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberDevice;
@@ -86,7 +87,7 @@ class NotificationHandlerUnitTest extends UnitTestSupport {
     @Test
     void 매칭_신청_이벤트_수신시_어드민_디바이스에_알림을_전송한다() {
         // given
-        var event = new MatchingApplicationCompletedEvent(5L, "nickname", 2);
+        var event = new MatchingApplicationCompletedEvent(5L, "nickname", 2, 2, ApplicationStatus.SUCCESS);
         var device = mock(MemberDevice.class);
         var member = mock(Member.class);
         given(device.getMember()).willReturn(member);
@@ -105,7 +106,7 @@ class NotificationHandlerUnitTest extends UnitTestSupport {
     @Test
     void 매칭_신청_이벤트_수신시_어드민_디바이스가_없으면_알림을_전송하지_않는다() {
         // given
-        var event = new MatchingApplicationCompletedEvent(5L, "nickname", 2);
+        var event = new MatchingApplicationCompletedEvent(5L, "nickname", 2, 2, ApplicationStatus.SUCCESS);
         given(memberDeviceReader.findAllByAdminRole()).willReturn(List.of());
 
         // when
@@ -119,7 +120,7 @@ class NotificationHandlerUnitTest extends UnitTestSupport {
     @Test
     void 매칭_신청_알림_전송_중_예외_발생시_전파되지_않는다() {
         // given
-        var event = new MatchingApplicationCompletedEvent(5L, "nickname", 2);
+        var event = new MatchingApplicationCompletedEvent(5L, "nickname", 2, 2, ApplicationStatus.SUCCESS);
         willThrow(new RuntimeException("FCM 오류")).given(memberDeviceReader).findAllByAdminRole();
 
         // when & then

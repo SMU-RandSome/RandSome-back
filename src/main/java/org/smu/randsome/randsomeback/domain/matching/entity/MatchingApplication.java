@@ -29,7 +29,7 @@ import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 /**
  * 매칭 신청을 나타내는 엔티티다.
  * <br/>회원이 매칭을 신청하면 이 엔티티를 통해 신청 정보가 관리되며, 상태는 라이프사이클을 따른다.
- * <br/>상태 전이: PENDING → SUCCESS (또는) PENDING → CANCELLED
+ * <br/>상태 전이: PENDING → SUCCESS / PARTIAL_MATCH / FAILED (또는) PENDING → CANCELLED
  * <br/>이상형 매칭인 경우 선호하는 성격, 얼굴상, 연애 스타일을 저장하여 매칭 필터링에 활용한다.
  */
 @Getter
@@ -144,25 +144,37 @@ public class MatchingApplication extends BaseEntity {
     /**
      * 매칭 신청을 완료 상태로 전이한다.
      * <br/>매칭 알고리즘이 완료되어 결과가 생성되었을 때 호출된다.
+     * <br/>매칭 수에 따라 상태가 결정된다: SUCCESS(전체 매칭), PARTIAL_MATCH(부분 매칭), FAILED(매칭 실패).
      *
      * @param completedAt 매칭 완료 시각
+     * @param matchedCount 실제 매칭된 인원 수
      */
     public void complete(LocalDateTime completedAt, int matchedCount) {
-        this.applicationStatus = ApplicationStatus.SUCCESS;
+        this.applicationStatus = resolveCompletionStatus(matchedCount);
         this.completedAt = requireNonNull(completedAt);
         this.matchedCount = matchedCount;
     }
 
+    private ApplicationStatus resolveCompletionStatus(int matchedCount) {
+        if (matchedCount <= 0) {
+            return ApplicationStatus.FAILED;
+        }
+        if (matchedCount < this.applicationCount) {
+            return ApplicationStatus.PARTIAL_MATCH;
+        }
+        return ApplicationStatus.SUCCESS;
+    }
+
     /**
      * 매칭 신청을 취소한다.
-     * <br/>PENDING 상태에서만 취소 가능하며, 이미 매칭된 신청(SUCCESS)은 취소할 수 없다.
+     * <br/>PENDING 상태에서만 취소 가능하며, 이미 완료된 신청(SUCCESS/PARTIAL_MATCH/FAILED)은 취소할 수 없다.
      * <br/>이미 취소된 신청의 경우 idempotent하게 처리한다 (아무 변화 없음).
      *
      * @param cancelledAt 취소 시각
-     * @throws CoreException 매칭이 이미 완료된 경우 (SUCCESS 상태)
+     * @throws CoreException 매칭이 이미 완료된 경우
      */
     public void cancel(LocalDateTime cancelledAt) {
-        if (applicationStatus.equals(ApplicationStatus.SUCCESS)) {
+        if (applicationStatus.isCompleted()) {
             throw new CoreException(ErrorType.NOT_ALLOW_CANCEL_APPROVED);
         }
         if (applicationStatus.equals(ApplicationStatus.CANCELLED)) {

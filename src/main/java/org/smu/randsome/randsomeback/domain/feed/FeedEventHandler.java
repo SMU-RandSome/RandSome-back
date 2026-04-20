@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.domain.feed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.candidate.event.CandidateRegistrationApprovedEvent;
+import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.event.MatchingApplicationCompletedEvent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -37,6 +38,9 @@ public class FeedEventHandler {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onMatchingApplicationSuccess(MatchingApplicationCompletedEvent event) {
+        if (event.applicationStatus() == ApplicationStatus.FAILED) {
+            return;
+        }
         try {
             feedManager.recordMatchRequest(event.nickname(), event.count());
         } catch (Exception e) {
