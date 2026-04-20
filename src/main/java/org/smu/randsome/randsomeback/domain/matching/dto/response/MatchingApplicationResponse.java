@@ -41,7 +41,7 @@ public record MatchingApplicationResponse(
                 .requestedCount(application.getApplicationCount())
                 .matchedCount(matchedCount)
                 .refundedTickets(refundedTickets)
-                .isPartialMatch(refundedTickets > 0)
+                .isPartialMatch(application.getApplicationStatus() == ApplicationStatus.PARTIAL_MATCH)
                 .build();
     }
 
