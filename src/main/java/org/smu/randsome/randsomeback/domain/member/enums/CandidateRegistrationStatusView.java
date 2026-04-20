@@ -24,8 +24,18 @@ public enum CandidateRegistrationStatusView {
 
     public static CandidateRegistrationStatusView from(Optional<RegistrationStatus> status) {
         return status
-                .map(s -> valueOf(s.name()))
+                .map(CandidateRegistrationStatusView::from)
                 .orElse(NOT_APPLIED);
+    }
+
+    private static CandidateRegistrationStatusView from(RegistrationStatus status) {
+        return switch (status) {
+            case CANCELED -> NOT_APPLIED; // 후보자 등록 취소는 신청 이력 없음으로 간주
+            case APPROVED -> APPROVED;
+            case REJECTED -> REJECTED;
+            case PENDING -> PENDING;
+            case WITHDRAWN -> WITHDRAWN;
+        };
     }
 
 }
