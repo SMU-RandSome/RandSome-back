@@ -26,7 +26,10 @@ public record MatchingHistoryItem(
         LocalDateTime appliedAt,
 
         @Schema(description = "해당 신청자의 신청 횟수", example = "3")
-        int applicationCount
+        int applicationCount,
+
+        @Schema(description = "실제 매칭된 인원 수 (PENDING/CANCELLED 시 null)", example = "2")
+        Integer matchedCount
 ) {
 
     /**
@@ -41,7 +44,8 @@ public record MatchingHistoryItem(
                 app.getMatchingType(),
                 app.getApplicationStatus(),
                 app.getCreatedAt(),
-                app.getApplicationCount()
+                app.getApplicationCount(),
+                app.getMatchedCount()
         );
     }
 

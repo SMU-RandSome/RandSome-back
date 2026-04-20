@@ -108,7 +108,7 @@ class MatchingServiceIntegrationTest extends IntegrationTestSupport {
         MatchingApplication result = matchingService.apply(newMatching, member.getId());
 
         // then
-        assertThat(result.getApplicationStatus()).isEqualTo(ApplicationStatus.SUCCESS);
+        assertThat(result.getApplicationStatus()).isEqualTo(ApplicationStatus.PARTIAL_MATCH);
         assertThat(result.getMatchedCount()).isEqualTo(1);
         assertThat(result.getApplicationCount()).isEqualTo(3);
     }
@@ -178,7 +178,7 @@ class MatchingServiceIntegrationTest extends IntegrationTestSupport {
 
         // then
         assertThat(result.getMatchedCount()).isZero();
-        assertThat(result.getApplicationStatus()).isEqualTo(ApplicationStatus.SUCCESS);
+        assertThat(result.getApplicationStatus()).isEqualTo(ApplicationStatus.FAILED);
 
         Ticket ticket = ticketJpaRepository.findByMemberIdAndTicketTypeAndStatus(
                 member.getId(), TicketType.RANDOM, EntityStatus.ACTIVE).orElseThrow();

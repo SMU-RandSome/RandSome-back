@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.candidate.event.CandidateRegistrationApprovedEvent;
+import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.event.MatchingApplicationCompletedEvent;
 
 /**
@@ -58,7 +59,7 @@ class FeedEventHandlerIntegrationTest extends IntegrationTestSupport {
         // given
         String nickname = "여성#TEST002";
         int count = 3;
-        var event = new MatchingApplicationCompletedEvent(1L, nickname, count);
+        var event = new MatchingApplicationCompletedEvent(1L, nickname, count, count, ApplicationStatus.SUCCESS);
 
         // when - 핸들러 직접 호출
         feedEventHandler.onMatchingApplicationSuccess(event);
@@ -89,8 +90,8 @@ class FeedEventHandlerIntegrationTest extends IntegrationTestSupport {
 
         // when
         feedEventHandler.onCandidateRegistrationApproved(new CandidateRegistrationApprovedEvent(candidate));
-        feedEventHandler.onMatchingApplicationSuccess(new MatchingApplicationCompletedEvent(1L, matcher1, 2));
-        feedEventHandler.onMatchingApplicationSuccess(new MatchingApplicationCompletedEvent(2L, matcher2, 1));
+        feedEventHandler.onMatchingApplicationSuccess(new MatchingApplicationCompletedEvent(1L, matcher1, 2, 2, ApplicationStatus.SUCCESS));
+        feedEventHandler.onMatchingApplicationSuccess(new MatchingApplicationCompletedEvent(2L, matcher2, 1, 1, ApplicationStatus.SUCCESS));
 
         // then
         await()

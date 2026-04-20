@@ -92,7 +92,9 @@ public class MatchingManager {
         eventPublisher.publishEvent(new MatchingApplicationCompletedEvent(
                 matchingApplication.getId(),
                 matchingApplication.getMember().getNickname(),
-                matchingApplication.getApplicationCount()
+                matchingApplication.getApplicationCount(),
+                matchingApplication.getMatchedCount(),
+                matchingApplication.getApplicationStatus()
         ));
     }
 

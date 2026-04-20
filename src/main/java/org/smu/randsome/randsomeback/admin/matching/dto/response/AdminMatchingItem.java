@@ -33,6 +33,9 @@ public record AdminMatchingItem(
         @Schema(description = "신청 상태")
         ApplicationStatus applicationStatus,
 
+        @Schema(description = "실제 매칭된 인원 수")
+        Integer matchedCount,
+
         @Schema(description = "신청 일시")
         LocalDateTime createdAt
 ) {
@@ -48,6 +51,7 @@ public record AdminMatchingItem(
                 .matchingType(application.getMatchingType())
                 .applicationCount(application.getApplicationCount())
                 .applicationStatus(application.getApplicationStatus())
+                .matchedCount(application.getMatchedCount())
                 .createdAt(application.getCreatedAt())
                 .build();
     }
