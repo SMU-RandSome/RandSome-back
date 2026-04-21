@@ -1,10 +1,15 @@
 package org.smu.randsome.randsomeback.domain.coupon.controller;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventDetailItem;
+import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventPreviewItem;
+import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.service.CouponEventService;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -26,6 +31,22 @@ public class CouponEventController extends CouponEventControllerDocs {
         Long couponId= couponEventService.publishCouponFromEvent(couponEventId, memberId);
 
         return ApiResponse.success(couponId);
+    }
+
+    @Override
+    @GetMapping("/v1/coupon-events")
+    public ApiResponse<List<CouponEventPreviewItem>> findCouponEvents() {
+        List<CouponEvent> couponEvents = couponEventService.findCouponEvents();
+
+        return ApiResponse.success(CouponEventPreviewItem.from(couponEvents));
+    }
+
+    @Override
+    @GetMapping("/v1/coupon-events/{couponEventId}")
+    public ApiResponse<CouponEventDetailItem> findCouponEvent(@PathVariable Long couponEventId) {
+        CouponEvent event = couponEventService.findCouponEvent(couponEventId);
+
+        return ApiResponse.success(CouponEventDetailItem.from(event));
     }
 
 }

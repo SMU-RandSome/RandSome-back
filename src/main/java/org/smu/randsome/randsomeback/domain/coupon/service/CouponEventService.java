@@ -1,7 +1,10 @@
 package org.smu.randsome.randsomeback.domain.coupon.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
+import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventReader;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponManager;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Service;
 public class CouponEventService {
 
     private final CouponManager couponManager;
+    private final CouponEventReader couponEventReader;
 
      /**
       * 쿠폰 이벤트로부터 쿠폰을 발급하는 서비스 메서드입니다. <br>
@@ -24,4 +28,22 @@ public class CouponEventService {
         LocalDateTime now = LocalDateTime.now();
         return couponManager.issueCoupon(couponEventId, memberId, now);
     }
+
+     /**
+      * 모든 쿠폰 이벤트를 조회하는 서비스 메서드입니다. <br>
+      * 해당 메서드는 활성 상태인 쿠폰 이벤트를 시작일 기준으로 내림차순으로 조회하여 반환합니다.
+      * */
+    public List<CouponEvent> findCouponEvents() {
+        return couponEventReader.findCouponEvents();
+    }
+
+    /**
+     * 쿠폰 이벤트 상세 조회
+     * @param couponEventId 조회할 쿠폰 이벤트 ID
+     * @return 조회된 쿠폰 이벤트
+     * */
+    public CouponEvent findCouponEvent(Long couponEventId) {
+        return couponEventReader.find(couponEventId);
+    }
+
 }
