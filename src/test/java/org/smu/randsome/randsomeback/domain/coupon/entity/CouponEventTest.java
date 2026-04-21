@@ -98,6 +98,48 @@ class CouponEventTest {
     }
 
     @Test
+    void 이벤트를_소진_상태로_전환한다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+        event.activate(NOW);
+
+        // when
+        event.soldOut();
+
+        // then
+        assertThat(event.getEventStatus()).isEqualTo(CouponEventStatus.SOLD_OUT);
+    }
+
+    @Test
+    void 이벤트가_활성화_상태일때만_소진_가능하다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+
+        // DRAFT 상태에서는 소진 불가
+        assertThatThrownBy(event::soldOut)
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+
+        // SOLD_OUT 상태에서는 소진 불가 (이미 소진)
+        event.activate(NOW);
+        event.soldOut();
+        assertThatThrownBy(event::soldOut)
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+    }
+
+    @Test
+    void 소진된_이벤트는_발급_불가능하다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+        event.activate(NOW);
+        event.soldOut();
+
+        // when & then
+        assertThat(event.isIssuable(CuponFixture.STARTED_AT.plusSeconds(1))).isFalse();
+    }
+
+    @Test
     void 이벤트를_종료시킨다() {
         // given
         var event = CuponFixture.createCuponEvent();

@@ -1,5 +1,6 @@
 package org.smu.randsome.randsomeback.domain.coupon.implement;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,6 +17,7 @@ import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
 import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventDeactivatedEvent;
+import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventSoldOutEvent;
 import org.smu.randsome.randsomeback.global.config.CacheKeys;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -92,33 +94,35 @@ class CouponCacheManagerUnitTest extends UnitTestSupport {
     // ── decrementStockOrThrow ────────────────────────────────────────
 
     @Test
-    void 재고가_남아있으면_감소에_성공하고_예외가_발생하지_않는다() {
+    void 재고가_남아있으면_감소에_성공하고_남은_재고를_반환한다() {
         // given
         Long eventId = 1L;
         Long memberId = 42L;
 
         given(redisRepository.decrement(CacheKeys.couponStock(eventId))).willReturn(1L);
 
-        // when & then
-        assertThatCode(() -> couponCacheManager.decrementStockOrThrow(eventId, memberId))
-                .doesNotThrowAnyException();
+        // when
+        long remaining = couponCacheManager.decrementStockOrThrow(eventId, memberId);
 
+        // then
+        assertThat(remaining).isEqualTo(1L);
         verify(redisRepository, never()).increment(CacheKeys.couponStock(eventId));
         verify(redisRepository, never()).delete(CacheKeys.couponMemberLock(eventId, memberId));
     }
 
     @Test
-    void 재고가_마지막_한_개일때_감소하면_성공하고_예외가_발생하지_않는다() {
+    void 재고가_마지막_한_개일때_감소하면_0을_반환한다() {
         // given: decrement 결과 0 = 마지막 한 장 획득
         Long eventId = 1L;
         Long memberId = 42L;
 
         given(redisRepository.decrement(CacheKeys.couponStock(eventId))).willReturn(0L);
 
-        // when & then
-        assertThatCode(() -> couponCacheManager.decrementStockOrThrow(eventId, memberId))
-                .doesNotThrowAnyException();
+        // when
+        long remaining = couponCacheManager.decrementStockOrThrow(eventId, memberId);
 
+        // then
+        assertThat(remaining).isZero();
         verify(redisRepository, never()).increment(CacheKeys.couponStock(eventId));
         verify(redisRepository, never()).delete(CacheKeys.couponMemberLock(eventId, memberId));
     }
@@ -161,6 +165,41 @@ class CouponCacheManagerUnitTest extends UnitTestSupport {
         verify(errorNotificationSender).sendErrorNotification(
                 eq(String.format("쿠폰 재고 Redis 초기화 실패 - 쿠폰 ID: %d, 총 재고: %d, 만료 시각: %s, 원인: %s",
                         eventId, totalQuantity, expiresAt, "Connection timeout")),
+                eq(cause)
+        );
+    }
+
+    // ── onCouponEventSoldOut ─────────────────────────────────────────
+
+    @Test
+    void 재고_소진_시_올바른_키로_Redis에서_재고를_삭제한다() {
+        // given
+        Long eventId = 1L;
+        CouponEventSoldOutEvent event = new CouponEventSoldOutEvent(eventId);
+
+        // when
+        couponCacheManager.onCouponEventSoldOut(event);
+
+        // then
+        verify(redisRepository).delete(eq(CacheKeys.couponStock(eventId)));
+    }
+
+    // ── recoverFromSoldOutFailure ────────────────────────────────────
+
+    @Test
+    void 재고_소진_재시도_최종_실패_시_recover_메서드가_호출되고_알림이_발송된다() {
+        // given
+        Long eventId = 1L;
+        CouponEventSoldOutEvent event = new CouponEventSoldOutEvent(eventId);
+        RedisConnectionFailureException cause = new RedisConnectionFailureException("Connection timeout");
+
+        // when
+        couponCacheManager.recoverFromSoldOutFailure(cause, event);
+
+        // then
+        verify(errorNotificationSender).sendErrorNotification(
+                eq(String.format("쿠폰 재고 Redis 삭제 실패(재고 소진) - 쿠폰 이벤트 ID: %d, 원인: %s",
+                        eventId, "Connection timeout")),
                 eq(cause)
         );
     }

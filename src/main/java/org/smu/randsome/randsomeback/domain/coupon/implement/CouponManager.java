@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventSoldOutEvent;
 import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.repository.CouponRepository;
@@ -11,6 +12,7 @@ import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,7 @@ public class CouponManager {
     private final MemberReader memberReader;
     private final CouponCacheManager couponCacheManager;
     private final CouponRepository couponRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Coupon useCoupon(Long couponId, Long memberId) {
         Coupon coupon = couponReader.findWithEvent(couponId);
@@ -53,12 +56,19 @@ public class CouponManager {
         // TTL을 짧게 고정해 크래시 발생 시 사용자가 단시간 내 재시도할 수 있도록 한다.
         // 실제 중복 발급 방지는 DB unique constraint(UK_CUPON_EVENT_MEMBER)가 보장한다.
         couponCacheManager.acquireMemberLockOrThrow(couponEventId, memberId, MEMBER_LOCK_TTL);
-        couponCacheManager.decrementStockOrThrow(couponEventId, memberId);
+        long remaining = couponCacheManager.decrementStockOrThrow(couponEventId, memberId);
 
         Coupon coupon = Coupon.issue(couponEvent, member);
 
         try {
-            return couponRepository.saveAndFlush(coupon).getId();
+            Long couponId = couponRepository.saveAndFlush(coupon).getId();
+
+            if (remaining == 0) {
+                couponEvent.soldOut();
+                eventPublisher.publishEvent(new CouponEventSoldOutEvent(couponEventId));
+            }
+
+            return couponId;
         } catch (DataIntegrityViolationException e) {
             throw new CoreException(ErrorType.ALREADY_ISSUED_COUPON);
         }
