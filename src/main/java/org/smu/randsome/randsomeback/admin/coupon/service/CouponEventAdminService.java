@@ -16,7 +16,6 @@ public class CouponEventAdminService {
 
     private final CouponEventManager couponEventManager;
     private final CouponEventReader couponEventReader;
-    private final CouponCacheManager couponCacheManager;
 
     /**
      * 쿠폰 이벤트 등록
@@ -27,15 +26,6 @@ public class CouponEventAdminService {
         CouponEvent event = couponEventManager.register(newCouponEvent);
 
         return event.getId();
-    }
-
-    /**
-     * 쿠폰 이벤트 상세 조회
-     * @param couponEventId 조회할 쿠폰 이벤트 ID
-     * @return 조회된 쿠폰 이벤트
-     * */
-    public CouponEvent findCouponEvent(Long couponEventId) {
-        return couponEventReader.find(couponEventId);
     }
 
     /**
