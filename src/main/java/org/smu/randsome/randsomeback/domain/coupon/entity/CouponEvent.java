@@ -92,6 +92,13 @@ public class CouponEvent extends BaseEntity {
         this.eventStatus = CouponEventStatus.ACTIVE;
     }
 
+    public void soldOut() {
+        if (eventStatus != CouponEventStatus.ACTIVE) {
+            throw new CoreException(ErrorType.COUPON_EVENT_INVALID_STATUS);
+        }
+        this.eventStatus = CouponEventStatus.SOLD_OUT;
+    }
+
     public void end() {
         if (eventStatus != CouponEventStatus.ACTIVE) {
             throw new CoreException(ErrorType.COUPON_EVENT_INVALID_STATUS);

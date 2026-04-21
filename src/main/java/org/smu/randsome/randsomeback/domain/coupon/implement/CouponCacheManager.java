@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
 import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventDeactivatedEvent;
+import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventSoldOutEvent;
 import org.smu.randsome.randsomeback.global.config.CacheKeys;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -64,9 +65,8 @@ public class CouponCacheManager {
      * DB 트랜잭션 롤백 시(Soft fail) Redis 상태를 원상복구하도록 보상 콜백을 등록한다.
      * Hard crash(OOM, kill -9) 시에는 콜백이 실행되지 않으므로, member lock의 짧은 TTL로 복구를 보완한다.
      */
-    public void decrementStockOrThrow(Long eventId, Long memberId) {
-        String stockKey = CacheKeys.couponStock(eventId);
-        Long remaining = redisRepository.decrement(stockKey);
+    public long decrementStockOrThrow(Long eventId, Long memberId) {
+        Long remaining = redisRepository.decrement(CacheKeys.couponStock(eventId));
 
         if (remaining != null && remaining < 0)  {
             compensate(eventId, memberId);
@@ -74,6 +74,7 @@ public class CouponCacheManager {
         }
 
         registerRollbackCompensation(eventId, memberId);
+        return remaining != null ? remaining : 0L;
     }
 
     private void registerRollbackCompensation(Long eventId, Long memberId) {
@@ -107,6 +108,21 @@ public class CouponCacheManager {
     }
 
     /**
+     * 재고 소진 시 Redis에 저장된 재고 캐시를 삭제한다.
+     * Redis 연결 실패 시 최대 3회(1s → 2s 간격) 재시도한다.
+     */
+    @Retryable(
+            retryFor = RedisConnectionFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onCouponEventSoldOut(CouponEventSoldOutEvent event) {
+        String key = CacheKeys.couponStock(event.couponEventId());
+        redisRepository.delete(key);
+    }
+
+    /**
      * 이벤트 비활성화 시 Redis에 저장된 재고 캐시를 삭제한다.
      * Redis 연결 실패 시 최대 3회(1s → 2s 간격) 재시도한다.
      */
@@ -132,6 +148,21 @@ public class CouponCacheManager {
                 event.couponEventId(),
                 event.totalQuantity(),
                 event.expiresAt(),
+                ex.getMessage()
+        );
+        log.error(logMessage, ex);
+        errorNotificationSender.sendErrorNotification(logMessage, ex);
+    }
+
+    /**
+     * onCouponEventSoldOut 재시도 최종 실패 시 호출된다.
+     * DB는 이미 SOLD_OUT으로 커밋되었으므로, Redis 불일치 상황을 로깅하고 모니터링을 위한 알림을 기록한다.
+     * 관리자는 로그를 모니터링하여 수동으로 Redis를 삭제해야 한다.
+     */
+    @Recover
+    public void recoverFromSoldOutFailure(RedisConnectionFailureException ex, CouponEventSoldOutEvent event) {
+        String logMessage = String.format("쿠폰 재고 Redis 삭제 실패(재고 소진) - 쿠폰 이벤트 ID: %d, 원인: %s",
+                event.couponEventId(),
                 ex.getMessage()
         );
         log.error(logMessage, ex);

@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
+import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventSoldOutEvent;
 import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
+import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventStatus;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponStatus;
 import org.smu.randsome.randsomeback.domain.coupon.repository.CouponRepository;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
@@ -22,6 +25,7 @@ import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 class CouponManagerUnitTest extends UnitTestSupport {
@@ -43,6 +47,9 @@ class CouponManagerUnitTest extends UnitTestSupport {
 
     @Mock
     CouponRepository couponRepository;
+
+    @Mock
+    ApplicationEventPublisher eventPublisher;
 
     // ── useCoupon ────────────────────────────────────────────────
 
@@ -150,6 +157,7 @@ class CouponManagerUnitTest extends UnitTestSupport {
 
         given(couponEventReader.find(eventId)).willReturn(couponEvent);
         given(memberReader.getReference(memberId)).willReturn(member);
+        given(couponCacheManager.decrementStockOrThrow(eventId, memberId)).willReturn(1L); // 재고 남음
         given(couponRepository.saveAndFlush(any(Coupon.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         // when
@@ -176,6 +184,7 @@ class CouponManagerUnitTest extends UnitTestSupport {
 
         given(couponEventReader.find(eventId)).willReturn(couponEvent);
         given(memberReader.getReference(memberId)).willReturn(member);
+        given(couponCacheManager.decrementStockOrThrow(eventId, memberId)).willReturn(1L);
         given(couponRepository.saveAndFlush(any(Coupon.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         // when
@@ -184,6 +193,52 @@ class CouponManagerUnitTest extends UnitTestSupport {
         // then
         verify(couponCacheManager).acquireMemberLockOrThrow(anyLong(), anyLong(), any());
         verify(couponCacheManager).decrementStockOrThrow(eventId, memberId);
+    }
+
+    @Test
+    void 마지막_재고_발급_시_이벤트가_SOLD_OUT_상태로_전환되고_도메인_이벤트가_발행된다() {
+        // given
+        var eventId = 1L;
+        var memberId = 42L;
+        var now = CuponFixture.STARTED_AT.plusSeconds(1);
+        var couponEvent = CuponFixture.createActiveCuponEvent();
+        var member = MemberFixture.create();
+
+        given(couponEventReader.find(eventId)).willReturn(couponEvent);
+        given(memberReader.getReference(memberId)).willReturn(member);
+        given(couponCacheManager.decrementStockOrThrow(eventId, memberId)).willReturn(0L); // 마지막 재고
+        given(couponRepository.saveAndFlush(any(Coupon.class))).willAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+        couponManager.issueCoupon(eventId, memberId, now);
+
+        // then
+        assertThat(couponEvent.getEventStatus()).isEqualTo(CouponEventStatus.SOLD_OUT);
+        ArgumentCaptor<CouponEventSoldOutEvent> eventCaptor = ArgumentCaptor.forClass(CouponEventSoldOutEvent.class);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().couponEventId()).isEqualTo(eventId);
+    }
+
+    @Test
+    void 재고가_남아있으면_이벤트_상태가_ACTIVE로_유지된다() {
+        // given
+        var eventId = 1L;
+        var memberId = 42L;
+        var now = CuponFixture.STARTED_AT.plusSeconds(1);
+        var couponEvent = CuponFixture.createActiveCuponEvent();
+        var member = MemberFixture.create();
+
+        given(couponEventReader.find(eventId)).willReturn(couponEvent);
+        given(memberReader.getReference(memberId)).willReturn(member);
+        given(couponCacheManager.decrementStockOrThrow(eventId, memberId)).willReturn(5L); // 재고 남음
+        given(couponRepository.saveAndFlush(any(Coupon.class))).willAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+        couponManager.issueCoupon(eventId, memberId, now);
+
+        // then
+        assertThat(couponEvent.getEventStatus()).isEqualTo(CouponEventStatus.ACTIVE);
+        verify(eventPublisher, never()).publishEvent(any(CouponEventSoldOutEvent.class));
     }
 
     @Test
