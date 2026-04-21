@@ -57,22 +57,6 @@ public class CouponEventAdminController extends CouponEventAdminControllerDocs {
     }
 
     @Override
-    @GetMapping("/v1/admin/coupon-events/{couponEventId}")
-    public ApiResponse<CouponEventDetailItem> findCouponEvent(@PathVariable Long couponEventId) {
-        CouponEvent event = couponEventAdminService.findCouponEvent(couponEventId);
-
-        return ApiResponse.success(CouponEventDetailItem.from(event));
-    }
-
-    @Override
-    @GetMapping("/v1/admin/coupon-events")
-    public ApiResponse<List<CouponEventPreviewItem>> findCouponEvents() {
-        List<CouponEvent> couponEvents = couponEventAdminService.findCouponEvents();
-
-        return ApiResponse.success(CouponEventPreviewItem.from(couponEvents));
-    }
-
-    @Override
     @PostMapping("/v1/admin/coupon-events/{couponEventId}/activate")
     public ApiResponse<?> activateCouponEvent(@PathVariable Long couponEventId) {
         couponEventAdminService.activateCouponEvent(couponEventId);

@@ -37,27 +37,12 @@ public abstract class CouponEventAdminControllerDocs {
             @RequestBody @Valid CouponEventUpdateRequest request
     );
 
-    @Operation(summary = "쿠폰 이벤트 상세 조회",
-            description = """
-                    ## 쿠폰 이벤트 단건 상세 정보를 조회합니다.
-                    """
-    )
-    public abstract ApiResponse<CouponEventDetailItem> findCouponEvent(Long couponEventId);
-
     @Operation(summary = "쿠폰 이벤트 삭제",
             description = """
                     ## 쿠폰 이벤트를 삭제합니다. (소프트 삭제)
                     """
     )
     public abstract ApiResponse<?> deleteCouponEvent(Long couponEventId);
-
-    @Operation(summary = "쿠폰 이벤트 목록 조회",
-            description = """
-                    ## 모든 쿠폰 이벤트의 목록을 조회합니다.
-                    각 쿠폰 이벤트에 대한 ID, 이름, 타입, 상태, 총 수량, 리워드 티켓 타입과 수량, 시작 및 종료 시각 등의 정보를 포함한 리스트를 반환합니다.
-                    """
-    )
-    public abstract ApiResponse<List<CouponEventPreviewItem>> findCouponEvents();
 
     @Operation(summary = "쿠폰 이벤트 활성화",
             description = """

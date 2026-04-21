@@ -8,12 +8,10 @@ import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventRegisterRequest;
 import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventUpdateRequest;
-import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventType;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
@@ -55,35 +53,6 @@ class CouponEventAdminControllerTest extends ControllerTestSupport {
 
     @TestAdmin
     @Test
-    void 관리자가_이벤트_목록을_조회한다() {
-        // given
-        List<CouponEvent> events = createCouponEvents();
-
-        given(couponEventAdminService.findCouponEvents())
-                .willReturn(events);
-
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/coupon-events"))
-                .apply(print())
-                .hasStatus(HttpStatus.OK.value())
-                .bodyJson()
-                // 공통 응답 구조 검증
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
-                .hasPathSatisfying("$.data.length()", v -> v.assertThat().isEqualTo(2))
-
-                // 첫 번째 이벤트 (Controller 변환 결과)
-                .hasPathSatisfying("$.data[0].name", v -> v.assertThat().isEqualTo("이벤트 1"))
-                .hasPathSatisfying("$.data[0].eventType", v -> v.assertThat().isEqualTo("HAPPY_HOUR"))
-                .hasPathSatisfying("$.data[0].totalQuantity", v -> v.assertThat().isEqualTo(100))
-
-                // 두 번째 이벤트
-                .hasPathSatisfying("$.data[1].name", v -> v.assertThat().isEqualTo("이벤트 2"))
-                .hasPathSatisfying("$.data[1].eventType", v -> v.assertThat().isEqualTo("HAPPY_HOUR"))
-                .hasPathSatisfying("$.data[1].totalQuantity", v -> v.assertThat().isEqualTo(200));
-    }
-
-    @TestAdmin
-    @Test
     void 관리자가_이벤트를_수정한다() throws JsonProcessingException {
         // given
         var request = new CouponEventUpdateRequest(
@@ -110,36 +79,6 @@ class CouponEventAdminControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"));
     }
 
-    @TestAdmin
-    @Test
-    void 관리자가_이벤트_상세를_조회한다() {
-        // given
-        CouponEvent event = CouponEvent.create(
-                "이벤트 1",
-                "이벤트 1 설명",
-                CouponEventType.HAPPY_HOUR,
-                100,
-                TicketType.RANDOM,
-                10,
-                TestDateTimeUtils.now(),
-                TestDateTimeUtils.now().plusDays(7),
-                TestDateTimeUtils.now().plusDays(30)
-        );
-
-        given(couponEventAdminService.findCouponEvent(1L)).willReturn(event);
-
-        // when & then
-        assertThat(mvcTester.get().uri("/v1/admin/coupon-events/1"))
-                .apply(print())
-                .hasStatus(HttpStatus.OK.value())
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
-                .hasPathSatisfying("$.data.name", v -> v.assertThat().isEqualTo("이벤트 1"))
-                .hasPathSatisfying("$.data.eventType", v -> v.assertThat().isEqualTo("HAPPY_HOUR"))
-                .hasPathSatisfying("$.data.totalQuantity", v -> v.assertThat().isEqualTo(100))
-                .hasPathSatisfying("$.data.rewardTicketType", v -> v.assertThat().isEqualTo("RANDOM"))
-                .hasPathSatisfying("$.data.rewardTicketAmount", v -> v.assertThat().isEqualTo(10));
-    }
 
     @TestAdmin
     @Test
@@ -173,33 +112,6 @@ class CouponEventAdminControllerTest extends ControllerTestSupport {
                 .hasStatusOk()
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"));
-    }
-
-    private List<CouponEvent> createCouponEvents() {
-        return List.of(
-                CouponEvent.create(
-                        "이벤트 1",
-                        "이벤트 1 설명",
-                        CouponEventType.HAPPY_HOUR,
-                        100,
-                        TicketType.RANDOM,
-                        10,
-                        TestDateTimeUtils.now(),
-                        TestDateTimeUtils.now().plusDays(7),
-                        TestDateTimeUtils.now().plusDays(30)
-                ),
-                CouponEvent.create(
-                        "이벤트 2",
-                        "이벤트 2 설명",
-                        CouponEventType.HAPPY_HOUR,
-                        200,
-                        TicketType.RANDOM,
-                        20,
-                        TestDateTimeUtils.now(),
-                        TestDateTimeUtils.now().plusDays(14),
-                        TestDateTimeUtils.now().plusDays(30)
-                )
-        );
     }
 
 }
