@@ -85,4 +85,15 @@ class MemberAdminControllerTest extends ControllerTestSupport {
         verify(memberAdminService).suspendMember(any(), any());
     }
 
+    @TestAdmin
+    @Test
+    void 관리자가_회원_정지를_해제하면_200을_반환한다() {
+        // when & then
+        assertThat(mvcTester.delete().uri("/v1/admin/members/{memberId}/suspensions", 1L))
+                .apply(print())
+                .hasStatusOk();
+
+        verify(memberAdminService).restoreMember(1L);
+    }
+
 }

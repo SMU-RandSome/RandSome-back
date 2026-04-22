@@ -20,6 +20,7 @@ import org.smu.randsome.randsomeback.domain.member.entity.vo.Password;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
+import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberRestrictionJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
@@ -42,6 +43,9 @@ class MemberManagerUnitTest extends UnitTestSupport {
 
     @Mock
     PasswordEncoder passwordEncoder;
+
+    @Mock
+    SuspensionManager suspensionManager;
 
     @Test
     void 태그와_함께_회원을_생성한다() {
@@ -201,18 +205,33 @@ class MemberManagerUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 관리자가_회원을_정지한다() {
+    void 관리자가_회원을_정지하면_status_role_refreshToken이_변경되고_제한_기록이_저장된다() {
         // given
         var memberId = 1L;
         var member = MemberFixture.create();
-        given(memberJpaRepository.findByIdAndStatus(any(Long.class), any(EntityStatus.class))).willReturn(Optional.of(member));
+        member.updateRefreshToken("existing-token");
+        given(memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)).willReturn(Optional.of(member));
 
         // when
-        String reason = "규칙 위반";
-        memberManager.suspend(memberId, reason);
+        memberManager.suspend(memberId, "규칙 위반");
 
         // then
+        assertThat(member.getStatus()).isEqualTo(EntityStatus.SUSPENDED);
+        assertThat(member.getRole()).isEqualTo(Role.ROLE_SUSPEND_MEMBER);
+        assertThat(member.getRefreshToken()).isNull();
         verify(memberRestrictionJpaRepository).save(any(MemberRestriction.class));
+        verify(suspensionManager).suspend(memberId);
+    }
+
+    @Test
+    void 정지_대상_회원이_존재하지_않으면_예외가_발생한다() {
+        // given
+        given(memberJpaRepository.findByIdAndStatus(999L, EntityStatus.ACTIVE)).willReturn(Optional.empty());
+
+        // when // then
+        assertThatThrownBy(() -> memberManager.suspend(999L, "규칙 위반"))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
     }
 
 }

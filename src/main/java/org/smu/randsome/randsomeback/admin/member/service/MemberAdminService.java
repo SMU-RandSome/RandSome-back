@@ -35,4 +35,8 @@ public class MemberAdminService {
         memberManager.suspend(memberId, reason);
     }
 
+    public void restoreMember(Long memberId) {
+        memberManager.restore(memberId);
+    }
+
 }

@@ -83,4 +83,24 @@ public abstract class MemberAdminControllerDocs {
             @RequestBody RestrictionRequest request
     );
 
+    @Operation(
+            summary = "회원 정지 해제",
+            description = """
+                    #### 관리자 회원 정지 해제 API입니다.
+                    - 정지된 회원을 활성 상태로 복구합니다.
+                    - Redis 블랙리스트에서 해당 회원을 제거합니다.
+
+                    **요청 경로 파라미터**
+                    - memberId : 복구할 회원의 고유 ID
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.NOT_FOUND_MEMBER,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ApiResponse<?> restoreMember(
+            @Parameter(name = "memberId", description = "복구할 회원의 고유 ID", required = true)
+            Long memberId
+    );
+
 }

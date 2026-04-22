@@ -4,6 +4,7 @@ import static org.smu.randsome.randsomeback.global.jwt.enums.TokenType.AUTHORIZA
 import static org.smu.randsome.randsomeback.global.jwt.enums.TokenType.BEARER_PREFIX;
 import static org.smu.randsome.randsomeback.global.support.error.ErrorType.EMPTY_TOKEN;
 import static org.smu.randsome.randsomeback.global.support.error.ErrorType.INVALID_TOKEN;
+import static org.smu.randsome.randsomeback.global.support.error.ErrorType.SUSPENDED_MEMBER;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.smu.randsome.randsomeback.domain.member.implement.SuspensionManager;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.http.MediaType;
@@ -30,6 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
+    private final SuspensionManager suspensionManager;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
@@ -71,6 +74,13 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         Authentication authentication = jwtProvider.getAuthentication(token);
+        Long memberId = Long.valueOf(authentication.getName());
+
+        if (suspensionManager.isSuspended(memberId)) {
+            sendErrorResponse(response, SUSPENDED_MEMBER);
+            return;
+        }
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);
     }

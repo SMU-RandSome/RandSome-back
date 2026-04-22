@@ -9,6 +9,7 @@ import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.support.response.PageResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,6 +44,14 @@ public class MemberAdminController extends MemberAdminControllerDocs {
     @PostMapping("/v1/admin/members/{memberId}/suspensions")
     public ApiResponse<?> suspendMember(@PathVariable Long memberId, @RequestBody RestrictionRequest request) {
         memberAdminService.suspendMember(memberId, request.reason());
+
+        return ApiResponse.success();
+    }
+
+    @Override
+    @DeleteMapping("/v1/admin/members/{memberId}/suspensions")
+    public ApiResponse<?> restoreMember(@PathVariable Long memberId) {
+        memberAdminService.restoreMember(memberId);
 
         return ApiResponse.success();
     }
