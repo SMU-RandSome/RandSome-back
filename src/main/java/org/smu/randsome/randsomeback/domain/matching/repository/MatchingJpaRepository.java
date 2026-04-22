@@ -30,4 +30,6 @@ public interface MatchingJpaRepository extends JpaRepository<MatchingApplication
 
     Optional<MatchingApplication> findByIdAndMemberIdAndStatus(Long id, Long memberId, EntityStatus status);
 
+    long countByMemberIdAndStatus(Long memberId, EntityStatus status);
+
 }

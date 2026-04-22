@@ -5,12 +5,14 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
+import org.smu.randsome.randsomeback.domain.attendance.service.AttendanceService;
 import org.smu.randsome.randsomeback.domain.matching.service.MatchingService;
 import org.smu.randsome.randsomeback.domain.member.dto.request.DeviceTokenSyncRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.PasswordUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.response.MemberProfileResponse;
+import org.smu.randsome.randsomeback.domain.member.dto.response.MemberStatsResponse;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.CandidateRegistrationStatusView;
 import org.smu.randsome.randsomeback.domain.member.service.MemberDeviceService;
@@ -35,6 +37,7 @@ public class MemberController extends MemberControllerDocs {
     private final MemberDeviceService memberDeviceService;
     private final CandidateService candidateService;
     private final MatchingService matchingService;
+    private final AttendanceService attendanceService;
 
     @Override
     @ResponseStatus(HttpStatus.CREATED)
@@ -109,6 +112,18 @@ public class MemberController extends MemberControllerDocs {
         memberDeviceService.deleteDeviceToken(memberId, deviceToken);
 
         return ApiResponse.success();
+    }
+
+    @Override
+    @GetMapping("/v1/members/stats")
+    public ApiResponse<MemberStatsResponse> getMyStats(@LoginMember Long memberId) {
+        long exposureCount = matchingService.getExposureCount(memberId);
+        long sentApplicationCount = matchingService.getSentApplicationCount(memberId);
+        long attendanceDays = attendanceService.getAttendanceDays(memberId);
+
+        return ApiResponse.success(
+                MemberStatsResponse.of(exposureCount, sentApplicationCount, attendanceDays)
+        );
     }
 
     @PostMapping("/v1/members/withdraw-candidate")

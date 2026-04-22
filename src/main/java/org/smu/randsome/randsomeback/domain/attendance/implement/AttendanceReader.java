@@ -9,16 +9,24 @@ import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Component
-@Transactional(readOnly = true)
 public class AttendanceReader {
 
     private final AttendanceJpaRepository attendanceJpaRepository;
 
-    @Transactional(readOnly = true)
     public List<Attendance> findAllInServicePeriod(Long memberId) {
         return attendanceJpaRepository.findAllByMemberIdAndAttendanceDateBetweenAndStatusOrderByAttendanceDateAsc(
+                memberId,
+                ServicePeriod.OPEN_DATE,
+                ServicePeriod.CLOSE_DATE,
+                EntityStatus.ACTIVE
+        );
+    }
+
+    public long countInServicePeriod(Long memberId) {
+        return attendanceJpaRepository.countByMemberIdAndAttendanceDateBetweenAndStatus(
                 memberId,
                 ServicePeriod.OPEN_DATE,
                 ServicePeriod.CLOSE_DATE,

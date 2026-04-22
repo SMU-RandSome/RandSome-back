@@ -84,6 +84,17 @@ public class MatchingReader {
     }
 
     /**
+     * 회원이 보낸 매칭 신청 수를 조회한다.
+     *
+     * @param memberId 회원 식별자
+     * @return 보낸 매칭 신청 수
+     */
+    @Transactional(readOnly = true)
+    public long countSentApplications(Long memberId) {
+        return matchingRepository.countByMemberIdAndStatus(memberId, EntityStatus.ACTIVE);
+    }
+
+    /**
      * 매칭 신청 목록을 검색 조건에 따라 페이징 조회한다.
      * <br/>검색 조건에는 신청자 ID, 매칭 상태, 신청 날짜 범위 등이 포함될 수 있다.
      * <br/>반환되는 PageResponse에는 매칭 신청 리스트와 함께 전체 결과 수가 포함되어 클라이언트에서 페이지네이션 UI를 구현할 수 있도록 한다.
