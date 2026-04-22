@@ -74,7 +74,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         Authentication authentication = jwtProvider.getAuthentication(token);
-        Long memberId = Long.valueOf(authentication.getName());
+        Long memberId = (Long) authentication.getPrincipal();
 
         if (suspensionManager.isSuspended(memberId)) {
             sendErrorResponse(response, SUSPENDED_MEMBER);

@@ -121,7 +121,7 @@ public class JwtProvider {
     public Authentication getAuthentication(String token) {
         Claims claims = getClaimsFromToken(token);
 
-        String memberId = claims.getSubject();
+        Long memberId = Long.parseLong(claims.getSubject());
         String role = getAuthority(claims).name();
         GrantedAuthority authority = new SimpleGrantedAuthority(role);
 
