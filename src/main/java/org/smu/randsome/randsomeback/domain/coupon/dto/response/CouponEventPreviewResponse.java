@@ -1,9 +1,7 @@
-package org.smu.randsome.randsomeback.admin.coupon.dto;
+package org.smu.randsome.randsomeback.domain.coupon.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import lombok.Builder;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventStatus;
@@ -11,7 +9,7 @@ import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventType;
 
 @Schema(description = "쿠폰 이벤트 미리보기 항목")
 @Builder
-public record CouponEventPreviewItem(
+public record CouponEventPreviewResponse(
         @Schema(description = "쿠폰 이벤트 ID", example = "1")
         Long id,
 
@@ -24,32 +22,19 @@ public record CouponEventPreviewItem(
         @Schema(description = "쿠폰 이벤트 상태")
         CouponEventStatus status,
 
-        @Schema(description = "쿠폰 총 발급 수량", example = "100")
-        int totalQuantity,
-
-        @Schema(description = "남은 수량", example = "42")
-        long remainingQuantity,
-
-        @Schema(description = "이벤트 시작 시각", example = "2026-05-01T10:00:00")
-        LocalDateTime startsAt,
-
-        @Schema(description = "이벤트 종료 시각", example = "2026-05-01T18:00:00")
-        LocalDateTime expiresAt
+        @Schema(description = "쿠폰 발급 수량", example = "100")
+        int totalQuantity
 ) {
-    public static List<CouponEventPreviewItem> of(List<CouponEvent> events, Map<Long, Long> stockMap) {
+    public static List<CouponEventPreviewResponse> from(List<CouponEvent> events) {
         return events.stream()
-                .map(event -> CouponEventPreviewItem.builder()
+                .map(event -> CouponEventPreviewResponse.builder()
                         .id(event.getId())
                         .name(event.getName())
                         .eventType(event.getType())
                         .status(event.getEventStatus())
                         .totalQuantity(event.getTotalQuantity())
-                        .remainingQuantity(stockMap.getOrDefault(event.getId(), 0L))
-                        .startsAt(event.getStartsAt())
-                        .expiresAt(event.getExpiresAt())
                         .build()
                 )
                 .toList();
     }
-
 }

@@ -1,4 +1,4 @@
-package org.smu.randsome.randsomeback.admin.coupon.dto;
+package org.smu.randsome.randsomeback.domain.coupon.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
@@ -10,7 +10,7 @@ import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
 
 @Schema(description = "쿠폰 이벤트 상세 항목")
 @Builder
-public record CouponEventDetailItem(
+public record CouponEventDetailResponse(
         @Schema(description = "쿠폰 이벤트 ID", example = "1")
         Long id,
 
@@ -35,14 +35,17 @@ public record CouponEventDetailItem(
         @Schema(description = "쿠폰 1개당 지급되는 티켓 수량", example = "1")
         int rewardTicketAmount,
 
+        @Schema(description = "회원이 해당 이벤트에 대해 쿠폰을 발급받을 수 있는지 여부", example = "true")
+        boolean isIssuable,
+
         @Schema(description = "이벤트 시작 시각", example = "2026-05-01T10:00:00")
         LocalDateTime startsAt,
 
         @Schema(description = "이벤트 종료 시각", example = "2026-05-01T18:00:00")
         LocalDateTime expiresAt
 ) {
-    public static CouponEventDetailItem from(CouponEvent event) {
-        return CouponEventDetailItem.builder()
+    public static CouponEventDetailResponse of(CouponEvent event, boolean isIssuable) {
+        return CouponEventDetailResponse.builder()
                 .id(event.getId())
                 .name(event.getName())
                 .description(event.getDescription())
@@ -51,9 +54,9 @@ public record CouponEventDetailItem(
                 .totalQuantity(event.getTotalQuantity())
                 .rewardTicketType(event.getRewardTicketType())
                 .rewardTicketAmount(event.getRewardTicketAmount())
+                .isIssuable(isIssuable)
                 .startsAt(event.getStartsAt())
                 .expiresAt(event.getExpiresAt())
                 .build();
     }
-
 }

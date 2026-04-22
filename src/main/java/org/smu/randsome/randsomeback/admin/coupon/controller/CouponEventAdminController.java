@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.admin.coupon.controller;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventDetailItem;
 import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventPreviewItem;
@@ -70,6 +71,23 @@ public class CouponEventAdminController extends CouponEventAdminControllerDocs {
         couponEventAdminService.deactivateCouponEvent(couponEventId);
 
         return ApiResponse.success();
+    }
+
+    @Override
+    @GetMapping("/v1/admin/coupon-events")
+    public ApiResponse<List<CouponEventPreviewItem>> findCouponEvents() {
+        List<CouponEvent> couponEvents = couponEventAdminService.findCouponEvents();
+        Map<Long, Long> stockMap = couponEventAdminService.findRemainingStocks(couponEvents);
+
+        return ApiResponse.success(CouponEventPreviewItem.of(couponEvents, stockMap));
+    }
+
+    @Override
+    @GetMapping("/v1/admin/coupon-events/{couponEventId}")
+    public ApiResponse<CouponEventDetailItem> findCouponEvent(@PathVariable Long couponEventId) {
+        CouponEvent event = couponEventAdminService.findCouponEvent(couponEventId);
+
+        return ApiResponse.success(CouponEventDetailItem.from(event));
     }
 
 }

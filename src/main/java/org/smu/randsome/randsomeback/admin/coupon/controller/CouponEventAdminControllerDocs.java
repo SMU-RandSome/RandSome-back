@@ -61,4 +61,19 @@ public abstract class CouponEventAdminControllerDocs {
     )
     public abstract ApiResponse<?> deactivateCouponEvent(Long couponEventId);
 
+    @Operation(summary = "쿠폰 이벤트 목록 조회",
+            description = """
+                    ## 모든 쿠폰 이벤트의 목록을 조회합니다.
+                    각 이벤트의 ID, 이름, 타입, 상태, 총 수량, 남은 수량, 시작 및 종료 시각을 포함한 리스트를 반환합니다.
+                    """
+    )
+    public abstract ApiResponse<List<CouponEventPreviewItem>> findCouponEvents();
+
+    @Operation(summary = "쿠폰 이벤트 상세 조회",
+            description = """
+                    ## 쿠폰 이벤트 단건 상세 정보를 조회합니다.
+                    """
+    )
+    public abstract ApiResponse<CouponEventDetailItem> findCouponEvent(Long couponEventId);
+
 }

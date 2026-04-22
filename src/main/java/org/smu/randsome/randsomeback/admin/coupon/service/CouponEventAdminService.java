@@ -1,11 +1,11 @@
 package org.smu.randsome.randsomeback.admin.coupon.service;
 
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.NewCouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.UpdateCouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
-import org.smu.randsome.randsomeback.domain.coupon.implement.CouponCacheManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventReader;
 import org.springframework.stereotype.Service;
@@ -54,6 +54,24 @@ public class CouponEventAdminService {
     }
 
     /**
+     * 쿠폰 이벤트 상세 조회
+     * @param couponEventId 조회할 쿠폰 이벤트 ID
+     * @return 조회된 쿠폰 이벤트
+     * */
+    public CouponEvent findCouponEvent(Long couponEventId) {
+        return couponEventReader.find(couponEventId);
+    }
+
+    /**
+     * 쿠폰 이벤트 목록의 남은 수량 조회
+     * @param events 조회할 쿠폰 이벤트 목록
+     * @return 이벤트 ID → 남은 수량 맵
+     * */
+    public Map<Long, Long> findRemainingStocks(List<CouponEvent> events) {
+        return couponEventReader.findRemainingStocks(events);
+    }
+
+    /**
      * 쿠폰 이벤트 활성화
      * DB 커밋 후 이벤트 리스너가 Redis stock을 초기화한다.
      * @param couponEventId 활성화할 쿠폰 이벤트 ID
@@ -70,5 +88,4 @@ public class CouponEventAdminService {
     public void deactivateCouponEvent(Long couponEventId) {
         couponEventManager.deactivate(couponEventId);
     }
-
 }

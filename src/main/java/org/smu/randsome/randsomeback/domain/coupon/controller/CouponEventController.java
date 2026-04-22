@@ -2,8 +2,8 @@ package org.smu.randsome.randsomeback.domain.coupon.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventDetailItem;
-import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventPreviewItem;
+import org.smu.randsome.randsomeback.domain.coupon.dto.response.CouponEventDetailResponse;
+import org.smu.randsome.randsomeback.domain.coupon.dto.response.CouponEventPreviewResponse;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.service.CouponEventService;
 import org.smu.randsome.randsomeback.domain.coupon.service.CouponService;
@@ -37,22 +37,22 @@ public class CouponEventController extends CouponEventControllerDocs {
 
     @Override
     @GetMapping("/v1/coupon-events")
-    public ApiResponse<List<CouponEventPreviewItem>> findCouponEvents() {
+    public ApiResponse<List<CouponEventPreviewResponse>> findCouponEvents() {
         List<CouponEvent> couponEvents = couponEventService.findCouponEvents();
 
-        return ApiResponse.success(CouponEventPreviewItem.from(couponEvents));
+        return ApiResponse.success(CouponEventPreviewResponse.from(couponEvents));
     }
 
     @Override
     @GetMapping("/v1/coupon-events/{couponEventId}")
-    public ApiResponse<CouponEventDetailItem> findCouponEvent(
+    public ApiResponse<CouponEventDetailResponse> findCouponEvent(
             @PathVariable Long couponEventId,
             @LoginMember Long memberId
     ) {
         CouponEvent event = couponEventService.findCouponEvent(couponEventId);
         boolean isIssuable = couponService.isIssuable(couponEventId, memberId);
 
-        return ApiResponse.success(CouponEventDetailItem.of(event, isIssuable));
+        return ApiResponse.success(CouponEventDetailResponse.of(event, isIssuable));
     }
 
 }
