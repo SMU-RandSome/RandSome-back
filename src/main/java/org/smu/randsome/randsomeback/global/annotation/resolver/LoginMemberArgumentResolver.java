@@ -31,15 +31,12 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || authentication.getName() == null) {
+        if (authentication == null || authentication.getPrincipal() == null) {
             throw new CoreException(ErrorType.EMPTY_SECURITY_CONTEXT);
         }
 
-        try {
-            return Long.parseLong(authentication.getName());
-        } catch (NumberFormatException e) {
-            throw new CoreException(ErrorType.FAILED_TO_AUTHENTICATE);
-        }
+
+        return authentication.getPrincipal();
     }
 
 }
