@@ -16,4 +16,11 @@ public interface AttendanceJpaRepository extends JpaRepository<Attendance, Long>
             EntityStatus status
     );
 
+    long countByMemberIdAndAttendanceDateBetweenAndStatus(
+            Long memberId,
+            LocalDate startDate,
+            LocalDate endDate,
+            EntityStatus status
+    );
+
 }

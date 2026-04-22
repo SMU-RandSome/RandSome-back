@@ -48,4 +48,14 @@ public class AttendanceService {
         return attendanceReader.findAllInServicePeriod(memberId);
     }
 
+    /**
+     * 서비스 기간 내 회원의 출석 일수를 조회한다.
+     *
+     * @param memberId 회원 식별자
+     * @return 출석 일수
+     */
+    public long getAttendanceDays(Long memberId) {
+        return attendanceReader.countInServicePeriod(memberId);
+    }
+
 }

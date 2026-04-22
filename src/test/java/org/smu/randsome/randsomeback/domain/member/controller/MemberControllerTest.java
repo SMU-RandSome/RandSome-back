@@ -206,6 +206,26 @@ class MemberControllerTest extends ControllerTestSupport {
     }
 
 
+    @Test
+    @TestMember
+    void 내_통계_조회에_성공하면_200을_반환한다() {
+        // given
+        given(matchingService.getExposureCount(any())).willReturn(10L);
+        given(matchingService.getSentApplicationCount(any())).willReturn(3L);
+        given(attendanceService.getAttendanceDays(any())).willReturn(7L);
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/members/me/stats"))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data.exposureCount", v -> v.assertThat().isEqualTo(10))
+                .hasPathSatisfying("$.data.sentApplicationCount", v -> v.assertThat().isEqualTo(3))
+                .hasPathSatisfying("$.data.attendanceDays", v -> v.assertThat().isEqualTo(7))
+                .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
+    }
+
     private MemberCreateRequest createValidRequest() {
         return new MemberCreateRequest(
                 "email.verification.token",

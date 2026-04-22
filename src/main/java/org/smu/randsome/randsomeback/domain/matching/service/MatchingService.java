@@ -86,6 +86,16 @@ public class MatchingService {
     }
 
     /**
+     * 회원이 보낸 매칭 신청 수를 조회한다.
+     *
+     * @param memberId 회원 식별자
+     * @return 보낸 매칭 신청 수
+     */
+    public long getSentApplicationCount(Long memberId) {
+        return matchingReader.countSentApplications(memberId);
+    }
+
+    /**
      * 회원이 다른 사용자의 매칭 결과로 노출된 횟수를 조회한다.
      * <br/>즉, 이 회원을 후보자로 제시한 매칭 결과의 개수를 반환한다.
      *

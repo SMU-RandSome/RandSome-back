@@ -8,6 +8,7 @@ import org.smu.randsome.randsomeback.domain.member.dto.request.MemberCreateReque
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.PasswordUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.response.MemberProfileResponse;
+import org.smu.randsome.randsomeback.domain.member.dto.response.MemberStatsResponse;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
@@ -131,6 +132,22 @@ public abstract class MemberControllerDocs {
             @RequestParam String deviceToken,
             @LoginMember Long memberId
     );
+
+    @Operation(
+            summary = "내 통계 조회 JWT - [O]",
+            description = """
+                    ### 로그인한 회원의 통계 정보를 조회하는 API입니다.
+                    - JWT 인증이 필요합니다.
+                    - 노출 횟수: 다른 사용자의 매칭 결과에 후보자로 노출된 횟수
+                    - 보낸 신청 수: 회원이 보낸 매칭 신청 수
+                    - 출석 일수: 서비스 기간 내 출석 체크한 일수
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.EMPTY_SECURITY_CONTEXT,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ApiResponse<MemberStatsResponse> getMyStats(@LoginMember Long memberId);
 
     @Operation(summary = "후보자 등록 철회 API",
             description = """

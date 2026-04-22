@@ -26,4 +26,14 @@ public class AttendanceReader {
         );
     }
 
+    @Transactional(readOnly = true)
+    public long countInServicePeriod(Long memberId) {
+        return attendanceJpaRepository.countByMemberIdAndAttendanceDateBetweenAndStatus(
+                memberId,
+                ServicePeriod.OPEN_DATE,
+                ServicePeriod.CLOSE_DATE,
+                EntityStatus.ACTIVE
+        );
+    }
+
 }
