@@ -81,7 +81,7 @@ class CouponReaderIntegrationTest extends IntegrationTestSupport {
 
         var availableCoupon = couponRepository.save(Coupon.issue(event1, member));
         var usedCoupon = couponRepository.save(Coupon.issue(event2, member));
-        usedCoupon.use();
+        usedCoupon.use(TestDateTimeUtils.now());
         couponRepository.save(usedCoupon);
 
         CouponSearchCondition condition = new CouponSearchCondition(CouponFilterType.AVAILABLE, null, 10);
@@ -104,7 +104,7 @@ class CouponReaderIntegrationTest extends IntegrationTestSupport {
 
         var availableCoupon = couponRepository.save(Coupon.issue(event1, member));
         var usedCoupon = couponRepository.save(Coupon.issue(event2, member));
-        usedCoupon.use();
+        usedCoupon.use(TestDateTimeUtils.now());
         couponRepository.save(usedCoupon);
 
         var expiredCoupon = couponRepository.save(Coupon.issue(event3, member));
@@ -183,7 +183,7 @@ class CouponReaderIntegrationTest extends IntegrationTestSupport {
         couponEventJpaRepository.save(expiredEvent3);
 
         var usedCoupon = Coupon.issue(expiredEvent3, member);
-        usedCoupon.use();
+        usedCoupon.use(now.minusDays(2));
         couponRepository.save(usedCoupon);
 
         // when

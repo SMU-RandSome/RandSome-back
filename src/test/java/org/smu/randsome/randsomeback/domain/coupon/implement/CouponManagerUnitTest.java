@@ -25,6 +25,7 @@ import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -51,6 +52,7 @@ class CouponManagerUnitTest extends UnitTestSupport {
     @Mock
     ApplicationEventPublisher eventPublisher;
 
+    static final LocalDateTime NOW = TestDateTimeUtils.now();
     // ── useCoupon ────────────────────────────────────────────────
 
     @Test
@@ -115,7 +117,7 @@ class CouponManagerUnitTest extends UnitTestSupport {
         ReflectionTestUtils.setField(owner, "id", memberId);
         var event = CuponFixture.createActiveCuponEvent();
         var coupon = Coupon.issue(event, owner);
-        coupon.use(); // 이미 사용
+        coupon.use(NOW); // 이미 사용
 
         given(couponReader.findWithEvent(couponId)).willReturn(coupon);
 
@@ -170,7 +172,7 @@ class CouponManagerUnitTest extends UnitTestSupport {
         Coupon capturedCoupon = captor.getValue();
         assertThat(capturedCoupon.getCouponEvent()).isEqualTo(couponEvent);
         assertThat(capturedCoupon.getMember()).isEqualTo(member);
-        assertThat(capturedCoupon.isAvailable()).isTrue();
+        assertThat(capturedCoupon.isAvailable(NOW)).isTrue();
     }
 
     @Test

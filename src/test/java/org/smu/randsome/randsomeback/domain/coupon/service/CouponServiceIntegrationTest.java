@@ -18,6 +18,7 @@ import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -98,7 +99,7 @@ class CouponServiceIntegrationTest extends IntegrationTestSupport {
         var event = couponEventJpaRepository.save(CuponFixture.createActiveCuponEvent());
         var coupon = couponRepository.save(Coupon.issue(event, member));
         ticketJpaRepository.save(Ticket.create(member, CuponFixture.REWARD_TICKET_TYPE, 5));
-        coupon.use(); // 이미 사용
+        coupon.use(TestDateTimeUtils.now()); // 이미 사용
 
         // when & then
         // 예외 이후 같은 트랜잭션 내 DB 조회 불가(rollback-only) — 예외 발생 자체로 검증

@@ -55,20 +55,39 @@ class CouponTest {
     @Test
     void 쿠폰을_사용하면_상태가_USED로_변경된다() {
         // when
-        coupon.use();
+        coupon.use(TestDateTimeUtils.now());
 
         // then
         assertThat(coupon.getCouponStatus()).isEqualTo(CouponStatus.USED);
     }
 
     @Test
-    void 이미_사용된_쿠폰을_사용하면_COUPON_NOT_USABLE_예외가_발생한다() {
+    void 이미_사용된_쿠폰을_사용하면_예외가_발생한다() {
         // given
-        coupon.use();
+        coupon.use(TestDateTimeUtils.now());
 
         // when & then
-        assertThatThrownBy(() -> coupon.use())
+        assertThatThrownBy(() -> coupon.use(TestDateTimeUtils.now()))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.COUPON_NOT_USABLE.getMessage());
     }
+
+    @Test
+    void 쿠폰상태가_변경되지_않았을떄_만료된_쿠폰을_사용하면_예외가_발생한다() {
+        // when & then
+        assertThatThrownBy(() -> coupon.use(CuponFixture.COUPON_EXPIRED_AT.plusSeconds(1)))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_NOT_USABLE.getMessage());
+    }
+
+    @Test
+    void 쿠폰_상태가_만료_상태일떄_쿠폰_사용_시_예외가_발생한다() {
+        // given
+        coupon.expire();
+        // when & then
+        assertThatThrownBy(() -> coupon.use(TestDateTimeUtils.now()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_NOT_USABLE.getMessage());
+    }
+
 }

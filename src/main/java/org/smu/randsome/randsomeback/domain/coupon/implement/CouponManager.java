@@ -37,7 +37,7 @@ public class CouponManager {
             throw new CoreException(ErrorType.NOT_FOUND_COUPON);
         }
 
-        coupon.use();
+        coupon.use(LocalDateTime.now());
 
         return coupon;
     }
