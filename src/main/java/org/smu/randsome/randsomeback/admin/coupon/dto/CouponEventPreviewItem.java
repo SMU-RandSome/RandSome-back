@@ -1,7 +1,9 @@
 package org.smu.randsome.randsomeback.admin.coupon.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventStatus;
@@ -22,11 +24,19 @@ public record CouponEventPreviewItem(
         @Schema(description = "쿠폰 이벤트 상태")
         CouponEventStatus status,
 
-        @Schema(description = "쿠폰 발급 수량", example = "100")
-        int totalQuantity
+        @Schema(description = "쿠폰 총 발급 수량", example = "100")
+        int totalQuantity,
 
+        @Schema(description = "남은 수량", example = "42")
+        long remainingQuantity,
+
+        @Schema(description = "이벤트 시작 시각", example = "2026-05-01T10:00:00")
+        LocalDateTime startsAt,
+
+        @Schema(description = "이벤트 종료 시각", example = "2026-05-01T18:00:00")
+        LocalDateTime expiresAt
 ) {
-    public static List<CouponEventPreviewItem> from(List<CouponEvent> events) {
+    public static List<CouponEventPreviewItem> of(List<CouponEvent> events, Map<Long, Long> stockMap) {
         return events.stream()
                 .map(event -> CouponEventPreviewItem.builder()
                         .id(event.getId())
@@ -34,6 +44,9 @@ public record CouponEventPreviewItem(
                         .eventType(event.getType())
                         .status(event.getEventStatus())
                         .totalQuantity(event.getTotalQuantity())
+                        .remainingQuantity(stockMap.getOrDefault(event.getId(), 0L))
+                        .startsAt(event.getStartsAt())
+                        .expiresAt(event.getExpiresAt())
                         .build()
                 )
                 .toList();

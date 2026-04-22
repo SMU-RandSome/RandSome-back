@@ -35,16 +35,13 @@ public record CouponEventDetailItem(
         @Schema(description = "쿠폰 1개당 지급되는 티켓 수량", example = "1")
         int rewardTicketAmount,
 
-        @Schema(description = "회원이 해당 이벤트에 대해 쿠폰을 발급받을 수 있는지 여부", example = "true")
-        boolean isIssuable,
-
         @Schema(description = "이벤트 시작 시각", example = "2026-05-01T10:00:00")
         LocalDateTime startsAt,
 
         @Schema(description = "이벤트 종료 시각", example = "2026-05-01T18:00:00")
         LocalDateTime expiresAt
 ) {
-    public static CouponEventDetailItem of(CouponEvent event, boolean isIssuable) {
+    public static CouponEventDetailItem from(CouponEvent event) {
         return CouponEventDetailItem.builder()
                 .id(event.getId())
                 .name(event.getName())
@@ -54,7 +51,6 @@ public record CouponEventDetailItem(
                 .totalQuantity(event.getTotalQuantity())
                 .rewardTicketType(event.getRewardTicketType())
                 .rewardTicketAmount(event.getRewardTicketAmount())
-                .isIssuable(isIssuable)
                 .startsAt(event.getStartsAt())
                 .expiresAt(event.getExpiresAt())
                 .build();

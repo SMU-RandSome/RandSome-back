@@ -1,7 +1,6 @@
 package org.smu.randsome.randsomeback.domain.coupon.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;

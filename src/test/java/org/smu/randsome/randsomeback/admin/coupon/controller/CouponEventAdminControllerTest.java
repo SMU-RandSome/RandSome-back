@@ -8,16 +8,20 @@ import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventRegisterRequest;
 import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventUpdateRequest;
+import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventType;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 
 class CouponEventAdminControllerTest extends ControllerTestSupport {
 
@@ -112,6 +116,73 @@ class CouponEventAdminControllerTest extends ControllerTestSupport {
                 .hasStatusOk()
                 .bodyJson()
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"));
+    }
+
+    @TestAdmin
+    @Test
+    void 관리자가_이벤트_목록을_조회한다() {
+        // given
+        CouponEvent event1 = CouponEvent.create(
+                "이벤트 1", "설명 1", CouponEventType.HAPPY_HOUR, 100,
+                TicketType.RANDOM, 10,
+                TestDateTimeUtils.now(), TestDateTimeUtils.now().plusDays(7),
+                TestDateTimeUtils.now().plusDays(30)
+        );
+        ReflectionTestUtils.setField(event1, "id", 1L);
+
+        CouponEvent event2 = CouponEvent.create(
+                "이벤트 2", "설명 2", CouponEventType.HAPPY_HOUR, 200,
+                TicketType.RANDOM, 20,
+                TestDateTimeUtils.now(), TestDateTimeUtils.now().plusDays(14),
+                TestDateTimeUtils.now().plusDays(30)
+        );
+        ReflectionTestUtils.setField(event2, "id", 2L);
+
+        List<CouponEvent> events = List.of(event1, event2);
+        Map<Long, Long> stockMap = Map.of(1L, 80L, 2L, 200L);
+
+        given(couponEventAdminService.findCouponEvents()).willReturn(events);
+        given(couponEventAdminService.findRemainingStocks(events)).willReturn(stockMap);
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/coupon-events"))
+                .apply(print())
+                .hasStatusOk()
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data.length()", v -> v.assertThat().isEqualTo(2))
+                .hasPathSatisfying("$.data[0].name", v -> v.assertThat().isEqualTo("이벤트 1"))
+                .hasPathSatisfying("$.data[0].totalQuantity", v -> v.assertThat().isEqualTo(100))
+                .hasPathSatisfying("$.data[0].remainingQuantity", v -> v.assertThat().isEqualTo(80))
+                .hasPathSatisfying("$.data[1].name", v -> v.assertThat().isEqualTo("이벤트 2"))
+                .hasPathSatisfying("$.data[1].remainingQuantity", v -> v.assertThat().isEqualTo(200));
+    }
+
+    @TestAdmin
+    @Test
+    void 관리자가_이벤트_상세를_조회한다() {
+        // given
+        CouponEvent event = CouponEvent.create(
+                "이벤트 1", "이벤트 1 설명", CouponEventType.HAPPY_HOUR, 100,
+                TicketType.RANDOM, 10,
+                TestDateTimeUtils.now(), TestDateTimeUtils.now().plusDays(7),
+                TestDateTimeUtils.now().plusDays(30)
+        );
+
+        given(couponEventAdminService.findCouponEvent(1L)).willReturn(event);
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/coupon-events/{couponEventId}", 1L))
+                .apply(print())
+                .hasStatusOk()
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data.name", v -> v.assertThat().isEqualTo("이벤트 1"))
+                .hasPathSatisfying("$.data.description", v -> v.assertThat().isEqualTo("이벤트 1 설명"))
+                .hasPathSatisfying("$.data.eventType", v -> v.assertThat().isEqualTo("HAPPY_HOUR"))
+                .hasPathSatisfying("$.data.totalQuantity", v -> v.assertThat().isEqualTo(100))
+                .hasPathSatisfying("$.data.rewardTicketType", v -> v.assertThat().isEqualTo("RANDOM"))
+                .hasPathSatisfying("$.data.rewardTicketAmount", v -> v.assertThat().isEqualTo(10));
     }
 
 }
