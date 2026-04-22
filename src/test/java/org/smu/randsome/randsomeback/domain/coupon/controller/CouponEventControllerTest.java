@@ -42,6 +42,7 @@ class CouponEventControllerTest extends ControllerTestSupport {
         );
 
         given(couponEventService.findCouponEvent(1L)).willReturn(event);
+        given(couponService.isIssuable(1L, 1L)).willReturn(true);
 
         // when & then
         assertThat(mvcTester.get().uri("/v1/coupon-events/{couponEventId}", 1L))
@@ -53,7 +54,35 @@ class CouponEventControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.data.eventType", v -> v.assertThat().isEqualTo("HAPPY_HOUR"))
                 .hasPathSatisfying("$.data.totalQuantity", v -> v.assertThat().isEqualTo(100))
                 .hasPathSatisfying("$.data.rewardTicketType", v -> v.assertThat().isEqualTo("RANDOM"))
-                .hasPathSatisfying("$.data.rewardTicketAmount", v -> v.assertThat().isEqualTo(10));
+                .hasPathSatisfying("$.data.rewardTicketAmount", v -> v.assertThat().isEqualTo(10))
+                .hasPathSatisfying("$.data.isIssuable", v -> v.assertThat().isEqualTo(true));
+    }
+
+    @TestMember
+    @Test
+    void 이미_쿠폰을_발급받은_회원은_발급_불가능_상태로_응답된다() {
+        // given
+        CouponEvent event = CouponEvent.create(
+                "이벤트 1",
+                "이벤트 1 설명",
+                CouponEventType.HAPPY_HOUR,
+                100,
+                TicketType.RANDOM,
+                10,
+                TestDateTimeUtils.now(),
+                TestDateTimeUtils.now().plusDays(7),
+                TestDateTimeUtils.now().plusDays(30)
+        );
+
+        given(couponEventService.findCouponEvent(1L)).willReturn(event);
+        given(couponService.isIssuable(1L, 1L)).willReturn(false);
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/coupon-events/{couponEventId}", 1L))
+                .apply(print())
+                .hasStatus(HttpStatus.OK.value())
+                .bodyJson()
+                .hasPathSatisfying("$.data.isIssuable", v -> v.assertThat().isEqualTo(false));
     }
 
     @TestMember
