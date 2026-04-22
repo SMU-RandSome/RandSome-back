@@ -26,7 +26,7 @@ spring.config.import: application-local.yml
 
 ---
 spring.config.activate.on-profile: dev
-spring.config.import: file:/app/config/application-dev.yml
+spring.config.import: application-dev.yml
 
 ---
 spring.config.activate.on-profile: prod
