@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponStatus;
+import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
 
 @Schema(description = "쿠폰 항목")
 public record CouponItem(
@@ -15,6 +16,9 @@ public record CouponItem(
 
         @Schema(description = "쿠폰 상태", example = "AVAILABLE")
         CouponStatus status,
+
+        @Schema(description = "보상 티켓 타입")
+        TicketType ticketType,
 
         @Schema(description = "이벤트 만료 시각")
         LocalDateTime eventExpiresAt,
@@ -28,6 +32,7 @@ public record CouponItem(
                 coupon.getId(),
                 coupon.getCouponEvent().getName(),
                 coupon.getCouponStatus(),
+                coupon.getCouponEvent().getRewardTicketType(),
                 coupon.getCouponEvent().getExpiresAt(),
                 coupon.getCouponEvent().getRewardTicketAmount()
         );
