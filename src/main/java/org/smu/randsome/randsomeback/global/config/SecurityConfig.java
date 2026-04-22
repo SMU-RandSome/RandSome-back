@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.global.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.domain.member.implement.SuspensionManager;
 import org.smu.randsome.randsomeback.global.jwt.JwtAccessDeniedHandler;
 import org.smu.randsome.randsomeback.global.jwt.JwtAuthenticationEntryPoint;
 import org.smu.randsome.randsomeback.global.jwt.JwtFilter;
@@ -32,6 +33,7 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper;
+    private final SuspensionManager suspensionManager;
 
     @Value("${cors.allowed-origins}")
     private List<String> allowedOrigins;
@@ -58,7 +60,7 @@ public class SecurityConfig {
                 });
 
         http
-                .addFilterBefore(new JwtFilter(jwtProvider, objectMapper), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(jwtProvider, objectMapper, suspensionManager), UsernamePasswordAuthenticationFilter.class);
 
         http
                 .exceptionHandling(handle -> handle

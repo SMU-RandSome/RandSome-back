@@ -28,6 +28,7 @@ public class MemberManager {
     private final MemberJpaRepository memberJpaRepository;
     private final MemberRestrictionJpaRepository memberRestrictionJpaRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SuspensionManager suspensionManager;
 
     public Member create(
             MemberCredentials credentials,
@@ -113,8 +114,9 @@ public class MemberManager {
 
         member.suspend();
         memberRestrictionJpaRepository.save(MemberRestriction.create(member, reason));
+        suspensionManager.suspend(memberId);
 
-        log.info("[MemberManager] 회원 정지 처리 완료 - memberId = {}", member.getId());
+        log.info("[MemberManager] 회원 정지 처리 완료 - memberId = {}", memberId);
     }
 
     @Transactional
@@ -123,6 +125,8 @@ public class MemberManager {
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
 
         member.active();
+        member.updateRole(Role.ROLE_MEMBER);
+        suspensionManager.restore(memberId);
 
         log.info("[MemberManager] 회원 복구 처리 완료 - memberId = {}", member.getId());
     }

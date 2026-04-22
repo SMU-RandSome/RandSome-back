@@ -114,6 +114,18 @@ public class Member extends BaseEntity {
         return member;
     }
 
+    @Override
+    public void suspend() {
+        super.suspend();
+        this.role = Role.ROLE_SUSPEND_MEMBER;
+        revokeRefreshToken();
+    }
+
+    @Override
+    public void active() {
+        super.active();
+    }
+
     public void updateRole(Role newRole) {
         this.role = requireNonNull(newRole);
     }

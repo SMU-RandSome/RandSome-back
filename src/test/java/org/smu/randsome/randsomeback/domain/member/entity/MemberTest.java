@@ -14,6 +14,7 @@ import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
+import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.jwt.TokenHasher;
 
 class MemberTest extends UnitTestSupport {
@@ -163,6 +164,28 @@ class MemberTest extends UnitTestSupport {
         member.updatePassword(newPassword, MemberFixture.ENCODER);
 
         assertThat(member.isPasswordCorrect(MemberFixture.DEFAULT_RAW_PASSWORD, MemberFixture.ENCODER)).isFalse();
+    }
+
+    @Test
+    void suspend_호출_시_status_role_refreshToken이_모두_한번에_변경된다() {
+        member.updateRefreshToken("existing-refresh-token");
+
+        member.suspend();
+
+        assertThat(member.getStatus()).isEqualTo(EntityStatus.SUSPENDED);
+        assertThat(member.getRole()).isEqualTo(Role.ROLE_SUSPEND_MEMBER);
+        assertThat(member.getRefreshToken()).isNull();
+    }
+
+    @Test
+    void refreshToken이_없는_상태에서_suspend해도_정상_동작한다() {
+        assertThat(member.getRefreshToken()).isNull();
+
+        member.suspend();
+
+        assertThat(member.getStatus()).isEqualTo(EntityStatus.SUSPENDED);
+        assertThat(member.getRole()).isEqualTo(Role.ROLE_SUSPEND_MEMBER);
+        assertThat(member.getRefreshToken()).isNull();
     }
 
 }

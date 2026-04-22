@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
+import org.smu.randsome.randsomeback.domain.member.enums.Role;
+import org.smu.randsome.randsomeback.domain.member.implement.SuspensionManager;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberRestrictionJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
@@ -18,6 +20,7 @@ class MemberAdminServiceIntegrationTest extends IntegrationTestSupport {
     final MemberAdminService memberAdminService;
     final MemberJpaRepository memberJpaRepository;
     final MemberRestrictionJpaRepository memberRestrictionJpaRepository;
+    final SuspensionManager suspensionManager;
 
     @AfterEach
     void tearDown() {
@@ -65,6 +68,25 @@ class MemberAdminServiceIntegrationTest extends IntegrationTestSupport {
         // then
         var updated = memberJpaRepository.findById(member.getId()).orElseThrow();
         assertThat(updated.getStatus()).isEqualTo(EntityStatus.SUSPENDED);
+        assertThat(updated.getRole()).isEqualTo(Role.ROLE_SUSPEND_MEMBER);
+        assertThat(updated.getRefreshToken()).isNull();
+        assertThat(suspensionManager.isSuspended(member.getId())).isTrue();
+    }
+
+    @Test
+    void 회원_복구_시_해당_회원_상태가_ACTIVE로_변경된다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        memberAdminService.suspendMember(member.getId(), "부적절한 행동");
+
+        // when
+        memberAdminService.restoreMember(member.getId());
+
+        // then
+        var updated = memberJpaRepository.findById(member.getId()).orElseThrow();
+        assertThat(updated.getStatus()).isEqualTo(EntityStatus.ACTIVE);
+        assertThat(updated.getRole()).isEqualTo(Role.ROLE_MEMBER);
+        assertThat(suspensionManager.isSuspended(member.getId())).isFalse();
     }
 
 }

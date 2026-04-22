@@ -10,6 +10,7 @@ public final class CacheKeys {
     public static final String ANNOUNCEMENTS = "announcements";
     private static final String COUPON_EVENT = "coupon:event";
     private static final String ATTENDANCE = "attendance";
+    private static final String SUSPENSION = "suspend:member";
 
     // Coupon Redis keys
     public static String couponStock(Long eventId) {
@@ -22,6 +23,10 @@ public final class CacheKeys {
 
     public static String attendance(Long memberId, LocalDate date) {
         return ATTENDANCE + ":" + memberId + ":" + date;
+    }
+
+    public static String suspension(Long memberId) {
+        return SUSPENSION + ":" + memberId;
     }
 
 }
