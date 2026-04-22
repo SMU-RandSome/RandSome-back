@@ -63,12 +63,12 @@ public class Coupon extends BaseEntity {
         return coupon;
     }
 
-    public void use() {
-        if (!isAvailable()) {
+    public void use(LocalDateTime now) {
+        if (!isAvailable(now)) {
             throw new CoreException(ErrorType.COUPON_NOT_USABLE);
         }
         this.couponStatus = CouponStatus.USED;
-        this.usedAt = LocalDateTime.now();
+        this.usedAt = now;
     }
 
     public void expire() {
@@ -78,8 +78,8 @@ public class Coupon extends BaseEntity {
         this.couponStatus = CouponStatus.EXPIRED;
     }
 
-    public boolean isAvailable() {
-        return couponStatus == CouponStatus.AVAILABLE;
+    public boolean isAvailable(LocalDateTime now) {
+        return couponStatus == CouponStatus.AVAILABLE && now.isBefore(expiredAt);
     }
 
     public boolean isOwnedBy(Long memberId) {
