@@ -215,7 +215,7 @@ class MemberControllerTest extends ControllerTestSupport {
         given(attendanceService.getAttendanceDays(any())).willReturn(7L);
 
         // when & then
-        assertThat(mvcTester.get().uri("/v1/members/me/stats"))
+        assertThat(mvcTester.get().uri("/v1/members/stats"))
                 .apply(print())
                 .hasStatus(HttpStatus.OK.value())
                 .bodyJson()

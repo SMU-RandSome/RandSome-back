@@ -115,7 +115,7 @@ public class MemberController extends MemberControllerDocs {
     }
 
     @Override
-    @GetMapping("/v1/members/me/stats")
+    @GetMapping("/v1/members/stats")
     public ApiResponse<MemberStatsResponse> getMyStats(@LoginMember Long memberId) {
         long exposureCount = matchingService.getExposureCount(memberId);
         long sentApplicationCount = matchingService.getSentApplicationCount(memberId);
