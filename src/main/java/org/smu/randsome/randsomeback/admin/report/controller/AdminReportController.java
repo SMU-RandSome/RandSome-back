@@ -58,11 +58,4 @@ public class AdminReportController extends AdminReportControllerDocs {
         return ApiResponse.success();
     }
 
-    @Override
-    @PostMapping("/v1/admin/reports/members/{memberId}/restore")
-    public ApiResponse<?> restoreMember(@PathVariable Long memberId) {
-        adminReportService.restoreMember(memberId);
-
-        return ApiResponse.success();
-    }
 }

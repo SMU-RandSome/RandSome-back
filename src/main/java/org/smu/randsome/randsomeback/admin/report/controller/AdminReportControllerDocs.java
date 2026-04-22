@@ -49,12 +49,4 @@ public abstract class AdminReportControllerDocs {
     )
     public abstract ApiResponse<?> rejectReport(Long reportId);
 
-    @Operation(
-            summary = "회원 복구",
-            description = """
-                    ## 정지된 회원을 복구합니다.
-                    회원 상태가 ACTIVE로 변경됩니다.
-                    """
-    )
-    public abstract ApiResponse<?> restoreMember(Long memberId);
 }

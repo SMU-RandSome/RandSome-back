@@ -88,18 +88,6 @@ class AdminReportControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"));
     }
 
-    @TestAdmin
-    @Test
-    void 정지된_회원을_복구한다() {
-        willDoNothing().given(adminReportService).restoreMember(1L);
-
-        assertThat(mvcTester.post().uri("/v1/admin/reports/members/1/restore"))
-                .apply(print())
-                .hasStatusOk()
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"));
-    }
-
     private List<Report> createMockReports() {
         return List.of(
                 createMockReport(1L, ReportStatus.PENDING),
