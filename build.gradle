@@ -96,6 +96,10 @@ dependencies {
     implementation 'com.google.zxing:core:3.5.4'
     implementation 'com.google.zxing:javase:3.5.4'
 
+    // Prometheus 메트릭 수집
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
 }
 
 tasks.named('test') {
