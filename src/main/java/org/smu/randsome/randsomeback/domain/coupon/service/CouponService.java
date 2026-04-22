@@ -31,4 +31,8 @@ public class CouponService {
         return couponReader.findCoupons(memberId, condition);
     }
 
+    public boolean isIssuable(Long couponEventId, Long memberId) {
+        return !couponReader.hasIssuedCoupon(couponEventId, memberId);
+    }
+
 }

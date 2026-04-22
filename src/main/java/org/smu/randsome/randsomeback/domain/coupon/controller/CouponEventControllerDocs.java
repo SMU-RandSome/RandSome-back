@@ -1,10 +1,12 @@
 package org.smu.randsome.randsomeback.domain.coupon.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventDetailItem;
 import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventPreviewItem;
+import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
@@ -35,7 +37,11 @@ public abstract class CouponEventControllerDocs {
                     ## 쿠폰 이벤트 단건 상세 정보를 조회합니다.
                     """
     )
-    public abstract ApiResponse<CouponEventDetailItem> findCouponEvent(Long couponEventId);
+    public abstract ApiResponse<CouponEventDetailItem> findCouponEvent(
+            @Parameter(description = "조회할 쿠폰 이벤트의 ID", example = "1")
+            Long couponEventId,
+            Long memberId
+    );
 
     @Operation(summary = "쿠폰 이벤트 목록 조회",
             description = """

@@ -108,4 +108,31 @@ class CouponServiceIntegrationTest extends IntegrationTestSupport {
                 .hasMessage(ErrorType.COUPON_NOT_USABLE.getMessage());
     }
 
+    @Test
+    void 쿠폰을_발급받지_않은_회원은_발급_가능하다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var event = couponEventJpaRepository.save(CuponFixture.createActiveCuponEvent());
+
+        // when
+        boolean isIssuable = couponService.isIssuable(event.getId(), member.getId());
+
+        // then
+        assertThat(isIssuable).isTrue();
+    }
+
+    @Test
+    void 이미_쿠폰을_발급받은_회원은_발급_불가능하다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var event = couponEventJpaRepository.save(CuponFixture.createActiveCuponEvent());
+        couponRepository.save(Coupon.issue(event, member));
+
+        // when
+        boolean isIssuable = couponService.isIssuable(event.getId(), member.getId());
+
+        // then
+        assertThat(isIssuable).isFalse();
+    }
+
 }

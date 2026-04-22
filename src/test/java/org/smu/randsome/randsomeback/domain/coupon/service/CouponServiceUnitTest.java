@@ -1,5 +1,6 @@
 package org.smu.randsome.randsomeback.domain.coupon.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -27,6 +28,34 @@ class CouponServiceUnitTest extends UnitTestSupport {
 
     @Mock
     private TicketHandler ticketHandler;
+
+    @Test
+    void 쿠폰을_아직_발급받지_않은_회원은_발급_가능하다() {
+        // given
+        var couponEventId = 1L;
+        var memberId = 42L;
+        given(couponReader.hasIssuedCoupon(couponEventId, memberId)).willReturn(false);
+
+        // when
+        boolean isIssuable = couponService.isIssuable(couponEventId, memberId);
+
+        // then
+        assertThat(isIssuable).isTrue();
+    }
+
+    @Test
+    void 이미_쿠폰을_발급받은_회원은_발급_불가능하다() {
+        // given
+        var couponEventId = 1L;
+        var memberId = 42L;
+        given(couponReader.hasIssuedCoupon(couponEventId, memberId)).willReturn(true);
+
+        // when
+        boolean isIssuable = couponService.isIssuable(couponEventId, memberId);
+
+        // then
+        assertThat(isIssuable).isFalse();
+    }
 
     @Test
     void 쿠폰_사용_시_CouponManager와_TicketHandler에_각각_위임한다() {

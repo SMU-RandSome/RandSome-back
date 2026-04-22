@@ -17,7 +17,7 @@ public class TestMemberSecurityContextFactory implements WithSecurityContextFact
     public SecurityContext createSecurityContext(TestMember annotation) {
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         GrantedAuthority authority = new SimpleGrantedAuthority(annotation.role());
-        String memberId = String.valueOf(annotation.id());
+        Long memberId = annotation.id();
 
         log.debug("Member ID: {}, Role: {}", memberId, authority);
 

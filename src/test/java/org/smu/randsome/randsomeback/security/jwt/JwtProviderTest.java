@@ -152,7 +152,7 @@ class JwtProviderTest extends UnitTestSupport {
         var authentication = jwtProvider.getAuthentication(tokens.accessToken());
 
         // then
-        assertThat(authentication.getPrincipal()).isEqualTo(memberId.toString());
+        assertThat(authentication.getPrincipal()).isEqualTo(memberId);
         assertThat(authentication.getAuthorities()).isNotEmpty();
     }
 

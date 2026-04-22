@@ -14,19 +14,18 @@ import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Component
 public class CouponReader {
 
     private final CouponRepository couponRepository;
 
-    @Transactional(readOnly = true)
     public Coupon findWithEvent(Long couponId) {
         return couponRepository.findByIdAndStatusWithEvent(couponId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_COUPON));
     }
 
-    @Transactional(readOnly = true)
     public CursorSlice<Coupon> findCoupons(Long memberId, CouponSearchCondition condition) {
         List<Coupon> coupons = couponRepository.findByMemberAndFilter(memberId, condition);
 
@@ -37,9 +36,12 @@ public class CouponReader {
         return CursorSlice.of(items, nextCursor, hasNext);
     }
 
-    @Transactional(readOnly = true)
     public List<Coupon> findExpirable(LocalDateTime now) {
         return couponRepository.findAllExpirable(CouponStatus.AVAILABLE, now, EntityStatus.ACTIVE);
+    }
+
+    public boolean hasIssuedCoupon(Long couponEventId, Long memberId) {
+        return couponRepository.existsByCouponEventIdAndMemberIdAndStatus(couponEventId, memberId, EntityStatus.ACTIVE);
     }
 
 }

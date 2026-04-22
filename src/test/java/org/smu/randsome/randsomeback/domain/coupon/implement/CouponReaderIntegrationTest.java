@@ -147,6 +147,33 @@ class CouponReaderIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
+    void 해당_이벤트에서_회원이_발급받은_쿠폰이_있으면_true를_반환한다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var event = couponEventJpaRepository.save(CuponFixture.createActiveCuponEvent());
+        couponRepository.save(Coupon.issue(event, member));
+
+        // when
+        boolean result = couponReader.hasIssuedCoupon(event.getId(), member.getId());
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void 해당_이벤트에서_회원이_발급받은_쿠폰이_없으면_false를_반환한다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var event = couponEventJpaRepository.save(CuponFixture.createActiveCuponEvent());
+
+        // when
+        boolean result = couponReader.hasIssuedCoupon(event.getId(), member.getId());
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
     void 만료_대상_쿠폰을_정상적으로_조회한다() {
         // given
         var member = memberJpaRepository.save(MemberFixture.create());
