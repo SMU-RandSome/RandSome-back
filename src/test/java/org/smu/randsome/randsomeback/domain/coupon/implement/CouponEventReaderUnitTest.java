@@ -1,8 +1,14 @@
 package org.smu.randsome.randsomeback.domain.coupon.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -26,71 +32,110 @@ class CouponEventReaderUnitTest extends UnitTestSupport {
     RedisRepository redisRepository;
 
     @Test
-    void DRAFT_상태의_이벤트는_총_수량을_남은_수량으로_반환한다() {
+    void DRAFT_이벤트는_총_수량을_남은_수량으로_반환한다() {
         // given
-        CouponEvent event = CuponFixture.createCuponEvent();
+        CouponEvent draftEvent = CuponFixture.createCuponEvent();
+        ReflectionTestUtils.setField(draftEvent, "id", 1L);
 
         // when
-        long remainingStock = couponEventReader.findRemainingStock(event);
+        Map<Long, Long> result = couponEventReader.findRemainingStocks(List.of(draftEvent));
 
         // then
-        assertThat(remainingStock).isEqualTo(CuponFixture.CUPON_QUANTITY);
+        assertThat(result.get(1L)).isEqualTo(CuponFixture.CUPON_QUANTITY);
+        verify(redisRepository, never()).mget(anyList());
     }
 
     @Test
-    void ACTIVE_상태의_이벤트는_Redis에서_남은_수량을_조회한다() {
+    void ACTIVE_이벤트들은_MGET으로_한_번에_Redis에서_남은_수량을_조회한다() {
         // given
-        CouponEvent event = CuponFixture.createActiveCuponEvent();
-        ReflectionTestUtils.setField(event, "id", 1L);
-        given(redisRepository.get(CacheKeys.couponStock(1L)))
-                .willReturn("7");
+        CouponEvent active1 = CuponFixture.createActiveCuponEvent();
+        ReflectionTestUtils.setField(active1, "id", 1L);
+
+        CouponEvent active2 = CuponFixture.createActiveCuponEvent();
+        ReflectionTestUtils.setField(active2, "id", 2L);
+
+        List<String> keys = List.of(CacheKeys.couponStock(1L), CacheKeys.couponStock(2L));
+        given(redisRepository.mget(keys)).willReturn(List.of("7", "3"));
 
         // when
-        long remainingStock = couponEventReader.findRemainingStock(event);
+        Map<Long, Long> result = couponEventReader.findRemainingStocks(List.of(active1, active2));
 
         // then
-        assertThat(remainingStock).isEqualTo(7L);
+        assertThat(result.get(1L)).isEqualTo(7L);
+        assertThat(result.get(2L)).isEqualTo(3L);
+        verify(redisRepository).mget(keys);
     }
 
     @Test
-    void ACTIVE_상태에서_Redis_값이_없으면_0을_반환한다() {
+    void ACTIVE_이벤트의_Redis_값이_null이면_0을_반환한다() {
         // given
-        CouponEvent event = CuponFixture.createActiveCuponEvent();
-        ReflectionTestUtils.setField(event, "id", 1L);
-        given(redisRepository.get(CacheKeys.couponStock(1L)))
-                .willReturn(null);
+        CouponEvent activeEvent = CuponFixture.createActiveCuponEvent();
+        ReflectionTestUtils.setField(activeEvent, "id", 1L);
+
+        List<String> keys = List.of(CacheKeys.couponStock(1L));
+        given(redisRepository.mget(keys)).willReturn(Arrays.asList(new String[]{null}));
 
         // when
-        long remainingStock = couponEventReader.findRemainingStock(event);
+        Map<Long, Long> result = couponEventReader.findRemainingStocks(List.of(activeEvent));
 
         // then
-        assertThat(remainingStock).isEqualTo(0L);
+        assertThat(result.get(1L)).isEqualTo(0L);
     }
 
     @Test
-    void SOLD_OUT_상태의_이벤트는_0을_반환한다() {
+    void SOLD_OUT_이벤트는_0을_반환한다() {
         // given
-        CouponEvent event = CuponFixture.createActiveCuponEvent();
-        event.soldOut();
+        CouponEvent soldOutEvent = CuponFixture.createActiveCuponEvent();
+        soldOutEvent.soldOut();
+        ReflectionTestUtils.setField(soldOutEvent, "id", 1L);
 
         // when
-        long remainingStock = couponEventReader.findRemainingStock(event);
+        Map<Long, Long> result = couponEventReader.findRemainingStocks(List.of(soldOutEvent));
 
         // then
-        assertThat(remainingStock).isEqualTo(0L);
+        assertThat(result.get(1L)).isEqualTo(0L);
     }
 
     @Test
-    void ENDED_상태의_이벤트는_0을_반환한다() {
+    void ENDED_이벤트는_0을_반환한다() {
         // given
-        CouponEvent event = CuponFixture.createActiveCuponEvent();
-        event.end();
+        CouponEvent endedEvent = CuponFixture.createActiveCuponEvent();
+        endedEvent.end();
+        ReflectionTestUtils.setField(endedEvent, "id", 1L);
 
         // when
-        long remainingStock = couponEventReader.findRemainingStock(event);
+        Map<Long, Long> result = couponEventReader.findRemainingStocks(List.of(endedEvent));
 
         // then
-        assertThat(remainingStock).isEqualTo(0L);
+        assertThat(result.get(1L)).isEqualTo(0L);
+    }
+
+    @Test
+    void 혼합_상태의_이벤트_목록에서_ACTIVE만_MGET으로_조회한다() {
+        // given
+        CouponEvent draftEvent = CuponFixture.createCuponEvent();
+        ReflectionTestUtils.setField(draftEvent, "id", 1L);
+
+        CouponEvent activeEvent = CuponFixture.createActiveCuponEvent();
+        ReflectionTestUtils.setField(activeEvent, "id", 2L);
+
+        CouponEvent soldOutEvent = CuponFixture.createActiveCuponEvent();
+        soldOutEvent.soldOut();
+        ReflectionTestUtils.setField(soldOutEvent, "id", 3L);
+
+        List<String> activeKeys = List.of(CacheKeys.couponStock(2L));
+        given(redisRepository.mget(activeKeys)).willReturn(List.of("5"));
+
+        // when
+        Map<Long, Long> result = couponEventReader.findRemainingStocks(
+                List.of(draftEvent, activeEvent, soldOutEvent));
+
+        // then
+        assertThat(result).hasSize(3);
+        assertThat(result.get(1L)).isEqualTo(CuponFixture.CUPON_QUANTITY);
+        assertThat(result.get(2L)).isEqualTo(5L);
+        assertThat(result.get(3L)).isEqualTo(0L);
+        verify(redisRepository).mget(activeKeys);
     }
 
 }

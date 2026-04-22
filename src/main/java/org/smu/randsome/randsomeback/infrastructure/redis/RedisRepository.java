@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.infrastructure.redis;
 
 import java.time.Duration;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,10 @@ public class RedisRepository {
 
     public String get(String key) {
         return stringRedisTemplate.opsForValue().get(key);
+    }
+
+    public List<String> mget(List<String> keys) {
+        return stringRedisTemplate.opsForValue().multiGet(keys);
     }
 
     public void delete(String key) {

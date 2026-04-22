@@ -2,7 +2,6 @@ package org.smu.randsome.randsomeback.admin.coupon.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.NewCouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.UpdateCouponEvent;
@@ -69,9 +68,7 @@ public class CouponEventAdminService {
      * @return 이벤트 ID → 남은 수량 맵
      * */
     public Map<Long, Long> findRemainingStocks(List<CouponEvent> events) {
-        return events.stream()
-                .collect(Collectors.toMap(CouponEvent::getId,
-                        couponEventReader::findRemainingStock));
+        return couponEventReader.findRemainingStocks(events);
     }
 
     /**

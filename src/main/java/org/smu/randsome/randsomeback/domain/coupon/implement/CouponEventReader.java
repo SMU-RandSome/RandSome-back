@@ -1,7 +1,10 @@
 package org.smu.randsome.randsomeback.domain.coupon.implement;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventStatus;
@@ -44,17 +47,47 @@ public class CouponEventReader {
                 CouponEventStatus.ACTIVE, now, EntityStatus.ACTIVE);
     }
 
-    public long findRemainingStock(CouponEvent event) {
+    public Map<Long, Long> findRemainingStocks(List<CouponEvent> events) {
+        Map<Long, Long> activeStocks = fetchActiveStocks(events);
+
+        return events.stream()
+                .collect(Collectors.toMap(
+                        CouponEvent::getId,
+                        event -> remainingStockOf(event, activeStocks)
+                ));
+    }
+
+    private Map<Long, Long> fetchActiveStocks(List<CouponEvent> events) {
+        List<CouponEvent> activeEvents = events.stream()
+                .filter(event -> event.getEventStatus() == CouponEventStatus.ACTIVE)
+                .toList();
+
+        if (activeEvents.isEmpty()) {
+            return Map.of();
+        }
+
+        List<String> keys = activeEvents.stream()
+                .map(event -> CacheKeys.couponStock(event.getId()))
+                .toList();
+        List<String> values = redisRepository.mget(keys);
+
+        Map<Long, Long> stocks = new HashMap<>();
+        for (int i = 0; i < activeEvents.size(); i++) {
+            stocks.put(activeEvents.get(i).getId(), parseStock(values.get(i)));
+        }
+        return stocks;
+    }
+
+    private long remainingStockOf(CouponEvent event, Map<Long, Long> activeStocks) {
         return switch (event.getEventStatus()) {
             case DRAFT -> event.getTotalQuantity();
-            case ACTIVE -> countByStock(event.getId());
+            case ACTIVE -> activeStocks.getOrDefault(event.getId(), 0L);
             case SOLD_OUT, ENDED -> 0L;
         };
     }
 
-    private long countByStock(Long couponEventId) {
-        String stock = redisRepository.get(CacheKeys.couponStock(couponEventId));
-        return stock != null ? Long.parseLong(stock) : 0L;
+    private long parseStock(String value) {
+        return value != null ? Long.parseLong(value) : 0L;
     }
 
 }
