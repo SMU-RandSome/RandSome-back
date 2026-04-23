@@ -64,7 +64,7 @@ public class MatchingManager {
 
     private void assertNotDuplicateAndMark(NewMatching newMatching, Long memberId) {
         String idempotencyKey = CacheKeys.matchingIdempotency(memberId, newMatching.matchingType(), newMatching.applicationCount());
-        if (!redisRepository.tryAcquire(idempotencyKey, Duration.ofSeconds(10))) {
+        if (!redisRepository.tryAcquire(idempotencyKey, Duration.ofSeconds(5))) {
             throw new CoreException(ErrorType.TOO_MANY_MATCHING_REQUESTS);
         }
     }
