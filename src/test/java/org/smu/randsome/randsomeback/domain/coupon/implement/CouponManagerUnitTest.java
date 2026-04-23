@@ -300,10 +300,8 @@ class CouponManagerUnitTest extends UnitTestSupport {
         var memberId = 42L;
         var now = LocalDateTime.now();
         var couponEvent = CuponFixture.createActiveCuponEvent();
-        var member = MemberFixture.create();
 
         given(couponEventReader.find(eventId)).willReturn(couponEvent);
-        given(memberReader.getReference(memberId)).willReturn(member);
         doThrow(new CoreException(ErrorType.ALREADY_ISSUED_COUPON))
                 .when(couponCacheManager)
                 .acquireMemberLockOrThrow(anyLong(), anyLong(), any());
@@ -321,10 +319,8 @@ class CouponManagerUnitTest extends UnitTestSupport {
         var memberId = 42L;
         var now = LocalDateTime.now();
         var couponEvent = CuponFixture.createActiveCuponEvent();
-        var member = MemberFixture.create();
 
         given(couponEventReader.find(eventId)).willReturn(couponEvent);
-        given(memberReader.getReference(memberId)).willReturn(member);
         doThrow(new CoreException(ErrorType.COUPON_SOLD_OUT))
                 .when(couponCacheManager)
                 .decrementStockOrThrow(eventId, memberId);

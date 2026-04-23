@@ -46,12 +46,7 @@ public class CouponManager {
     @Transactional
     public Long issueCoupon(Long couponEventId, Long memberId, LocalDateTime now) {
         CouponEvent couponEvent = couponEventReader.find(couponEventId);
-
-        if (!couponEvent.isIssuable(now)) {
-            throw new CoreException(ErrorType.COUPON_EVENT_NOT_ACTIVE);
-        }
-
-        Member member = memberReader.getReference(memberId);
+        validateIssuable(couponEvent, now);
 
         // Redis 기반 동시성 제어
         // TTL을 짧게 고정해 크래시 발생 시 사용자가 단시간 내 재시도할 수 있도록 한다.
@@ -59,6 +54,20 @@ public class CouponManager {
         couponCacheManager.acquireMemberLockOrThrow(couponEventId, memberId, MEMBER_LOCK_TTL);
         long remaining = couponCacheManager.decrementStockOrThrow(couponEventId, memberId);
 
+        Member member = memberReader.getReference(memberId);
+
+        return saveCoupon(couponEventId, couponEvent, member, remaining);
+    }
+
+    @Transactional
+    public void expireBatch(List<Coupon> coupons) {
+        // TODO: 성능 개선 필요 - 대량의 쿠폰을 한 번에 만료 처리할 때, 개별적으로 expire()를 호출하는 대신 배치 업데이트를 고려할 수 있음
+        coupons.forEach(Coupon::expire);
+        // 파라미터로 전달 받은 coupons는 영속성 컨텍스트에 관리되지 않는 상태이므로, saveAll()을 통해 일괄 저장하여 변경 사항을 DB에 반영한다.
+        couponRepository.saveAll(coupons);
+    }
+
+    private Long saveCoupon(Long couponEventId, CouponEvent couponEvent, Member member, long remaining) {
         Coupon coupon = Coupon.issue(couponEvent, member);
 
         try {
@@ -75,12 +84,10 @@ public class CouponManager {
         }
     }
 
-    @Transactional
-    public void expireBatch(List<Coupon> coupons) {
-        // TODO: 성능 개선 필요 - 대량의 쿠폰을 한 번에 만료 처리할 때, 개별적으로 expire()를 호출하는 대신 배치 업데이트를 고려할 수 있음
-        coupons.forEach(Coupon::expire);
-        // 파라미터로 전달 받은 coupons는 영속성 컨텍스트에 관리되지 않는 상태이므로, saveAll()을 통해 일괄 저장하여 변경 사항을 DB에 반영한다.
-        couponRepository.saveAll(coupons);
+    private void validateIssuable(CouponEvent couponEvent, LocalDateTime now) {
+        if (!couponEvent.isIssuable(now)) {
+            throw new CoreException(ErrorType.COUPON_EVENT_NOT_ACTIVE);
+        }
     }
 
 
