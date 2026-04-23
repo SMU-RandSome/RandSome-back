@@ -19,6 +19,7 @@ import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
+import org.smu.randsome.randsomeback.domain.matching.implement.MatchingExecutor;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
 import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
@@ -32,6 +33,9 @@ class MatchingServiceUnitTest extends UnitTestSupport {
 
     @Mock
     MatchingManager matchingManager;
+
+    @Mock
+    MatchingExecutor matchingExecutor;
 
     @Mock
     MatchingReader matchingReader;
@@ -60,7 +64,7 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         assertThat(result).isEqualTo(application);
         verify(ticketHandler).deduct(memberId, newMatching);
         verify(matchingManager).apply(newMatching, memberId);
-        verify(matchingManager).executeMatching(eq(application), any());
+        verify(matchingExecutor).execute(eq(application));
     }
 
     @Test
@@ -138,7 +142,7 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         given(application.getMatchedCount()).willReturn(2);
         given(matchingManager.apply(newMatching, memberId)).willReturn(application);
 
-        var order = org.mockito.Mockito.inOrder(ticketHandler, matchingManager);
+        var order = org.mockito.Mockito.inOrder(ticketHandler, matchingManager, matchingExecutor);
 
         // when
         matchingService.apply(newMatching, memberId);
@@ -146,7 +150,7 @@ class MatchingServiceUnitTest extends UnitTestSupport {
         // then
         order.verify(ticketHandler).deduct(memberId, newMatching);
         order.verify(matchingManager).apply(newMatching, memberId);
-        order.verify(matchingManager).executeMatching(eq(application), any());
+        order.verify(matchingExecutor).execute(eq(application));
         order.verify(ticketHandler).refundForPartialMatch(memberId, MatchingType.RANDOM, 2, 2);
     }
 
@@ -167,7 +171,7 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
 
         verify(ticketHandler).deduct(memberId, newMatching);
-        verify(matchingManager, never()).executeMatching(any(), any());
+        verify(matchingExecutor, never()).execute(any());
     }
 
     @Test

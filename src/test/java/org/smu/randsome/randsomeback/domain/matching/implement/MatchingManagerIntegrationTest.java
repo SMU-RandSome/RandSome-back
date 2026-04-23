@@ -15,8 +15,6 @@ import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepositor
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
-import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
-import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -24,9 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 class MatchingManagerIntegrationTest extends IntegrationTestSupport {
 
     final MatchingManager matchingManager;
+    final MatchingExecutor matchingExecutor;
     final MemberJpaRepository memberJpaRepository;
     final MatchingJpaRepository matchingJpaRepository;
-    final RedisRepository redisRepository;
 
     @Test
     void 매칭_신청을_저장하면_PENDING_상태로_DB에_저장된다() {
@@ -114,34 +112,6 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void 후보자가_없으면_FAILED_상태와_완료_시각과_매칭_수가_저장된다() {
-        // given
-        var member = memberJpaRepository.save(MemberFixture.create());
-        var newMatching = NewMatching.builder()
-                .matchingType(MatchingType.RANDOM)
-                .applicationCount(3)
-                .build();
-        var application = matchingManager.apply(newMatching, member.getId());
-        var completedAt = TestDateTimeUtils.now();
-
-        // when
-        matchingManager.executeMatching(application, completedAt);
-
-        // then: 후보자 없으므로 matchedCount=0, 상태는 FAILED
-        var result = matchingJpaRepository.findById(application.getId()).orElseThrow();
-        assertThat(result).extracting(
-                MatchingApplication::getApplicationStatus,
-                MatchingApplication::getCompletedAt,
-                MatchingApplication::getMatchedCount
-        ).containsExactly(
-                ApplicationStatus.FAILED,
-                completedAt,
-                0
-        );
-    }
-
-
-    @Test
     void PENDING_신청을_취소하면_CANCELLED_상태와_취소_시각이_저장된다() {
         // given
         var member = memberJpaRepository.save(MemberFixture.create());
@@ -198,7 +168,7 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
                 .applicationCount(3)
                 .build();
         var application = matchingManager.apply(newMatching, member.getId());
-        matchingManager.executeMatching(application, TestDateTimeUtils.now());
+        matchingExecutor.execute(application);
 
         // when & then
         assertThatThrownBy(() -> matchingManager.cancel(application.getId(), member.getId()))

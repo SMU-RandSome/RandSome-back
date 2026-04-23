@@ -1,12 +1,12 @@
 package org.smu.randsome.randsomeback.domain.matching.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
+import org.smu.randsome.randsomeback.domain.matching.implement.MatchingExecutor;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
 import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MatchingService {
 
     private final MatchingManager matchingManager;
+    private final MatchingExecutor matchingExecutor;
     private final MatchingReader matchingReader;
     private final TicketHandler ticketHandler;
 
@@ -35,7 +36,7 @@ public class MatchingService {
         ticketHandler.deduct(memberId, newMatching);
 
         MatchingApplication matchingApplication = matchingManager.apply(newMatching, memberId);
-        matchingManager.executeMatching(matchingApplication, LocalDateTime.now());
+        matchingExecutor.execute(matchingApplication);
 
         ticketHandler.refundForPartialMatch(
                 memberId,

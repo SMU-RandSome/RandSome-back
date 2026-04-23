@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
+import org.smu.randsome.randsomeback.domain.matching.implement.MatchingExecutor;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingResultJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
-import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
 
     final MatchingManager matchingManager;
+    final MatchingExecutor matchingExecutor;
     final MemberJpaRepository memberJpaRepository;
     final MatchingResultJpaRepository matchingResultJpaRepository;
 
@@ -47,7 +48,7 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.executeMatching(application, TestDateTimeUtils.now());
+        matchingExecutor.execute(application);
 
         // then
         var results = matchingResultJpaRepository.findAll();
@@ -79,7 +80,7 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.executeMatching(application, TestDateTimeUtils.now());
+        matchingExecutor.execute(application);
 
         // then
         assertThat(matchingResultJpaRepository.findAll()).hasSize(3);
@@ -98,7 +99,7 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.executeMatching(application, TestDateTimeUtils.now());
+        matchingExecutor.execute(application);
 
         // then
         assertThat(matchingResultJpaRepository.findAll()).isEmpty();
@@ -126,7 +127,7 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.executeMatching(application, TestDateTimeUtils.now());
+        matchingExecutor.execute(application);
 
         // then
         var results = matchingResultJpaRepository.findAll();
@@ -151,7 +152,7 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.executeMatching(application, TestDateTimeUtils.now());
+        matchingExecutor.execute(application);
 
         // then
         assertThat(matchingResultJpaRepository.findAll()).hasSize(2);
@@ -176,7 +177,7 @@ class RandomMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.executeMatching(application, TestDateTimeUtils.now());
+        matchingExecutor.execute(application);
 
         // then
         var result = matchingResultJpaRepository.findAll().getFirst();
