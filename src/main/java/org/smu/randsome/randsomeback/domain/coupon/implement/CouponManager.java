@@ -2,11 +2,12 @@ package org.smu.randsome.randsomeback.domain.coupon.implement;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventSoldOutEvent;
 import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
+import org.smu.randsome.randsomeback.domain.coupon.enums.CouponStatus;
+import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.domain.coupon.repository.CouponRepository;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
@@ -60,11 +61,13 @@ public class CouponManager {
     }
 
     @Transactional
-    public void expireBatch(List<Coupon> coupons) {
-        // TODO: 성능 개선 필요 - 대량의 쿠폰을 한 번에 만료 처리할 때, 개별적으로 expire()를 호출하는 대신 배치 업데이트를 고려할 수 있음
-        coupons.forEach(Coupon::expire);
-        // 파라미터로 전달 받은 coupons는 영속성 컨텍스트에 관리되지 않는 상태이므로, saveAll()을 통해 일괄 저장하여 변경 사항을 DB에 반영한다.
-        couponRepository.saveAll(coupons);
+    public int expireBatch(LocalDateTime now) {
+        return couponRepository.bulkExpire(
+                CouponStatus.AVAILABLE,
+                CouponStatus.EXPIRED,
+                now,
+                EntityStatus.ACTIVE
+        );
     }
 
     private Long saveCoupon(Long couponEventId, CouponEvent couponEvent, Member member, long remaining) {

@@ -23,6 +23,7 @@ import org.smu.randsome.randsomeback.domain.coupon.repository.CouponRepository;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
+import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
@@ -334,17 +335,24 @@ class CouponManagerUnitTest extends UnitTestSupport {
     @Test
     void 쿠폰을_배치로_만료시킨다() {
         // given
-        var coupon1 = Coupon.issue(CuponFixture.createCuponEvent(), MemberFixture.create());
-        var coupon2 = Coupon.issue(CuponFixture.createCuponEvent(), MemberFixture.create());
-        var coupons = java.util.List.of(coupon1, coupon2);
+        given(couponRepository.bulkExpire(
+                CouponStatus.AVAILABLE,
+                CouponStatus.EXPIRED,
+                NOW,
+                EntityStatus.ACTIVE
+        )).willReturn(5);
 
         // when
-        couponManager.expireBatch(coupons);
+        int expiredCount = couponManager.expireBatch(NOW);
 
         // then
-        assertThat(coupon1.getCouponStatus()).isEqualTo(org.smu.randsome.randsomeback.domain.coupon.enums.CouponStatus.EXPIRED);
-        assertThat(coupon2.getCouponStatus()).isEqualTo(org.smu.randsome.randsomeback.domain.coupon.enums.CouponStatus.EXPIRED);
-        verify(couponRepository).saveAll(coupons);
+        assertThat(expiredCount).isEqualTo(5);
+        verify(couponRepository).bulkExpire(
+                CouponStatus.AVAILABLE,
+                CouponStatus.EXPIRED,
+                NOW,
+                EntityStatus.ACTIVE
+        );
     }
 
 }

@@ -1,11 +1,9 @@
 package org.smu.randsome.randsomeback.domain.coupon.implement;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.CouponSearchCondition;
 import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
-import org.smu.randsome.randsomeback.domain.coupon.enums.CouponStatus;
 import org.smu.randsome.randsomeback.domain.coupon.repository.CouponRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -34,10 +32,6 @@ public class CouponReader {
         Long nextCursor = hasNext ? items.getLast().getId() : null;
 
         return CursorSlice.of(items, nextCursor, hasNext);
-    }
-
-    public List<Coupon> findExpirable(LocalDateTime now) {
-        return couponRepository.findAllExpirable(CouponStatus.AVAILABLE, now, EntityStatus.ACTIVE);
     }
 
     public boolean hasIssuedCoupon(Long couponEventId, Long memberId) {
