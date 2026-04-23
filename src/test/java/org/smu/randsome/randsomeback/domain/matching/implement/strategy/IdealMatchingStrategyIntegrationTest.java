@@ -8,6 +8,7 @@ import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.vo.IdealTypePreference;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
+import org.smu.randsome.randsomeback.domain.matching.implement.MatchingExecutor;
 import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingResultJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 class IdealMatchingStrategyIntegrationTest extends IntegrationTestSupport {
 
     final MatchingManager matchingManager;
+    final MatchingExecutor matchingExecutor;
     final MemberJpaRepository memberJpaRepository;
     final MatchingResultJpaRepository matchingResultJpaRepository;
 
@@ -58,7 +60,7 @@ class IdealMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.executeMatching(application, TestDateTimeUtils.now());
+        matchingExecutor.execute(application);
 
         // then
         var results = matchingResultJpaRepository.findAll();
@@ -97,7 +99,7 @@ class IdealMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.executeMatching(application, TestDateTimeUtils.now());
+        matchingExecutor.execute(application);
 
         // then: 둘 다 점수가 1점으로 동일하므로 둘 중 하나가 선택됨
         var results = matchingResultJpaRepository.findAll();
@@ -137,7 +139,7 @@ class IdealMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.executeMatching(application, TestDateTimeUtils.now());
+        matchingExecutor.execute(application);
 
         // then
         var results = matchingResultJpaRepository.findAll();
@@ -182,7 +184,7 @@ class IdealMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.executeMatching(application, TestDateTimeUtils.now());
+        matchingExecutor.execute(application);
 
         // then
         var results = matchingResultJpaRepository.findAll();
@@ -219,7 +221,7 @@ class IdealMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.executeMatching(application, TestDateTimeUtils.now());
+        matchingExecutor.execute(application);
 
         // then
         assertThat(matchingResultJpaRepository.findAll()).hasSize(1);
@@ -268,7 +270,7 @@ class IdealMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         );
 
         // when
-        matchingManager.executeMatching(application, TestDateTimeUtils.now());
+        matchingExecutor.execute(application);
 
         // then: 3점(1명) + 2점(2명) + 1점(1명) 중 신청인원수(2명)만큼 상위를 선택
         var results = matchingResultJpaRepository.findAll();
