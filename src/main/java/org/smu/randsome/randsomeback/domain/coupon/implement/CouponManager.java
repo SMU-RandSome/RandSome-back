@@ -30,6 +30,7 @@ public class CouponManager {
     private final CouponRepository couponRepository;
     private final ApplicationEventPublisher eventPublisher;
 
+    // NOTE: CouponService.useCoupon()의 @Transactional 안에서만 호출 하기에, 별도의 트랜잭션을 시작하지 않는다.
     public Coupon useCoupon(Long couponId, Long memberId) {
         Coupon coupon = couponReader.findWithEvent(couponId);
 

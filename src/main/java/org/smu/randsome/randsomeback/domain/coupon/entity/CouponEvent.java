@@ -66,20 +66,64 @@ public class CouponEvent extends BaseEntity {
             LocalDateTime expiresAt,
             LocalDateTime couponExpiresAt
     ) {
+        requireNonNull(name);
+        requireNonNull(type);
+        requireNonNull(rewardTicketType);
+        requireNonNull(startsAt);
+        requireNonNull(expiresAt);
+        requireNonNull(couponExpiresAt);
+        validateQuantity(totalQuantity, rewardTicketAmount);
+        validateCouponEventTiming(startsAt, expiresAt, couponExpiresAt);
+
         CouponEvent event = new CouponEvent();
 
-        event.name = requireNonNull(name);
+        event.name = name;
         event.description = description;
-        event.type = requireNonNull(type);
+        event.type = type;
         event.eventStatus = CouponEventStatus.DRAFT;
         event.totalQuantity = totalQuantity;
-        event.rewardTicketType = requireNonNull(rewardTicketType);
+        event.rewardTicketType = rewardTicketType;
         event.rewardTicketAmount = rewardTicketAmount;
-        event.startsAt = requireNonNull(startsAt);
-        event.expiresAt = requireNonNull(expiresAt);
-        event.couponExpiresAt = requireNonNull(couponExpiresAt);
+        event.startsAt = startsAt;
+        event.expiresAt = expiresAt;
+        event.couponExpiresAt = couponExpiresAt;
 
         return event;
+    }
+
+    public void update(
+            String name,
+            String description,
+            CouponEventType type,
+            int totalQuantity,
+            TicketType rewardTicketType,
+            int rewardTicketAmount,
+            LocalDateTime startsAt,
+            LocalDateTime expiresAt,
+            LocalDateTime couponExpiresAt
+    ) {
+        if (eventStatus != CouponEventStatus.DRAFT) {
+            throw new CoreException(ErrorType.COUPON_EVENT_INVALID_STATUS);
+        }
+
+        requireNonNull(name);
+        requireNonNull(type);
+        requireNonNull(rewardTicketType);
+        requireNonNull(startsAt);
+        requireNonNull(expiresAt);
+        requireNonNull(couponExpiresAt);
+        validateQuantity(totalQuantity, rewardTicketAmount);
+        validateCouponEventTiming(startsAt, expiresAt, couponExpiresAt);
+
+        this.name = name;
+        this.description = description;
+        this.type = type;
+        this.totalQuantity = totalQuantity;
+        this.rewardTicketType = rewardTicketType;
+        this.rewardTicketAmount = rewardTicketAmount;
+        this.startsAt = startsAt;
+        this.expiresAt = expiresAt;
+        this.couponExpiresAt = couponExpiresAt;
     }
 
     public void activate(LocalDateTime now) {
@@ -106,39 +150,23 @@ public class CouponEvent extends BaseEntity {
         this.eventStatus = CouponEventStatus.ENDED;
     }
 
-    public void update(
-            String name,
-            String description,
-            CouponEventType type,
-            int totalQuantity,
-            TicketType rewardTicketType,
-            int rewardTicketAmount,
-            LocalDateTime startsAt,
-            LocalDateTime expiresAt,
-            LocalDateTime couponExpiresAt
-    ) {
-        if (eventStatus != CouponEventStatus.DRAFT) {
-            throw new CoreException(ErrorType.COUPON_EVENT_INVALID_STATUS);
-        }
-
-        if (startsAt.isAfter(expiresAt) || expiresAt.isAfter(couponExpiresAt)) {
-            throw new CoreException(ErrorType.BAD_REQUEST);
-        }
-        this.name = requireNonNull(name);
-        this.description = description;
-        this.type = requireNonNull(type);
-        this.totalQuantity = totalQuantity;
-        this.rewardTicketType = requireNonNull(rewardTicketType);
-        this.rewardTicketAmount = rewardTicketAmount;
-        this.startsAt = requireNonNull(startsAt);
-        this.expiresAt = requireNonNull(expiresAt);
-        this.couponExpiresAt = requireNonNull(couponExpiresAt);
-    }
-
     public boolean isIssuable(LocalDateTime now) {
         return eventStatus == CouponEventStatus.ACTIVE
                 && !now.isBefore(startsAt)
                 && now.isBefore(expiresAt);
+    }
+
+    private static void validateQuantity(int totalQuantity, int rewardTicketAmount) {
+        if (totalQuantity <= 0 || rewardTicketAmount <= 0) {
+            throw new CoreException(ErrorType.COUPON_EVENT_INVALID_QUANTITY);
+        }
+    }
+
+    private static void validateCouponEventTiming(LocalDateTime startsAt, LocalDateTime expiresAt,
+            LocalDateTime couponExpiresAt) {
+        if (startsAt.isAfter(expiresAt) || expiresAt.isAfter(couponExpiresAt)) {
+            throw new CoreException(ErrorType.COUPON_EVENT_INVALID_TIME);
+        }
     }
 
 }
