@@ -29,7 +29,8 @@ public interface CouponJpaRepository extends JpaRepository<Coupon, Long> {
     @Query("""
             UPDATE Coupon c
             SET c.couponStatus = :expiredStatus,
-                c.version = c.version + 1
+                c.version = c.version + 1,
+                c.updatedAt = :now
             WHERE c.couponStatus = :availableStatus
               AND c.expiredAt < :now
               AND c.status = :entityStatus
