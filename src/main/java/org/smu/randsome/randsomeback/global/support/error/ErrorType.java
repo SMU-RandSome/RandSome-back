@@ -67,15 +67,17 @@ public enum ErrorType {
     INVALID_TICKET_AMOUNT (HttpStatus.BAD_REQUEST, "유효하지 않은 티켓 수량입니다. 0보다 큰 수량을 입력해주세요.", LogLevel.INFO),
     DUPLICATE_TICKET      (HttpStatus.CONFLICT, "해당 회원은 이미 티켓을 보유하고 있습니다.", LogLevel.INFO),
 
-        // COUPON
-    NOT_FOUND_COUPON_EVENT      (HttpStatus.NOT_FOUND,   "쿠폰 이벤트를 찾을 수 없습니다.", LogLevel.INFO),
-    COUPON_EVENT_NOT_ACTIVE     (HttpStatus.BAD_REQUEST,  "현재 발급 가능한 이벤트가 아닙니다.", LogLevel.INFO),
+    // COUPON
+    COUPON_EVENT_NOT_ACTIVE      (HttpStatus.BAD_REQUEST,  "현재 발급 가능한 이벤트가 아닙니다.", LogLevel.INFO),
     COUPON_EVENT_INVALID_STATUS  (HttpStatus.BAD_REQUEST,  "해당 상태의 이벤트에서는 이 작업을 수행할 수 없습니다.", LogLevel.WARN),
     COUPON_EVENT_ALREADY_EXPIRED (HttpStatus.BAD_REQUEST,  "이미 만료된 쿠폰 이벤트는 활성화할 수 없습니다.", LogLevel.INFO),
-    ALREADY_ISSUED_COUPON       (HttpStatus.CONFLICT,     "이미 발급받은 쿠폰입니다.", LogLevel.INFO),
-    COUPON_SOLD_OUT             (HttpStatus.CONFLICT,     "쿠폰이 모두 소진되었습니다.", LogLevel.INFO),
-    NOT_FOUND_COUPON            (HttpStatus.NOT_FOUND,   "쿠폰을 찾을 수 없습니다.", LogLevel.INFO),
-    COUPON_NOT_USABLE           (HttpStatus.BAD_REQUEST,  "사용할 수 없는 쿠폰입니다.", LogLevel.INFO),
+    COUPON_EVENT_INVALID_TIME     (HttpStatus.BAD_REQUEST,  "쿠폰 이벤트의 시간 설정이 올바르지 않습니다.", LogLevel.INFO),
+    COUPON_EVENT_INVALID_QUANTITY (HttpStatus.BAD_REQUEST,  "쿠폰 이벤트의 수량은 0보다 커야 합니다.", LogLevel.INFO),
+    COUPON_NOT_USABLE            (HttpStatus.BAD_REQUEST,  "사용할 수 없는 쿠폰입니다.", LogLevel.INFO),
+    ALREADY_ISSUED_COUPON        (HttpStatus.CONFLICT,     "이미 발급받은 쿠폰입니다.", LogLevel.INFO),
+    NOT_FOUND_COUPON             (HttpStatus.NOT_FOUND,   "쿠폰을 찾을 수 없습니다.", LogLevel.INFO),
+    NOT_FOUND_COUPON_EVENT       (HttpStatus.NOT_FOUND,   "쿠폰 이벤트를 찾을 수 없습니다.", LogLevel.INFO),
+    COUPON_SOLD_OUT              (HttpStatus.CONFLICT,     "쿠폰이 모두 소진되었습니다.", LogLevel.INFO),
 
     // ATTENDANCE
     DUPLICATE_ATTENDANCE(HttpStatus.CONFLICT, "오늘 이미 출석 체크를 완료했습니다.", LogLevel.INFO),

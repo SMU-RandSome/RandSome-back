@@ -232,6 +232,172 @@ class CouponEventTest {
                 CuponFixture.COUPON_EXPIRED_AT
         )).isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+    }
 
+    @Test
+    void SOLD_OUT_상태에서_수정하면_예외가_발생한다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+        event.activate(NOW);
+        event.soldOut();
+
+        // when & then
+        assertThatThrownBy(() -> event.update(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+    }
+
+    @Test
+    void 시작시간이_종료시간보다_늦으면_생성_시_예외가_발생한다() {
+        assertThatThrownBy(() -> CouponEvent.create(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                NOW.plusDays(2),
+                NOW.plusDays(1),
+                NOW.plusDays(30)
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_TIME.getMessage());
+    }
+
+    @Test
+    void 이벤트_종료시간이_쿠폰_만료시간보다_늦으면_생성_시_예외가_발생한다() {
+        assertThatThrownBy(() -> CouponEvent.create(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                NOW,
+                NOW.plusDays(30),
+                NOW.plusDays(1)
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_TIME.getMessage());
+    }
+
+    @Test
+    void 총_수량이_0이하면_생성_시_예외가_발생한다() {
+        assertThatThrownBy(() -> CouponEvent.create(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                0,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_QUANTITY.getMessage());
+    }
+
+    @Test
+    void 보상_티켓_수량이_0이하면_생성_시_예외가_발생한다() {
+        assertThatThrownBy(() -> CouponEvent.create(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                0,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_QUANTITY.getMessage());
+    }
+
+    @Test
+    void 수정_시_시간_순서가_잘못되면_예외가_발생한다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+
+        // when & then
+        assertThatThrownBy(() -> event.update(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                NOW.plusDays(2),
+                NOW.plusDays(1),
+                NOW.plusDays(30)
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_TIME.getMessage());
+    }
+
+    @Test
+    void 수정_시_수량이_0이하면_예외가_발생한다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+
+        // when & then
+        assertThatThrownBy(() -> event.update(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                0,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_QUANTITY.getMessage());
+    }
+
+    @Test
+    void SOLD_OUT_상태에서_활성화하면_예외가_발생한다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+        event.activate(NOW);
+        event.soldOut();
+
+        // when & then
+        assertThatThrownBy(() -> event.activate(NOW))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+    }
+
+    @Test
+    void DRAFT_상태에서는_발급_불가능하다() {
+        var event = CuponFixture.createCuponEvent();
+
+        assertThat(event.isIssuable(CuponFixture.STARTED_AT.plusSeconds(1))).isFalse();
+    }
+
+    @Test
+    void ENDED_상태에서는_발급_불가능하다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+        event.activate(NOW);
+        event.end();
+
+        // when & then
+        assertThat(event.isIssuable(CuponFixture.STARTED_AT.plusSeconds(1))).isFalse();
+    }
+
+    @Test
+    void 시작_경계시각에서는_발급_가능하다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+        event.activate(NOW);
+
+        // when & then — !now.isBefore(startsAt): startsAt 정각도 발급 가능
+        assertThat(event.isIssuable(CuponFixture.STARTED_AT)).isTrue();
     }
 }
