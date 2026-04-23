@@ -15,8 +15,6 @@ import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepositor
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
-import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
-import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor

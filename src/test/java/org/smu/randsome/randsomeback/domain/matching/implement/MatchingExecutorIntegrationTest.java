@@ -12,7 +12,6 @@ import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
-import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor

@@ -17,7 +17,6 @@ import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
-import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
