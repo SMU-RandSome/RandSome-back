@@ -62,7 +62,7 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void 동일_파라미터로_10초_내_재신청하면_TOO_MANY_MATCHING_REQUESTS를_던진다() {
+    void 동일_파라미터로_5초_내_재신청하면_TOO_MANY_MATCHING_REQUESTS를_던진다() {
         // given
         var member = memberJpaRepository.save(MemberFixture.create());
         var newMatching = NewMatching.builder()
@@ -70,6 +70,7 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
                 .applicationCount(3)
                 .build();
         matchingManager.apply(newMatching, member.getId());
+
 
         // when & then
         assertThatThrownBy(() -> matchingManager.apply(newMatching, member.getId()))
