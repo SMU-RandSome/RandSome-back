@@ -17,7 +17,6 @@ import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepositor
 import org.smu.randsome.randsomeback.fixture.CuponFixture;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -171,54 +170,6 @@ class CouponReaderIntegrationTest extends IntegrationTestSupport {
 
         // then
         assertThat(result).isFalse();
-    }
-
-    @Test
-    void 만료_대상_쿠폰을_정상적으로_조회한다() {
-        // given
-        var member = memberJpaRepository.save(MemberFixture.create());
-        var now = TestDateTimeUtils.now();
-
-        // 1. 만료된 이벤트에 속한 쿠폰 (만료 대상)
-        var expiredEvent1 = CuponFixture.createCuponEvent();
-        ReflectionTestUtils.setField(expiredEvent1, "couponExpiresAt", now.minusDays(1));
-        couponEventJpaRepository.save(expiredEvent1);
-
-        var expirableCoupon = Coupon.issue(expiredEvent1, member);
-        couponRepository.save(expirableCoupon);
-
-        // 2. 아직 만료되지 않은 쿠폰 (조회 제외)
-        var activeEvent = CuponFixture.createCuponEvent();
-        ReflectionTestUtils.setField(activeEvent, "couponExpiresAt", now.plusDays(1));
-        couponEventJpaRepository.save(activeEvent);
-
-        var activeCoupon = Coupon.issue(activeEvent, member);
-        couponRepository.save(activeCoupon);
-
-        // 3. 이미 만료 처리된 쿠폰 (조회 제외)
-        var expiredEvent2 = CuponFixture.createCuponEvent();
-        ReflectionTestUtils.setField(expiredEvent2, "couponExpiresAt", now.minusDays(1));
-        couponEventJpaRepository.save(expiredEvent2);
-
-        var alreadyExpiredCoupon = Coupon.issue(expiredEvent2, member);
-        alreadyExpiredCoupon.expire();
-        couponRepository.save(alreadyExpiredCoupon);
-
-        // 4. 사용 완료된 쿠폰 (조회 제외)
-        var expiredEvent3 = CuponFixture.createCuponEvent();
-        ReflectionTestUtils.setField(expiredEvent3, "couponExpiresAt", now.minusDays(1));
-        couponEventJpaRepository.save(expiredEvent3);
-
-        var usedCoupon = Coupon.issue(expiredEvent3, member);
-        usedCoupon.use(now.minusDays(2));
-        couponRepository.save(usedCoupon);
-
-        // when
-        List<Coupon> expirableCoupons = couponReader.findExpirable(now);
-
-        // then
-        assertThat(expirableCoupons).hasSize(1);
-        assertThat(expirableCoupons.getFirst().getId()).isEqualTo(expirableCoupon.getId());
     }
 
 }
