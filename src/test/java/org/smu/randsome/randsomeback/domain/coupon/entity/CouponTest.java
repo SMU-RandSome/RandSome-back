@@ -12,6 +12,7 @@ import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
+import org.springframework.test.util.ReflectionTestUtils;
 
 class CouponTest {
 
@@ -88,6 +89,36 @@ class CouponTest {
         assertThatThrownBy(() -> coupon.use(TestDateTimeUtils.now()))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.COUPON_NOT_USABLE.getMessage());
+    }
+
+    @Test
+    void 사용된_쿠폰은_만료_처리해도_상태가_변하지_않는다() {
+        // given
+        coupon.use(TestDateTimeUtils.now());
+
+        // when
+        coupon.expire();
+
+        // then
+        assertThat(coupon.getCouponStatus()).isEqualTo(CouponStatus.USED);
+    }
+
+    @Test
+    void 본인_소유_쿠폰은_isOwnedBy가_true를_반환한다() {
+        // given
+        ReflectionTestUtils.setField(member, "id", 1L);
+
+        // then
+        assertThat(coupon.isOwnedBy(1L)).isTrue();
+    }
+
+    @Test
+    void 타인_소유_쿠폰은_isOwnedBy가_false를_반환한다() {
+        // given
+        ReflectionTestUtils.setField(member, "id", 1L);
+
+        // then
+        assertThat(coupon.isOwnedBy(2L)).isFalse();
     }
 
 }
