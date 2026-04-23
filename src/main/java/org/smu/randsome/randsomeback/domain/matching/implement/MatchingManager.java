@@ -15,6 +15,7 @@ import org.smu.randsome.randsomeback.domain.matching.repository.MatchingJpaRepos
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingResultJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
+import org.smu.randsome.randsomeback.global.config.CacheKeys;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
@@ -36,14 +37,15 @@ public class MatchingManager {
     private final ApplicationEventPublisher eventPublisher;
 
     /**
-     * 매칭 신청을 생성한다. <br> 동일한 회원이 동일한 매칭 타입과 신청 횟수로 10초 안에 중복 신청하는 것을 방지하기 위해, idempotencyKey를 활용하여 캐시에서 중복 여부를 확인한다.
+     * 매칭 신청을 생성한다.
+     * </br> 동일한 회원이 동일한 매칭 타입과 신청 횟수로 5초 안에 중복 신청하는 것을 방지하기 위해, idempotencyKey를 활용하여 캐시에서 중복 여부를 확인한다.
      *
      * @param newMatching 매칭 신청 커맨드
      * @param memberId    신청자 식별자
      * @return 저장된 매칭 신청 엔티티
      */
     public MatchingApplication apply(NewMatching newMatching, Long memberId) {
-        Member member = memberReader.findWithLock(memberId);
+        Member member = memberReader.find(memberId);
 
         assertNotDuplicateAndMark(newMatching, memberId);
 
@@ -60,12 +62,9 @@ public class MatchingManager {
         return saved;
     }
 
-    /* NOTE: idempotencyKey는 "matching:idempotency:memberId:matchingType:applicationCount" 형식으로 구성하여,
-             동일한 회원이 동일 파라미터로 10초 내 중복 신청하는 것을 방지한다.
-      */
     private void assertNotDuplicateAndMark(NewMatching newMatching, Long memberId) {
-        String idempotencyKey = "matching:idempotency:" + memberId + ":" + newMatching.matchingType() + ":" + newMatching.applicationCount();
-        if (!redisRepository.tryAcquire(idempotencyKey, Duration.ofSeconds(10))) {
+        String idempotencyKey = CacheKeys.matchingIdempotency(memberId, newMatching.matchingType(), newMatching.applicationCount());
+        if (!redisRepository.tryAcquire(idempotencyKey, Duration.ofSeconds(5))) {
             throw new CoreException(ErrorType.TOO_MANY_MATCHING_REQUESTS);
         }
     }

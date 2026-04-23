@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.global.config;
 import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CacheKeys {
@@ -11,6 +12,7 @@ public final class CacheKeys {
     private static final String COUPON_EVENT = "coupon:event";
     private static final String ATTENDANCE = "attendance";
     private static final String SUSPENSION = "suspend:member";
+    private static final String MATCHING_IDEMPOTENCY = "matching:idempotency";
 
     // Coupon Redis keys
     public static String couponStock(Long eventId) {
@@ -27,6 +29,10 @@ public final class CacheKeys {
 
     public static String suspension(Long memberId) {
         return SUSPENSION + ":" + memberId;
+    }
+
+    public static String matchingIdempotency(Long memberId, MatchingType matchingType, int applicationCount) {
+        return MATCHING_IDEMPOTENCY + ":" + memberId + ":" + matchingType + ":" + applicationCount;
     }
 
 }
