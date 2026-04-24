@@ -13,6 +13,8 @@ public interface MemberDeviceJpaRepository extends JpaRepository<MemberDevice, L
 
     Optional<MemberDevice> findByMemberIdAndDeviceTokenAndStatus(Long memberId, String deviceToken, EntityStatus status);
 
+    Optional<MemberDevice> findByMemberIdAndDeviceToken(Long memberId, String deviceToken);
+
     List<MemberDevice> findAllByStatus(EntityStatus status);
 
     @Query("SELECT m FROM MemberDevice m WHERE m.member.role = :role AND m.status = :status")

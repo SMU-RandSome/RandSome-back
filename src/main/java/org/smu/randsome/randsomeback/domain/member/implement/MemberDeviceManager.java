@@ -23,9 +23,16 @@ public class MemberDeviceManager {
 
     @Transactional
     public void syncDeviceToken(Long memberId, String deviceToken, LocalDateTime now) {
-        memberDeviceJpaRepository.findByMemberIdAndDeviceTokenAndStatus(memberId, deviceToken, EntityStatus.ACTIVE)
+        memberDeviceJpaRepository.findByMemberIdAndDeviceToken(memberId, deviceToken)
                 .ifPresentOrElse(
-                        memberDevice -> memberDevice.updateLastSyncedAt(now),
+                        memberDevice -> {
+                            if (memberDevice.isDeleted()) {
+                                memberDevice.reactivate(now);
+                                log.info("[MemberDeviceManager] 삭제된 디바이스 토큰 재활성화 memberId: {}", memberId);
+                            } else {
+                                memberDevice.updateLastSyncedAt(now);
+                            }
+                        },
                         () -> registerNewDeviceToken(memberId, deviceToken, now)
                 );
     }
