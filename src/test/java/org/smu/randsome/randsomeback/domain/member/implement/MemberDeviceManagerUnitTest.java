@@ -20,6 +20,7 @@ import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.dao.DataIntegrityViolationException;
 
 class MemberDeviceManagerUnitTest extends UnitTestSupport {
 
@@ -51,7 +52,7 @@ class MemberDeviceManagerUnitTest extends UnitTestSupport {
 
         // then
         assertThat(existingDevice.getLastSyncedAt()).isEqualTo(syncTime);
-        verify(memberDeviceJpaRepository, never()).save(any());
+        verify(memberDeviceJpaRepository, never()).saveAndFlush(any());
     }
 
     @Test
@@ -69,12 +70,28 @@ class MemberDeviceManagerUnitTest extends UnitTestSupport {
 
         // then
         ArgumentCaptor<MemberDevice> captor = ArgumentCaptor.forClass(MemberDevice.class);
-        verify(memberDeviceJpaRepository).save(captor.capture());
+        verify(memberDeviceJpaRepository).saveAndFlush(captor.capture());
 
         MemberDevice saved = captor.getValue();
         assertThat(saved.getMember()).isEqualTo(member);
         assertThat(saved.getDeviceToken()).isEqualTo(DEVICE_TOKEN);
         assertThat(saved.getLastSyncedAt()).isEqualTo(now);
+    }
+
+    @Test
+    void 동시_요청으로_중복_등록_시_예외_없이_무시한다() {
+        // given
+        var member = MemberFixture.create();
+        given(memberDeviceJpaRepository.findByMemberIdAndDeviceTokenAndStatus(1L, DEVICE_TOKEN, EntityStatus.ACTIVE))
+                .willReturn(Optional.empty());
+        given(memberReader.find(1L)).willReturn(member);
+        given(memberDeviceJpaRepository.saveAndFlush(any(MemberDevice.class)))
+                .willThrow(new DataIntegrityViolationException("duplicate"));
+
+        var now = LocalDateTime.of(2024, 6, 1, 12, 0);
+
+        // when & then — 예외가 전파되지 않아야 한다
+        memberDeviceManager.syncDeviceToken(1L, DEVICE_TOKEN, now);
     }
 
     @Test

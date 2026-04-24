@@ -126,6 +126,7 @@ public class NotificationHandler {
                 .toList();
         List<String> fcmTokens = devices.stream()
                 .map(MemberDevice::getDeviceToken)
+                .distinct()
                 .toList();
 
         notificationManager.saveNotifications(memberIds, type);
