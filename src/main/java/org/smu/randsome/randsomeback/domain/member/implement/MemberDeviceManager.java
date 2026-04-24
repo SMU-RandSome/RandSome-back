@@ -9,6 +9,7 @@ import org.smu.randsome.randsomeback.domain.member.repository.MemberDeviceJpaRep
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +23,16 @@ public class MemberDeviceManager {
 
     @Transactional
     public void syncDeviceToken(Long memberId, String deviceToken, LocalDateTime now) {
-        memberDeviceJpaRepository.findByMemberIdAndDeviceTokenAndStatus(memberId, deviceToken, EntityStatus.ACTIVE)
+        memberDeviceJpaRepository.findByMemberIdAndDeviceToken(memberId, deviceToken)
                 .ifPresentOrElse(
-                        memberDevice -> memberDevice.updateLastSyncedAt(now),
+                        memberDevice -> {
+                            if (memberDevice.isDeleted()) {
+                                memberDevice.reactivate(now);
+                                log.info("[MemberDeviceManager] 삭제된 디바이스 토큰 재활성화 memberId: {}", memberId);
+                            } else {
+                                memberDevice.updateLastSyncedAt(now);
+                            }
+                        },
                         () -> registerNewDeviceToken(memberId, deviceToken, now)
                 );
     }
@@ -42,11 +50,13 @@ public class MemberDeviceManager {
 
     private void registerNewDeviceToken(Long memberId, String deviceToken, LocalDateTime now) {
         Member member = memberReader.find(memberId);
-        memberDeviceJpaRepository.save(MemberDevice.register(
-                member,
-                deviceToken,
-                now
-        ));
+        // saveAndFlush()로 즉시 flush하여 DataIntegrityViolationException을 여기서 포착
+        try {
+            memberDeviceJpaRepository.saveAndFlush(MemberDevice.register(member, deviceToken, now));
+        } catch (DataIntegrityViolationException e) {
+            log.info("[MemberDeviceManager] 동시 요청으로 이미 등록된 디바이스 토큰 — 무시. memberId={}", memberId);
+            return;
+        }
 
         log.info("[MemberDeviceManager] 새로운 디바이스 토큰 등록 memberId: {}", memberId);
     }
