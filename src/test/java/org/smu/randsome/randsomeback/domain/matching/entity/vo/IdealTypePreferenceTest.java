@@ -2,181 +2,143 @@ package org.smu.randsome.randsomeback.domain.matching.entity.vo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.UnitTestSupport;
-import org.smu.randsome.randsomeback.domain.member.entity.vo.MyProfileTags;
+import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
 import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
 import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
+import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
+import org.smu.randsome.randsomeback.fixture.MemberFixture;
 
 class IdealTypePreferenceTest extends UnitTestSupport {
 
     @Test
-    void 이상형_태그와_프로필_태그가_모두_일치하면_3점이다() {
+    void 모든_카테고리가_일치하면_4점이다() {
         // given
         IdealTypePreference preference = IdealTypePreference.of(
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.PUPPY,
-                DatingStyleTag.FREQUENT_CONTACT
+                Set.of(PersonalityTag.ACTIVE),
+                Set.of(FaceTypeTag.PUPPY),
+                Set.of(DatingStyleTag.FREQUENT_CONTACT),
+                Set.of(Mbti.ISTP)
         );
-        MyProfileTags tags = MyProfileTags.create(
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.PUPPY,
-                DatingStyleTag.FREQUENT_CONTACT
+        Member member = MemberFixture.create();
+        MemberProfileTag profileTag = MemberProfileTag.create(
+                member, PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.FREQUENT_CONTACT
         );
 
         // when
-        int score = preference.scoreAgainst(tags);
+        int score = preference.scoreAgainst(profileTag, Mbti.ISTP);
+
+        // then
+        assertThat(score).isEqualTo(4);
+    }
+
+    @Test
+    void 태그_3개만_일치하고_MBTI_불일치면_3점이다() {
+        // given
+        IdealTypePreference preference = IdealTypePreference.of(
+                Set.of(PersonalityTag.ACTIVE),
+                Set.of(FaceTypeTag.PUPPY),
+                Set.of(DatingStyleTag.FREQUENT_CONTACT),
+                Set.of(Mbti.ENFP)
+        );
+        Member member = MemberFixture.create();
+        MemberProfileTag profileTag = MemberProfileTag.create(
+                member, PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.FREQUENT_CONTACT
+        );
+
+        // when
+        int score = preference.scoreAgainst(profileTag, Mbti.ISTP);
 
         // then
         assertThat(score).isEqualTo(3);
     }
 
     @Test
-    void 이상형_태그와_프로필_태그_중_일부만_일치하면_해당_점수만_부여된다() {
+    void 다중_선택_중_하나가_일치하면_해당_카테고리_1점이다() {
         // given
         IdealTypePreference preference = IdealTypePreference.of(
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.PUPPY,
-                DatingStyleTag.FREQUENT_CONTACT
+                Set.of(PersonalityTag.ACTIVE, PersonalityTag.QUIET, PersonalityTag.AFFECTIONATE),
+                Set.of(FaceTypeTag.PUPPY, FaceTypeTag.CAT),
+                Set.of(),
+                Set.of()
         );
-        MyProfileTags tags = MyProfileTags.create(
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.CAT,
-                DatingStyleTag.MODERATE_CONTACT
+        Member member = MemberFixture.create();
+        MemberProfileTag profileTag = MemberProfileTag.create(
+                member, PersonalityTag.QUIET, FaceTypeTag.BEAR, DatingStyleTag.MODERATE_CONTACT
         );
 
         // when
-        int score = preference.scoreAgainst(tags);
+        int score = preference.scoreAgainst(profileTag, member.getMbti());
 
         // then
         assertThat(score).isEqualTo(1); // 성격만 일치
     }
 
     @Test
-    void 이상형_태그와_프로필_태그가_모두_불일치하면_0점이다() {
+    void 모두_불일치하면_0점이다() {
         // given
         IdealTypePreference preference = IdealTypePreference.of(
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.PUPPY,
-                DatingStyleTag.FREQUENT_CONTACT
+                Set.of(PersonalityTag.ACTIVE),
+                Set.of(FaceTypeTag.PUPPY),
+                Set.of(DatingStyleTag.FREQUENT_CONTACT),
+                Set.of(Mbti.ENFP)
         );
-        MyProfileTags tags = MyProfileTags.create(
-                PersonalityTag.QUIET,
-                FaceTypeTag.CAT,
-                DatingStyleTag.MODERATE_CONTACT
+        Member member = MemberFixture.create();
+        MemberProfileTag profileTag = MemberProfileTag.create(
+                member, PersonalityTag.QUIET, FaceTypeTag.CAT, DatingStyleTag.MODERATE_CONTACT
         );
 
         // when
-        int score = preference.scoreAgainst(tags);
+        int score = preference.scoreAgainst(profileTag, Mbti.ISTP);
 
         // then
         assertThat(score).isEqualTo(0);
     }
 
     @Test
-    void 성격_태그만_일치하면_1점이다() {
+    void 빈_선호_목록은_해당_카테고리를_무시한다() {
         // given
         IdealTypePreference preference = IdealTypePreference.of(
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.PUPPY,
-                DatingStyleTag.FREQUENT_CONTACT
+                Set.of(),
+                Set.of(FaceTypeTag.PUPPY),
+                Set.of(DatingStyleTag.FREQUENT_CONTACT),
+                Set.of()
         );
-        MyProfileTags tags = MyProfileTags.create(
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.CAT,
-                DatingStyleTag.MODERATE_CONTACT
+        Member member = MemberFixture.create();
+        MemberProfileTag profileTag = MemberProfileTag.create(
+                member, PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.FREQUENT_CONTACT
         );
 
         // when
-        int score = preference.scoreAgainst(tags);
+        int score = preference.scoreAgainst(profileTag, member.getMbti());
+
+        // then
+        assertThat(score).isEqualTo(2); // 성격, MBTI는 무시, 얼굴상+연애스타일만 계산
+    }
+
+    @Test
+    void MBTI만_일치하면_1점이다() {
+        // given
+        IdealTypePreference preference = IdealTypePreference.of(
+                Set.of(PersonalityTag.QUIET),
+                Set.of(FaceTypeTag.CAT),
+                Set.of(DatingStyleTag.MODERATE_CONTACT),
+                Set.of(Mbti.ISTP)
+        );
+        Member member = MemberFixture.create();
+        MemberProfileTag profileTag = MemberProfileTag.create(
+                member, PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.FREQUENT_CONTACT
+        );
+
+        // when
+        int score = preference.scoreAgainst(profileTag, Mbti.ISTP);
 
         // then
         assertThat(score).isEqualTo(1);
-    }
-
-    @Test
-    void 얼굴상_태그만_일치하면_1점이다() {
-        // given
-        IdealTypePreference preference = IdealTypePreference.of(
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.PUPPY,
-                DatingStyleTag.FREQUENT_CONTACT
-        );
-        MyProfileTags tags = MyProfileTags.create(
-                PersonalityTag.QUIET,
-                FaceTypeTag.PUPPY,
-                DatingStyleTag.MODERATE_CONTACT
-        );
-
-        // when
-        int score = preference.scoreAgainst(tags);
-
-        // then
-        assertThat(score).isEqualTo(1);
-    }
-
-    @Test
-    void 연애스타일_태그만_일치하면_1점이다() {
-        // given
-        IdealTypePreference preference = IdealTypePreference.of(
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.PUPPY,
-                DatingStyleTag.FREQUENT_CONTACT
-        );
-        MyProfileTags tags = MyProfileTags.create(
-                PersonalityTag.QUIET,
-                FaceTypeTag.CAT,
-                DatingStyleTag.FREQUENT_CONTACT
-        );
-
-        // when
-        int score = preference.scoreAgainst(tags);
-
-        // then
-        assertThat(score).isEqualTo(1);
-    }
-
-    @Test
-    void 성격과_얼굴상만_일치하면_2점이다() {
-        // given
-        IdealTypePreference preference = IdealTypePreference.of(
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.PUPPY,
-                DatingStyleTag.FREQUENT_CONTACT
-        );
-        MyProfileTags tags = MyProfileTags.create(
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.PUPPY,
-                DatingStyleTag.MODERATE_CONTACT
-        );
-
-        // when
-        int score = preference.scoreAgainst(tags);
-
-        // then
-        assertThat(score).isEqualTo(2);
-    }
-
-    @Test
-    void null_이상형_태그는_무시된다() {
-        // given
-        IdealTypePreference preference = IdealTypePreference.of(
-                null,
-                FaceTypeTag.PUPPY,
-                DatingStyleTag.FREQUENT_CONTACT
-        );
-        MyProfileTags tags = MyProfileTags.create(
-                PersonalityTag.ACTIVE,
-                FaceTypeTag.PUPPY,
-                DatingStyleTag.FREQUENT_CONTACT
-        );
-
-        // when
-        int score = preference.scoreAgainst(tags);
-
-        // then
-        assertThat(score).isEqualTo(2); // 성격은 무시, 얼굴상과 연애스타일만 계산
     }
 
 }

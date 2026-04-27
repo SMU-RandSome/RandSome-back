@@ -27,6 +27,7 @@ public class MemberManager {
 
     private final MemberJpaRepository memberJpaRepository;
     private final MemberRestrictionJpaRepository memberRestrictionJpaRepository;
+    private final MemberProfileTagManager memberProfileTagManager;
     private final PasswordEncoder passwordEncoder;
     private final SuspensionManager suspensionManager;
 
@@ -41,7 +42,7 @@ public class MemberManager {
         }
 
         try {
-            return memberJpaRepository.save(Member.create(
+            Member member = memberJpaRepository.save(Member.create(
                     credentials.email(),
                     credentials.password(),
                     passwordEncoder,
@@ -51,11 +52,17 @@ public class MemberManager {
                     basicInfo.department(),
                     socialProfile.instagramId(),
                     socialProfile.selfIntroduction(),
-                    socialProfile.idealDescription(),
+                    socialProfile.idealDescription()
+            ));
+
+            memberProfileTagManager.create(
+                    member,
                     tagsInfo.personalityTag(),
                     tagsInfo.faceTypeTag(),
                     tagsInfo.datingStyleTag()
-            ));
+            );
+
+            return member;
         } catch (DataIntegrityViolationException e) {
             throw new CoreException(ErrorType.DUPLICATE_EMAIL);
         }
@@ -76,7 +83,11 @@ public class MemberManager {
                 updateProfile.department(),
                 updateProfile.instagramId(),
                 updateProfile.selfIntroduction(),
-                updateProfile.idealDescription(),
+                updateProfile.idealDescription()
+        );
+
+        memberProfileTagManager.updateTags(
+                memberId,
                 updateProfile.personalityTag(),
                 updateProfile.faceTypeTag(),
                 updateProfile.datingStyleTag()

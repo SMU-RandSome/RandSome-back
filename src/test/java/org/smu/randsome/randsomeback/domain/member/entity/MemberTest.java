@@ -5,13 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.UnitTestSupport;
-import org.smu.randsome.randsomeback.domain.member.entity.vo.MyProfileTags;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
-import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
-import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
-import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
@@ -41,17 +37,6 @@ class MemberTest extends UnitTestSupport {
     }
 
     @Test
-    void 태그와_함께_회원을_생성하면_소개_태그가_설정된다() {
-        Member memberWithTags = MemberFixture.create();
-
-        MyProfileTags tags = memberWithTags.getMyProfileTags();
-        assertThat(tags).isNotNull();
-        assertThat(tags.personalityTag()).isEqualTo(MemberFixture.DEFAULT_PERSONALITY_TAG);
-        assertThat(tags.faceTypeTag()).isEqualTo(MemberFixture.DEFAULT_FACE_TYPE_TAG);
-        assertThat(tags.datingStyleTag()).isEqualTo(MemberFixture.DEFAULT_DATING_STYLE_TAG);
-    }
-
-    @Test
     void 회원_생성_시_비밀번호가_해시화된다() {
         assertThat(member.isPasswordCorrect(MemberFixture.DEFAULT_RAW_PASSWORD, MemberFixture.ENCODER)).isTrue();
     }
@@ -69,19 +54,6 @@ class MemberTest extends UnitTestSupport {
                 MemberFixture.DEFAULT_SELF_INTRODUCTION,
                 MemberFixture.DEFAULT_IDEAL_DESCRIPTION
         );
-    }
-
-    @Test
-    void 소개_태그를_변경한다() {
-        MyProfileTags newTags = MyProfileTags.create(PersonalityTag.QUIET, FaceTypeTag.CAT, DatingStyleTag.GROW_TOGETHER);
-
-        member.changeProfileTags(newTags);
-
-        assertThat(member.getMyProfileTags()).isNotNull().extracting(
-                MyProfileTags::personalityTag,
-                MyProfileTags::faceTypeTag,
-                MyProfileTags::datingStyleTag
-        ).containsExactly(PersonalityTag.QUIET, FaceTypeTag.CAT, DatingStyleTag.GROW_TOGETHER);
     }
 
     @Test
@@ -116,9 +88,6 @@ class MemberTest extends UnitTestSupport {
         var newInstagramId = "new_insta";
         var newSelfIntroduction = "새 자기소개";
         var newIdealDescription = "새 이상형";
-        var personalityTag = PersonalityTag.QUIET;
-        var faceTypeTag = FaceTypeTag.CAT;
-        var datingStyleTag = DatingStyleTag.GROW_TOGETHER;
 
         // when
         member.updateProfile(
@@ -127,10 +96,7 @@ class MemberTest extends UnitTestSupport {
                 department,
                 newInstagramId,
                 newSelfIntroduction,
-                newIdealDescription,
-                personalityTag,
-                faceTypeTag,
-                datingStyleTag
+                newIdealDescription
         );
 
         // then

@@ -5,6 +5,7 @@ import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberTagsInfo;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Email;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Password;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
@@ -49,11 +50,21 @@ public class MemberFixture {
                 DEFAULT_DEPARTMENT,
                 DEFAULT_INSTAGRAM_ID,
                 DEFAULT_SELF_INTRODUCTION,
-                DEFAULT_IDEAL_DESCRIPTION,
-                DEFAULT_PERSONALITY_TAG,
-                DEFAULT_FACE_TYPE_TAG,
-                DEFAULT_DATING_STYLE_TAG
+                DEFAULT_IDEAL_DESCRIPTION
         );
+    }
+
+    public static MemberProfileTag createProfileTag(Member member) {
+        return MemberProfileTag.create(member, DEFAULT_PERSONALITY_TAG, DEFAULT_FACE_TYPE_TAG, DEFAULT_DATING_STYLE_TAG);
+    }
+
+    public static MemberProfileTag createProfileTag(
+            Member member,
+            PersonalityTag personalityTag,
+            FaceTypeTag faceTypeTag,
+            DatingStyleTag datingStyleTag
+    ) {
+        return MemberProfileTag.create(member, personalityTag, faceTypeTag, datingStyleTag);
     }
 
     public static MemberCredentials createCredentials() {
@@ -99,10 +110,7 @@ public class MemberFixture {
                 DEFAULT_DEPARTMENT,
                 email.substring(0, email.indexOf('@')),
                 DEFAULT_SELF_INTRODUCTION,
-                DEFAULT_IDEAL_DESCRIPTION,
-                DEFAULT_PERSONALITY_TAG,
-                DEFAULT_FACE_TYPE_TAG,
-                DEFAULT_DATING_STYLE_TAG
+                DEFAULT_IDEAL_DESCRIPTION
         );
     }
 
@@ -118,10 +126,7 @@ public class MemberFixture {
                 DEFAULT_DEPARTMENT,
                 instagramId,
                 DEFAULT_SELF_INTRODUCTION,
-                DEFAULT_IDEAL_DESCRIPTION,
-                DEFAULT_PERSONALITY_TAG,
-                DEFAULT_FACE_TYPE_TAG,
-                DEFAULT_DATING_STYLE_TAG
+                DEFAULT_IDEAL_DESCRIPTION
         );
     }
 
@@ -143,10 +148,7 @@ public class MemberFixture {
                 department,
                 instagramId,
                 DEFAULT_SELF_INTRODUCTION,
-                DEFAULT_IDEAL_DESCRIPTION,
-                DEFAULT_PERSONALITY_TAG,
-                DEFAULT_FACE_TYPE_TAG,
-                DEFAULT_DATING_STYLE_TAG
+                DEFAULT_IDEAL_DESCRIPTION
         );
         member.updateRole(Role.ROLE_CANDIDATE);
         return member;

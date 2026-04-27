@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberValidator;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.repository.MemberProfileTagJpaRepository;
 import org.smu.randsome.randsomeback.domain.terms.repository.TermsAgreementJpaRepository;
 import org.smu.randsome.randsomeback.domain.ticket.dto.command.TicketHistorySearchCondition;
 import org.smu.randsome.randsomeback.domain.ticket.repository.TicketHistoryRepository;
@@ -23,6 +24,7 @@ class MemberServiceIntegrationTest extends IntegrationTestSupport {
     final MemberService memberService;
 
     final MemberJpaRepository memberJpaRepository;
+    final MemberProfileTagJpaRepository memberProfileTagJpaRepository;
     final TicketJpaRepository ticketJpaRepository;
     final TicketHistoryRepository ticketHistoryRepository;
     final TermsAgreementJpaRepository termsAgreementJpaRepository;
@@ -35,6 +37,7 @@ class MemberServiceIntegrationTest extends IntegrationTestSupport {
         termsAgreementJpaRepository.deleteAll();
         ticketHistoryRepository.deleteAll();
         ticketJpaRepository.deleteAll();
+        memberProfileTagJpaRepository.deleteAll();
         memberJpaRepository.deleteAll();
     }
 

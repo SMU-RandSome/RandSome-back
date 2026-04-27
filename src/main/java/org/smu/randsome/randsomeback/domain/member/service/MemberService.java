@@ -1,5 +1,7 @@
 package org.smu.randsome.randsomeback.domain.member.service;
 
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
@@ -8,7 +10,9 @@ import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfi
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberTagsInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberProfileTagReader;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberValidator;
 import org.smu.randsome.randsomeback.domain.terms.implement.TermsAgreementManager;
@@ -23,6 +27,7 @@ public class MemberService {
 
     private final MemberManager memberManager;
     private final MemberReader memberReader;
+    private final MemberProfileTagReader memberProfileTagReader;
     private final MemberValidator memberValidator;
     private final TermsAgreementManager termsAgreementManager;
     private final TicketHandler ticketHandler;
@@ -60,6 +65,16 @@ public class MemberService {
     @Transactional(readOnly = true)
     public Member getMyProfile(Long memberId) {
         return memberReader.find(memberId);
+    }
+
+    @Transactional(readOnly = true)
+    public MemberProfileTag getProfileTag(Long memberId) {
+        return memberProfileTagReader.find(memberId);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Long, MemberProfileTag> getProfileTags(List<Long> memberIds) {
+        return memberProfileTagReader.findAllByMemberIds(memberIds);
     }
 
     @Transactional

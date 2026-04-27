@@ -2,13 +2,17 @@ package org.smu.randsome.randsomeback.domain.matching.controller;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.matching.dto.request.MatchingApplyRequest;
 import org.smu.randsome.randsomeback.domain.matching.dto.response.MatchingApplicationResponse;
 import org.smu.randsome.randsomeback.domain.matching.dto.response.MatchingHistoryItem;
 import org.smu.randsome.randsomeback.domain.matching.dto.response.MatchingResultDetailItem;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
+import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.service.MatchingService;
+import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
+import org.smu.randsome.randsomeback.domain.member.service.MemberService;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MatchingController extends MatchingControllerDocs {
 
     private final MatchingService matchingService;
+    private final MemberService memberService;
 
     @Override
     @PostMapping("/v1/matchings")
@@ -51,9 +56,18 @@ public class MatchingController extends MatchingControllerDocs {
             @PathVariable Long applicationId,
             @LoginMember Long memberId
     ) {
-        List<MatchingResultDetailItem> response = matchingService.findApplication(applicationId, memberId)
-                .stream()
-                .map(MatchingResultDetailItem::from)
+        List<MatchingResult> results = matchingService.findApplication(applicationId, memberId);
+
+        List<Long> candidateIds = results.stream()
+                .map(result -> result.getCandidate().getId())
+                .toList();
+        Map<Long, MemberProfileTag> profileTagMap = memberService.getProfileTags(candidateIds);
+
+        List<MatchingResultDetailItem> response = results.stream()
+                .map(result -> MatchingResultDetailItem.from(
+                        result,
+                        profileTagMap.get(result.getCandidate().getId())
+                ))
                 .toList();
 
         return ApiResponse.success(response);
