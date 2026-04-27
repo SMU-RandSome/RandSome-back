@@ -270,6 +270,40 @@ class IdealMatchingStrategyIntegrationTest extends IntegrationTestSupport {
         assertThat(candidateIds).doesNotContain(score1Candidate.getId());
     }
 
+    @Test
+    void 이상형_태그가_모두_불일치하면_매칭_결과가_없다() {
+        // given
+        var applicant = saveMemberWithTags(
+                "202312345@sangmyung.kr", Gender.MALE,
+                PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.EXPRESSIVE
+        );
+        saveCandidateWithTags(
+                "202212020@sangmyung.kr",
+                PersonalityTag.QUIET, FaceTypeTag.CAT, DatingStyleTag.MODERATE_CONTACT
+        );
+        saveCandidateWithTags(
+                "202212021@sangmyung.kr",
+                PersonalityTag.QUIET, FaceTypeTag.CAT, DatingStyleTag.MODERATE_CONTACT
+        );
+
+        var application = matchingManager.apply(
+                NewMatching.builder()
+                        .matchingType(MatchingType.IDEAL)
+                        .applicationCount(2)
+                        .idealTypePreference(IdealTypePreference.of(
+                                Set.of(PersonalityTag.ACTIVE), Set.of(FaceTypeTag.PUPPY), Set.of(DatingStyleTag.EXPRESSIVE), Set.of()
+                        ))
+                        .build(),
+                applicant.getId()
+        );
+
+        // when
+        matchingExecutor.execute(application);
+
+        // then
+        assertThat(matchingResultJpaRepository.findAll()).isEmpty();
+    }
+
     // Helper methods
 
     private Member saveMemberWithTags(
