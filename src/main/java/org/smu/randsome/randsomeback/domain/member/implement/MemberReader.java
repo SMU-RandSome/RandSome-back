@@ -2,29 +2,32 @@ package org.smu.randsome.randsomeback.domain.member.implement;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSearchCondition;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
-import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.repository.MemberRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.jwt.TokenHasher;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.smu.randsome.randsomeback.global.support.response.OffsetLimit;
+import org.smu.randsome.randsomeback.global.support.response.PageResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Component
 public class MemberReader {
 
-    private final MemberJpaRepository memberJpaRepository;
+    private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
     public Member findByAccount(String loginId, String password) {
-        Member member = memberJpaRepository.findByEmail_AddressAndStatus(loginId, EntityStatus.ACTIVE)
+        Member member = memberRepository.findByEmail_AddressAndStatus(loginId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.INVALID_ACCOUNT));
 
         if (member.isPasswordCorrect(password, passwordEncoder)) {
@@ -35,32 +38,40 @@ public class MemberReader {
     }
 
     public Member find(Long memberId) {
-        return memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
+        return memberRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
     }
 
     public Member getReference(Long memberId) {
-        if (!memberJpaRepository.existsByIdAndStatus(memberId, EntityStatus.ACTIVE)) {
+        if (!memberRepository.existsByIdAndStatus(memberId, EntityStatus.ACTIVE)) {
             throw new CoreException(ErrorType.NOT_FOUND_MEMBER);
         }
-        return memberJpaRepository.getReferenceById(memberId);
+        return memberRepository.getReferenceById(memberId);
     }
 
     public Member findWithLock(Long memberId) {
-        return memberJpaRepository.findByIdAndStatusWithLock(memberId, EntityStatus.ACTIVE)
+        return memberRepository.findByIdAndStatusWithLock(memberId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
     }
 
-    public Page<Member> findAll(Pageable pageable) {
-        return memberJpaRepository.findAllByStatusAndRoleNot(EntityStatus.ACTIVE, Role.ROLE_ADMIN, pageable);
+    public Member findNonDeleted(Long memberId) {
+        return memberRepository.findByIdAndStatusNot(memberId, EntityStatus.DELETED)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
+    }
+
+    public PageResponse<Member> findAll(MemberSearchCondition condition, OffsetLimit offsetLimit) {
+        List<Member> items = memberRepository.findAllNonDeletedNonAdmin(condition, offsetLimit.offset(), offsetLimit.limit());
+        long total = memberRepository.countNonDeletedNonAdmin(condition);
+
+        return PageResponse.of(items, offsetLimit.page(), offsetLimit.size(), total);
     }
 
     public List<Member> findCandidatesByGender(Gender gender, Department excludeDepartment, int count) {
         // NOTE: 자율 전공일 경우, 학과를 제외하지 않고 조회한다.
         if (excludeDepartment.isSelfDirectedMajor()) {
-            return memberJpaRepository.findRandomCandidatesByGender(gender.name(), count);
+            return memberRepository.findRandomCandidatesByGender(gender.name(), count);
         }
-        return memberJpaRepository.findRandomCandidatesByGenderExcludingDepartment(
+        return memberRepository.findRandomCandidatesByGenderExcludingDepartment(
                 gender.name(), excludeDepartment.name(), count);
     }
 
@@ -74,19 +85,19 @@ public class MemberReader {
      */
     public List<Member> findAllCandidatesByGender(Gender gender, Department excludeDepartment) {
         if (excludeDepartment.isSelfDirectedMajor()) {
-            return memberJpaRepository.findAllCandidatesByGender(gender, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE);
+            return memberRepository.findAllCandidatesByGender(gender, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE);
         }
-        return memberJpaRepository.findAllCandidatesByGenderExcludingDepartment(
+        return memberRepository.findAllCandidatesByGenderExcludingDepartment(
                 gender, excludeDepartment, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE);
     }
 
     public Member findByRefreshToken(String refreshToken) {
-        return memberJpaRepository.findByRefreshTokenAndStatus(TokenHasher.hash(refreshToken), EntityStatus.ACTIVE)
+        return memberRepository.findByRefreshTokenAndStatus(TokenHasher.hash(refreshToken), EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN));
     }
 
     public Member findByEmail(String email) {
-        return memberJpaRepository.findByEmail_AddressAndStatus(email, EntityStatus.ACTIVE)
+        return memberRepository.findByEmail_AddressAndStatus(email, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
     }
 

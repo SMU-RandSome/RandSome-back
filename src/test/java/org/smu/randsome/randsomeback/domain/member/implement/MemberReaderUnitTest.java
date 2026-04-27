@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
-import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.repository.MemberRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 class MemberReaderUnitTest extends UnitTestSupport {
@@ -21,43 +21,43 @@ class MemberReaderUnitTest extends UnitTestSupport {
     MemberReader memberReader;
 
     @Mock
-    MemberJpaRepository memberJpaRepository;
+    MemberRepository memberRepository;
 
     @Mock
     PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() {
-        memberReader = new MemberReader(memberJpaRepository, passwordEncoder);
+        memberReader = new MemberReader(memberRepository, passwordEncoder);
     }
 
     @Test
     void 자율전공이면_학과_제외_조건_없이_후보를_조회한다() {
         // given
-        given(memberJpaRepository.findRandomCandidatesByGender(Gender.FEMALE.name(), 10))
+        given(memberRepository.findRandomCandidatesByGender(Gender.FEMALE.name(), 10))
                 .willReturn(List.of());
 
         // when
         memberReader.findCandidatesByGender(Gender.FEMALE, Department.SELF_DIRECTED_MAJOR, 10);
 
         // then
-        verify(memberJpaRepository).findRandomCandidatesByGender(Gender.FEMALE.name(), 10);
-        verify(memberJpaRepository, never()).findRandomCandidatesByGenderExcludingDepartment(anyString(), anyString(), anyInt());
+        verify(memberRepository).findRandomCandidatesByGender(Gender.FEMALE.name(), 10);
+        verify(memberRepository, never()).findRandomCandidatesByGenderExcludingDepartment(anyString(), anyString(), anyInt());
     }
 
     @Test
     void 자율전공이_아니면_같은_학과를_제외하고_후보를_조회한다() {
         // given
-        given(memberJpaRepository.findRandomCandidatesByGenderExcludingDepartment(
+        given(memberRepository.findRandomCandidatesByGenderExcludingDepartment(
                 Gender.FEMALE.name(), Department.SOFTWARE.name(), 10)).willReturn(List.of());
 
         // when
         memberReader.findCandidatesByGender(Gender.FEMALE, Department.SOFTWARE, 10);
 
         // then
-        verify(memberJpaRepository).findRandomCandidatesByGenderExcludingDepartment(
+        verify(memberRepository).findRandomCandidatesByGenderExcludingDepartment(
                 Gender.FEMALE.name(), Department.SOFTWARE.name(), 10);
-        verify(memberJpaRepository, never()).findRandomCandidatesByGender(anyString(), anyInt());
+        verify(memberRepository, never()).findRandomCandidatesByGender(anyString(), anyInt());
     }
 
 }

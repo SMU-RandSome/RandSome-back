@@ -5,15 +5,17 @@ import org.smu.randsome.randsomeback.admin.member.dto.request.RestrictionRequest
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberAdminResponse;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailResponse;
 import org.smu.randsome.randsomeback.admin.member.service.MemberAdminService;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSearchCondition;
+import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
+import org.smu.randsome.randsomeback.global.support.response.OffsetLimit;
 import org.smu.randsome.randsomeback.global.support.response.PageResponse;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -24,19 +26,24 @@ public class MemberAdminController extends MemberAdminControllerDocs {
 
     @Override
     @GetMapping("/v1/admin/members")
-    public ApiResponse<PageResponse<MemberAdminResponse>> getMembers(
-            @PageableDefault(size = 10) Pageable pageable
+    public ApiResponse<PageResponse<MemberAdminResponse>> findMembers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size
     ) {
-        return ApiResponse.success(
-                PageResponse.from(memberAdminService.getMembers(pageable))
+        PageResponse<Member> response = memberAdminService.findMembers(
+                new MemberSearchCondition(keyword),
+                new OffsetLimit(page, size)
         );
+
+        return ApiResponse.success(response.map(MemberAdminResponse::from));
     }
 
     @Override
     @GetMapping("/v1/admin/members/{memberId}")
-    public ApiResponse<MemberDetailResponse> getMemberDetail(@PathVariable Long memberId) {
+    public ApiResponse<MemberDetailResponse> findMemberDetail(@PathVariable Long memberId) {
         return ApiResponse.success(
-                memberAdminService.getMemberDetail(memberId)
+                memberAdminService.findMemberDetail(memberId)
         );
     }
 
