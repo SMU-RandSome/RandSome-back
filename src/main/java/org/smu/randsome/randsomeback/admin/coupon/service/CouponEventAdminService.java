@@ -5,9 +5,13 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.NewCouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.UpdateCouponEvent;
+import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventReader;
+import org.smu.randsome.randsomeback.domain.coupon.implement.CouponReader;
+import org.smu.randsome.randsomeback.global.support.response.Cursor;
+import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -16,6 +20,7 @@ public class CouponEventAdminService {
 
     private final CouponEventManager couponEventManager;
     private final CouponEventReader couponEventReader;
+    private final CouponReader couponReader;
 
     /**
      * 쿠폰 이벤트 등록
@@ -88,4 +93,15 @@ public class CouponEventAdminService {
     public void deactivateCouponEvent(Long couponEventId) {
         couponEventManager.deactivate(couponEventId);
     }
+
+     /**
+      * 쿠폰 이벤트로 발급된 쿠폰 목록 조회
+      * @param couponEventId 조회할 쿠폰 이벤트 ID
+      * @param cursor 페이지네이션을 위한 커서 정보
+      * @return 조회된 쿠폰 목록과 다음 페이지의 커서 정보가 담긴 CursorSlice 객체
+      * */
+    public CursorSlice<Coupon> findCouponEventIssuedMembers(Long couponEventId, Cursor cursor) {
+        return couponReader.findIssuedCoupons(couponEventId, cursor);
+    }
+
 }

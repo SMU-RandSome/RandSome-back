@@ -6,11 +6,15 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventDetailItem;
 import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventPreviewItem;
+import org.smu.randsome.randsomeback.admin.coupon.dto.CouponIssuedMemberItem;
 import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventRegisterRequest;
 import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventUpdateRequest;
 import org.smu.randsome.randsomeback.admin.coupon.service.CouponEventAdminService;
+import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
+import org.smu.randsome.randsomeback.global.support.response.Cursor;
+import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -88,6 +93,24 @@ public class CouponEventAdminController extends CouponEventAdminControllerDocs {
         CouponEvent event = couponEventAdminService.findCouponEvent(couponEventId);
 
         return ApiResponse.success(CouponEventDetailItem.from(event));
+    }
+
+    @Override
+    @GetMapping("/v1/admin/coupon-events/{couponEventId}/issued-members")
+    public ApiResponse<CursorSlice<CouponIssuedMemberItem>> findCouponEventIssuedMember(
+            @PathVariable Long couponEventId,
+            @RequestParam(required = false) Long lastId,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        CursorSlice<Coupon> slice = couponEventAdminService.findCouponEventIssuedMembers(couponEventId, Cursor.of(lastId, size));
+
+        return ApiResponse.success(CursorSlice.of(
+                slice.items().stream()
+                        .map(CouponIssuedMemberItem::from)
+                        .toList(),
+                slice.nextCursor(),
+                slice.hasNext()
+        ));
     }
 
 }
