@@ -4,15 +4,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
+import org.smu.randsome.randsomeback.domain.matching.entity.vo.IdealTypePreference;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
+import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
+import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
+import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
+import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.repository.MemberProfileTagJpaRepository;
 import org.smu.randsome.randsomeback.domain.ticket.entity.Ticket;
 import org.smu.randsome.randsomeback.domain.ticket.entity.TicketHistory;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketActionType;
@@ -32,6 +40,7 @@ class MatchingServiceIntegrationTest extends IntegrationTestSupport {
 
     final MatchingService matchingService;
     final MemberJpaRepository memberJpaRepository;
+    final MemberProfileTagJpaRepository memberProfileTagJpaRepository;
     final TicketJpaRepository ticketJpaRepository;
     final TicketHistoryJpaRepository ticketHistoryJpaRepository;
 
@@ -198,6 +207,72 @@ class MatchingServiceIntegrationTest extends IntegrationTestSupport {
 
         // when
         matchingService.apply(newMatching, member.getId());
+
+        // then
+        List<TicketHistory> histories = ticketHistoryJpaRepository.findAll();
+        assertThat(histories).hasSize(2);
+        assertThat(histories).extracting(TicketHistory::getActionType)
+                .containsExactlyInAnyOrder(TicketActionType.USE, TicketActionType.REFUND);
+        assertThat(histories).extracting(TicketHistory::getSource)
+                .containsExactlyInAnyOrder(TicketSource.MATCHING, TicketSource.NO_MATCH_REFUND);
+    }
+
+    // ===== 이상형 매칭 - 태그 불일치 환불 =====
+
+    @Test
+    void 이상형_매칭_시_태그가_모두_불일치하면_FAILED_상태이고_전액_환불된다() {
+        // given: 신청자 ACTIVE/PUPPY/EXPRESSIVE 선호, 후보자 QUIET/CAT/MODERATE_CONTACT
+        var applicant = memberJpaRepository.save(MemberFixture.create());
+        memberProfileTagJpaRepository.save(MemberFixture.createProfileTag(applicant));
+        ticketJpaRepository.save(Ticket.create(applicant, TicketType.IDEAL, 5));
+
+        Member candidate = memberJpaRepository.save(MemberFixture.createCandidateWithDepartment(
+                "202212001@sangmyung.kr", Gender.FEMALE, MemberFixture.OTHER_DEPARTMENT));
+        memberProfileTagJpaRepository.save(MemberProfileTag.create(
+                candidate, PersonalityTag.QUIET, FaceTypeTag.CAT, DatingStyleTag.MODERATE_CONTACT));
+
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.IDEAL)
+                .applicationCount(1)
+                .idealTypePreference(IdealTypePreference.of(
+                        Set.of(PersonalityTag.ACTIVE), Set.of(FaceTypeTag.PUPPY), Set.of(DatingStyleTag.EXPRESSIVE), Set.of()
+                ))
+                .build();
+
+        // when
+        MatchingApplication result = matchingService.apply(newMatching, applicant.getId());
+
+        // then
+        assertThat(result.getApplicationStatus()).isEqualTo(ApplicationStatus.FAILED);
+        assertThat(result.getMatchedCount()).isZero();
+
+        Ticket ticket = ticketJpaRepository.findByMemberIdAndTicketTypeAndStatus(
+                applicant.getId(), TicketType.IDEAL, EntityStatus.ACTIVE).orElseThrow();
+        assertThat(ticket.getQuantityValue()).isEqualTo(5); // 5 - 1 + 1 = 5 (전액 환불)
+    }
+
+    @Test
+    void 이상형_매칭_시_태그_불일치_환불_시_USE와_NO_MATCH_REFUND_이력이_생성된다() {
+        // given
+        var applicant = memberJpaRepository.save(MemberFixture.create());
+        memberProfileTagJpaRepository.save(MemberFixture.createProfileTag(applicant));
+        ticketJpaRepository.save(Ticket.create(applicant, TicketType.IDEAL, 3));
+
+        Member candidate = memberJpaRepository.save(MemberFixture.createCandidateWithDepartment(
+                "202212002@sangmyung.kr", Gender.FEMALE, MemberFixture.OTHER_DEPARTMENT));
+        memberProfileTagJpaRepository.save(MemberProfileTag.create(
+                candidate, PersonalityTag.QUIET, FaceTypeTag.CAT, DatingStyleTag.MODERATE_CONTACT));
+
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.IDEAL)
+                .applicationCount(2)
+                .idealTypePreference(IdealTypePreference.of(
+                        Set.of(PersonalityTag.ACTIVE), Set.of(FaceTypeTag.PUPPY), Set.of(DatingStyleTag.EXPRESSIVE), Set.of()
+                ))
+                .build();
+
+        // when
+        matchingService.apply(newMatching, applicant.getId());
 
         // then
         List<TicketHistory> histories = ticketHistoryJpaRepository.findAll();

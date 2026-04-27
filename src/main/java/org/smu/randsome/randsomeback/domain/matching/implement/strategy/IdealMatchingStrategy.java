@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
+import org.smu.randsome.randsomeback.domain.matching.entity.vo.IdealTypePreference;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
@@ -18,7 +19,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * 신청자가 제출한 이상형 태그를 기준으로 후보군을 평가하여 점수 상위 N명을 매칭 결과로 생성하는 전략이다.
- * 각 태그 일치 시 1점씩 부여하며(최대 3점), 동점은 셔플로 무작위 처리한다.
+ * 각 태그 일치 시 1점씩 부여하며(최대 4점), 동점은 셔플로 무작위 처리한다.
+ * 점수가 0인 후보(이상형 태그가 하나도 일치하지 않는 경우)는 결과에서 제외된다.
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -53,13 +55,16 @@ public class IdealMatchingStrategy implements MatchingStrategy {
         // NOTE: 동점자 간 순서를 무작위로 만들기 위해 정렬 전 셔플한다.
         Collections.shuffle(candidates);
 
+        IdealTypePreference preference = matchingApplication.getIdealTypePreference();
+
         List<MatchingResult> results = candidates.stream()
                 .map(candidate -> {
                     MemberProfileTag profileTag = profileTagMap.get(candidate.getId());
-                    int score = matchingApplication.getIdealTypePreference().scoreAgainst(profileTag, candidate.getMbti());
+                    int score = preference.scoreAgainst(profileTag, candidate.getMbti());
                     return new ScoredCandidate(candidate, score);
                 })
                 .sorted(Comparator.comparingInt(ScoredCandidate::score).reversed())
+                .filter(scored -> scored.score() > 0)
                 .limit(matchingApplication.getApplicationCount())
                 .map(scored -> MatchingResult.create(matchingApplication, scored.candidate()))
                 .toList();
