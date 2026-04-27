@@ -14,9 +14,15 @@ import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventRegisterRequest;
 import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventUpdateRequest;
+import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventType;
+import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
+import org.smu.randsome.randsomeback.fixture.CuponFixture;
+import org.smu.randsome.randsomeback.fixture.MemberFixture;
+import org.smu.randsome.randsomeback.global.support.response.Cursor;
+import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
 import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
 import org.springframework.http.HttpStatus;
@@ -183,6 +189,83 @@ class CouponEventAdminControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.data.totalQuantity", v -> v.assertThat().isEqualTo(100))
                 .hasPathSatisfying("$.data.rewardTicketType", v -> v.assertThat().isEqualTo("RANDOM"))
                 .hasPathSatisfying("$.data.rewardTicketAmount", v -> v.assertThat().isEqualTo(10));
+    }
+
+    @TestAdmin
+    @Test
+    void 관리자가_쿠폰_이벤트별_발급_회원_목록을_조회한다() {
+        // given
+        Member member1 = MemberFixture.createWithLegalName("202310001@sangmyung.kr", "홍길동");
+        ReflectionTestUtils.setField(member1, "id", 1L);
+        Member member2 = MemberFixture.createWithLegalName("202310002@sangmyung.kr", "김철수");
+        ReflectionTestUtils.setField(member2, "id", 2L);
+
+        CouponEvent event = CuponFixture.createActiveCuponEvent();
+        ReflectionTestUtils.setField(event, "id", 1L);
+
+        Coupon coupon1 = Coupon.issue(event, member1);
+        ReflectionTestUtils.setField(coupon1, "id", 2L);
+        Coupon coupon2 = Coupon.issue(event, member2);
+        ReflectionTestUtils.setField(coupon2, "id", 1L);
+
+        given(couponEventAdminService.findCouponEventIssuedMembers(eq(1L), any(Cursor.class)))
+                .willReturn(CursorSlice.of(List.of(coupon1, coupon2), null, false));
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/coupon-events/{couponEventId}/issued-members", 1L))
+                .apply(print())
+                .hasStatusOk()
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
+                .hasPathSatisfying("$.data.items.length()", v -> v.assertThat().isEqualTo(2))
+                .hasPathSatisfying("$.data.items[0].memberId", v -> v.assertThat().isEqualTo(1))
+                .hasPathSatisfying("$.data.items[0].legalName", v -> v.assertThat().isEqualTo("홍길동"))
+                .hasPathSatisfying("$.data.items[1].memberId", v -> v.assertThat().isEqualTo(2))
+                .hasPathSatisfying("$.data.items[1].legalName", v -> v.assertThat().isEqualTo("김철수"))
+                .hasPathSatisfying("$.data.hasNext", v -> v.assertThat().isEqualTo(false))
+                .hasPathSatisfying("$.data.nextCursor", v -> v.assertThat().isNull());
+    }
+
+    @TestAdmin
+    @Test
+    void 다음_페이지가_있으면_nextCursor를_반환한다() {
+        // given
+        Member member = MemberFixture.create();
+        ReflectionTestUtils.setField(member, "id", 1L);
+
+        CouponEvent event = CuponFixture.createActiveCuponEvent();
+        ReflectionTestUtils.setField(event, "id", 1L);
+
+        Coupon coupon = Coupon.issue(event, member);
+        ReflectionTestUtils.setField(coupon, "id", 10L);
+
+        given(couponEventAdminService.findCouponEventIssuedMembers(eq(1L), any(Cursor.class)))
+                .willReturn(CursorSlice.of(List.of(coupon), 10L, true));
+
+        // when & then
+        assertThat(mvcTester.get()
+                        .uri("/v1/admin/coupon-events/{couponEventId}/issued-members?lastId=20&size=10", 1L))
+                .apply(print())
+                .hasStatusOk()
+                .bodyJson()
+                .hasPathSatisfying("$.data.hasNext", v -> v.assertThat().isEqualTo(true))
+                .hasPathSatisfying("$.data.nextCursor", v -> v.assertThat().isEqualTo(10));
+    }
+
+    @TestAdmin
+    @Test
+    void 발급된_쿠폰이_없으면_빈_목록을_반환한다() {
+        // given
+        given(couponEventAdminService.findCouponEventIssuedMembers(eq(1L), any(Cursor.class)))
+                .willReturn(CursorSlice.of(List.of(), null, false));
+
+        // when & then
+        assertThat(mvcTester.get().uri("/v1/admin/coupon-events/{couponEventId}/issued-members", 1L))
+                .apply(print())
+                .hasStatusOk()
+                .bodyJson()
+                .hasPathSatisfying("$.data.items.length()", v -> v.assertThat().isEqualTo(0))
+                .hasPathSatisfying("$.data.hasNext", v -> v.assertThat().isEqualTo(false));
     }
 
 }

@@ -8,6 +8,7 @@ import org.smu.randsome.randsomeback.domain.coupon.repository.CouponRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.global.support.response.Cursor;
 import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,16 @@ public class CouponReader {
 
     public boolean hasIssuedCoupon(Long couponEventId, Long memberId) {
         return couponRepository.existsByCouponEventIdAndMemberIdAndStatus(couponEventId, memberId, EntityStatus.ACTIVE);
+    }
+
+    public CursorSlice<Coupon> findIssuedCoupons(Long couponEventId, Cursor cursor) {
+        List<Coupon> coupons = couponRepository.findByCouponEventWithMember(couponEventId, cursor);
+
+        boolean hasNext = coupons.size() > cursor.limit();
+        List<Coupon> items = hasNext ? coupons.subList(0, cursor.limit()) : coupons;
+        Long nextCursor = hasNext ? items.getLast().getId() : null;
+
+        return CursorSlice.of(items, nextCursor, hasNext);
     }
 
 }

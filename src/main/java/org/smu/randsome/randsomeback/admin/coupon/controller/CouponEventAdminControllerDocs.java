@@ -6,9 +6,11 @@ import jakarta.validation.Valid;
 import java.util.List;
 import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventDetailItem;
 import org.smu.randsome.randsomeback.admin.coupon.dto.CouponEventPreviewItem;
+import org.smu.randsome.randsomeback.admin.coupon.dto.CouponIssuedMemberItem;
 import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventRegisterRequest;
 import org.smu.randsome.randsomeback.admin.coupon.dto.request.CouponEventUpdateRequest;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
+import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "관리자 쿠폰 이벤트 API", description = "관리자 쿠폰 이벤트 관련 API")
@@ -75,5 +77,15 @@ public abstract class CouponEventAdminControllerDocs {
                     """
     )
     public abstract ApiResponse<CouponEventDetailItem> findCouponEvent(Long couponEventId);
+
+    @Operation(summary = "쿠폰 발급 회원 목록 조회",
+            description = """
+                    ## 특정 쿠폰 이벤트에서 쿠폰을 발급받은 회원 목록을 조회합니다.
+                    커서 기반 페이지네이션을 사용하며, lastId와 size 파라미터로 다음 페이지를 요청할 수 있습니다.
+                    size는 최소 10, 최대 30 입니다.
+                    """
+    )
+    public abstract ApiResponse<CursorSlice<CouponIssuedMemberItem>> findCouponEventIssuedMember(
+            Long couponEventId, Long lastId, int size);
 
 }

@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.domain.coupon.repository;
 
 import static org.smu.randsome.randsomeback.domain.coupon.entity.QCoupon.coupon;
+import static org.smu.randsome.randsomeback.domain.member.entity.QMember.member;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -11,6 +12,7 @@ import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponFilterType;
 import org.smu.randsome.randsomeback.domain.coupon.enums.CouponStatus;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
+import org.smu.randsome.randsomeback.global.support.response.Cursor;
 import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
@@ -32,6 +34,21 @@ public class CouponQueryDslRepositoryImpl implements CouponQueryDslRepository {
                 )
                 .orderBy(coupon.id.desc())
                 .limit(condition.size() + 1L)
+                .fetch();
+    }
+
+    @Override
+    public List<Coupon> findByCouponEventWithMember(Long couponEventId, Cursor cursor) {
+        return queryFactory
+                .selectFrom(coupon)
+                .innerJoin(coupon.member, member).fetchJoin()
+                .where(
+                        coupon.couponEvent.id.eq(couponEventId),
+                        coupon.status.eq(EntityStatus.ACTIVE),
+                        cursorCondition(cursor.lastCursorId())
+                )
+                .orderBy(coupon.id.desc())
+                .limit(cursor.limit() + 1L)
                 .fetch();
     }
 
