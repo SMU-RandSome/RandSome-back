@@ -39,7 +39,10 @@ public record CouponEventDetailItem(
         LocalDateTime startsAt,
 
         @Schema(description = "이벤트 종료 시각", example = "2026-05-01T18:00:00")
-        LocalDateTime expiresAt
+        LocalDateTime expiresAt,
+
+        @Schema(description = "쿠폰 만료 시각", example = "2026-05-31T23:59:59")
+        LocalDateTime couponExpiresAt
 ) {
     public static CouponEventDetailItem from(CouponEvent event) {
         return CouponEventDetailItem.builder()
@@ -53,6 +56,7 @@ public record CouponEventDetailItem(
                 .rewardTicketAmount(event.getRewardTicketAmount())
                 .startsAt(event.getStartsAt())
                 .expiresAt(event.getExpiresAt())
+                .couponExpiresAt(event.getCouponExpiresAt())
                 .build();
     }
 
