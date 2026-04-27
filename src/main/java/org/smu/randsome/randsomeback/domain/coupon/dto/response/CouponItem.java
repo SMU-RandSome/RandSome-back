@@ -20,8 +20,8 @@ public record CouponItem(
         @Schema(description = "보상 티켓 타입")
         TicketType ticketType,
 
-        @Schema(description = "이벤트 만료 시각")
-        LocalDateTime eventExpiresAt,
+        @Schema(description = "쿠폰 만료 시각")
+        LocalDateTime expiredAt,
 
         @Schema(description = "보상 티켓 수량", example = "1")
         int rewardTicketAmount
@@ -33,7 +33,7 @@ public record CouponItem(
                 coupon.getCouponEvent().getName(),
                 coupon.getCouponStatus(),
                 coupon.getCouponEvent().getRewardTicketType(),
-                coupon.getCouponEvent().getExpiresAt(),
+                coupon.getExpiredAt(),
                 coupon.getCouponEvent().getRewardTicketAmount()
         );
     }
