@@ -15,7 +15,6 @@ import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberRestriction;
-import org.smu.randsome.randsomeback.domain.member.entity.vo.MyProfileTags;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.Password;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
@@ -42,13 +41,16 @@ class MemberManagerUnitTest extends UnitTestSupport {
     MemberRestrictionJpaRepository memberRestrictionJpaRepository;
 
     @Mock
+    MemberProfileTagManager memberProfileTagManager;
+
+    @Mock
     PasswordEncoder passwordEncoder;
 
     @Mock
     SuspensionManager suspensionManager;
 
     @Test
-    void 태그와_함께_회원을_생성한다() {
+    void 회원을_생성하고_프로필_태그가_함께_생성된다() {
         // given
         given(memberJpaRepository.existsByEmail_AddressAndStatus(any(String.class), any(EntityStatus.class)))
                 .willReturn(false);
@@ -65,16 +67,13 @@ class MemberManagerUnitTest extends UnitTestSupport {
         );
 
         // then
-        MyProfileTags tags = member.getMyProfileTags();
-        assertThat(tags).isNotNull().extracting(
-                MyProfileTags::personalityTag,
-                MyProfileTags::faceTypeTag,
-                MyProfileTags::datingStyleTag
-
-        ).containsExactly(
-                MemberFixture.DEFAULT_PERSONALITY_TAG,
-                MemberFixture.DEFAULT_FACE_TYPE_TAG,
-                MemberFixture.DEFAULT_DATING_STYLE_TAG
+        assertThat(member).isNotNull();
+        assertThat(member.getRole()).isEqualTo(Role.ROLE_MEMBER);
+        verify(memberProfileTagManager).create(
+                any(Member.class),
+                any(),
+                any(),
+                any()
         );
     }
 

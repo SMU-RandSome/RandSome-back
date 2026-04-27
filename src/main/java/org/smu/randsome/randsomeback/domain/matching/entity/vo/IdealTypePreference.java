@@ -1,44 +1,69 @@
 package org.smu.randsome.randsomeback.domain.matching.entity.vo;
 
-import org.smu.randsome.randsomeback.domain.member.entity.vo.MyProfileTags;
+import java.util.Set;
+import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
 import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
 import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
+import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 
 /**
  * 이상형 매칭 신청 시 신청자가 원하는 태그 조건을 나타내는 Value Object.
- * 각 카테고리별로 하나의 태그를 선택하며, 후보자 프로필과 일치하면 해당 카테고리 점수(1점)를 부여한다.
+ * 각 카테고리별로 여러 태그를 선택할 수 있으며, 후보자 프로필 태그가 선호 목록에 포함되면 1점이 부여된다.
+ * 최대 점수: 4점 (성격 + 얼굴상 + 연애스타일 + MBTI)
  */
 public record IdealTypePreference(
-        PersonalityTag preferredPersonalityTag,
-        FaceTypeTag preferredFaceTypeTag,
-        DatingStyleTag preferredDatingStyleTag
+        Set<PersonalityTag> preferredPersonalityTags,
+        Set<FaceTypeTag> preferredFaceTypeTags,
+        Set<DatingStyleTag> preferredDatingStyleTags,
+        Set<Mbti> preferredMbtis
 ) {
 
+    public IdealTypePreference {
+        preferredPersonalityTags = preferredPersonalityTags != null
+                ? Set.copyOf(preferredPersonalityTags) : Set.of();
+        preferredFaceTypeTags = preferredFaceTypeTags != null
+                ? Set.copyOf(preferredFaceTypeTags) : Set.of();
+        preferredDatingStyleTags = preferredDatingStyleTags != null
+                ? Set.copyOf(preferredDatingStyleTags) : Set.of();
+        preferredMbtis = preferredMbtis != null
+                ? Set.copyOf(preferredMbtis) : Set.of();
+    }
+
     public static IdealTypePreference of(
-            PersonalityTag preferredPersonalityTag,
-            FaceTypeTag preferredFaceTypeTag,
-            DatingStyleTag preferredDatingStyleTag
+            Set<PersonalityTag> personalityTags,
+            Set<FaceTypeTag> faceTypeTags,
+            Set<DatingStyleTag> datingStyleTags,
+            Set<Mbti> mbtis
     ) {
-        return new IdealTypePreference(preferredPersonalityTag, preferredFaceTypeTag, preferredDatingStyleTag);
+        return new IdealTypePreference(personalityTags, faceTypeTags, datingStyleTags, mbtis);
     }
 
     /**
-     * 후보자의 프로필 태그와 비교하여 카테고리별 일치 수(0~3)를 반환한다.
-     * 각 카테고리에서 후보자 태그가 선호 태그와 일치하면 1점이 부여된다.
+     * 후보자의 프로필 태그 및 MBTI와 비교하여 카테고리별 일치 수(0~4)를 반환한다.
+     * 각 카테고리에서 후보자 태그가 선호 목록에 포함되면 1점이 부여된다.
+     * 빈 선호 목록은 해당 카테고리를 무시한다 (0점, 패널티 아님).
      *
-     * @param candidateTags 후보자의 내 소개 태그
-     * @return 일치 점수 (0~3)
+     * @param candidateProfileTag 후보자의 프로필 태그
+     * @param candidateMbti 후보자의 MBTI
+     * @return 일치 점수 (0~4)
      */
-    public int scoreAgainst(MyProfileTags candidateTags) {
+    public int scoreAgainst(MemberProfileTag candidateProfileTag, Mbti candidateMbti) {
         int score = 0;
-        if (preferredPersonalityTag != null && preferredPersonalityTag == candidateTags.personalityTag()) {
+        if (!preferredPersonalityTags.isEmpty()
+                && preferredPersonalityTags.contains(candidateProfileTag.getPersonalityTag())) {
             score++;
         }
-        if (preferredFaceTypeTag != null && preferredFaceTypeTag == candidateTags.faceTypeTag()) {
+        if (!preferredFaceTypeTags.isEmpty()
+                && preferredFaceTypeTags.contains(candidateProfileTag.getFaceTypeTag())) {
             score++;
         }
-        if (preferredDatingStyleTag != null && preferredDatingStyleTag == candidateTags.datingStyleTag()) {
+        if (!preferredDatingStyleTags.isEmpty()
+                && preferredDatingStyleTags.contains(candidateProfileTag.getDatingStyleTag())) {
+            score++;
+        }
+        if (!preferredMbtis.isEmpty()
+                && preferredMbtis.contains(candidateMbti)) {
             score++;
         }
         return score;

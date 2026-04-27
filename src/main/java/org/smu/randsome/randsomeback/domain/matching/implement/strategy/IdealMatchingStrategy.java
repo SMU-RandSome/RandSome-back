@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
-import org.smu.randsome.randsomeback.domain.matching.entity.vo.IdealTypePreference;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.member.enums.Department;
-import org.smu.randsome.randsomeback.domain.member.enums.Gender;
+import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberProfileTagReader;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 public class IdealMatchingStrategy implements MatchingStrategy {
 
     private final MemberReader memberReader;
+    private final MemberProfileTagReader memberProfileTagReader;
 
     @Override
     public MatchingType getSupportedType() {
@@ -40,20 +41,24 @@ public class IdealMatchingStrategy implements MatchingStrategy {
      */
     @Override
     public List<MatchingResult> execute(MatchingApplication matchingApplication) {
-        Gender targetGender = matchingApplication.getTargetGender();
-        Department applicantDepartment = matchingApplication.getMember().getDepartment();
-        IdealTypePreference preference = matchingApplication.getIdealTypePreference();
+        List<Member> candidateMembers = memberReader.findAllCandidatesByGender(
+                matchingApplication.getTargetGender(),
+                matchingApplication.getMember().getDepartment()
+        );
+        List<Member> candidates = new ArrayList<>(candidateMembers);
 
-        List<Member> candidates = new ArrayList<>(memberReader.findAllCandidatesByGender(targetGender, applicantDepartment));
-
-        log.debug("[IdealMatchingStrategy] 후보 조회 완료 - matchingApplicationId: {}, targetGender: {}, candidateCount: {}",
-                matchingApplication.getId(), targetGender, candidates.size());
+        List<Long> candidateIds = candidates.stream().map(Member::getId).toList();
+        Map<Long, MemberProfileTag> profileTagMap = memberProfileTagReader.findAllByMemberIds(candidateIds);
 
         // NOTE: 동점자 간 순서를 무작위로 만들기 위해 정렬 전 셔플한다.
         Collections.shuffle(candidates);
 
         List<MatchingResult> results = candidates.stream()
-                .map(candidate -> new ScoredCandidate(candidate, preference.scoreAgainst(candidate.getMyProfileTags())))
+                .map(candidate -> {
+                    MemberProfileTag profileTag = profileTagMap.get(candidate.getId());
+                    int score = matchingApplication.getIdealTypePreference().scoreAgainst(profileTag, candidate.getMbti());
+                    return new ScoredCandidate(candidate, score);
+                })
                 .sorted(Comparator.comparingInt(ScoredCandidate::score).reversed())
                 .limit(matchingApplication.getApplicationCount())
                 .map(scored -> MatchingResult.create(matchingApplication, scored.candidate()))

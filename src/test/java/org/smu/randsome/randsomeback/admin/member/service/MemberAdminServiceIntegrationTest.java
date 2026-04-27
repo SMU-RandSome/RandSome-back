@@ -11,6 +11,7 @@ import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.implement.SuspensionManager;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.repository.MemberProfileTagJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberRestrictionJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSearchCondition;
@@ -23,12 +24,14 @@ class MemberAdminServiceIntegrationTest extends IntegrationTestSupport {
 
     final MemberAdminService memberAdminService;
     final MemberJpaRepository memberJpaRepository;
+    final MemberProfileTagJpaRepository memberProfileTagJpaRepository;
     final MemberRestrictionJpaRepository memberRestrictionJpaRepository;
     final SuspensionManager suspensionManager;
 
     @AfterEach
     void tearDown() {
         memberRestrictionJpaRepository.deleteAll();
+        memberProfileTagJpaRepository.deleteAll();
         memberJpaRepository.deleteAll();
     }
 

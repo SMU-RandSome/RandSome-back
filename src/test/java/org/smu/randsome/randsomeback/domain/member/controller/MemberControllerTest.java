@@ -56,9 +56,9 @@ class MemberControllerTest extends ControllerTestSupport {
     @TestMember
     void 내_프로필_조회에_성공하면_200을_반환한다() {
         // given
-
         Member member = MemberFixture.create();
         given(memberService.getMyProfile(any())).willReturn(member);
+        given(memberService.getProfileTag(any())).willReturn(MemberFixture.createProfileTag(member));
         given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.empty());
 
         // when & then
@@ -77,6 +77,7 @@ class MemberControllerTest extends ControllerTestSupport {
         // given
         Member member = MemberFixture.create();
         given(memberService.getMyProfile(any())).willReturn(member);
+        given(memberService.getProfileTag(any())).willReturn(MemberFixture.createProfileTag(member));
         given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.of(RegistrationStatus.PENDING));
 
         // when & then
@@ -93,6 +94,7 @@ class MemberControllerTest extends ControllerTestSupport {
         // given
         Member member = MemberFixture.create();
         given(memberService.getMyProfile(any())).willReturn(member);
+        given(memberService.getProfileTag(any())).willReturn(MemberFixture.createProfileTag(member));
         given(candidateService.getMyRegistrationStatus(any())).willReturn(Optional.of(RegistrationStatus.APPROVED));
 
         // when & then
