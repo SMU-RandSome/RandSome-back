@@ -10,9 +10,8 @@ import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.support.response.PageResponse;
 import org.smu.randsome.randsomeback.global.swagger.ApiExceptions;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "관리자 회원 관리 API", description = "관리자용 회원 관리 API 문서")
 public abstract class MemberAdminControllerDocs {
@@ -21,19 +20,25 @@ public abstract class MemberAdminControllerDocs {
             summary = "회원 목록 조회",
             description = """
                     #### 관리자 회원 목록 조회 API입니다.
-                    - 활성 상태(EntityStatus.ACTIVE)의 회원 목록을 조회합니다.
+                    - 삭제된 회원을 제외한 전체 회원(활성·정지 포함) 목록을 조회합니다.
+                    - 닉네임 또는 실명으로 검색할 수 있습니다.
                     - 페이지네이션이 적용됩니다.
-                    
+
+                    **검색 파라미터**
+                    - keyword : 닉네임 또는 실명 검색어 (선택, 미입력 시 전체 조회)
+
                     **페이지 파라미터**
-                    - page : 페이지 번호 (0부터 시작, 기본값 0)
-                    - size : 페이지 당 데이터 수 (기본값 10)
+                    - page : 페이지 번호 (1부터 시작, 기본값 1)
+                    - size : 페이지 당 데이터 수 (기본값 20, 최대 30)
                     """
     )
     @ApiExceptions(values = {
             ErrorType.DEFAULT_ERROR
     })
     public abstract ApiResponse<PageResponse<MemberAdminResponse>> findMembers(
-            @ParameterObject Pageable pageable
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size
     );
 
     @Operation(

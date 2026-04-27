@@ -24,16 +24,6 @@ public record PageResponse<T>(
         boolean hasNext
 ) {
 
-    public static <T> PageResponse<T> from(Page<T> page) {
-        return new PageResponse<>(
-                page.getContent(),
-                page.getNumber() + 1,
-                page.getSize(),
-                page.getTotalElements(),
-                page.hasNext()
-        );
-    }
-
     public static <T> PageResponse<T> of(List<T> content, int page, int size, long totalElements) {
         return new PageResponse<>(
                 content,
