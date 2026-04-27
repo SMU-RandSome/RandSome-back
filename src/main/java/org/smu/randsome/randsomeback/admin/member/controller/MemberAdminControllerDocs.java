@@ -32,7 +32,7 @@ public abstract class MemberAdminControllerDocs {
     @ApiExceptions(values = {
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ApiResponse<PageResponse<MemberAdminResponse>> getMembers(
+    public abstract ApiResponse<PageResponse<MemberAdminResponse>> findMembers(
             @ParameterObject Pageable pageable
     );
 
@@ -51,7 +51,7 @@ public abstract class MemberAdminControllerDocs {
             ErrorType.NOT_FOUND_BANK_ACCOUNT,
             ErrorType.DEFAULT_ERROR
     })
-    public abstract ApiResponse<MemberDetailResponse> getMemberDetail(
+    public abstract ApiResponse<MemberDetailResponse> findMemberDetail(
             @Parameter(name = "memberId", description = "조회할 회원의 고유 ID", required = true) Long memberId
     );
 

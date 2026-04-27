@@ -24,19 +24,19 @@ public class MemberAdminController extends MemberAdminControllerDocs {
 
     @Override
     @GetMapping("/v1/admin/members")
-    public ApiResponse<PageResponse<MemberAdminResponse>> getMembers(
+    public ApiResponse<PageResponse<MemberAdminResponse>> findMembers(
             @PageableDefault(size = 10) Pageable pageable
     ) {
         return ApiResponse.success(
-                PageResponse.from(memberAdminService.getMembers(pageable))
+                PageResponse.from(memberAdminService.findMembers(pageable))
         );
     }
 
     @Override
     @GetMapping("/v1/admin/members/{memberId}")
-    public ApiResponse<MemberDetailResponse> getMemberDetail(@PathVariable Long memberId) {
+    public ApiResponse<MemberDetailResponse> findMemberDetail(@PathVariable Long memberId) {
         return ApiResponse.success(
-                memberAdminService.getMemberDetail(memberId)
+                memberAdminService.findMemberDetail(memberId)
         );
     }
 

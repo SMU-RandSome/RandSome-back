@@ -38,7 +38,7 @@ class MemberAdminControllerTest extends ControllerTestSupport {
                 Role.ROLE_MEMBER
         );
 
-        given(memberAdminService.getMembers(any()))
+        given(memberAdminService.findMembers(any()))
                 .willReturn(new PageImpl<>(List.of(response)));
 
         // when & then
@@ -49,7 +49,7 @@ class MemberAdminControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
                 .hasPath("$.data.content");
 
-        then(memberAdminService).should().getMembers(any());
+        then(memberAdminService).should().findMembers(any());
     }
 
     @TestAdmin
@@ -59,7 +59,7 @@ class MemberAdminControllerTest extends ControllerTestSupport {
         var member = MemberFixture.create();
         var response = MemberDetailResponse.of(member);
 
-        given(memberAdminService.getMemberDetail(1L)).willReturn(response);
+        given(memberAdminService.findMemberDetail(1L)).willReturn(response);
 
         // when & then
         assertThat(mvcTester.get().uri("/v1/admin/members/1"))
@@ -69,7 +69,7 @@ class MemberAdminControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
                 .hasPathSatisfying("$.data.id", v -> v.assertThat().isEqualTo(response.id()));
 
-        then(memberAdminService).should().getMemberDetail(1L);
+        then(memberAdminService).should().findMemberDetail(1L);
     }
 
     @TestAdmin

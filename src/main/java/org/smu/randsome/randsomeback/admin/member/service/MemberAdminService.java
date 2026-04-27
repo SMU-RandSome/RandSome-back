@@ -19,13 +19,13 @@ public class MemberAdminService {
     private final MemberManager memberManager;
 
     @Transactional(readOnly = true)
-    public Page<MemberAdminResponse> getMembers(Pageable pageable) {
+    public Page<MemberAdminResponse> findMembers(Pageable pageable) {
         return memberReader.findAll(pageable)
                 .map(MemberAdminResponse::from);
     }
 
     @Transactional(readOnly = true)
-    public MemberDetailResponse getMemberDetail(Long memberId) {
+    public MemberDetailResponse findMemberDetail(Long memberId) {
         Member member = memberReader.find(memberId);
 
         return MemberDetailResponse.of(member);

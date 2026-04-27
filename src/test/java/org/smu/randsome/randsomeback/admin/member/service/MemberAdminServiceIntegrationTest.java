@@ -36,7 +36,7 @@ class MemberAdminServiceIntegrationTest extends IntegrationTestSupport {
         var pageable = PageRequest.of(0, 10);
 
         // when
-        var result = memberAdminService.getMembers(pageable);
+        var result = memberAdminService.findMembers(pageable);
 
         // then
         assertThat(result.getContent()).hasSize(2);
@@ -49,7 +49,7 @@ class MemberAdminServiceIntegrationTest extends IntegrationTestSupport {
         var member = memberJpaRepository.save(MemberFixture.create());
 
         // when
-        var result = memberAdminService.getMemberDetail(member.getId());
+        var result = memberAdminService.findMemberDetail(member.getId());
 
         // then
         assertThat(result.id()).isEqualTo(member.getId());
