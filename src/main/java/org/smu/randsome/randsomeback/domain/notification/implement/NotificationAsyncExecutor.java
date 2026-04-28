@@ -34,9 +34,9 @@ public class NotificationAsyncExecutor {
                     announcementId
             );
         } catch (Exception e) {
-            log.error("[NotificationHandler] 공지사항 알림 전송 중 오류 발생. announcementId={}", announcementId, e);
+            log.error("[NotificationAsyncExecutor] 공지사항 알림 전송 중 오류 발생. announcementId={}", announcementId, e);
             errorNotificationSender.sendErrorNotification(
-                    "[NotificationHandler] 공지사항 알림 전송 중 오류 발생. announcementId=" + announcementId + "error: "
+                    "[NotificationAsyncExecutor] 공지사항 알림 전송 중 오류 발생. announcementId=" + announcementId + "error: "
                             + e.getMessage(), e);
         }
     }
@@ -51,9 +51,9 @@ public class NotificationAsyncExecutor {
                     applicationId
             );
         } catch (Exception e) {
-            log.error("[NotificationHandler] 매칭 완료 알림 전송 중 오류 발생. applicationId={}", applicationId, e);
+            log.error("[NotificationAsyncExecutor] 매칭 완료 알림 전송 중 오류 발생. applicationId={}", applicationId, e);
             errorNotificationSender.sendErrorNotification(
-                    "[NotificationHandler] 매칭 완료 알림 전송 중 오류 발생. applicationId=" + applicationId
+                    "[NotificationAsyncExecutor] 매칭 완료 알림 전송 중 오류 발생. applicationId=" + applicationId
                             + ", error: " + e.getMessage(), e);
         }
     }
@@ -68,10 +68,10 @@ public class NotificationAsyncExecutor {
                     candidateRegistrationId
             );
         } catch (Exception e) {
-            log.error("[NotificationHandler] 후보자 신청 알림 전송 중 오류 발생. candidateRegistrationId={}", candidateRegistrationId,
+            log.error("[NotificationAsyncExecutor] 후보자 신청 알림 전송 중 오류 발생. candidateRegistrationId={}", candidateRegistrationId,
                     e);
             errorNotificationSender.sendErrorNotification(
-                    "[NotificationHandler] 후보자 신청 알림 전송 중 오류 발생. candidateRegistrationId=" + candidateRegistrationId
+                    "[NotificationAsyncExecutor] 후보자 신청 알림 전송 중 오류 발생. candidateRegistrationId=" + candidateRegistrationId
                             + ", error: " + e.getMessage(), e);
         }
     }
@@ -93,18 +93,18 @@ public class NotificationAsyncExecutor {
                     candidateRegistrationId
             );
         } catch (Exception e) {
-            log.error("[NotificationHandler] 후보자 승인 또는 거절 알림 전송 중 오류 발생. candidateRegistrationId={}",
+            log.error("[NotificationAsyncExecutor] 후보자 승인 또는 거절 알림 전송 중 오류 발생. candidateRegistrationId={}",
                     candidateRegistrationId,
                     e);
             errorNotificationSender.sendErrorNotification(
-                    "[NotificationHandler] 후보자 승인 또는 거절 알림 전송 중 오류 발생. candidateRegistrationId=" + candidateRegistrationId
+                    "[NotificationAsyncExecutor] 후보자 승인 또는 거절 알림 전송 중 오류 발생. candidateRegistrationId=" + candidateRegistrationId
                             + ", error: " + e.getMessage(), e);
         }
     }
 
     private void sendNotificationToDevices(List<MemberDevice> devices, NotificationType type, long contextId) {
         if (devices.isEmpty()) {
-            log.info("[NotificationHandler] 알림을 받을 활성화된 디바이스가 없습니다. type={}, contextId={}", type, contextId);
+            log.info("[NotificationAsyncExecutor] 알림을 받을 활성화된 디바이스가 없습니다. type={}, contextId={}", type, contextId);
             return;
         }
 
@@ -120,7 +120,7 @@ public class NotificationAsyncExecutor {
         notificationManager.saveNotifications(memberIds, type);
         notificationSender.sendNotification(fcmTokens, type);
 
-        log.info("[NotificationHandler] 알림 전송 요청 완료. type={}, contextId={}, 대상 인원={}", type, contextId, memberIds.size());
+        log.info("[NotificationAsyncExecutor] 알림 전송 요청 완료. type={}, contextId={}, 대상 인원={}", type, contextId, memberIds.size());
     }
 
 }
