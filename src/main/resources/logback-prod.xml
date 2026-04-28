@@ -17,6 +17,24 @@
         <minimumBreadcrumbLevel>INFO</minimumBreadcrumbLevel>
     </appender>
 
+    <!-- Loki Appender (비동기 배치 전송) -->
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>${LOKI_URL:-http://localhost:3100}/loki/api/v1/push</url>
+        </http>
+        <batchMaxItems>100</batchMaxItems>
+        <batchTimeoutMs>5000</batchTimeoutMs>
+        <format>
+            <label>
+                <pattern>app=randsome,env=prod,level=%level</pattern>
+            </label>
+            <message>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{traceId:-SYSTEM}] [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </message>
+            <sortByTime>true</sortByTime>
+        </format>
+    </appender>
+
     <!-- Application -->
     <logger name="org.smu.randsome.randsomeback" level="INFO"/>
 
@@ -31,6 +49,7 @@
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="SENTRY"/>
+        <appender-ref ref="LOKI"/>
     </root>
 
 </configuration>
