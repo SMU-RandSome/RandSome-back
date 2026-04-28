@@ -210,5 +210,10 @@ bad-words.txt
 !monitoring/prometheus/prometheus.yml
 !monitoring/grafana/provisioning/**/*.yml
 
+# 시드 데이터 SQL 및 venv 제외
+monitoring/seed/seed.sql
+monitoring/seed/seed.log
+monitoring/seed/.venv/
+
 
 /docs
