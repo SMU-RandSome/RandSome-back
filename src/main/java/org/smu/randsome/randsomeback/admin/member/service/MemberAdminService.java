@@ -9,7 +9,6 @@ import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.global.support.response.OffsetLimit;
 import org.smu.randsome.randsomeback.global.support.response.PageResponse;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service

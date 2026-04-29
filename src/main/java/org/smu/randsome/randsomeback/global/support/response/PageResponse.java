@@ -3,7 +3,6 @@ package org.smu.randsome.randsomeback.global.support.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.function.Function;
-import org.springframework.data.domain.Page;
 
 @Schema(description = "페이지 응답")
 public record PageResponse<T>(
