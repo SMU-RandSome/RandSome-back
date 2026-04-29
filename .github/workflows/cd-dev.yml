@@ -28,6 +28,9 @@ jobs:
           cd ./src/main/resources
           echo "${{ secrets.APPLICATION_DEV }}" | base64 --decode > application-dev.yml
 
+      - name: Debug - verify pool-size (임시, 확인 후 제거)
+        run: grep "maximum-pool-size" ./src/main/resources/application-dev.yml | awk '{print $2}'
+
       - name: Make firebase.json
         run: echo '${{ secrets.FIREBASE_JSON }}' > ./src/main/resources/firebase.json
 
