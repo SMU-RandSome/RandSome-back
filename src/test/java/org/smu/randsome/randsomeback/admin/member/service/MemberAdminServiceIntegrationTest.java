@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
+import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSearchCondition;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.implement.SuspensionManager;
@@ -14,7 +15,6 @@ import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepositor
 import org.smu.randsome.randsomeback.domain.member.repository.MemberProfileTagJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberRestrictionJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
-import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSearchCondition;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.response.OffsetLimit;
