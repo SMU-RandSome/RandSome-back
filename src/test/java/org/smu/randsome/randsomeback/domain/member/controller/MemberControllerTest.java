@@ -14,6 +14,7 @@ import org.smu.randsome.randsomeback.domain.member.dto.request.DeviceTokenSyncRe
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.PasswordUpdateRequest;
+import org.smu.randsome.randsomeback.domain.member.dto.request.WithdrawRequest;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
@@ -194,6 +195,47 @@ class MemberControllerTest extends ControllerTestSupport {
                 .param("deviceToken", "fcm_device_token_12345"))
                 .apply(print())
                 .hasStatus(HttpStatus.NO_CONTENT.value());
+    }
+
+    @Test
+    @TestMember
+    void 회원_탈퇴_요청이_유효하면_204를_반환한다() throws Exception {
+        // given
+        var request = new WithdrawRequest("password123!");
+
+        // when & then
+        assertThat(mvcTester.delete().uri("/v1/members")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.NO_CONTENT.value());
+    }
+
+    @Test
+    void 회원_탈퇴_시_인증되지_않은_사용자는_403을_반환한다() throws Exception {
+        // given
+        var request = new WithdrawRequest("password123!");
+
+        // when & then
+        assertThat(mvcTester.delete().uri("/v1/members")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    @TestMember
+    void 회원_탈퇴_시_비밀번호가_비어있으면_400을_반환한다() throws Exception {
+        // given
+        var request = new WithdrawRequest("");
+
+        // when & then
+        assertThat(mvcTester.delete().uri("/v1/members")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .apply(print())
+                .hasStatus(HttpStatus.BAD_REQUEST.value());
     }
 
     @TestMember

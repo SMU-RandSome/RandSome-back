@@ -11,6 +11,7 @@ import org.smu.randsome.randsomeback.domain.member.dto.request.DeviceTokenSyncRe
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.PasswordUpdateRequest;
+import org.smu.randsome.randsomeback.domain.member.dto.request.WithdrawRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.response.MemberProfileResponse;
 import org.smu.randsome.randsomeback.domain.member.dto.response.MemberStatsResponse;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
@@ -127,6 +128,18 @@ public class MemberController extends MemberControllerDocs {
         return ApiResponse.success(
                 MemberStatsResponse.of(exposureCount, sentApplicationCount, attendanceDays)
         );
+    }
+
+    @Override
+    @DeleteMapping("/v1/members")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ApiResponse<?> withdrawMember(
+            @RequestBody @Valid WithdrawRequest request,
+            @LoginMember Long memberId
+    ) {
+        memberService.withdraw(memberId, request.password());
+
+        return ApiResponse.success();
     }
 
     @PostMapping("/v1/members/withdraw-candidate")

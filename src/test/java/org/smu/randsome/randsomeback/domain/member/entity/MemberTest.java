@@ -154,4 +154,31 @@ class MemberTest extends UnitTestSupport {
         assertThat(member.getRefreshToken()).isNull();
     }
 
+    @Test
+    void withdraw_호출_시_status가_DELETED로_변경되고_deletedAt이_설정된다() {
+        member.withdraw();
+
+        assertThat(member.getStatus()).isEqualTo(EntityStatus.DELETED);
+        assertThat(member.getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    void withdraw_호출_시_refreshToken이_null로_초기화된다() {
+        member.updateRefreshToken("existing-refresh-token");
+
+        member.withdraw();
+
+        assertThat(member.getRefreshToken()).isNull();
+    }
+
+    @Test
+    void refreshToken이_없는_상태에서_withdraw해도_정상_동작한다() {
+        assertThat(member.getRefreshToken()).isNull();
+
+        member.withdraw();
+
+        assertThat(member.getStatus()).isEqualTo(EntityStatus.DELETED);
+        assertThat(member.getRefreshToken()).isNull();
+    }
+
 }

@@ -48,6 +48,11 @@ public class MemberDeviceManager {
         memberDevice.delete();
     }
 
+    public void deleteAllByMemberId(Long memberId) {
+        memberDeviceJpaRepository.findByMemberIdAndStatus(memberId, EntityStatus.ACTIVE)
+                .forEach(MemberDevice::delete);
+    }
+
     private void registerNewDeviceToken(Long memberId, String deviceToken, LocalDateTime now) {
         Member member = memberReader.find(memberId);
         // saveAndFlush()로 즉시 flush하여 DataIntegrityViolationException을 여기서 포착

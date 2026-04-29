@@ -99,6 +99,10 @@ public class CandidateRegistration extends BaseEntity {
         return registrationStatus.equals(RegistrationStatus.APPROVED);
     }
 
+    public boolean isPending() {
+        return registrationStatus.equals(RegistrationStatus.PENDING);
+    }
+
     public void cancel() {
         if (!registrationStatus.equals(RegistrationStatus.PENDING)) {
             throw new CoreException(ErrorType.NOT_ALLOW_CANCEL_NON_PENDING);

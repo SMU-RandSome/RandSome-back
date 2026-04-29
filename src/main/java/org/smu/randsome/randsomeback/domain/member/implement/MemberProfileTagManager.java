@@ -37,6 +37,11 @@ public class MemberProfileTagManager {
         return saved;
     }
 
+    public void deleteByMemberId(Long memberId) {
+        memberProfileTagJpaRepository.findByMemberId(memberId)
+                .ifPresent(MemberProfileTag::delete);
+    }
+
     public void updateTags(
             Long memberId,
             PersonalityTag personalityTag,

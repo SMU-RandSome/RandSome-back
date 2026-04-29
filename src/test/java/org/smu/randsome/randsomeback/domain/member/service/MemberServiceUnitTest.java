@@ -17,6 +17,7 @@ import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
+import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberValidator;
@@ -39,6 +40,9 @@ class MemberServiceUnitTest extends UnitTestSupport {
 
     @Mock
     MemberValidator memberValidator;
+
+    @Mock
+    CandidateManager candidateManager;
 
     @Mock
     TermsAgreementManager termsAgreementManager;
@@ -204,6 +208,65 @@ class MemberServiceUnitTest extends UnitTestSupport {
         assertThatThrownBy(() -> memberService.updatePassword("newPassword123!", "invalid.token", MemberFixture.DEFAULT_EMAIL))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.INVALID_PASSWORD_UPDATE_REQUEST.getMessage());
+    }
+
+    @Test
+    void 회원_탈퇴에_성공한다() {
+        // given
+        Member member = mock(Member.class);
+        given(memberReader.findNonDeleted(1L)).willReturn(member);
+
+        // when
+        memberService.withdraw(1L, "password123!");
+
+        // then
+        verify(memberValidator).validateWithdraw(member, "password123!");
+        verify(candidateManager).withdrawAllByMemberId(1L);
+        verify(memberManager).withdraw(1L);
+    }
+
+    @Test
+    void 탈퇴_시_존재하지_않는_회원이면_예외가_발생한다() {
+        // given
+        willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
+                .given(memberReader).findNonDeleted(any());
+
+        // when & then
+        assertThatThrownBy(() -> memberService.withdraw(999L, "password123!"))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+    }
+
+    @Test
+    void 탈퇴_시_관리자면_예외가_발생하고_후속_로직을_수행하지_않는다() {
+        // given
+        Member member = mock(Member.class);
+        given(memberReader.findNonDeleted(1L)).willReturn(member);
+        willThrow(new CoreException(ErrorType.ADMIN_CANNOT_WITHDRAW))
+                .given(memberValidator).validateWithdraw(any(), any());
+
+        // when & then
+        assertThatThrownBy(() -> memberService.withdraw(1L, "password123!"))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.ADMIN_CANNOT_WITHDRAW.getMessage());
+
+        verifyNoInteractions(candidateManager, memberManager);
+    }
+
+    @Test
+    void 탈퇴_시_비밀번호가_일치하지_않으면_예외가_발생한다() {
+        // given
+        Member member = mock(Member.class);
+        given(memberReader.findNonDeleted(1L)).willReturn(member);
+        willThrow(new CoreException(ErrorType.INCORRECT_PASSWORD))
+                .given(memberValidator).validateWithdraw(any(), any());
+
+        // when & then
+        assertThatThrownBy(() -> memberService.withdraw(1L, "wrongPassword!"))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.INCORRECT_PASSWORD.getMessage());
+
+        verifyNoInteractions(candidateManager, memberManager);
     }
 
     @Test

@@ -87,6 +87,22 @@ public class CandidateManager {
                 memberId);
     }
 
+    public void withdrawAllByMemberId(Long memberId) {
+        List<CandidateRegistration> registrations = candidateJpaRepository.findAllByMemberIdAndStatus(
+                memberId, EntityStatus.ACTIVE);
+
+        LocalDateTime now = LocalDateTime.now();
+        for (CandidateRegistration registration : registrations) {
+            if (registration.isApproved()) {
+                registration.withdraw(now);
+            } else if (registration.isPending()) {
+                registration.cancel();
+            }
+        }
+
+        log.info("[CandidateManager] 회원 탈퇴에 따른 후보자 등록 정리 완료 - memberId={}, count={}", memberId, registrations.size());
+    }
+
     @Transactional
     public CandidateRegistration cancel(Long memberId) {
         CandidateRegistration candidateRegistration = candidateJpaRepository.findByMemberIdAndRegistrationStatusAndStatus(
