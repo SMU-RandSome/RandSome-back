@@ -1,5 +1,7 @@
 package org.smu.randsome.randsomeback.domain.member.implement;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSearchCondition;
@@ -66,13 +68,26 @@ public class MemberReader {
         return PageResponse.of(items, offsetLimit.page(), offsetLimit.size(), total);
     }
 
+    /**
+     * 대상 성별의 후보 ID를 조회한 뒤, 앱 레벨에서 셔플하여 count만큼 엔티티를 반환한다.
+     * ORDER BY RAND() 대신 앱 레벨 랜덤을 사용하여 DB의 임시 테이블 + filesort를 제거한다.
+     */
     public List<Member> findCandidatesByGender(Gender gender, Department excludeDepartment, int count) {
-        // NOTE: 자율 전공일 경우, 학과를 제외하지 않고 조회한다.
+        List<Long> candidateIds = findCandidateIds(gender, excludeDepartment);
+
+        Collections.shuffle(candidateIds);
+        List<Long> selectedIds = candidateIds.subList(0, Math.min(count, candidateIds.size()));
+
+        return memberRepository.findAllById(selectedIds);
+    }
+
+    private List<Long> findCandidateIds(Gender gender, Department excludeDepartment) {
         if (excludeDepartment.isSelfDirectedMajor()) {
-            return memberRepository.findRandomCandidatesByGender(gender.name(), count);
+            return new ArrayList<>(memberRepository.findCandidateIdsByGender(
+                    gender, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE));
         }
-        return memberRepository.findRandomCandidatesByGenderExcludingDepartment(
-                gender.name(), excludeDepartment.name(), count);
+        return new ArrayList<>(memberRepository.findCandidateIdsByGenderExcludingDepartment(
+                gender, excludeDepartment, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE));
     }
 
     /**

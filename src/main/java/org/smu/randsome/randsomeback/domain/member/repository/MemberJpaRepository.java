@@ -27,32 +27,30 @@ public interface MemberJpaRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByIdAndStatusWithLock(@Param("id") Long id, @Param("status") EntityStatus status);
     Optional<Member> findByRefreshTokenAndStatus(String refreshToken, EntityStatus status);
 
-    @Query(value = """
-            SELECT * FROM member
-            WHERE gender = :gender
-              AND department != :department
-              AND role = 'ROLE_CANDIDATE'
-              AND status = 'ACTIVE'
-            ORDER BY RAND()
-            LIMIT :count
-            """, nativeQuery = true)
-    List<Member> findRandomCandidatesByGenderExcludingDepartment(
-            @Param("gender") String gender,
-            @Param("department") String department,
-            @Param("count") int count
+    @Query("""
+                SELECT m.id FROM Member m
+                WHERE m.gender = :gender
+                  AND m.department <> :excludeDepartment
+                  AND m.role = :role
+                  AND m.status = :status
+            """)
+    List<Long> findCandidateIdsByGenderExcludingDepartment(
+            @Param("gender") Gender gender,
+            @Param("excludeDepartment") Department excludeDepartment,
+            @Param("role") Role role,
+            @Param("status") EntityStatus status
     );
 
-    @Query(value = """
-            SELECT * FROM member
-            WHERE gender = :gender
-              AND role = 'ROLE_CANDIDATE'
-              AND status = 'ACTIVE'
-            ORDER BY RAND()
-            LIMIT :count
-            """, nativeQuery = true)
-    List<Member> findRandomCandidatesByGender(
-            @Param("gender") String gender,
-            @Param("count") int count
+    @Query("""
+                SELECT m.id FROM Member m
+                WHERE m.gender = :gender
+                  AND m.role = :role
+                  AND m.status = :status
+            """)
+    List<Long> findCandidateIdsByGender(
+            @Param("gender") Gender gender,
+            @Param("role") Role role,
+            @Param("status") EntityStatus status
     );
 
     @Query("""
