@@ -9,8 +9,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -37,6 +39,10 @@ import org.smu.randsome.randsomeback.global.support.error.ErrorType;
  * <br/>상태 전이: PENDING → SUCCESS / PARTIAL_MATCH / FAILED (또는) PENDING → CANCELLED
  * <br/>이상형 매칭인 경우 선호하는 태그들을 카테고리별 다중 선택으로 저장하여 매칭 필터링에 활용한다.
  */
+@Table(indexes = {
+        @Index(name = "idx_matching_app_created_status",
+                columnList = "created_at, status")
+})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
