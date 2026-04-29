@@ -6,6 +6,7 @@ import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.global.jwt.JwtProvider;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 public class MemberValidator {
 
     private final JwtProvider jwtProvider;
+    private final PasswordEncoder passwordEncoder;
 
     public void validateSignUpToken(String emailVerificationToken, String requestEmail) {
         VerificationPurpose verificationPurpose = jwtProvider.extractVerificationPurposeFromToken(emailVerificationToken);
@@ -32,6 +34,15 @@ public class MemberValidator {
             return;
         }
         throw new CoreException(ErrorType.FORBIDDEN_ERROR);
+    }
+
+    public void validateWithdraw(Member member, String rawPassword) {
+        if (member.isAdmin()) {
+            throw new CoreException(ErrorType.ADMIN_CANNOT_WITHDRAW);
+        }
+        if (!member.isPasswordCorrect(rawPassword, passwordEncoder)) {
+            throw new CoreException(ErrorType.INCORRECT_PASSWORD);
+        }
     }
 
     public void validateUpdatePassword(String passwordVerificationToken, Member member) {

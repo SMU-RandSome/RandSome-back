@@ -7,6 +7,7 @@ import org.smu.randsome.randsomeback.domain.member.dto.request.DeviceTokenSyncRe
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberUpdateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.PasswordUpdateRequest;
+import org.smu.randsome.randsomeback.domain.member.dto.request.WithdrawRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.response.MemberProfileResponse;
 import org.smu.randsome.randsomeback.domain.member.dto.response.MemberStatsResponse;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
@@ -148,6 +149,31 @@ public abstract class MemberControllerDocs {
             ErrorType.DEFAULT_ERROR
     })
     public abstract ApiResponse<MemberStatsResponse> getMyStats(@LoginMember Long memberId);
+
+    @Operation(
+            summary = "회원 탈퇴 JWT - [O]",
+            description = """
+                    ### 로그인한 회원이 탈퇴하는 API입니다.
+                    - JWT 인증이 필요합니다.
+                    - 현재 비밀번호를 입력해야 합니다.
+                    - 탈퇴 사유는 선택 사항입니다.
+                    - 탈퇴 시 회원 정보는 소프트 삭제 처리됩니다.
+                    - 관련 디바이스 토큰 및 프로필 태그가 함께 삭제됩니다.
+                    - 관리자 계정은 탈퇴할 수 없습니다.
+                    """
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "회원 탈퇴 성공")
+    @ApiExceptions(values = {
+            ErrorType.BAD_REQUEST,
+            ErrorType.INCORRECT_PASSWORD,
+            ErrorType.ADMIN_CANNOT_WITHDRAW,
+            ErrorType.NOT_FOUND_MEMBER,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ApiResponse<?> withdrawMember(
+            @RequestBody @Valid WithdrawRequest request,
+            @LoginMember Long memberId
+    );
 
     @Operation(summary = "후보자 등록 철회 API",
             description = """

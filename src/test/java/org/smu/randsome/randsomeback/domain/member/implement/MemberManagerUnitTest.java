@@ -44,6 +44,9 @@ class MemberManagerUnitTest extends UnitTestSupport {
     MemberProfileTagManager memberProfileTagManager;
 
     @Mock
+    MemberDeviceManager memberDeviceManager;
+
+    @Mock
     PasswordEncoder passwordEncoder;
 
     @Mock
@@ -220,6 +223,52 @@ class MemberManagerUnitTest extends UnitTestSupport {
         assertThat(member.getRefreshToken()).isNull();
         verify(memberRestrictionJpaRepository).save(any(MemberRestriction.class));
         verify(suspensionManager).suspend(memberId);
+    }
+
+    @Test
+    void 회원_탈퇴_시_status가_DELETED로_변경되고_소유_엔티티가_삭제된다() {
+        // given
+        var memberId = 1L;
+        var member = MemberFixture.create();
+        member.updateRefreshToken("existing-token");
+        given(memberJpaRepository.findByIdAndStatusNot(memberId, EntityStatus.DELETED)).willReturn(Optional.of(member));
+
+        // when
+        memberManager.withdraw(memberId);
+
+        // then
+        assertThat(member.getStatus()).isEqualTo(EntityStatus.DELETED);
+        assertThat(member.getRefreshToken()).isNull();
+        verify(memberDeviceManager).deleteAllByMemberId(memberId);
+        verify(memberProfileTagManager).deleteByMemberId(memberId);
+    }
+
+    @Test
+    void 정지된_회원도_탈퇴가_가능하다() {
+        // given
+        var memberId = 1L;
+        var member = MemberFixture.create();
+        member.suspend();
+        given(memberJpaRepository.findByIdAndStatusNot(memberId, EntityStatus.DELETED)).willReturn(Optional.of(member));
+
+        // when
+        memberManager.withdraw(memberId);
+
+        // then
+        assertThat(member.getStatus()).isEqualTo(EntityStatus.DELETED);
+        verify(memberDeviceManager).deleteAllByMemberId(memberId);
+        verify(memberProfileTagManager).deleteByMemberId(memberId);
+    }
+
+    @Test
+    void 탈퇴_대상_회원이_존재하지_않으면_예외가_발생한다() {
+        // given
+        given(memberJpaRepository.findByIdAndStatusNot(999L, EntityStatus.DELETED)).willReturn(Optional.empty());
+
+        // when // then
+        assertThatThrownBy(() -> memberManager.withdraw(999L))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
     }
 
     @Test

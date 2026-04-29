@@ -1,5 +1,6 @@
 package org.smu.randsome.randsomeback.domain.member.implement;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -15,6 +16,7 @@ import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.global.jwt.JwtProvider;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 class MemberValidatorTest extends UnitTestSupport {
 
@@ -23,6 +25,9 @@ class MemberValidatorTest extends UnitTestSupport {
 
     @Mock
     JwtProvider jwtProvider;
+
+    @Mock
+    PasswordEncoder passwordEncoder;
 
     @Test
     void 이메일이_일치하면_회원가입_토큰_검증에_성공한다() {
@@ -128,6 +133,43 @@ class MemberValidatorTest extends UnitTestSupport {
         // when & then
         assertThatThrownBy(() -> memberValidator.validateUpdatePassword(token, member))
                 .isSameAs(invalidTokenException);
+    }
+
+    @Test
+    void 일반_회원이_올바른_비밀번호로_탈퇴_검증하면_통과한다() {
+        // given
+        Member member = mock(Member.class);
+        given(member.isAdmin()).willReturn(false);
+        given(member.isPasswordCorrect("password123!", passwordEncoder)).willReturn(true);
+
+        // when & then
+        assertThatCode(() -> memberValidator.validateWithdraw(member, "password123!"))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void 관리자가_탈퇴_검증하면_ADMIN_CANNOT_WITHDRAW_예외가_발생한다() {
+        // given
+        Member member = mock(Member.class);
+        given(member.isAdmin()).willReturn(true);
+
+        // when & then
+        assertThatThrownBy(() -> memberValidator.validateWithdraw(member, "password123!"))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.ADMIN_CANNOT_WITHDRAW.getMessage());
+    }
+
+    @Test
+    void 잘못된_비밀번호로_탈퇴_검증하면_INCORRECT_PASSWORD_예외가_발생한다() {
+        // given
+        Member member = mock(Member.class);
+        given(member.isAdmin()).willReturn(false);
+        given(member.isPasswordCorrect("wrongPassword!", passwordEncoder)).willReturn(false);
+
+        // when & then
+        assertThatThrownBy(() -> memberValidator.validateWithdraw(member, "wrongPassword!"))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.INCORRECT_PASSWORD.getMessage());
     }
 
     @Test

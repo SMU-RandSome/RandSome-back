@@ -110,9 +110,9 @@ public class Member extends BaseEntity {
         revokeRefreshToken();
     }
 
-    @Override
-    public void active() {
-        super.active();
+    public void withdraw() {
+        delete();
+        revokeRefreshToken();
     }
 
     public void updateRole(Role newRole) {

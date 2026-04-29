@@ -11,6 +11,7 @@ import org.smu.randsome.randsomeback.domain.member.dto.command.MemberTagsInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
+import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberProfileTagReader;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
@@ -29,6 +30,7 @@ public class MemberService {
     private final MemberReader memberReader;
     private final MemberProfileTagReader memberProfileTagReader;
     private final MemberValidator memberValidator;
+    private final CandidateManager candidateManager;
     private final TermsAgreementManager termsAgreementManager;
     private final TicketHandler ticketHandler;
 
@@ -80,6 +82,15 @@ public class MemberService {
     @Transactional
     public void updateProfile(Long memberId, UpdateProfile updateProfile) {
         memberManager.updateProfile(memberId, updateProfile);
+    }
+
+    @Transactional
+    public void withdraw(Long memberId, String rawPassword) {
+        Member member = memberReader.findNonDeleted(memberId);
+        memberValidator.validateWithdraw(member, rawPassword);
+
+        candidateManager.withdrawAllByMemberId(memberId);
+        memberManager.withdraw(memberId);
     }
 
     /**

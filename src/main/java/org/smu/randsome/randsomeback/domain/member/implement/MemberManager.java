@@ -28,6 +28,7 @@ public class MemberManager {
     private final MemberJpaRepository memberJpaRepository;
     private final MemberRestrictionJpaRepository memberRestrictionJpaRepository;
     private final MemberProfileTagManager memberProfileTagManager;
+    private final MemberDeviceManager memberDeviceManager;
     private final PasswordEncoder passwordEncoder;
     private final SuspensionManager suspensionManager;
 
@@ -128,6 +129,18 @@ public class MemberManager {
         suspensionManager.suspend(memberId);
 
         log.info("[MemberManager] 회원 정지 처리 완료 - memberId = {}", memberId);
+    }
+
+    @Transactional
+    public void withdraw(Long memberId) {
+        Member member = memberJpaRepository.findByIdAndStatusNot(memberId, EntityStatus.DELETED)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
+
+        member.withdraw();
+        memberDeviceManager.deleteAllByMemberId(memberId);
+        memberProfileTagManager.deleteByMemberId(memberId);
+
+        log.info("[MemberManager] 회원 탈퇴 처리 완료 - memberId={}", memberId);
     }
 
     @Transactional
