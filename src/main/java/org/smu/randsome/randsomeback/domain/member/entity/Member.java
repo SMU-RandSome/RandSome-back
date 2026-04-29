@@ -31,7 +31,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
         uniqueConstraints = @UniqueConstraint(columnNames = {"email", "status"}),
         indexes = {
                 @Index(name = "idx_member_candidate_lookup",
-                        columnList = "gender, department, role")
+                        columnList = "gender, department, role, status")
         }
 )
 @Getter
