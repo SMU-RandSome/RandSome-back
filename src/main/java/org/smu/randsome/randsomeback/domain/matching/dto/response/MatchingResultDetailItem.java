@@ -48,18 +48,32 @@ public record MatchingResultDetailItem(
         FaceTypeTag faceTypeTag,
 
         @Schema(description = "후보자 연애 스타일 태그", example = "SERIOUS")
-        DatingStyleTag datingStyleTag
+        DatingStyleTag datingStyleTag,
+
+        @Schema(description = "탈퇴 여부", example = "false")
+        boolean withdrawn
 ) {
 
     /**
      * MatchingResult 엔티티와 후보자 정보를 응답 DTO로 변환한다.
-     * <br/>후보자의 기본 정보와 소셜 프로필 데이터를 조합하여 반환한다.
+     * <br/>후보자가 탈퇴한 경우 개인정보를 가리고 탈퇴 상태를 표시한다.
+     * <br/>활성 후보자의 경우 기본 정보와 소셜 프로필 데이터를 조합하여 반환한다.
      *
      * @param result 매칭 결과 엔티티
+     * @param profileTag 후보자 프로필 태그 (탈퇴 회원의 경우 null 가능)
      * @return 변환된 후보자 상세 정보 DTO
      */
     public static MatchingResultDetailItem from(MatchingResult result, MemberProfileTag profileTag) {
         Member candidate = result.getCandidate();
+
+        if (candidate.isDeleted()) {
+            return MatchingResultDetailItem.builder()
+                    .id(result.getId())
+                    .nickname("탈퇴한 회원")
+                    .withdrawn(true)
+                    .build();
+        }
+
         SocialProfile socialProfile = candidate.getSocialProfile();
 
         return MatchingResultDetailItem.builder()
@@ -73,6 +87,7 @@ public record MatchingResultDetailItem(
                 .personalityTag(profileTag.getPersonalityTag())
                 .faceTypeTag(profileTag.getFaceTypeTag())
                 .datingStyleTag(profileTag.getDatingStyleTag())
+                .withdrawn(false)
                 .build();
     }
 
