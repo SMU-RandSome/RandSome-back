@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM bellsoft/liberica-openjdk-alpine:21 AS builder
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ RUN chmod +x gradlew && ./gradlew dependencies --no-daemon --quiet || true
 COPY src src
 RUN ./gradlew bootJar -x test --no-daemon
 
-FROM eclipse-temurin:21-jre-alpine
+FROM bellsoft/liberica-openjre-alpine:21
 
 WORKDIR /app
 
