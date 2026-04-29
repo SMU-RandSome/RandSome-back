@@ -214,6 +214,6 @@ bad-words.txt
 monitoring/seed/seed.sql
 monitoring/seed/seed.log
 monitoring/seed/.venv/
-
+/monitoring
 
 /docs
