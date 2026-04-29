@@ -1,7 +1,6 @@
 package org.smu.randsome.randsomeback.domain.member.implement;
 
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -13,7 +12,9 @@ import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
+import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberRepository;
+import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 class MemberReaderUnitTest extends UnitTestSupport {
@@ -32,32 +33,36 @@ class MemberReaderUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void 자율전공이면_학과_제외_조건_없이_후보를_조회한다() {
+    void 자율전공이면_학과_제외_조건_없이_후보_ID를_조회한다() {
         // given
-        given(memberRepository.findRandomCandidatesByGender(Gender.FEMALE.name(), 10))
+        given(memberRepository.findCandidateIdsByGender(
+                Gender.FEMALE, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE))
                 .willReturn(List.of());
 
         // when
         memberReader.findCandidatesByGender(Gender.FEMALE, Department.SELF_DIRECTED_MAJOR, 10);
 
         // then
-        verify(memberRepository).findRandomCandidatesByGender(Gender.FEMALE.name(), 10);
-        verify(memberRepository, never()).findRandomCandidatesByGenderExcludingDepartment(anyString(), anyString(), anyInt());
+        verify(memberRepository).findCandidateIdsByGender(
+                Gender.FEMALE, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE);
+        verify(memberRepository, never()).findCandidateIdsByGenderExcludingDepartment(
+                any(), any(), any(), any());
     }
 
     @Test
-    void 자율전공이_아니면_같은_학과를_제외하고_후보를_조회한다() {
+    void 자율전공이_아니면_같은_학과를_제외하고_후보_ID를_조회한다() {
         // given
-        given(memberRepository.findRandomCandidatesByGenderExcludingDepartment(
-                Gender.FEMALE.name(), Department.SOFTWARE.name(), 10)).willReturn(List.of());
+        given(memberRepository.findCandidateIdsByGenderExcludingDepartment(
+                Gender.FEMALE, Department.SOFTWARE, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE))
+                .willReturn(List.of());
 
         // when
         memberReader.findCandidatesByGender(Gender.FEMALE, Department.SOFTWARE, 10);
 
         // then
-        verify(memberRepository).findRandomCandidatesByGenderExcludingDepartment(
-                Gender.FEMALE.name(), Department.SOFTWARE.name(), 10);
-        verify(memberRepository, never()).findRandomCandidatesByGender(anyString(), anyInt());
+        verify(memberRepository).findCandidateIdsByGenderExcludingDepartment(
+                Gender.FEMALE, Department.SOFTWARE, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE);
+        verify(memberRepository, never()).findCandidateIdsByGender(any(), any(), any());
     }
 
 }

@@ -1,7 +1,6 @@
 package org.smu.randsome.randsomeback.domain.matching.implement.strategy;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,11 +41,6 @@ public class RandomMatchingStrategy implements MatchingStrategy {
         // NOTE: 신청 수의 5배를 후보군으로 조회하여, 셔플 후 충분한 후보가 남도록 한다.
         int count = matchingApplication.getApplicationCount() * 5;
         List<Member> candidates = new ArrayList<>(memberReader.findCandidatesByGender(targetGender, applicantDepartment, count));
-
-        log.debug("[RandomMatchingStrategy] 후보 조회 완료 - matchingApplicationId: {}, targetGender: {}, candidateCount: {}",
-                matchingApplication.getId(), targetGender, candidates.size());
-
-        Collections.shuffle(candidates);
 
         List<MatchingResult> results = candidates.stream()
                 .limit(matchingApplication.getApplicationCount())
