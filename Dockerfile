@@ -16,7 +16,7 @@ FROM bellsoft/liberica-openjre-alpine:21
 
 WORKDIR /app
 
-RUN apk add --no-cache tzdata
+RUN apk add --no-cache tzdata curl
 ENV TZ=Asia/Seoul
 
 RUN addgroup -S spring && adduser -S spring -G spring
