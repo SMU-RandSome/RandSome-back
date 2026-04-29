@@ -3,11 +3,16 @@ package org.smu.randsome.randsomeback.domain.member.implement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.smu.randsome.randsomeback.domain.member.dto.CandidateIdMbti;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSearchCondition;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
+import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
@@ -91,19 +96,34 @@ public class MemberReader {
     }
 
     /**
-     * 이상형 매칭 태그 스코어링을 위해 대상 성별의 전체 후보군을 조회한다.
-     * 무작위 정렬 없이 전체를 반환하며, 동점 처리는 호출 측에서 셔플로 수행한다.
-     *
-     * @param gender            대상 성별
-     * @param excludeDepartment 제외할 학과 (자율 전공은 제외 없음)
-     * @return 후보군 전체 목록
+     * 이상형 매칭 스코어링을 위해 후보 ID와 MBTI만 경량 조회한다.
+     * Member 엔티티 전체 로딩 대신 2컬럼만 조회하여 DB 전송량과 JPA 하이드레이션 비용을 절감한다.
      */
-    public List<Member> findAllCandidatesByGender(Gender gender, Department excludeDepartment) {
+    public Map<Long, Mbti> findCandidateIdMbtiMap(Gender gender, Department excludeDepartment) {
+        List<CandidateIdMbti> candidates;
         if (excludeDepartment.isSelfDirectedMajor()) {
-            return memberRepository.findAllCandidatesByGender(gender, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE);
+            candidates = memberRepository.findCandidateIdAndMbtiByGender(
+                    gender,
+                    Role.ROLE_CANDIDATE,
+                    EntityStatus.ACTIVE
+            );
+        } else {
+            candidates = memberRepository.findCandidateIdAndMbtiByGenderExcludingDepartment(
+                    gender,
+                    excludeDepartment,
+                    Role.ROLE_CANDIDATE,
+                    EntityStatus.ACTIVE
+            );
         }
-        return memberRepository.findAllCandidatesByGenderExcludingDepartment(
-                gender, excludeDepartment, Role.ROLE_CANDIDATE, EntityStatus.ACTIVE);
+        return candidates.stream().collect(Collectors.toMap(
+                CandidateIdMbti::id,
+                CandidateIdMbti::mbti
+        ));
+    }
+
+    public Map<Long, Member> findAllByIds(List<Long> memberIds) {
+        return memberRepository.findAllById(memberIds).stream()
+                .collect(Collectors.toMap(Member::getId, Function.identity()));
     }
 
     public Member findByRefreshToken(String refreshToken) {

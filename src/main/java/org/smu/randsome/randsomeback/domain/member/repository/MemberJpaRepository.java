@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.domain.member.repository;
 import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
+import org.smu.randsome.randsomeback.domain.member.dto.CandidateIdMbti;
 import org.smu.randsome.randsomeback.domain.member.dto.response.CandidateGenderCountItem;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
@@ -67,13 +68,14 @@ public interface MemberJpaRepository extends JpaRepository<Member, Long> {
     );
 
     @Query("""
-                SELECT m FROM Member m
+                SELECT new org.smu.randsome.randsomeback.domain.member.dto.CandidateIdMbti(m.id, m.mbti)
+                FROM Member m
                 WHERE m.gender = :gender
+                  AND m.department <> :excludeDepartment
                   AND m.role = :role
                   AND m.status = :status
-                  AND m.department <> :excludeDepartment
             """)
-    List<Member> findAllCandidatesByGenderExcludingDepartment(
+    List<CandidateIdMbti> findCandidateIdAndMbtiByGenderExcludingDepartment(
             @Param("gender") Gender gender,
             @Param("excludeDepartment") Department excludeDepartment,
             @Param("role") Role role,
@@ -81,12 +83,13 @@ public interface MemberJpaRepository extends JpaRepository<Member, Long> {
     );
 
     @Query("""
-                SELECT m FROM Member m
+                SELECT new org.smu.randsome.randsomeback.domain.member.dto.CandidateIdMbti(m.id, m.mbti)
+                FROM Member m
                 WHERE m.gender = :gender
                   AND m.role = :role
                   AND m.status = :status
             """)
-    List<Member> findAllCandidatesByGender(
+    List<CandidateIdMbti> findCandidateIdAndMbtiByGender(
             @Param("gender") Gender gender,
             @Param("role") Role role,
             @Param("status") EntityStatus status
