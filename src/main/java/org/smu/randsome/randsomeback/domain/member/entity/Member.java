@@ -7,6 +7,7 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
@@ -26,8 +27,14 @@ import org.smu.randsome.randsomeback.global.entity.BaseEntity;
 import org.smu.randsome.randsomeback.global.jwt.TokenHasher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+@Table(
+        uniqueConstraints = @UniqueConstraint(columnNames = {"email", "status"}),
+        indexes = {
+                @Index(name = "idx_member_candidate_lookup",
+                        columnList = "gender, department, role")
+        }
+)
 @Getter
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"email", "status"}))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class Member extends BaseEntity {
