@@ -13,6 +13,7 @@ public final class CacheKeys {
     private static final String ATTENDANCE = "attendance";
     private static final String SUSPENSION = "suspend:member";
     private static final String MATCHING_IDEMPOTENCY = "matching:idempotency";
+    private static final String MEMBER_PROFILE_TAG = "member:profile-tag";
     private static final String MATCHING_STATS = "matching:stats";
 
     public static final String MATCHING_TOTAL_COUNT = MATCHING_STATS + ":total-count";
@@ -32,6 +33,10 @@ public final class CacheKeys {
 
     public static String suspension(Long memberId) {
         return SUSPENSION + ":" + memberId;
+    }
+
+    public static String memberProfileTag(Long memberId) {
+        return MEMBER_PROFILE_TAG + ":" + memberId;
     }
 
     public static String matchingIdempotency(Long memberId, MatchingType matchingType, int applicationCount) {
