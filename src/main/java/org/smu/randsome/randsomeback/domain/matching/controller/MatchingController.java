@@ -11,7 +11,7 @@ import org.smu.randsome.randsomeback.domain.matching.dto.response.MatchingResult
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.service.MatchingService;
-import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
+import org.smu.randsome.randsomeback.domain.member.dto.ProfileTags;
 import org.smu.randsome.randsomeback.domain.member.service.MemberService;
 import org.smu.randsome.randsomeback.global.annotation.LoginMember;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
@@ -61,7 +61,7 @@ public class MatchingController extends MatchingControllerDocs {
         List<Long> candidateIds = results.stream()
                 .map(result -> result.getCandidate().getId())
                 .toList();
-        Map<Long, MemberProfileTag> profileTagMap = memberService.getProfileTags(candidateIds);
+        Map<Long, ProfileTags> profileTagMap = memberService.getProfileTags(candidateIds);
 
         List<MatchingResultDetailItem> response = results.stream()
                 .map(result -> MatchingResultDetailItem.from(

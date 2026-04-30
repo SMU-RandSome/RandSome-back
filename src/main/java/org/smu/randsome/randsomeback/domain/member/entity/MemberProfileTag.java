@@ -57,22 +57,6 @@ public class MemberProfileTag extends BaseEntity {
         return tag;
     }
 
-    /**
-     * 캐시에서 역직렬화할 때 사용하는 경량 인스턴스를 생성한다.
-     * id, member, status 없이 태그 값만 보유한다.
-     */
-    public static MemberProfileTag forCache(
-            PersonalityTag personalityTag,
-            FaceTypeTag faceTypeTag,
-            DatingStyleTag datingStyleTag
-    ) {
-        MemberProfileTag tag = new MemberProfileTag();
-        tag.personalityTag = requireNonNull(personalityTag);
-        tag.faceTypeTag = requireNonNull(faceTypeTag);
-        tag.datingStyleTag = requireNonNull(datingStyleTag);
-        return tag;
-    }
-
     public void updateTags(
             PersonalityTag personalityTag,
             FaceTypeTag faceTypeTag,

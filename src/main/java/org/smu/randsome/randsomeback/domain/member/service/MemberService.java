@@ -11,7 +11,7 @@ import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfi
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberTagsInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
+import org.smu.randsome.randsomeback.domain.member.dto.ProfileTags;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberProfileTagReader;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
@@ -70,12 +70,12 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public MemberProfileTag getProfileTag(Long memberId) {
+    public ProfileTags getProfileTag(Long memberId) {
         return memberProfileTagReader.find(memberId);
     }
 
     @Transactional(readOnly = true)
-    public Map<Long, MemberProfileTag> getProfileTags(List<Long> memberIds) {
+    public Map<Long, ProfileTags> getProfileTags(List<Long> memberIds) {
         return memberProfileTagReader.findAllByMemberIds(memberIds);
     }
 

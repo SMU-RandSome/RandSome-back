@@ -1,7 +1,7 @@
 package org.smu.randsome.randsomeback.domain.matching.entity.vo;
 
 import java.util.Set;
-import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
+import org.smu.randsome.randsomeback.domain.member.dto.ProfileTags;
 import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
 import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
@@ -48,18 +48,18 @@ public record IdealTypePreference(
      * @param candidateMbti 후보자의 MBTI
      * @return 일치 점수 (0~4)
      */
-    public int scoreAgainst(MemberProfileTag candidateProfileTag, Mbti candidateMbti) {
+    public int scoreAgainst(ProfileTags candidateProfileTag, Mbti candidateMbti) {
         int score = 0;
         if (!preferredPersonalityTags.isEmpty()
-                && preferredPersonalityTags.contains(candidateProfileTag.getPersonalityTag())) {
+                && preferredPersonalityTags.contains(candidateProfileTag.personalityTag())) {
             score++;
         }
         if (!preferredFaceTypeTags.isEmpty()
-                && preferredFaceTypeTags.contains(candidateProfileTag.getFaceTypeTag())) {
+                && preferredFaceTypeTags.contains(candidateProfileTag.faceTypeTag())) {
             score++;
         }
         if (!preferredDatingStyleTags.isEmpty()
-                && preferredDatingStyleTags.contains(candidateProfileTag.getDatingStyleTag())) {
+                && preferredDatingStyleTags.contains(candidateProfileTag.datingStyleTag())) {
             score++;
         }
         if (!preferredMbtis.isEmpty()

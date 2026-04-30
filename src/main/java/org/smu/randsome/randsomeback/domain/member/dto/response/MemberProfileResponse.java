@@ -3,7 +3,7 @@ package org.smu.randsome.randsomeback.domain.member.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
+import org.smu.randsome.randsomeback.domain.member.dto.ProfileTags;
 import org.smu.randsome.randsomeback.domain.member.enums.CandidateRegistrationStatusView;
 import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
 import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
@@ -69,7 +69,7 @@ public record MemberProfileResponse(
 
     public static MemberProfileResponse of(
             Member member,
-            MemberProfileTag profileTag,
+            ProfileTags profileTag,
             CandidateRegistrationStatusView candidateRegistrationStatus,
             long exposureCount
     ) {
@@ -87,9 +87,9 @@ public record MemberProfileResponse(
                 .idealDescription(member.getSocialProfile().idealDescription())
                 .candidateRegistrationStatus(candidateRegistrationStatus)
                 .exposureCount(exposureCount)
-                .personalityTag(profileTag.getPersonalityTag())
-                .faceTypeTag(profileTag.getFaceTypeTag())
-                .datingStyleTag(profileTag.getDatingStyleTag())
+                .personalityTag(profileTag.personalityTag())
+                .faceTypeTag(profileTag.faceTypeTag())
+                .datingStyleTag(profileTag.datingStyleTag())
                 .build();
     }
 

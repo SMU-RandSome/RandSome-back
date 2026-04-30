@@ -12,7 +12,7 @@ import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.entity.vo.IdealTypePreference;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
+import org.smu.randsome.randsomeback.domain.member.dto.ProfileTags;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
@@ -54,7 +54,7 @@ public class IdealMatchingStrategy implements MatchingStrategy {
         Map<Long, Mbti> candidateMbtiMap = memberReader.findCandidateIdMbtiMap(targetGender, applicantDepartment);
         List<Long> candidateIds = new ArrayList<>(candidateMbtiMap.keySet());
 
-        Map<Long, MemberProfileTag> profileTagMap = memberProfileTagReader.findAllByMemberIds(candidateIds);
+        Map<Long, ProfileTags> profileTagMap = memberProfileTagReader.findAllByMemberIds(candidateIds);
 
         // NOTE: 동점자 간 순서를 무작위로 만들기 위해 정렬 전 셔플한다.
         Collections.shuffle(candidateIds);

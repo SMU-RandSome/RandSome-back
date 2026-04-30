@@ -4,82 +4,76 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.smu.randsome.randsomeback.UnitTestSupport;
+import org.smu.randsome.randsomeback.domain.member.dto.ProfileTags;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
 import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
 import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberProfileTagJpaRepository;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
-import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
 
 class MemberProfileTagReaderUnitTest extends UnitTestSupport {
 
+    @InjectMocks
     MemberProfileTagReader memberProfileTagReader;
 
     @Mock
     MemberProfileTagJpaRepository memberProfileTagJpaRepository;
 
     @Mock
-    RedisRepository redisRepository;
+    MemberProfileTagCacheManager cacheManager;
 
-    @BeforeEach
-    void setUp() {
-        memberProfileTagReader = new MemberProfileTagReader(
-                memberProfileTagJpaRepository, redisRepository, new ObjectMapper());
-    }
-
-    private static final String CACHED_JSON =
-            "{\"personalityTag\":\"ACTIVE\",\"faceTypeTag\":\"PUPPY\",\"datingStyleTag\":\"ROMANTIC\"}";
+    private static final ProfileTags SAMPLE_TAGS =
+            new ProfileTags(PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.ROMANTIC);
 
     @Test
     void find_캐시_히트_시_DB를_호출하지_않는다() {
         // given
-        given(redisRepository.get(any())).willReturn(CACHED_JSON);
+        given(cacheManager.get(1L)).willReturn(Optional.of(SAMPLE_TAGS));
 
         // when
-        MemberProfileTag result = memberProfileTagReader.find(1L);
+        ProfileTags result = memberProfileTagReader.find(1L);
 
         // then
-        assertThat(result.getPersonalityTag()).isEqualTo(PersonalityTag.ACTIVE);
+        assertThat(result.personalityTag()).isEqualTo(PersonalityTag.ACTIVE);
         verify(memberProfileTagJpaRepository, never()).findByMemberId(any());
     }
 
     @Test
     void find_캐시_미스_시_DB에서_조회하고_캐시에_저장한다() {
         // given
-        given(redisRepository.get(any())).willReturn(null);
+        given(cacheManager.get(1L)).willReturn(Optional.empty());
 
-        MemberProfileTag tag = MemberProfileTag.forCache(
-                PersonalityTag.QUIET, FaceTypeTag.PUPPY, DatingStyleTag.ROMANTIC);
+        MemberProfileTag tag = createSimpleTag();
         given(memberProfileTagJpaRepository.findByMemberId(1L)).willReturn(Optional.of(tag));
 
         // when
-        MemberProfileTag result = memberProfileTagReader.find(1L);
+        ProfileTags result = memberProfileTagReader.find(1L);
 
         // then
-        assertThat(result.getPersonalityTag()).isEqualTo(PersonalityTag.QUIET);
+        assertThat(result.personalityTag()).isEqualTo(PersonalityTag.QUIET);
         verify(memberProfileTagJpaRepository).findByMemberId(1L);
-        verify(redisRepository).put(any(), any(), any());
+        verify(cacheManager).put(eq(1L), any(ProfileTags.class));
     }
 
     @Test
     void find_캐시_미스_시_DB에도_없으면_예외가_발생한다() {
         // given
-        given(redisRepository.get(any())).willReturn(null);
+        given(cacheManager.get(1L)).willReturn(Optional.empty());
         given(memberProfileTagJpaRepository.findByMemberId(1L)).willReturn(Optional.empty());
 
         // when & then
@@ -88,33 +82,15 @@ class MemberProfileTagReaderUnitTest extends UnitTestSupport {
     }
 
     @Test
-    void find_Redis_장애_시_DB_fallback한다() {
-        // given
-        given(redisRepository.get(any())).willThrow(new RuntimeException("Redis 장애"));
-
-        MemberProfileTag tag = MemberProfileTag.forCache(
-                PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.ROMANTIC);
-        given(memberProfileTagJpaRepository.findByMemberId(1L)).willReturn(Optional.of(tag));
-
-        // when
-        MemberProfileTag result = memberProfileTagReader.find(1L);
-
-        // then
-        assertThat(result.getPersonalityTag()).isEqualTo(PersonalityTag.ACTIVE);
-        verify(memberProfileTagJpaRepository).findByMemberId(1L);
-    }
-
-    @Test
     void findAllByMemberIds_전체_캐시_히트_시_DB를_호출하지_않는다() {
         // given
         List<Long> memberIds = List.of(1L, 2L);
-        given(redisRepository.mget(anyList())).willReturn(List.of(CACHED_JSON, CACHED_JSON));
+        given(cacheManager.getAll(eq(memberIds), anyMap())).willReturn(List.of());
 
         // when
-        Map<Long, MemberProfileTag> result = memberProfileTagReader.findAllByMemberIds(memberIds);
+        Map<Long, ProfileTags> result = memberProfileTagReader.findAllByMemberIds(memberIds);
 
         // then
-        assertThat(result).hasSize(2);
         verify(memberProfileTagJpaRepository, never()).findAllByMemberIdIn(any());
     }
 
@@ -122,25 +98,26 @@ class MemberProfileTagReaderUnitTest extends UnitTestSupport {
     void findAllByMemberIds_부분_캐시_히트_시_미스만_DB에서_조회한다() {
         // given
         List<Long> memberIds = List.of(1L, 2L, 3L);
-        given(redisRepository.mget(anyList())).willReturn(Arrays.asList(CACHED_JSON, null, CACHED_JSON));
+        given(cacheManager.getAll(eq(memberIds), anyMap())).willReturn(new ArrayList<>(List.of(2L)));
 
         MemberProfileTag dbTag = createTagWithMember(2L);
-        given(memberProfileTagJpaRepository.findAllByMemberIdIn(eq(List.of(2L))))
+        given(memberProfileTagJpaRepository.findAllByMemberIdIn(List.of(2L)))
                 .willReturn(List.of(dbTag));
 
         // when
-        Map<Long, MemberProfileTag> result = memberProfileTagReader.findAllByMemberIds(memberIds);
+        Map<Long, ProfileTags> result = memberProfileTagReader.findAllByMemberIds(memberIds);
 
         // then
-        assertThat(result).hasSize(3);
+        assertThat(result).hasSize(1);
         verify(memberProfileTagJpaRepository).findAllByMemberIdIn(List.of(2L));
+        verify(cacheManager).putAll(anyMap());
     }
 
     @Test
-    void findAllByMemberIds_Redis_장애_시_전체_DB_fallback한다() {
+    void findAllByMemberIds_전체_캐시_미스_시_전체_DB에서_조회한다() {
         // given
         List<Long> memberIds = List.of(1L, 2L);
-        given(redisRepository.mget(anyList())).willThrow(new RuntimeException("Redis 장애"));
+        given(cacheManager.getAll(eq(memberIds), anyMap())).willReturn(new ArrayList<>(memberIds));
 
         MemberProfileTag tag1 = createTagWithMember(1L);
         MemberProfileTag tag2 = createTagWithMember(2L);
@@ -148,11 +125,20 @@ class MemberProfileTagReaderUnitTest extends UnitTestSupport {
                 .willReturn(List.of(tag1, tag2));
 
         // when
-        Map<Long, MemberProfileTag> result = memberProfileTagReader.findAllByMemberIds(memberIds);
+        Map<Long, ProfileTags> result = memberProfileTagReader.findAllByMemberIds(memberIds);
 
         // then
         assertThat(result).hasSize(2);
         verify(memberProfileTagJpaRepository).findAllByMemberIdIn(memberIds);
+        verify(cacheManager).putAll(anyMap());
+    }
+
+    private MemberProfileTag createSimpleTag() {
+        MemberProfileTag tag = org.mockito.Mockito.mock(MemberProfileTag.class);
+        org.mockito.Mockito.when(tag.getPersonalityTag()).thenReturn(PersonalityTag.QUIET);
+        org.mockito.Mockito.when(tag.getFaceTypeTag()).thenReturn(FaceTypeTag.PUPPY);
+        org.mockito.Mockito.when(tag.getDatingStyleTag()).thenReturn(DatingStyleTag.ROMANTIC);
+        return tag;
     }
 
     private MemberProfileTag createTagWithMember(Long memberId) {

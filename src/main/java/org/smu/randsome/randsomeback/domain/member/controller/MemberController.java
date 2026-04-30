@@ -15,7 +15,7 @@ import org.smu.randsome.randsomeback.domain.member.dto.request.WithdrawRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.response.MemberProfileResponse;
 import org.smu.randsome.randsomeback.domain.member.dto.response.MemberStatsResponse;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
+import org.smu.randsome.randsomeback.domain.member.dto.ProfileTags;
 import org.smu.randsome.randsomeback.domain.member.enums.CandidateRegistrationStatusView;
 import org.smu.randsome.randsomeback.domain.member.service.MemberDeviceService;
 import org.smu.randsome.randsomeback.domain.member.service.MemberService;
@@ -60,7 +60,7 @@ public class MemberController extends MemberControllerDocs {
     @GetMapping("/v1/members")
     public ApiResponse<MemberProfileResponse> getMyProfile(@LoginMember Long memberId) {
         Member member = memberService.getMyProfile(memberId);
-        MemberProfileTag profileTag = memberService.getProfileTag(memberId);
+        ProfileTags profileTag = memberService.getProfileTag(memberId);
         Optional<RegistrationStatus> myRegistrationStatus = candidateService.getMyRegistrationStatus(memberId);
         long exposureCount = matchingService.getExposureCount(memberId);
 
