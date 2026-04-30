@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
+import org.smu.randsome.randsomeback.domain.member.dto.ProfileTags;
 import org.smu.randsome.randsomeback.domain.member.entity.vo.SocialProfile;
 import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
 import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
@@ -63,7 +63,7 @@ public record MatchingResultDetailItem(
      * @param profileTag 후보자 프로필 태그 (탈퇴 회원의 경우 null 가능)
      * @return 변환된 후보자 상세 정보 DTO
      */
-    public static MatchingResultDetailItem from(MatchingResult result, MemberProfileTag profileTag) {
+    public static MatchingResultDetailItem from(MatchingResult result, ProfileTags profileTag) {
         Member candidate = result.getCandidate();
 
         if (candidate.isDeleted()) {
@@ -84,9 +84,9 @@ public record MatchingResultDetailItem(
                 .instagramId(socialProfile.instagramId())
                 .selfIntroduction(socialProfile.selfIntroduction())
                 .idealDescription(socialProfile.idealDescription())
-                .personalityTag(profileTag.getPersonalityTag())
-                .faceTypeTag(profileTag.getFaceTypeTag())
-                .datingStyleTag(profileTag.getDatingStyleTag())
+                .personalityTag(profileTag.personalityTag())
+                .faceTypeTag(profileTag.faceTypeTag())
+                .datingStyleTag(profileTag.datingStyleTag())
                 .withdrawn(false)
                 .build();
     }

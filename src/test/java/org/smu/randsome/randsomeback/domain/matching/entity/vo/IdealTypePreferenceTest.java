@@ -6,7 +6,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
+import org.smu.randsome.randsomeback.domain.member.dto.ProfileTags;
 import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
 import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
 import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
@@ -24,9 +24,8 @@ class IdealTypePreferenceTest extends UnitTestSupport {
                 Set.of(DatingStyleTag.FREQUENT_CONTACT),
                 Set.of(Mbti.ISTP)
         );
-        Member member = MemberFixture.create();
-        MemberProfileTag profileTag = MemberProfileTag.create(
-                member, PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.FREQUENT_CONTACT
+        ProfileTags profileTag = new ProfileTags(
+PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.FREQUENT_CONTACT
         );
 
         // when
@@ -45,9 +44,8 @@ class IdealTypePreferenceTest extends UnitTestSupport {
                 Set.of(DatingStyleTag.FREQUENT_CONTACT),
                 Set.of(Mbti.ENFP)
         );
-        Member member = MemberFixture.create();
-        MemberProfileTag profileTag = MemberProfileTag.create(
-                member, PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.FREQUENT_CONTACT
+        ProfileTags profileTag = new ProfileTags(
+PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.FREQUENT_CONTACT
         );
 
         // when
@@ -66,13 +64,12 @@ class IdealTypePreferenceTest extends UnitTestSupport {
                 Set.of(),
                 Set.of()
         );
-        Member member = MemberFixture.create();
-        MemberProfileTag profileTag = MemberProfileTag.create(
-                member, PersonalityTag.QUIET, FaceTypeTag.BEAR, DatingStyleTag.MODERATE_CONTACT
+        ProfileTags profileTag = new ProfileTags(
+PersonalityTag.QUIET, FaceTypeTag.BEAR, DatingStyleTag.MODERATE_CONTACT
         );
 
         // when
-        int score = preference.scoreAgainst(profileTag, member.getMbti());
+        int score = preference.scoreAgainst(profileTag, Mbti.ISTP);
 
         // then
         assertThat(score).isEqualTo(1); // 성격만 일치
@@ -87,9 +84,8 @@ class IdealTypePreferenceTest extends UnitTestSupport {
                 Set.of(DatingStyleTag.FREQUENT_CONTACT),
                 Set.of(Mbti.ENFP)
         );
-        Member member = MemberFixture.create();
-        MemberProfileTag profileTag = MemberProfileTag.create(
-                member, PersonalityTag.QUIET, FaceTypeTag.CAT, DatingStyleTag.MODERATE_CONTACT
+        ProfileTags profileTag = new ProfileTags(
+PersonalityTag.QUIET, FaceTypeTag.CAT, DatingStyleTag.MODERATE_CONTACT
         );
 
         // when
@@ -108,13 +104,12 @@ class IdealTypePreferenceTest extends UnitTestSupport {
                 Set.of(DatingStyleTag.FREQUENT_CONTACT),
                 Set.of()
         );
-        Member member = MemberFixture.create();
-        MemberProfileTag profileTag = MemberProfileTag.create(
-                member, PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.FREQUENT_CONTACT
+        ProfileTags profileTag = new ProfileTags(
+PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.FREQUENT_CONTACT
         );
 
         // when
-        int score = preference.scoreAgainst(profileTag, member.getMbti());
+        int score = preference.scoreAgainst(profileTag, Mbti.ISTP);
 
         // then
         assertThat(score).isEqualTo(2); // 성격, MBTI는 무시, 얼굴상+연애스타일만 계산
@@ -129,9 +124,8 @@ class IdealTypePreferenceTest extends UnitTestSupport {
                 Set.of(DatingStyleTag.MODERATE_CONTACT),
                 Set.of(Mbti.ISTP)
         );
-        Member member = MemberFixture.create();
-        MemberProfileTag profileTag = MemberProfileTag.create(
-                member, PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.FREQUENT_CONTACT
+        ProfileTags profileTag = new ProfileTags(
+PersonalityTag.ACTIVE, FaceTypeTag.PUPPY, DatingStyleTag.FREQUENT_CONTACT
         );
 
         // when

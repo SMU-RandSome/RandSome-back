@@ -1,5 +1,6 @@
 package org.smu.randsome.randsomeback.fixture;
 
+import org.smu.randsome.randsomeback.domain.member.dto.ProfileTags;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberBasicInfo;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberCredentials;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSocialProfile;
@@ -52,6 +53,10 @@ public class MemberFixture {
                 DEFAULT_SELF_INTRODUCTION,
                 DEFAULT_IDEAL_DESCRIPTION
         );
+    }
+
+    public static ProfileTags createProfileTags() {
+        return new ProfileTags(DEFAULT_PERSONALITY_TAG, DEFAULT_FACE_TYPE_TAG, DEFAULT_DATING_STYLE_TAG);
     }
 
     public static MemberProfileTag createProfileTag(Member member) {

@@ -10,11 +10,13 @@ import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.entity.MemberRestriction;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
+import org.smu.randsome.randsomeback.domain.member.event.MemberProfileTagUpdatedEvent;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberRestrictionJpaRepository;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -31,6 +33,7 @@ public class MemberManager {
     private final MemberDeviceManager memberDeviceManager;
     private final PasswordEncoder passwordEncoder;
     private final SuspensionManager suspensionManager;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Member create(
             MemberCredentials credentials,
@@ -93,6 +96,7 @@ public class MemberManager {
                 updateProfile.faceTypeTag(),
                 updateProfile.datingStyleTag()
         );
+        eventPublisher.publishEvent(new MemberProfileTagUpdatedEvent(memberId));
         log.info("[MemberManager] 프로필 수정 완료 - memberId={}", memberId);
     }
 
@@ -139,6 +143,7 @@ public class MemberManager {
         member.withdraw();
         memberDeviceManager.deleteAllByMemberId(memberId);
         memberProfileTagManager.deleteByMemberId(memberId);
+        eventPublisher.publishEvent(new MemberProfileTagUpdatedEvent(memberId));
 
         log.info("[MemberManager] 회원 탈퇴 처리 완료 - memberId={}", memberId);
     }

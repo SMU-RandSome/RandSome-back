@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.UnitTestSupport;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.member.entity.MemberProfileTag;
+import org.smu.randsome.randsomeback.domain.member.dto.ProfileTags;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 
 class MatchingResultDetailItemTest extends UnitTestSupport {
@@ -40,7 +40,7 @@ class MatchingResultDetailItemTest extends UnitTestSupport {
     void 활성_후보자의_매칭_결과는_개인정보가_포함되고_withdrawn이_false이다() {
         // given
         Member candidate = MemberFixture.create();
-        MemberProfileTag profileTag = MemberFixture.createProfileTag(candidate);
+        ProfileTags profileTag = MemberFixture.createProfileTags();
 
         MatchingResult result = mock(MatchingResult.class);
         given(result.getId()).willReturn(1L);

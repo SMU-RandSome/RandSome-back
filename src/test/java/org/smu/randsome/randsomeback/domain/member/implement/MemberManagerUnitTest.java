@@ -26,6 +26,7 @@ import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -51,6 +52,9 @@ class MemberManagerUnitTest extends UnitTestSupport {
 
     @Mock
     SuspensionManager suspensionManager;
+
+    @Mock
+    ApplicationEventPublisher eventPublisher;
 
     @Test
     void 회원을_생성하고_프로필_태그가_함께_생성된다() {
