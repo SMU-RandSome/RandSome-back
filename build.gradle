@@ -100,9 +100,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-registry-prometheus'
 
-    // Loki 로그 수집
-    implementation 'com.github.loki4j:loki-logback-appender:1.5.2'
-
 }
 
 tasks.named('test') {
