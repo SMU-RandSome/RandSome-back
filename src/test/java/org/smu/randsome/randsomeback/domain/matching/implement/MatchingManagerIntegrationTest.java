@@ -6,11 +6,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
+import java.util.Set;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
+import org.smu.randsome.randsomeback.domain.matching.entity.vo.IdealTypePreference;
 import org.smu.randsome.randsomeback.domain.matching.enums.ApplicationStatus;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
+import org.smu.randsome.randsomeback.domain.matching.repository.MatchingIdealTypeSnapshotJpaRepository;
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingJpaRepository;
+import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
+import org.smu.randsome.randsomeback.domain.member.enums.FaceTypeTag;
+import org.smu.randsome.randsomeback.domain.member.enums.Mbti;
+import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
@@ -25,6 +32,7 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
     final MatchingExecutor matchingExecutor;
     final MemberJpaRepository memberJpaRepository;
     final MatchingJpaRepository matchingJpaRepository;
+    final MatchingIdealTypeSnapshotJpaRepository snapshotJpaRepository;
 
     @Test
     void 매칭_신청을_저장하면_PENDING_상태로_DB에_저장된다() {
@@ -109,6 +117,53 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
         assertThatThrownBy(() -> matchingManager.apply(newMatching, nonExistentMemberId))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+    }
+
+    @Test
+    void 이상형_매칭_신청_시_스냅샷이_별도로_저장된다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var preference = IdealTypePreference.of(
+                Set.of(PersonalityTag.ACTIVE),
+                Set.of(FaceTypeTag.PUPPY),
+                Set.of(DatingStyleTag.FREQUENT_CONTACT),
+                Set.of(Mbti.ISTP)
+        );
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.IDEAL)
+                .applicationCount(2)
+                .idealTypePreference(preference)
+                .build();
+
+        // when
+        var result = matchingManager.apply(newMatching, member.getId());
+
+        // then
+        var snapshot = snapshotJpaRepository.findByMatchingApplicationId(result.getId());
+        assertThat(snapshot).isPresent();
+
+        var savedPreference = snapshot.get().toVO();
+        assertThat(savedPreference.preferredPersonalityTags()).containsExactly(PersonalityTag.ACTIVE);
+        assertThat(savedPreference.preferredFaceTypeTags()).containsExactly(FaceTypeTag.PUPPY);
+        assertThat(savedPreference.preferredDatingStyleTags()).containsExactly(DatingStyleTag.FREQUENT_CONTACT);
+        assertThat(savedPreference.preferredMbtis()).containsExactly(Mbti.ISTP);
+    }
+
+    @Test
+    void 랜덤_매칭_신청_시_스냅샷은_저장되지_않는다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(2)
+                .build();
+
+        // when
+        var result = matchingManager.apply(newMatching, member.getId());
+
+        // then
+        var snapshot = snapshotJpaRepository.findByMatchingApplicationId(result.getId());
+        assertThat(snapshot).isEmpty();
     }
 
     @Test

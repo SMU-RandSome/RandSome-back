@@ -48,7 +48,7 @@ class MatchingStatsCacheIntegrationTest extends IntegrationTestSupport {
     void 첫_조회_시_캐시_미스가_발생하고_결과가_캐시에_저장된다() {
         // given
         Member member = memberJpaRepository.save(MemberFixture.create());
-        matchingJpaRepository.save(MatchingApplication.apply(member, MatchingType.RANDOM, 1, null));
+        matchingJpaRepository.save(MatchingApplication.apply(member, MatchingType.RANDOM, 1));
 
         // when
         long count = matchingStatsReader.countTotal();
@@ -65,7 +65,7 @@ class MatchingStatsCacheIntegrationTest extends IntegrationTestSupport {
     void 두_번째_조회_시_캐시_히트가_발생하고_DB를_재조회하지_않는다() {
         // given
         Member member = memberJpaRepository.save(MemberFixture.create());
-        matchingJpaRepository.save(MatchingApplication.apply(member, MatchingType.RANDOM, 1, null));
+        matchingJpaRepository.save(MatchingApplication.apply(member, MatchingType.RANDOM, 1));
 
         matchingStatsReader.countTotal(); // 캐시 워밍
 
