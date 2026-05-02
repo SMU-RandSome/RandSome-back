@@ -44,6 +44,7 @@ public interface CouponJpaRepository extends JpaRepository<Coupon, Long> {
             WHERE c.couponStatus = :availableStatus
               AND c.expiredAt < :now
               AND c.status = :entityStatus
+              AND c.usedAt IS NULL
             """)
     int bulkExpire(
             @Param("availableStatus") CouponStatus availableStatus,
