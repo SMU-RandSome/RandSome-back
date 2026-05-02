@@ -1,11 +1,13 @@
 package org.smu.randsome.randsomeback.domain.member.entity.vo;
 
+import static java.util.Objects.*;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
 public record SocialProfile(
-        @Column(unique = true)
+        @Column(nullable = false, unique = true)
         String instagramId,
 
         @Column(length = 1000)
@@ -16,7 +18,7 @@ public record SocialProfile(
 ) {
 
     public static SocialProfile create(String instagramId, String selfIntroduction, String idealDescription) {
-        return new SocialProfile(instagramId, selfIntroduction, idealDescription);
+        return new SocialProfile(requireNonNull(instagramId), selfIntroduction, idealDescription);
     }
 
 }

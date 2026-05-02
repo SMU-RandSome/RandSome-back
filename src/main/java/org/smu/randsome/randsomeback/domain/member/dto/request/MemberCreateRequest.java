@@ -54,6 +54,7 @@ public record MemberCreateRequest(
 
         @Schema(description = "인스타그램 아이디", example = "my_insta")
         @Size(max = 255, message = "인스타그램 아이디는 255자 이하여야 합니다.")
+        @NotBlank(message = "인스타그램 아이디는 필수입니다.")
         String instagramId,
 
         @Schema(description = "자기소개", example = "안녕하세요, 저는 홍길동입니다.")

@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.domain.member.entity.vo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.UnitTestSupport;
@@ -24,14 +25,9 @@ class SocialProfileTest extends UnitTestSupport {
     }
 
     @Test
-    void 모든_필드가_null인_소셜_프로필_VO를_생성할_수_있다() {
-        SocialProfile profile = SocialProfile.create(null, null, null);
-
-        assertThat(profile).isNotNull().extracting(
-                SocialProfile::instagramId,
-                SocialProfile::selfIntroduction,
-                SocialProfile::idealDescription
-        ).containsNull();
+    void 인스타그램_아이디가_null이면_예외가_발생한다() {
+        assertThatThrownBy(() -> SocialProfile.create(null, null, null))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test

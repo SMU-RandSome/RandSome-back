@@ -29,7 +29,7 @@ public record MemberDetailResponse(
         @Schema(description = "회원 역할", example = "ROLE_MEMBER")
         Role role,
 
-        @Schema(description = "인스타그램 아이디", example = "my_insta", nullable = true)
+        @Schema(description = "인스타그램 아이디", example = "my_insta")
         String instagramId,
 
         @Schema(description = "자기소개", example = "안녕하세요, 저는 홍길동입니다.", nullable = true)
