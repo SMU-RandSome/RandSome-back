@@ -6,7 +6,9 @@ import org.smu.randsome.randsomeback.domain.matching.repository.MatchingIdealTyp
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Component
 public class MatchingIdealTypeSnapshotReader {
