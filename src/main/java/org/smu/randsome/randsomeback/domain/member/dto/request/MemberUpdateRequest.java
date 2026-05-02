@@ -3,6 +3,7 @@ package org.smu.randsome.randsomeback.domain.member.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import org.smu.randsome.randsomeback.domain.member.dto.command.UpdateProfile;
 import org.smu.randsome.randsomeback.domain.member.enums.DatingStyleTag;
@@ -15,6 +16,7 @@ import org.smu.randsome.randsomeback.domain.member.enums.PersonalityTag;
 @Builder
 public record MemberUpdateRequest(
         @Schema(description = "실명", example = "홍길동")
+        @Size(max = 50, message = "실명은 50자 이하여야 합니다.")
         @NotBlank(message = "실명은 필수입니다.")
         String legalName,
 
@@ -26,13 +28,17 @@ public record MemberUpdateRequest(
         @NotNull(message = "학과는 필수입니다.")
         Department department,
 
-        @Schema(description = "인스타그램 아이디", example = "my_insta", nullable = true)
+        @Schema(description = "인스타그램 아이디", example = "my_insta")
+        @Size(max = 255, message = "인스타그램 아이디는 255자 이하여야 합니다.")
+        @NotBlank(message = "인스타그램 아이디는 필수입니다.")
         String instagramId,
 
-        @Schema(description = "자기소개", example = "안녕하세요, 저는 홍길동입니다.", nullable = true)
+        @Schema(description = "자기소개", example = "안녕하세요, 저는 홍길동입니다.")
+        @Size(max = 1000, message = "자기소개는 1000자 이하여야 합니다.")
         String selfIntroduction,
 
-        @Schema(description = "이상형 소개", example = "성실하고 배려심 있는 사람이 좋아요.", nullable = true)
+        @Schema(description = "이상형 소개", example = "최명재 같은 사람 말고 다 좋아요!!.")
+        @Size(max = 1000, message = "이상형 소개는 1000자 이하여야 합니다.")
         String idealDescription,
 
         @Schema(description = "내 성격 태그", example = "ACTIVE")
