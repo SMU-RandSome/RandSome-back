@@ -81,6 +81,9 @@ public enum ErrorType {
     NOT_FOUND_COUPON_EVENT       (HttpStatus.NOT_FOUND,   "쿠폰 이벤트를 찾을 수 없습니다.", LogLevel.INFO),
     COUPON_SOLD_OUT              (HttpStatus.CONFLICT,     "쿠폰이 모두 소진되었습니다.", LogLevel.INFO),
 
+    // ANNOUNCEMENT
+    NOT_FOUND_ANNOUNCEMENT(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다.", LogLevel.INFO),
+
     // ATTENDANCE
     DUPLICATE_ATTENDANCE(HttpStatus.CONFLICT, "오늘 이미 출석 체크를 완료했습니다.", LogLevel.INFO),
 
@@ -120,7 +123,7 @@ public enum ErrorType {
     FIREBASE_INIT_ERROR     (HttpStatus.INTERNAL_SERVER_ERROR, "Firebase 초기화에 실패했습니다.", LogLevel.ERROR),
     SEND_NOTIFICATION_ERROR (HttpStatus.INTERNAL_SERVER_ERROR, "알림 전송에 실패했습니다.", LogLevel.ERROR),
 
-    // JWT,
+    // JWT
     EMPTY_TOKEN                        (HttpStatus.UNAUTHORIZED, "JWT 토큰이 존재하지 않습니다.", LogLevel.WARN),
     INVALID_TOKEN                      (HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다.", LogLevel.WARN),
     TOKEN_THEFT_DETECTED               (HttpStatus.UNAUTHORIZED, "토큰 탈취가 감지되었습니다. 보안을 위해 재로그인이 필요합니다.", LogLevel.WARN),

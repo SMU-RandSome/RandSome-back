@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.admin.announcement.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.smu.randsome.randsomeback.admin.announcement.dto.request.AnnouncementRegisterRequest;
@@ -16,6 +17,13 @@ public abstract class AnnouncementAdminControllerDocs {
     public abstract ApiResponse<Long> registerAnnouncement(
             @RequestBody @Valid AnnouncementRegisterRequest request,
             @LoginMember Long adminId
+    );
+
+    @Operation(summary = "공지사항 삭제", description = "관리자가 기존 공지사항을 삭제합니다.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "공지사항이 성공적으로 삭제되었습니다.")
+    public abstract ApiResponse<?> deleteAnnouncement(
+            @Parameter(description = "삭제할 공지사항의 ID", example = "1")
+            Long announcementId
     );
 
 }

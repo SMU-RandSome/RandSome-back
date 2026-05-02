@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import org.junit.jupiter.api.Test;
@@ -42,16 +43,15 @@ class AnnouncementAdminControllerTest extends ControllerTestSupport {
 
     @Test
     @TestAdmin
-    void 제목이_비어있으면_400을_반환한다() throws Exception {
-        // given
-        var request = new AnnouncementRegisterRequest("", "내용");
-
+    void 공지사항_삭제에_성공하면_204를_반환한다() {
         // when & then
-        assertThat(mvcTester.post().uri("/v1/admin/announcements")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+        assertThat(mvcTester.delete().uri("/v1/admin/announcements/1"))
                 .apply(print())
-                .hasStatus(HttpStatus.BAD_REQUEST.value());
+                .hasStatus(HttpStatus.NO_CONTENT.value())
+                .bodyJson()
+                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"));
+
+        verify(announcementAdminService).deleteAnnouncement(1L);
     }
 
 }

@@ -8,6 +8,9 @@ import org.smu.randsome.randsomeback.domain.announcement.repository.Announcement
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberValidator;
+import org.smu.randsome.randsomeback.global.entity.EntityStatus;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -40,6 +43,13 @@ public class AnnouncementManager {
         log.info("[AnnouncementManager] 공지사항 등록 완료 - announcementId={}", announcement.getId());
 
         return announcement;
+    }
+
+    public void delete(Long announcementId) {
+        Announcement announcement = announcementJpaRepository.findByIdAndStatus(announcementId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_ANNOUNCEMENT));
+
+        announcement.delete();
     }
 
 }

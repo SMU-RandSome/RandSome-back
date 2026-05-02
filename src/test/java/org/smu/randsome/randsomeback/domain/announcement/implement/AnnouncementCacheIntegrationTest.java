@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.domain.announcement.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -21,6 +22,8 @@ import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepositor
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.config.CacheKeys;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
@@ -98,6 +101,33 @@ class AnnouncementCacheIntegrationTest extends IntegrationTestSupport {
         // then — 캐시 evict 후 재조회
         List<AnnouncementItem> after = announcementReader.findAnnouncements();
         assertThat(after).hasSize(2);
+    }
+
+    @Test
+    void 공지사항_삭제_후_캐시가_무효화되어_다음_조회_시_삭제된_공지가_제외된다() {
+        // given
+        Member admin = saveAdmin();
+        Announcement announcement = announcementJpaRepository.save(Announcement.register(admin, "삭제될 공지", "내용"));
+        announcementJpaRepository.save(Announcement.register(admin, "유지될 공지", "내용"));
+
+        List<AnnouncementItem> before = announcementReader.findAnnouncements();
+        assertThat(before).hasSize(2);
+
+        // when
+        announcementAdminService.deleteAnnouncement(announcement.getId());
+
+        // then
+        List<AnnouncementItem> after = announcementReader.findAnnouncements();
+        assertThat(after).hasSize(1);
+        assertThat(after.get(0).title()).isEqualTo("유지될 공지");
+    }
+
+    @Test
+    void 존재하지_않는_공지사항을_삭제하면_예외가_발생한다() {
+        // when & then
+        assertThatThrownBy(() -> announcementAdminService.deleteAnnouncement(999L))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_ANNOUNCEMENT.getMessage());
     }
 
     private Member saveAdmin() {

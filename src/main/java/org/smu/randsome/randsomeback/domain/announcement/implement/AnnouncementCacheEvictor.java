@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.domain.announcement.implement;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.smu.randsome.randsomeback.domain.announcement.event.AnnouncementDeleteEvent;
 import org.smu.randsome.randsomeback.domain.announcement.event.AnnouncementRegisteredEvent;
 import org.smu.randsome.randsomeback.global.config.CacheKeys;
 import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
@@ -26,7 +27,17 @@ public class AnnouncementCacheEvictor {
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void evictAnnouncementsCache(AnnouncementRegisteredEvent event) {
-        log.info("[AnnouncementCacheEvictor] AFTER_COMMIT 이벤트 수신, 캐시 무효화 시작");
+        redisRepository.delete(CacheKeys.ANNOUNCEMENTS);
+        log.info("[AnnouncementCacheEvictor] 캐시 무효화 완료. announcementId={}", event.announcementId());
+    }
+
+    /**
+     * 공지사항 삭제 트랜잭션이 커밋된 뒤 ANNOUNCEMENTS 캐시를 삭제한다.
+     *
+     * @param event 공지사항 삭제 이벤트
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void evictAnnouncementsCache(AnnouncementDeleteEvent event) {
         redisRepository.delete(CacheKeys.ANNOUNCEMENTS);
         log.info("[AnnouncementCacheEvictor] 캐시 무효화 완료. announcementId={}", event.announcementId());
     }
