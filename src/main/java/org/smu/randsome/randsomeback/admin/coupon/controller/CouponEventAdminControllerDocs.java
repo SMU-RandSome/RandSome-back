@@ -88,4 +88,14 @@ public abstract class CouponEventAdminControllerDocs {
     public abstract ApiResponse<CursorSlice<CouponIssuedMemberItem>> findCouponEventIssuedMember(
             Long couponEventId, Long lastId, int size);
 
+    @Operation(summary = "쿠폰 재고 Redis 재동기화",
+            description = """
+                    ## Redis 재고 키를 DB 기준으로 재동기화합니다.
+                    Redis 재시작 또는 활성화 실패로 재고 키가 유실된 경우 관리자가 호출합니다.
+                    DB의 발급 수를 기준으로 남은 재고를 계산해 Redis 키를 재설정합니다.
+                    이벤트가 이미 만료된 경우 재동기화를 생략합니다.
+                    """
+    )
+    public abstract ApiResponse<?> syncRedisStock(Long couponEventId);
+
 }

@@ -39,6 +39,10 @@ public class CouponReader {
         return couponRepository.existsByCouponEventIdAndMemberIdAndStatus(couponEventId, memberId, EntityStatus.ACTIVE);
     }
 
+    public long countIssuedCoupons(Long eventId) {
+        return couponRepository.countByCouponEventIdAndStatus(eventId, EntityStatus.ACTIVE);
+    }
+
     public CursorSlice<Coupon> findIssuedCoupons(Long couponEventId, Cursor cursor) {
         List<Coupon> coupons = couponRepository.findByCouponEventWithMember(couponEventId, cursor);
 

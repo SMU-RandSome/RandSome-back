@@ -6,12 +6,17 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class RedisRepository {
 
+    private static final RedisScript<Long> DECREMENT_IF_EXISTS = RedisScript.of(
+            "if redis.call('EXISTS', KEYS[1]) == 1 then return redis.call('DECR', KEYS[1]) else return -2 end",
+            Long.class
+    );
     private final StringRedisTemplate stringRedisTemplate;
 
     public void put(String key, String value, Duration ttl) {
@@ -41,17 +46,17 @@ public class RedisRepository {
     public void delete(String key) {
         stringRedisTemplate.delete(key);
     }
-
     // NOTE: 있는 키에 대해서는 false를 반환하므로, 동일한 키로 중복 시도를 방지하는 용도로 사용할 수 있다.
+
     public boolean tryAcquire(String key, Duration ttl) {
         Boolean acquired = stringRedisTemplate.opsForValue().setIfAbsent(key, "1", ttl);
         return Boolean.TRUE.equals(acquired);
     }
 
-    // NOTE: DECR은 원자 연산이므로 동시 요청이 몰려도 값이 정확히 1씩 감소한다.
-    // 반환값이 음수이면 재고가 이미 소진된 것이다.
-    public Long decrement(String key) {
-        return stringRedisTemplate.opsForValue().decrement(key);
+    // NOTE: 키가 존재하면 DECR, 없으면 -2(sentinel)을 반환한다.
+    // EXISTS + DECR을 Lua 스크립트로 원자적으로 실행해 유령 키 생성을 방지한다.
+    public Long decrementIfExists(String key) {
+        return stringRedisTemplate.execute(DECREMENT_IF_EXISTS, List.of(key));
     }
 
     public Long increment(String key) {
