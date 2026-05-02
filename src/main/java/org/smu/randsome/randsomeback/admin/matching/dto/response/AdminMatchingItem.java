@@ -34,7 +34,7 @@ public record AdminMatchingItem(
         ApplicationStatus applicationStatus,
 
         @Schema(description = "실제 매칭된 인원 수")
-        Integer matchedCount,
+        int matchedCount,
 
         @Schema(description = "신청 일시")
         LocalDateTime createdAt
