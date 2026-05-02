@@ -147,11 +147,11 @@ class CouponCacheManagerUnitTest extends UnitTestSupport {
 
     @Test
     void Redis_재고_키가_없으면_COUPON_EVENT_NOT_ACTIVE_예외를_던진다() {
-        // given: decrementIfExists 결과 -2 = 키 없음 (Redis 재시작 등)
+        // given: decrementIfExists 결과 null = 키 없음 (Redis 재시작 등)
         Long eventId = 1L;
         Long memberId = 42L;
 
-        given(redisRepository.decrementIfExists(CacheKeys.couponStock(eventId))).willReturn(-2L);
+        given(redisRepository.decrementIfExists(CacheKeys.couponStock(eventId))).willReturn(null);
 
         // when & then
         assertThatThrownBy(() -> couponCacheManager.decrementStockOrThrow(eventId, memberId))

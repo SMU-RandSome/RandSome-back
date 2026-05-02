@@ -71,7 +71,7 @@ public class CouponCacheManager {
         String key = CacheKeys.couponStock(eventId);
         Long remaining = redisRepository.decrementIfExists(key);
 
-        if (remaining == null || remaining == -2L) {
+        if (remaining == null) {
             log.error("쿠폰 재고 Redis 키 없음 - eventId={}, 관리자 재동기화 필요", eventId);
             throw new CoreException(ErrorType.COUPON_EVENT_NOT_ACTIVE);
         }
@@ -90,7 +90,7 @@ public class CouponCacheManager {
      * Redis 재시작 또는 활성화 실패로 키가 유실된 경우 관리자가 호출한다.
      * 이벤트가 이미 만료된 경우에는 재동기화를 생략한다.
      */
-    public void syncStock(Long eventId, int remaining, LocalDateTime expiresAt) {
+    public void syncStock(Long eventId, long remaining, LocalDateTime expiresAt) {
         Duration ttl = Duration.between(LocalDateTime.now(), expiresAt);
         if (ttl.isNegative() || ttl.isZero()) {
             log.warn("쿠폰 이벤트 이미 만료 - eventId={}, 재동기화 생략", eventId);

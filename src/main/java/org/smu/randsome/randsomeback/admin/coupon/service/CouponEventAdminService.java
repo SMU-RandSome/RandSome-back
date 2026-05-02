@@ -11,6 +11,8 @@ import org.smu.randsome.randsomeback.domain.coupon.implement.CouponCacheManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventReader;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponReader;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.Cursor;
 import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
 import org.springframework.stereotype.Service;
@@ -104,8 +106,11 @@ public class CouponEventAdminService {
      */
     public void syncRedisStock(Long couponEventId) {
         CouponEvent event = couponEventReader.find(couponEventId);
+        if (!event.isActive()) {
+            throw new CoreException(ErrorType.COUPON_EVENT_INVALID_STATUS);
+        }
         long issuedCount = couponReader.countIssuedCoupons(couponEventId);
-        int remaining = (int) (event.getTotalQuantity() - issuedCount);
+        long remaining = event.getTotalQuantity() - issuedCount;
         couponCacheManager.syncStock(couponEventId, remaining, event.getExpiresAt());
     }
 

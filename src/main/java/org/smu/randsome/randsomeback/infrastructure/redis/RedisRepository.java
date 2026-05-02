@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class RedisRepository {
 
     private static final RedisScript<Long> DECREMENT_IF_EXISTS = RedisScript.of(
-            "if redis.call('EXISTS', KEYS[1]) == 1 then return redis.call('DECR', KEYS[1]) else return -2 end",
+            "if redis.call('EXISTS', KEYS[1]) == 0 then return nil end return redis.call('DECR', KEYS[1])",
             Long.class
     );
     private final StringRedisTemplate stringRedisTemplate;
@@ -53,7 +53,7 @@ public class RedisRepository {
         return Boolean.TRUE.equals(acquired);
     }
 
-    // NOTE: 키가 존재하면 DECR, 없으면 -2(sentinel)을 반환한다.
+    // NOTE: 키가 존재하면 DECR 결과(Long)를 반환하고, 없으면 null을 반환한다.
     // EXISTS + DECR을 Lua 스크립트로 원자적으로 실행해 유령 키 생성을 방지한다.
     public Long decrementIfExists(String key) {
         return stringRedisTemplate.execute(DECREMENT_IF_EXISTS, List.of(key));
