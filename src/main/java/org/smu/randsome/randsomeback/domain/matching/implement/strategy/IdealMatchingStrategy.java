@@ -11,6 +11,7 @@ import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingResult;
 import org.smu.randsome.randsomeback.domain.matching.entity.vo.IdealTypePreference;
 import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
+import org.smu.randsome.randsomeback.domain.matching.implement.MatchingIdealTypeSnapshotReader;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.dto.ProfileTags;
 import org.smu.randsome.randsomeback.domain.member.enums.Department;
@@ -31,6 +32,7 @@ public class IdealMatchingStrategy implements MatchingStrategy {
 
     private final MemberReader memberReader;
     private final MemberProfileTagReader memberProfileTagReader;
+    private final MatchingIdealTypeSnapshotReader idealTypeSnapshotReader;
 
     @Override
     public MatchingType getSupportedType() {
@@ -39,12 +41,11 @@ public class IdealMatchingStrategy implements MatchingStrategy {
 
     /**
      * 이상형 태그 점수 기준으로 후보군을 정렬하고 신청 수만큼 결과를 생성한다.
+     * <br/>후보 ID + MBTI만 경량 조회 → 태그 스코어링 → 상위 N건만 Member 엔티티 로딩.
+     * Member 엔티티 전체 로딩(~1만 건)을 상위 N건(1~5건)으로 줄여 DB 전송량과 메모리를 절감한다.
      *
-     * @param matchingApplication 승인된 매칭 신청 (idealTypePreference 포함)
+     * @param matchingApplication 승인된 매칭 신청
      * @return 이상형 매칭 결과 목록
-     */
-    /**
-     * 후보 ID + MBTI만 경량 조회 → 태그 스코어링 → 상위 N건만 Member 엔티티 로딩. Member 엔티티 전체 로딩(~1만 건)을 상위 N건(1~5건)으로 줄여 DB 전송량과 메모리를 절감한다.
      */
     @Override
     public List<MatchingResult> execute(MatchingApplication matchingApplication) {
@@ -59,7 +60,7 @@ public class IdealMatchingStrategy implements MatchingStrategy {
         // NOTE: 동점자 간 순서를 무작위로 만들기 위해 정렬 전 셔플한다.
         Collections.shuffle(candidateIds);
 
-        IdealTypePreference preference = matchingApplication.getIdealTypePreference();
+        IdealTypePreference preference = idealTypeSnapshotReader.find(matchingApplication.getId());
         int applicationCount = matchingApplication.getApplicationCount();
 
         List<Long> topCandidateIds = candidateIds.stream()

@@ -59,6 +59,7 @@ public enum ErrorType {
     NOT_ALLOW_ALREADY_APPROVED_MATCHING (HttpStatus.BAD_REQUEST, "이미 승인된 매칭은 거절이 불가능합니다.", LogLevel.INFO),
     NOT_FOUND_MATCHING                  (HttpStatus.NOT_FOUND, "존재하지 않는 매칭입니다.", LogLevel.INFO),
     NOT_FOUND_MATCHING_RESULT           (HttpStatus.NOT_FOUND, "매칭된 결과가 존재하지 않습니다.", LogLevel.INFO),
+    NOT_FOUND_IDEAL_TYPE_SNAPSHOT       (HttpStatus.NOT_FOUND, "이상형 매칭 스냅샷을 찾을 수 없습니다.", LogLevel.INFO),
     UNSUPPORTED_MATCHING_TYPE           (HttpStatus.INTERNAL_SERVER_ERROR, "지원하지 않는 매칭 타입입니다.", LogLevel.ERROR),
     IDEAL_MATCHING_NOT_IMPLEMENTED      (HttpStatus.INTERNAL_SERVER_ERROR, "이상형 매칭 기능은 아직 준비 중입니다.", LogLevel.WARN),
     FORBIDDEN_MATCHING_RESULT           (HttpStatus.FORBIDDEN, "다른 사용자의 매칭 결과에 접근할 수 없습니다.", LogLevel.WARN),

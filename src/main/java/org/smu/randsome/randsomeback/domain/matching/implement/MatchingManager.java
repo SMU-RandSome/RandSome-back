@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
+import org.smu.randsome.randsomeback.domain.matching.entity.MatchingIdealTypeSnapshot;
+import org.smu.randsome.randsomeback.domain.matching.repository.MatchingIdealTypeSnapshotJpaRepository;
 import org.smu.randsome.randsomeback.domain.matching.repository.MatchingJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Component;
 public class MatchingManager {
 
     private final MatchingJpaRepository matchingJpaRepository;
+    private final MatchingIdealTypeSnapshotJpaRepository snapshotJpaRepository;
     private final RedisRepository redisRepository;
     private final MemberReader memberReader;
 
@@ -41,9 +44,15 @@ public class MatchingManager {
         MatchingApplication saved = matchingJpaRepository.save(MatchingApplication.apply(
                 member,
                 newMatching.matchingType(),
-                newMatching.applicationCount(),
-                newMatching.idealTypePreference()
+                newMatching.applicationCount()
         ));
+
+        if (newMatching.idealTypePreference() != null) {
+            snapshotJpaRepository.save(MatchingIdealTypeSnapshot.create(
+                    saved.getId(),
+                    newMatching.idealTypePreference()
+            ));
+        }
 
         log.info(
                 "[MatchingManager] 매칭 신청 생성 완료 - matchingApplicationId: {}, memberId: {}, matchingType: {}, applicationCount: {}",
