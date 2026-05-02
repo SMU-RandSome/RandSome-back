@@ -25,6 +25,16 @@ public interface CouponJpaRepository extends JpaRepository<Coupon, Long> {
             @Param("status") EntityStatus status
     );
 
+    @Query("""
+            SELECT COUNT(c) FROM Coupon c
+            WHERE c.couponEvent.id = :eventId
+              AND c.status = :status
+            """)
+    long countByCouponEventIdAndStatus(
+            @Param("eventId") Long eventId,
+            @Param("status") EntityStatus status
+    );
+
     @Modifying(clearAutomatically = true)
     @Query("""
             UPDATE Coupon c

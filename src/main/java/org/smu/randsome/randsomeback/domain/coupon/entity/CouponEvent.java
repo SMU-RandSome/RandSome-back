@@ -150,6 +150,10 @@ public class CouponEvent extends BaseEntity {
         this.eventStatus = CouponEventStatus.ENDED;
     }
 
+    public boolean isActive() {
+        return eventStatus == CouponEventStatus.ACTIVE;
+    }
+
     public boolean isIssuable(LocalDateTime now) {
         return eventStatus == CouponEventStatus.ACTIVE
                 && !now.isBefore(startsAt)

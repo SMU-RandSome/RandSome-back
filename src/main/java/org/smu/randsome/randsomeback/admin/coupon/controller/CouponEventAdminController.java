@@ -96,6 +96,13 @@ public class CouponEventAdminController extends CouponEventAdminControllerDocs {
     }
 
     @Override
+    @PostMapping("/v1/admin/coupon-events/{couponEventId}/sync-redis-stock")
+    public ApiResponse<?> syncRedisStock(@PathVariable Long couponEventId) {
+        couponEventAdminService.syncRedisStock(couponEventId);
+        return ApiResponse.success();
+    }
+
+    @Override
     @GetMapping("/v1/admin/coupon-events/{couponEventId}/issued-members")
     public ApiResponse<CursorSlice<CouponIssuedMemberItem>> findCouponEventIssuedMember(
             @PathVariable Long couponEventId,

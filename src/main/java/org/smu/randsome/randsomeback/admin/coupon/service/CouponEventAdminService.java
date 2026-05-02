@@ -7,9 +7,12 @@ import org.smu.randsome.randsomeback.domain.coupon.dto.command.NewCouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.dto.command.UpdateCouponEvent;
 import org.smu.randsome.randsomeback.domain.coupon.entity.Coupon;
 import org.smu.randsome.randsomeback.domain.coupon.entity.CouponEvent;
+import org.smu.randsome.randsomeback.domain.coupon.implement.CouponCacheManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventManager;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponEventReader;
 import org.smu.randsome.randsomeback.domain.coupon.implement.CouponReader;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.Cursor;
 import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ public class CouponEventAdminService {
     private final CouponEventManager couponEventManager;
     private final CouponEventReader couponEventReader;
     private final CouponReader couponReader;
+    private final CouponCacheManager couponCacheManager;
 
     /**
      * 쿠폰 이벤트 등록
@@ -92,6 +96,22 @@ public class CouponEventAdminService {
      * */
     public void deactivateCouponEvent(Long couponEventId) {
         couponEventManager.deactivate(couponEventId);
+    }
+
+    /**
+     * Redis 재고 키 재동기화
+     * Redis 재시작 또는 활성화 실패로 키가 유실된 경우 관리자가 호출한다.
+     * DB의 발급 수를 기준으로 남은 재고를 계산해 Redis 키를 재설정한다.
+     * @param couponEventId 재동기화할 쿠폰 이벤트 ID
+     */
+    public void syncRedisStock(Long couponEventId) {
+        CouponEvent event = couponEventReader.find(couponEventId);
+        if (!event.isActive()) {
+            throw new CoreException(ErrorType.COUPON_EVENT_INVALID_STATUS);
+        }
+        long issuedCount = couponReader.countIssuedCoupons(couponEventId);
+        long remaining = event.getTotalQuantity() - issuedCount;
+        couponCacheManager.syncStock(couponEventId, remaining, event.getExpiresAt());
     }
 
      /**

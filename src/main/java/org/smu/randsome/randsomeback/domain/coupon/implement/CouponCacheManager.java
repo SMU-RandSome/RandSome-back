@@ -1,6 +1,7 @@
 package org.smu.randsome.randsomeback.domain.coupon.implement;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.admin.coupon.event.CouponEventActivatedEvent;
@@ -61,20 +62,42 @@ public class CouponCacheManager {
 
     /**
      * 재고를 원자적으로 1 감소시킨다.
+     * 키가 없으면(Redis 재시작·활성화 실패) 즉시 예외를 던진다.
      * 반환값이 음수이면 재고가 소진된 것이므로 보상 후 예외를 던진다.
      * DB 트랜잭션 롤백 시(Soft fail) Redis 상태를 원상복구하도록 보상 콜백을 등록한다.
      * Hard crash(OOM, kill -9) 시에는 콜백이 실행되지 않으므로, member lock의 짧은 TTL로 복구를 보완한다.
      */
     public long decrementStockOrThrow(Long eventId, Long memberId) {
-        Long remaining = redisRepository.decrement(CacheKeys.couponStock(eventId));
+        String key = CacheKeys.couponStock(eventId);
+        Long remaining = redisRepository.decrementIfExists(key);
 
-        if (remaining != null && remaining < 0)  {
+        if (remaining == null) {
+            log.error("쿠폰 재고 Redis 키 없음 - eventId={}, 관리자 재동기화 필요", eventId);
+            throw new CoreException(ErrorType.COUPON_EVENT_NOT_ACTIVE);
+        }
+
+        if (remaining < 0) {
             compensate(eventId, memberId);
             throw new CoreException(ErrorType.COUPON_SOLD_OUT);
         }
 
         registerRollbackCompensation(eventId, memberId);
-        return remaining != null ? remaining : 0L;
+        return remaining;
+    }
+
+    /**
+     * DB 기준 남은 재고로 Redis 재고 키를 재동기화한다.
+     * Redis 재시작 또는 활성화 실패로 키가 유실된 경우 관리자가 호출한다.
+     * 이벤트가 이미 만료된 경우에는 재동기화를 생략한다.
+     */
+    public void syncStock(Long eventId, long remaining, LocalDateTime expiresAt) {
+        Duration ttl = Duration.between(LocalDateTime.now(), expiresAt);
+        if (ttl.isNegative() || ttl.isZero()) {
+            log.warn("쿠폰 이벤트 이미 만료 - eventId={}, 재동기화 생략", eventId);
+            return;
+        }
+        redisRepository.put(CacheKeys.couponStock(eventId), String.valueOf(remaining), ttl);
+        log.info("쿠폰 재고 Redis 재동기화 완료: eventId={}, remaining={}", eventId, remaining);
     }
 
     private void registerRollbackCompensation(Long eventId, Long memberId) {

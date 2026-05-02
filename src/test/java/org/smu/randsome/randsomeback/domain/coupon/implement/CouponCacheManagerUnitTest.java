@@ -99,7 +99,7 @@ class CouponCacheManagerUnitTest extends UnitTestSupport {
         Long eventId = 1L;
         Long memberId = 42L;
 
-        given(redisRepository.decrement(CacheKeys.couponStock(eventId))).willReturn(1L);
+        given(redisRepository.decrementIfExists(CacheKeys.couponStock(eventId))).willReturn(1L);
 
         // when
         long remaining = couponCacheManager.decrementStockOrThrow(eventId, memberId);
@@ -112,11 +112,11 @@ class CouponCacheManagerUnitTest extends UnitTestSupport {
 
     @Test
     void 재고가_마지막_한_개일때_감소하면_0을_반환한다() {
-        // given: decrement 결과 0 = 마지막 한 장 획득
+        // given: decrementIfExists 결과 0 = 마지막 한 장 획득
         Long eventId = 1L;
         Long memberId = 42L;
 
-        given(redisRepository.decrement(CacheKeys.couponStock(eventId))).willReturn(0L);
+        given(redisRepository.decrementIfExists(CacheKeys.couponStock(eventId))).willReturn(0L);
 
         // when
         long remaining = couponCacheManager.decrementStockOrThrow(eventId, memberId);
@@ -129,11 +129,11 @@ class CouponCacheManagerUnitTest extends UnitTestSupport {
 
     @Test
     void 재고_소진시_COUPON_SOLD_OUT_예외를_던지고_Redis_상태를_원복한다() {
-        // given: decrement 결과 음수 = 재고 소진
+        // given: decrementIfExists 결과 음수 = 재고 소진
         Long eventId = 1L;
         Long memberId = 42L;
 
-        given(redisRepository.decrement(CacheKeys.couponStock(eventId))).willReturn(-1L);
+        given(redisRepository.decrementIfExists(CacheKeys.couponStock(eventId))).willReturn(-1L);
 
         // when & then
         assertThatThrownBy(() -> couponCacheManager.decrementStockOrThrow(eventId, memberId))
@@ -143,6 +143,24 @@ class CouponCacheManagerUnitTest extends UnitTestSupport {
         // 보상 로직: 재고 복구 + 멤버 락 해제
         verify(redisRepository).increment(CacheKeys.couponStock(eventId));
         verify(redisRepository).delete(CacheKeys.couponMemberLock(eventId, memberId));
+    }
+
+    @Test
+    void Redis_재고_키가_없으면_COUPON_EVENT_NOT_ACTIVE_예외를_던진다() {
+        // given: decrementIfExists 결과 null = 키 없음 (Redis 재시작 등)
+        Long eventId = 1L;
+        Long memberId = 42L;
+
+        given(redisRepository.decrementIfExists(CacheKeys.couponStock(eventId))).willReturn(null);
+
+        // when & then
+        assertThatThrownBy(() -> couponCacheManager.decrementStockOrThrow(eventId, memberId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_NOT_ACTIVE.getMessage());
+
+        // 보상 로직 실행되지 않음 (유령 키 생성 없음)
+        verify(redisRepository, never()).increment(CacheKeys.couponStock(eventId));
+        verify(redisRepository, never()).delete(CacheKeys.couponMemberLock(eventId, memberId));
     }
 
     // ── recoverFromActivationFailure ─────────────────────────────────
