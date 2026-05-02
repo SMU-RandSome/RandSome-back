@@ -48,7 +48,7 @@ public class MatchingApplication extends BaseEntity {
     private MatchingType matchingType;
 
     @Column(nullable = false)
-    private Integer applicationCount;
+    private int applicationCount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -57,7 +57,7 @@ public class MatchingApplication extends BaseEntity {
     @Version
     private Long version;
 
-    private Integer matchedCount;
+    private int matchedCount;
 
     private LocalDateTime completedAt;
 
@@ -66,9 +66,9 @@ public class MatchingApplication extends BaseEntity {
     public static MatchingApplication apply(
             Member member,
             MatchingType matchingType,
-            Integer applicationCount
+            int applicationCount
     ) {
-        validateApplicationCount(requireNonNull(applicationCount));
+        validateApplicationCount(applicationCount);
 
         MatchingApplication matchingApplication = new MatchingApplication();
 
@@ -78,7 +78,6 @@ public class MatchingApplication extends BaseEntity {
         matchingApplication.applicationStatus = ApplicationStatus.PENDING;
         matchingApplication.cancelledAt = null;
         matchingApplication.completedAt = null;
-        matchingApplication.matchedCount = null;
 
         return matchingApplication;
     }

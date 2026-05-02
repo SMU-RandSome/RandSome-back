@@ -28,8 +28,8 @@ public record MatchingHistoryItem(
         @Schema(description = "해당 신청자의 신청 횟수", example = "3")
         int applicationCount,
 
-        @Schema(description = "실제 매칭된 인원 수 (PENDING/CANCELLED 시 null)", example = "2")
-        Integer matchedCount
+        @Schema(description = "실제 매칭된 인원 수", example = "2")
+        int matchedCount
 ) {
 
     /**
