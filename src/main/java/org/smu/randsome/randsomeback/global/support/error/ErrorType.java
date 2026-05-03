@@ -116,6 +116,7 @@ public enum ErrorType {
     VERIFICATION_CODE_MISMATCH   (HttpStatus.BAD_REQUEST, "인증 코드가 일치하지 않습니다.", LogLevel.INFO),
     INVALID_SIGNUP_REQUEST       (HttpStatus.BAD_REQUEST, "회원가입 요청이 유효하지 않습니다. 이메일 인증을 먼저 완료해주세요.", LogLevel.INFO),
     INVALID_VERIFICATION_PURPOSE (HttpStatus.BAD_REQUEST, "잘못된 인증 토큰 요청입니다. 해당 인증 토큰은 이 작업에 사용할 수 없습니다.", LogLevel.INFO),
+    INVALID_EMAIL_ADDRESS        (HttpStatus.BAD_REQUEST, "이메일 주소를 확인해주세요.", LogLevel.INFO),
     EMAIL_SEND_FAILED            (HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
 
     // FIREBASE

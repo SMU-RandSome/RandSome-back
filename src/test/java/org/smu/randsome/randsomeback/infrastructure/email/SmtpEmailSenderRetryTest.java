@@ -2,11 +2,15 @@ package org.smu.randsome.randsomeback.infrastructure.email;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
 import org.smu.randsome.randsomeback.domain.auth.implement.verificationcode.VerificationCodeManager;
@@ -14,7 +18,6 @@ import org.smu.randsome.randsomeback.domain.auth.service.EmailSender;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.mail.MailSendException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -31,18 +34,24 @@ class SmtpEmailSenderRetryTest extends IntegrationTestSupport {
     @MockitoBean
     VerificationCodeManager verificationCodeManager;
 
+    @BeforeEach
+    void setUp() {
+        given(javaMailSender.createMimeMessage())
+                .willAnswer(inv -> new MimeMessage((Session) null));
+    }
+
     @Test
     void 전송_실패_시_최대_3번_재시도한다() {
         // given
         doThrow(new MailSendException("SMTP 오류"))
-                .when(javaMailSender).send(any(SimpleMailMessage.class));
+                .when(javaMailSender).send(any(MimeMessage.class));
 
         // when & then
         assertThatThrownBy(() -> emailSender.send("test@sangmyung.kr", "제목", "본문"))
                 .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorType", ErrorType.EMAIL_SEND_FAILED);
+                .hasMessage(ErrorType.EMAIL_SEND_FAILED.getMessage());
 
-        verify(javaMailSender, times(3)).send(any(SimpleMailMessage.class));
+        verify(javaMailSender, times(3)).send(any(MimeMessage.class));
     }
 
     @Test
@@ -53,7 +62,7 @@ class SmtpEmailSenderRetryTest extends IntegrationTestSupport {
         emailSender.send("test@sangmyung.kr", "제목", "본문");
 
         // then
-        verify(javaMailSender, times(1)).send(any(SimpleMailMessage.class));
+        verify(javaMailSender, times(1)).send(any(MimeMessage.class));
     }
 
     @Test
@@ -61,13 +70,13 @@ class SmtpEmailSenderRetryTest extends IntegrationTestSupport {
         // given
         doThrow(new MailSendException("SMTP 오류"))
                 .doNothing()
-                .when(javaMailSender).send(any(SimpleMailMessage.class));
+                .when(javaMailSender).send(any(MimeMessage.class));
 
         // when
         emailSender.send("test@sangmyung.kr", "제목", "본문");
 
         // then
-        verify(javaMailSender, times(2)).send(any(SimpleMailMessage.class));
+        verify(javaMailSender, times(2)).send(any(MimeMessage.class));
     }
 
     @Test
@@ -75,12 +84,12 @@ class SmtpEmailSenderRetryTest extends IntegrationTestSupport {
         // given
         String email = "test@sangmyung.kr";
         doThrow(new MailSendException("SMTP 오류"))
-                .when(javaMailSender).send(any(SimpleMailMessage.class));
+                .when(javaMailSender).send(any(MimeMessage.class));
 
         // when & then
         assertThatThrownBy(() -> emailSender.send(email, "제목", "본문"))
                 .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorType", ErrorType.EMAIL_SEND_FAILED);
+                .hasMessage(ErrorType.EMAIL_SEND_FAILED.getMessage());
 
         // 3번 재시도 모두 실패 후 recover 호출 → 인증 코드 무효화 1번 호출
         verify(verificationCodeManager, times(1)).invalidateVerificationCode(email);
