@@ -15,6 +15,8 @@ public final class CacheKeys {
     private static final String MATCHING_IDEMPOTENCY = "matching:idempotency";
     private static final String MEMBER_PROFILE_TAG = "member:profile-tag";
     private static final String MATCHING_STATS = "matching:stats";
+    private static final String VERIFICATION_CODE_KEY_PREFIX = "verification_code:";
+    private static final String VERIFICATION_CODE_FAIL_COUNT_PREFIX = "verification_fail:";
 
     public static final String MATCHING_TOTAL_COUNT = MATCHING_STATS + ":total-count";
 
@@ -41,6 +43,14 @@ public final class CacheKeys {
 
     public static String matchingIdempotency(Long memberId, MatchingType matchingType, int applicationCount) {
         return MATCHING_IDEMPOTENCY + ":" + memberId + ":" + matchingType + ":" + applicationCount;
+    }
+
+    public static String verificationCode(String email) {
+        return VERIFICATION_CODE_KEY_PREFIX + email;
+    }
+
+    public static String verificationCodeFail(String email) {
+        return VERIFICATION_CODE_FAIL_COUNT_PREFIX + email;
     }
 
 }
