@@ -4,27 +4,35 @@ import jakarta.persistence.LockTimeoutException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private final ErrorNotificationSender errorNotificationSender;
 
     @ExceptionHandler(CoreException.class)
     public ResponseEntity<ApiResponse<?>> handleCustomException(CoreException e) {
@@ -38,7 +46,10 @@ public class GlobalExceptionHandler {
         );
 
         switch (errorType.getLogLevel()) {
-            case LogLevel.ERROR -> log.error(logMessage, e);
+            case LogLevel.ERROR -> {
+                log.error(logMessage, e);
+                errorNotificationSender.sendErrorNotification(logMessage, e);
+            }
             case LogLevel.WARN ->  log.warn(logMessage, e);
             default ->             log.info(logMessage, e);
         }
@@ -51,9 +62,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleException(Exception e) {
         log.error("[Exception]: {}", e.getMessage(), e);
+        errorNotificationSender.sendErrorNotification("[Exception]: " + e.getMessage(), e);
 
         ErrorType errorType = ErrorType.DEFAULT_ERROR;
-
         return ResponseEntity
                 .status(errorType.getStatus())
                 .body(ApiResponse.error(errorType));
@@ -140,6 +151,33 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(ApiResponse.error(ErrorType.LOCK_ACQUISITION_TIMEOUT));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<?>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        ErrorType errorType = ErrorType.BAD_REQUEST;
+        log.warn("[HttpMessageNotReadableException] 요청 본문을 파싱할 수 없습니다: {}", e.getMessage());
+        return ResponseEntity
+                .status(errorType.getStatus())
+                .body(ApiResponse.error(errorType));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponse<?>> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        ErrorType errorType = ErrorType.METHOD_NOT_ALLOWED;
+        log.warn("[HttpRequestMethodNotSupportedException] 지원하지 않는 메서드: {}", e.getMethod());
+        return ResponseEntity
+                .status(errorType.getStatus())
+                .body(ApiResponse.error(errorType));
+    }
+
+    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
+    public ResponseEntity<ApiResponse<?>> handleNoHandlerFoundException(Exception e) {
+        ErrorType errorType = ErrorType.NOT_FOUND;
+        log.warn("[{}] 존재하지 않는 엔드포인트: {}", e.getClass().getSimpleName(), e.getMessage());
+        return ResponseEntity
+                .status(errorType.getStatus())
+                .body(ApiResponse.error(errorType));
     }
 
 }
