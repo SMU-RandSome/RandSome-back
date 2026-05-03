@@ -30,6 +30,7 @@ class VerificationCodeStore {
 
     void put(String email, String code) {
         redisRepository.put(CacheKeys.verificationCode(email), code, TTL);
+        redisRepository.delete(CacheKeys.verificationCodeFail(email));
     }
 
     String get(String email) {

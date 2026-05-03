@@ -14,8 +14,6 @@ public enum ErrorType {
     METHOD_NOT_ALLOWED          (HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다.", LogLevel.WARN),
     UNAUTHORIZED_ERROR          (HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다.", LogLevel.WARN),
     FORBIDDEN_ERROR             (HttpStatus.FORBIDDEN, "접근 권한이 없습니다.", LogLevel.WARN),
-    FORBIDDEN_MODIFY            (HttpStatus.FORBIDDEN, "해당 리소스를 수정할 권한이 없습니다.", LogLevel.WARN),
-    FORBIDDEN_DELETE            (HttpStatus.FORBIDDEN, "해당 리소스를 삭제할 권한이 없습니다.", LogLevel.WARN),
     NOT_FOUND                   (HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다.", LogLevel.INFO),
     DUPLICATE                   (HttpStatus.CONFLICT, "이미 존재하는 리소스입니다.", LogLevel.INFO),
     TOO_MANY_MATCHING_REQUESTS  (HttpStatus.TOO_MANY_REQUESTS, "잠시 후 다시 시도해주세요.", LogLevel.INFO),
@@ -23,11 +21,6 @@ public enum ErrorType {
     LOCK_ACQUISITION_TIMEOUT    (HttpStatus.CONFLICT, "요청이 충돌했습니다. 잠시 후 다시 시도해 주세요.", LogLevel.WARN),
     DEFAULT_ERROR               (HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
 
-    // AUTH
-    FAILED_TO_AUTHENTICATE (HttpStatus.UNAUTHORIZED, "인증에 실패했습니다. 자격 증명을 확인해주세요.", LogLevel.WARN),
-
-    // TERMS
-    REQUIRED_TERMS_NOT_AGREED (HttpStatus.BAD_REQUEST, "필수 약관에 모두 동의해야 합니다.", LogLevel.INFO),
 
     // MEMBER
     INVALID_STUDENT_ID_FORMAT                (HttpStatus.BAD_REQUEST, "학번 형식이 올바르지 않습니다. (숫자 9자리)", LogLevel.INFO),
@@ -56,20 +49,17 @@ public enum ErrorType {
     // MATCH
     NOT_ALLOW_CANCEL_APPROVED           (HttpStatus.BAD_REQUEST, "승인된 매칭은 취소할 수 없습니다.", LogLevel.INFO),
     NOT_ALLOW_CANCEL_REJECTED           (HttpStatus.BAD_REQUEST, "거절된 매칭은 취소할 수 없습니다.", LogLevel.INFO),
-    ALREADY_CANCELLED_MATCHING          (HttpStatus.BAD_REQUEST, "이미 취소된 매칭입니다.", LogLevel.INFO),
     NOT_ALLOW_ALREADY_APPROVED_MATCHING (HttpStatus.BAD_REQUEST, "이미 승인된 매칭은 거절이 불가능합니다.", LogLevel.INFO),
     NOT_FOUND_MATCHING                  (HttpStatus.NOT_FOUND, "존재하지 않는 매칭입니다.", LogLevel.INFO),
     NOT_FOUND_MATCHING_RESULT           (HttpStatus.NOT_FOUND, "매칭된 결과가 존재하지 않습니다.", LogLevel.INFO),
     NOT_FOUND_IDEAL_TYPE_SNAPSHOT       (HttpStatus.NOT_FOUND, "이상형 매칭 스냅샷을 찾을 수 없습니다.", LogLevel.INFO),
     UNSUPPORTED_MATCHING_TYPE           (HttpStatus.INTERNAL_SERVER_ERROR, "지원하지 않는 매칭 타입입니다.", LogLevel.ERROR),
-    IDEAL_MATCHING_NOT_IMPLEMENTED      (HttpStatus.INTERNAL_SERVER_ERROR, "이상형 매칭 기능은 아직 준비 중입니다.", LogLevel.WARN),
     FORBIDDEN_MATCHING_RESULT           (HttpStatus.FORBIDDEN, "다른 사용자의 매칭 결과에 접근할 수 없습니다.", LogLevel.WARN),
 
     // TICKET
     NOT_FOUND_TICKET      (HttpStatus.NOT_FOUND, "티켓을 찾을 수 없습니다.", LogLevel.INFO),
     NOT_ENOUGH_TICKETS    (HttpStatus.BAD_REQUEST, "티켓이 부족합니다.", LogLevel.INFO),
     INVALID_TICKET_AMOUNT (HttpStatus.BAD_REQUEST, "유효하지 않은 티켓 수량입니다. 0보다 큰 수량을 입력해주세요.", LogLevel.INFO),
-    DUPLICATE_TICKET      (HttpStatus.CONFLICT, "해당 회원은 이미 티켓을 보유하고 있습니다.", LogLevel.INFO),
 
     // COUPON
     COUPON_EVENT_NOT_ACTIVE      (HttpStatus.BAD_REQUEST,  "현재 발급 가능한 이벤트가 아닙니다.", LogLevel.INFO),
@@ -97,9 +87,6 @@ public enum ErrorType {
 
     // PAYMENT
     INVALID_PERSON_COUNT                (HttpStatus.BAD_REQUEST, "인원 수가 유효하지 않습니다.", LogLevel.INFO),
-    NOT_ALLOW_ALREADY_CONFIRMED_PAYMENT (HttpStatus.BAD_REQUEST, "이미 확정된 결제는 거절이 불가능합니다.", LogLevel.INFO),
-    NOT_ALLOW_CANCEL_CONFIRMED_PAYMENT  (HttpStatus.BAD_REQUEST, "이미 확정된 결제는 취소할 수 없습니다.", LogLevel.INFO),
-    NOT_FOUND_PAYMENT                   (HttpStatus.NOT_FOUND, "결제를 찾을 수 없습니다.", LogLevel.INFO),
 
     //BANK_ACCOUNT
     NOT_FOUND_BANK_ACCOUNT      (HttpStatus.NOT_FOUND, "연결된 은행 계좌를 찾을 수 없습니다.", LogLevel.INFO),
@@ -108,22 +95,21 @@ public enum ErrorType {
     NOT_FOUND_REPORT              (HttpStatus.NOT_FOUND, "신고를 찾을 수 없습니다.", LogLevel.INFO),
     CANNOT_REPORT_YOURSELF        (HttpStatus.BAD_REQUEST, "자신을 신고할 수 없습니다.", LogLevel.INFO),
     ALREADY_REPORTED_MEMBER       (HttpStatus.CONFLICT, "이미 신고한 사용자입니다.", LogLevel.INFO),
-    REPORTED_MEMBER_SUSPENDED     (HttpStatus.FORBIDDEN, "신고가 누적된 사용자입니다. 서비스 이용이 제한되었습니다.", LogLevel.INFO),
 
     // AUTH
     INVALID_EMAIL_DOMAIN         (HttpStatus.BAD_REQUEST, "상명대학교 이메일(@sangmyung.kr)만 사용 가능합니다.", LogLevel.INFO),
     VERIFICATION_CODE_NOT_FOUND  (HttpStatus.BAD_REQUEST, "인증 코드를 먼저 요청해주세요.", LogLevel.INFO),
-    VERIFICATION_CODE_EXPIRED    (HttpStatus.BAD_REQUEST, "인증 코드가 만료되었습니다. 다시 요청해주세요.", LogLevel.INFO),
     VERIFICATION_CODE_MISMATCH   (HttpStatus.BAD_REQUEST, "인증 코드가 일치하지 않습니다.", LogLevel.INFO),
     VERIFICATION_CODE_VERIFICATION_FAILED (HttpStatus.BAD_REQUEST, "인증에 실패했습니다. 인증 코드를 다시 요청해주세요.", LogLevel.INFO),
     INVALID_SIGNUP_REQUEST       (HttpStatus.BAD_REQUEST, "회원가입 요청이 유효하지 않습니다. 이메일 인증을 먼저 완료해주세요.", LogLevel.INFO),
     INVALID_VERIFICATION_PURPOSE (HttpStatus.BAD_REQUEST, "잘못된 인증 토큰 요청입니다. 해당 인증 토큰은 이 작업에 사용할 수 없습니다.", LogLevel.INFO),
     INVALID_EMAIL_ADDRESS        (HttpStatus.BAD_REQUEST, "이메일 주소를 확인해주세요.", LogLevel.INFO),
     VERIFICATION_CODE_ATTEMPTS_EXCEEDED (HttpStatus.TOO_MANY_REQUESTS, "인증 코드 입력 횟수를 초과했습니다. 인증 코드를 다시 요청해주세요.", LogLevel.WARN),
+
+    VERIFICATION_CODE_SEND_COOLDOWN (HttpStatus.TOO_MANY_REQUESTS, "인증 코드 요청이 너무 잦습니다. 잠시 후 다시 시도해주세요.", LogLevel.INFO),
     EMAIL_SEND_FAILED            (HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.", LogLevel.ERROR),
 
     // FIREBASE
-    INVALID_FCM_TOKEN       (HttpStatus.BAD_REQUEST, "유효하지 않은 FCM 토큰입니다.", LogLevel.INFO),
     NOT_FOUND_FCM_TOKEN     (HttpStatus.NOT_FOUND, "FCM 토큰을 찾을 수 없습니다.", LogLevel.INFO),
     FIREBASE_INIT_ERROR     (HttpStatus.INTERNAL_SERVER_ERROR, "Firebase 초기화에 실패했습니다.", LogLevel.ERROR),
     SEND_NOTIFICATION_ERROR (HttpStatus.INTERNAL_SERVER_ERROR, "알림 전송에 실패했습니다.", LogLevel.ERROR),
@@ -131,10 +117,7 @@ public enum ErrorType {
     // JWT
     EMPTY_TOKEN                        (HttpStatus.UNAUTHORIZED, "JWT 토큰이 존재하지 않습니다.", LogLevel.WARN),
     INVALID_TOKEN                      (HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다.", LogLevel.WARN),
-    TOKEN_THEFT_DETECTED               (HttpStatus.UNAUTHORIZED, "토큰 탈취가 감지되었습니다. 보안을 위해 재로그인이 필요합니다.", LogLevel.WARN),
     EMPTY_SECURITY_CONTEXT             (HttpStatus.UNAUTHORIZED, "Security Context 에 인증 정보가 없습니다.", LogLevel.WARN),
-    NOT_FOUND_TOKEN                    (HttpStatus.NOT_FOUND, "토큰을 찾을 수 없습니다.", LogLevel.INFO),
-    CONCURRENT_REQUESTS_LIMIT_EXCEEDED (HttpStatus.TOO_MANY_REQUESTS, "동시에 여러 토큰 재발급 요청이 감지되었습니다. 잠시 후 다시 시도해주세요.", LogLevel.WARN),
 
     ;
 

@@ -17,6 +17,7 @@ public final class CacheKeys {
     private static final String MATCHING_STATS = "matching:stats";
     private static final String VERIFICATION_CODE_KEY_PREFIX = "verification_code:";
     private static final String VERIFICATION_CODE_FAIL_COUNT_PREFIX = "verification_fail:";
+    private static final String VERIFICATION_CODE_SEND_COOLDOWN_PREFIX = "verification_cooldown:";
 
     public static final String MATCHING_TOTAL_COUNT = MATCHING_STATS + ":total-count";
 
@@ -51,6 +52,10 @@ public final class CacheKeys {
 
     public static String verificationCodeFail(String email) {
         return VERIFICATION_CODE_FAIL_COUNT_PREFIX + email;
+    }
+
+    public static String verificationCodeSendCooldown(String email) {
+        return VERIFICATION_CODE_SEND_COOLDOWN_PREFIX + email;
     }
 
 }
