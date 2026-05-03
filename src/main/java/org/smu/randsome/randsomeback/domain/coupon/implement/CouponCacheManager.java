@@ -100,36 +100,6 @@ public class CouponCacheManager {
         log.info("쿠폰 재고 Redis 재동기화 완료: eventId={}, remaining={}", eventId, remaining);
     }
 
-    private void registerRollbackCompensation(Long eventId, Long memberId) {
-        if (!TransactionSynchronizationManager.isActualTransactionActive()) {
-            return;
-        }
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCompletion(int status) {
-                if (status != TransactionSynchronization.STATUS_ROLLED_BACK) {
-                    return;
-                }
-                try {
-                    compensate(eventId, memberId);
-                    log.warn("쿠폰 발급 트랜잭션 롤백 감지 - Redis 보상 처리 완료: eventId={}, memberId={}", eventId, memberId);
-                } catch (Exception e) {
-                    log.error("쿠폰 발급 트랜잭션 롤백 보상 처리 중 실패: eventId={}, memberId={}", eventId, memberId, e);
-                }
-            }
-        });
-    }
-
-    /**
-     * DECR 결과가 음수일 때 Redis 상태를 원상복구한다.
-     * - 감소된 재고 카운터를 다시 증가
-     * - 설정된 멤버 락을 해제
-     */
-    private void compensate(Long eventId, Long memberId) {
-        redisRepository.increment(CacheKeys.couponStock(eventId));
-        redisRepository.delete(CacheKeys.couponMemberLock(eventId, memberId));
-    }
-
     /**
      * 재고 소진 시 Redis에 저장된 재고 캐시를 삭제한다.
      * Redis 연결 실패 시 최대 3회(1s → 2s 간격) 재시도한다.
@@ -205,6 +175,36 @@ public class CouponCacheManager {
         );
         log.error(logMessage, ex);
         errorNotificationSender.sendErrorNotification(logMessage, ex);
+    }
+
+    private void registerRollbackCompensation(Long eventId, Long memberId) {
+        if (!TransactionSynchronizationManager.isActualTransactionActive()) {
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                if (status != TransactionSynchronization.STATUS_ROLLED_BACK) {
+                    return;
+                }
+                try {
+                    compensate(eventId, memberId);
+                    log.warn("쿠폰 발급 트랜잭션 롤백 감지 - Redis 보상 처리 완료: eventId={}, memberId={}", eventId, memberId);
+                } catch (Exception e) {
+                    log.error("쿠폰 발급 트랜잭션 롤백 보상 처리 중 실패: eventId={}, memberId={}", eventId, memberId, e);
+                }
+            }
+        });
+    }
+
+    /**
+     * DECR 결과가 음수일 때 Redis 상태를 원상복구한다.
+     * - 감소된 재고 카운터를 다시 증가
+     * - 설정된 멤버 락을 해제
+     */
+    private void compensate(Long eventId, Long memberId) {
+        redisRepository.increment(CacheKeys.couponStock(eventId));
+        redisRepository.delete(CacheKeys.couponMemberLock(eventId, memberId));
     }
 
 }
