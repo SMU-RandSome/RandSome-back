@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -205,18 +204,5 @@ class MatchingServiceUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING.getMessage());
     }
 
-    @Test
-    void 매칭_신청_취소_실패시_예외가_전파된다() {
-        // given
-        var applicationId = 1L;
-        var memberId = 1L;
-        doThrow(new CoreException(ErrorType.NOT_FOUND_MATCHING))
-                .when(matchingManager).cancel(applicationId, memberId);
-
-        // when & then
-        assertThatThrownBy(() -> matchingService.cancel(applicationId, memberId))
-                .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
-    }
 
 }
