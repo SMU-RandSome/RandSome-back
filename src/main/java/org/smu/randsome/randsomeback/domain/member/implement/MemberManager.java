@@ -17,7 +17,6 @@ import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,31 +44,27 @@ public class MemberManager {
             throw new CoreException(ErrorType.DUPLICATE_EMAIL);
         }
 
-        try {
-            Member member = memberJpaRepository.save(Member.create(
-                    credentials.email(),
-                    credentials.password(),
-                    passwordEncoder,
-                    basicInfo.legalName(),
-                    basicInfo.gender(),
-                    basicInfo.mbti(),
-                    basicInfo.department(),
-                    socialProfile.instagramId(),
-                    socialProfile.selfIntroduction(),
-                    socialProfile.idealDescription()
-            ));
+        Member member = memberJpaRepository.save(Member.create(
+                credentials.email(),
+                credentials.password(),
+                passwordEncoder,
+                basicInfo.legalName(),
+                basicInfo.gender(),
+                basicInfo.mbti(),
+                basicInfo.department(),
+                socialProfile.instagramId(),
+                socialProfile.selfIntroduction(),
+                socialProfile.idealDescription()
+        ));
 
-            memberProfileTagManager.create(
-                    member,
-                    tagsInfo.personalityTag(),
-                    tagsInfo.faceTypeTag(),
-                    tagsInfo.datingStyleTag()
-            );
+        memberProfileTagManager.create(
+                member,
+                tagsInfo.personalityTag(),
+                tagsInfo.faceTypeTag(),
+                tagsInfo.datingStyleTag()
+        );
 
-            return member;
-        } catch (DataIntegrityViolationException e) {
-            throw new CoreException(ErrorType.DUPLICATE_EMAIL);
-        }
+        return member;
     }
 
     public void updateRefreshToken(Member member, String refreshToken) {
