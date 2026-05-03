@@ -6,12 +6,13 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
+import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 
 class SlackNotificationSenderIntegrationTest extends IntegrationTestSupport {
 
-    final SlackNotificationSender sender;
+    final ErrorNotificationSender sender;
 
-    SlackNotificationSenderIntegrationTest(SlackNotificationSender sender) {
+    SlackNotificationSenderIntegrationTest(ErrorNotificationSender sender) {
         this.sender = sender;
     }
 

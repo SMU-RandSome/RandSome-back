@@ -4,6 +4,7 @@ import static org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfi
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.ThreadPoolExecutor.DiscardPolicy;
 import lombok.RequiredArgsConstructor;
 import org.smu.randsome.randsomeback.global.support.error.AsyncExceptionHandler;
 import org.smu.randsome.randsomeback.global.support.logging.MdcTaskDecorator;
@@ -43,6 +44,23 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setWaitForTasksToCompleteOnShutdown(true); // 종료 시 작업을 완료할 때까지 대기
         executor.setAwaitTerminationSeconds(30); // 종료 시 최대 대기 시간 설정
         executor.setRejectedExecutionHandler(new CallerRunsPolicy()); // 작업 거부 시 호출한 스레드에서 실행
+
+        executor.setTaskDecorator(new MdcTaskDecorator()); // MDC 전파
+
+        return executor;
+    }
+
+    @Bean("slackExecutor")
+    public Executor slackExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(3);
+        executor.setQueueCapacity(50);
+        executor.setThreadNamePrefix("slack-");
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(30);
+        executor.setRejectedExecutionHandler(new DiscardPolicy()); // 알림 유실 > 시스템 장애
 
         executor.setTaskDecorator(new MdcTaskDecorator()); // MDC 전파
 

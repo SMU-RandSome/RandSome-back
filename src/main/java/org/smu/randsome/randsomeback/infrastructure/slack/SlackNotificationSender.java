@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -35,6 +36,7 @@ public class SlackNotificationSender implements ErrorNotificationSender {
     @Value("${slack.webhook.url:}")
     private String webhookUrl;
 
+    @Async("slackExecutor")
     @Override
     public void sendErrorNotification(String message, Throwable throwable) {
         if (!StringUtils.hasText(webhookUrl)) {
@@ -47,7 +49,7 @@ public class SlackNotificationSender implements ErrorNotificationSender {
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             log.warn("[SlackNotificationSender] Slack 알림 전송 중단 (인터럽트)", ex);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             log.warn("[SlackNotificationSender] Slack 알림 전송 실패", ex);
         }
     }
