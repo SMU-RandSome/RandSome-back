@@ -27,7 +27,7 @@ import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 /**
  * 매칭 신청을 나타내는 엔티티다.
  * <br/>회원이 매칭을 신청하면 이 엔티티를 통해 신청 정보가 관리되며, 상태는 라이프사이클을 따른다.
- * <br/>상태 전이: PENDING → SUCCESS / PARTIAL_MATCH / FAILED (또는) PENDING → CANCELLED
+ * <br/>상태 전이: PENDING → SUCCESS / PARTIAL_MATCH / FAILED
  * <br/>이상형 매칭의 선호 태그는 {@link MatchingIdealTypeSnapshot}에 별도 스냅샷으로 저장된다.
  */
 @Table(indexes = {
@@ -61,8 +61,6 @@ public class MatchingApplication extends BaseEntity {
 
     private LocalDateTime completedAt;
 
-    private LocalDateTime cancelledAt;
-
     public static MatchingApplication apply(
             Member member,
             MatchingType matchingType,
@@ -76,7 +74,6 @@ public class MatchingApplication extends BaseEntity {
         matchingApplication.matchingType = requireNonNull(matchingType);
         matchingApplication.applicationCount = applicationCount;
         matchingApplication.applicationStatus = ApplicationStatus.PENDING;
-        matchingApplication.cancelledAt = null;
         matchingApplication.completedAt = null;
 
         return matchingApplication;
@@ -96,18 +93,6 @@ public class MatchingApplication extends BaseEntity {
             return ApplicationStatus.PARTIAL_MATCH;
         }
         return ApplicationStatus.SUCCESS;
-    }
-
-    public void cancel(LocalDateTime cancelledAt) {
-        if (applicationStatus.isCompleted()) {
-            throw new CoreException(ErrorType.NOT_ALLOW_CANCEL_APPROVED);
-        }
-        if (applicationStatus.equals(ApplicationStatus.CANCELLED)) {
-            return;
-        }
-
-        this.applicationStatus = ApplicationStatus.CANCELLED;
-        this.cancelledAt = requireNonNull(cancelledAt);
     }
 
     public Gender getTargetGender() {

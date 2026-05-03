@@ -73,16 +73,5 @@ public class MatchingController extends MatchingControllerDocs {
         return ApiResponse.success(response);
     }
 
-    @Override
-    @PostMapping("/v1/matchings/applications/{applicationId}/cancel")
-    public ApiResponse<?> cancel(
-            @PathVariable Long applicationId,
-            @LoginMember Long memberId
-    ) {
-        matchingService.cancel(applicationId, memberId);
-
-        return ApiResponse.success();
-    }
-
 
 }
