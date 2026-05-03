@@ -23,6 +23,7 @@ class VerificationCodeValidatorTest extends UnitTestSupport {
     void 올바른_인증_코드를_입력하면_검증에_성공한다() {
         var email = "test@sangmyung.kr";
         var code = "ABC123";
+        given(codeStore.isAttemptsExhausted(email)).willReturn(false);
         given(codeStore.get(email)).willReturn(code);
         given(codeStore.removeIfPresent(email, code)).willReturn(true);
 
@@ -33,6 +34,7 @@ class VerificationCodeValidatorTest extends UnitTestSupport {
     @Test
     void 틀린_인증_코드를_입력하면_예외가_발생한다() {
         var email = "test@sangmyung.kr";
+        given(codeStore.isAttemptsExhausted(email)).willReturn(false);
         given(codeStore.get(email)).willReturn("ABC123");
 
         assertThatThrownBy(() -> validator.verifyCode(email, "000000"))
@@ -42,8 +44,8 @@ class VerificationCodeValidatorTest extends UnitTestSupport {
 
     @Test
     void 코드가_존재하지_않으면_예외가_발생한다() {
-        // 미발급 또는 Redis TTL 만료 시 GET은 null을 반환한다
         var email = "test@sangmyung.kr";
+        given(codeStore.isAttemptsExhausted(email)).willReturn(false);
         given(codeStore.get(email)).willReturn(null);
 
         assertThatThrownBy(() -> validator.verifyCode(email, "ABC123"))
@@ -53,15 +55,25 @@ class VerificationCodeValidatorTest extends UnitTestSupport {
 
     @Test
     void 동시에_같은_코드로_검증하면_하나만_성공한다() {
-        // get()은 코드를 반환하지만 removeIfPresent()가 false → 다른 요청이 먼저 소비한 상황
         var email = "test@sangmyung.kr";
         var code = "ABC123";
+        given(codeStore.isAttemptsExhausted(email)).willReturn(false);
         given(codeStore.get(email)).willReturn(code);
         given(codeStore.removeIfPresent(email, code)).willReturn(false);
 
         assertThatThrownBy(() -> validator.verifyCode(email, code))
                 .isInstanceOf(CoreException.class)
-                .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_NOT_FOUND);
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_VERIFICATION_FAILED);
+    }
+
+    @Test
+    void 실패_횟수_초과_시_예외가_발생한다() {
+        var email = "test@sangmyung.kr";
+        given(codeStore.isAttemptsExhausted(email)).willReturn(true);
+
+        assertThatThrownBy(() -> validator.verifyCode(email, "ABC123"))
+                .isInstanceOf(CoreException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.VERIFICATION_CODE_ATTEMPTS_EXCEEDED);
     }
 
 }

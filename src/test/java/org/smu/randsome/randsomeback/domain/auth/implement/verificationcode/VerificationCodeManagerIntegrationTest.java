@@ -15,7 +15,7 @@ class VerificationCodeManagerIntegrationTest extends IntegrationTestSupport {
     @Test
     void 인증코드_생성_시_캐시에_저장된다() {
         // given
-        var email = "202221033@sangmyeng.kr";
+        var email = "test-create@sangmyung.kr";
 
         // when
         var code = verificationCodeManager.generateVerificationCode(email);
@@ -28,7 +28,7 @@ class VerificationCodeManagerIntegrationTest extends IntegrationTestSupport {
     @Test
     void 인증코드를_캐시에서_삭제한다() {
         // given
-        var email = "202221033@sangmyeng.kr";
+        var email = "test-delete@sangmyung.kr";
         var code = verificationCodeManager.generateVerificationCode(email);
 
         // when
