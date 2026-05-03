@@ -31,14 +31,12 @@ class MatchingApplicationTest extends UnitTestSupport {
                 MatchingApplication::getMatchingType,
                 MatchingApplication::getApplicationCount,
                 MatchingApplication::getApplicationStatus,
-                MatchingApplication::getCompletedAt,
-                MatchingApplication::getCancelledAt
+                MatchingApplication::getCompletedAt
         ).containsExactly(
                 member,
                 matchingType,
                 applicationCount,
                 ApplicationStatus.PENDING,
-                null,
                 null
         );
     }
@@ -110,63 +108,5 @@ class MatchingApplicationTest extends UnitTestSupport {
         assertThat(application.getApplicationStatus()).isEqualTo(ApplicationStatus.FAILED);
     }
 
-    @Test
-    void 매칭_신청을_취소한다() {
-        // given
-        var member = mock(Member.class);
-        var application = MatchingApplication.apply(member, MatchingType.RANDOM, 2);
-        var now = TestDateTimeUtils.now();
-
-        // when
-        application.cancel(now);
-
-        // then
-        assertThat(application).extracting(
-                MatchingApplication::getApplicationStatus,
-                MatchingApplication::getCancelledAt
-        ).containsExactly(
-                ApplicationStatus.CANCELLED,
-                now
-        );
-    }
-
-    @Test
-    void 이미_완료된_매칭을_취소할_수_없다() {
-        // given
-        var member = mock(Member.class);
-        var application = MatchingApplication.apply(member, MatchingType.RANDOM, 2);
-        application.complete(TestDateTimeUtils.now(), 2);
-
-        // when & then
-        assertThatThrownBy(() -> application.cancel(TestDateTimeUtils.now()))
-                .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_ALLOW_CANCEL_APPROVED.getMessage());
-    }
-
-    @Test
-    void 부분_매칭된_신청을_취소할_수_없다() {
-        // given
-        var member = mock(Member.class);
-        var application = MatchingApplication.apply(member, MatchingType.RANDOM, 3);
-        application.complete(TestDateTimeUtils.now(), 1);
-
-        // when & then
-        assertThatThrownBy(() -> application.cancel(TestDateTimeUtils.now()))
-                .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_ALLOW_CANCEL_APPROVED.getMessage());
-    }
-
-    @Test
-    void 매칭_실패된_신청을_취소할_수_없다() {
-        // given
-        var member = mock(Member.class);
-        var application = MatchingApplication.apply(member, MatchingType.RANDOM, 3);
-        application.complete(TestDateTimeUtils.now(), 0);
-
-        // when & then
-        assertThatThrownBy(() -> application.cancel(TestDateTimeUtils.now()))
-                .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_ALLOW_CANCEL_APPROVED.getMessage());
-    }
 
 }

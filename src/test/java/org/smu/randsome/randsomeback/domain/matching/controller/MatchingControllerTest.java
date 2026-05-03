@@ -81,16 +81,5 @@ class MatchingControllerTest extends ControllerTestSupport {
                 .hasPathSatisfying("$.data", v -> v.assertThat().isNotNull());
     }
 
-    @Test
-    @TestMember
-    void 매칭_신청_취소에_성공하면_200을_반환한다() {
-        // when & then
-        assertThat(mvcTester.post().uri("/v1/matchings/applications/1/cancel"))
-                .apply(print())
-                .hasStatusOk()
-                .bodyJson()
-                .hasPathSatisfying("$.result", v -> v.assertThat().isEqualTo("SUCCESS"))
-                .hasPathSatisfying("$.error", v -> v.assertThat().isNull());
-    }
 
 }

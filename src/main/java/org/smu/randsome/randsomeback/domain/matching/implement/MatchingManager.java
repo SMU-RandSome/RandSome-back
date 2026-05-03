@@ -1,7 +1,6 @@
 package org.smu.randsome.randsomeback.domain.matching.implement;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
@@ -12,7 +11,6 @@ import org.smu.randsome.randsomeback.domain.matching.repository.MatchingJpaRepos
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.global.config.CacheKeys;
-import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.infrastructure.redis.RedisRepository;
@@ -59,24 +57,6 @@ public class MatchingManager {
                 saved.getId(), memberId, saved.getMatchingType(), saved.getApplicationCount());
 
         return saved;
-    }
-
-    /**
-     * 매칭 신청을 취소한다. 승인된 신청은 취소할 수 없으며, 거절된 신청은 이미 매칭 결과가 생성되어 있을 수 있으므로 취소할 수 없다.
-     *
-     * @param applicationId 매칭 신청 식별자
-     * @param memberId      신청자 식별자 (보안 검증용)
-     * @throws CoreException 매칭 신청을 찾을 수 없거나, 승인된 신청이거나, 거절된 신청인 경우
-     */
-    public void cancel(Long applicationId, Long memberId) {
-        MatchingApplication matchingApplication = matchingJpaRepository.findByIdAndMemberIdAndStatus(
-                applicationId,
-                memberId,
-                EntityStatus.ACTIVE
-        ).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MATCHING));
-
-        LocalDateTime cancelledAt = LocalDateTime.now();
-        matchingApplication.cancel(cancelledAt);
     }
 
     private void assertNotDuplicateAndMark(NewMatching newMatching, Long memberId) {

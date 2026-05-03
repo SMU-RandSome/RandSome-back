@@ -6,7 +6,6 @@ public enum ApplicationStatus {
     SUCCESS,
     PARTIAL_MATCH,
     FAILED,
-    CANCELLED,
     ;
 
     public boolean isCompleted() {

@@ -87,30 +87,5 @@ public abstract class MatchingControllerDocs {
             @LoginMember Long memberId
     );
 
-    @Operation(
-            summary = "매칭 신청 취소 API - JWT [O]",
-            description = """
-                    ### 매칭 신청 취소 API입니다.
-                    - PENDING 상태의 매칭 신청만 취소할 수 있습니다.
-                    - 승인(APPROVED) 또는 거절(FAIL)된 신청은 취소할 수 없습니다.
-                    - 성공 시 200 OK 응답이 반환됩니다.
-                    """
-    )
-    @ApiExceptions(values = {
-            ErrorType.UNAUTHORIZED_ERROR,
-            ErrorType.NOT_FOUND_MATCHING,
-            ErrorType.NOT_ALLOW_CANCEL_APPROVED,
-            ErrorType.NOT_ALLOW_CANCEL_REJECTED,
-            ErrorType.DEFAULT_ERROR
-    })
-    public abstract ApiResponse<?> cancel(
-            @Parameter(
-                    description = "신청 ID",
-                    required = true,
-                    in = ParameterIn.PATH,
-                    example = "1"
-            ) Long applicationId,
-            @LoginMember Long memberId
-    );
 
 }

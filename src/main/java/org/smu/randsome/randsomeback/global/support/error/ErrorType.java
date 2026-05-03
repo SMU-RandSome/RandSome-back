@@ -47,8 +47,6 @@ public enum ErrorType {
     ALREADY_PENDING_CANDIDATE               (HttpStatus.CONFLICT, "이미 후보자 등록 신청 중입니다.", LogLevel.INFO),
 
     // MATCH
-    NOT_ALLOW_CANCEL_APPROVED           (HttpStatus.BAD_REQUEST, "승인된 매칭은 취소할 수 없습니다.", LogLevel.INFO),
-    NOT_ALLOW_CANCEL_REJECTED           (HttpStatus.BAD_REQUEST, "거절된 매칭은 취소할 수 없습니다.", LogLevel.INFO),
     NOT_ALLOW_ALREADY_APPROVED_MATCHING (HttpStatus.BAD_REQUEST, "이미 승인된 매칭은 거절이 불가능합니다.", LogLevel.INFO),
     NOT_FOUND_MATCHING                  (HttpStatus.NOT_FOUND, "존재하지 않는 매칭입니다.", LogLevel.INFO),
     NOT_FOUND_MATCHING_RESULT           (HttpStatus.NOT_FOUND, "매칭된 결과가 존재하지 않습니다.", LogLevel.INFO),

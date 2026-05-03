@@ -49,22 +49,6 @@ public class MatchingService {
     }
 
     /**
-     * 매칭 신청을 취소한다.
-     * <br/>`PENDING` 상태의 신청만 취소 가능하며, 이미 매칭된 신청(`SUCCESS`)은 취소할 수 없다.
-     * <br/>신청자(memberId)의 신청이 맞는지 보안 검증을 포함한다.
-     *
-     * @param applicationId 매칭 신청 식별자
-     * @param memberId 신청자 식별자 (보안 검증용)
-     */
-    @Transactional
-    public void cancel(Long applicationId, Long memberId) {
-        matchingManager.cancel(applicationId, memberId);
-
-        log.info("[MatchingService] 매칭 신청 취소 처리 완료 - applicationId: {}, memberId: {}",
-                applicationId, memberId);
-    }
-
-    /**
      * 회원이 신청한 매칭 리스트를 조회한다.
      * <br/>신청의 상태(`PENDING`, `SUCCESS`, `CANCELED`)와 신청 시각 등의 정보를 포함한다.
      * <br/>회원이 신청한 모든 매칭 신청을 반환하며, 필요 시 페이징이나 필터링 기능을 추가할 수 있다.
