@@ -54,7 +54,7 @@ public class SmtpEmailSender implements EmailSender {
 
             mailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
-            throw new CoreException(ErrorType.EMAIL_SEND_FAILED, e);
+            throw new CoreException(ErrorType.INVALID_EMAIL_ADDRESS, e);
         }
     }
 
