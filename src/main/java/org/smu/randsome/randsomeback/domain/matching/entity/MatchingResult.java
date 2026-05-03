@@ -4,8 +4,10 @@ import static java.util.Objects.requireNonNull;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +19,8 @@ import org.smu.randsome.randsomeback.global.entity.BaseEntity;
  * <br/>매칭 신청이 완료되면, 매칭 알고리즘에 의해 선정된 후보자들과의 쌍을 저장한다.
  * <br/>하나의 매칭 신청에 대해 여러 개의 매칭 결과가 존재할 수 있다 (신청 인원 수만큼).
  */
+@Table(indexes = {
+        @Index(name = "idx_matching_result_candidate_status", columnList = "candidate_id, status")})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity

@@ -26,11 +26,11 @@ public class MatchingQueryDslRepositoryImpl implements MatchingQueryDslRepositor
         return queryFactory.selectFrom(matchingApplication)
                 .innerJoin(matchingApplication.member).fetchJoin()
                 .where(
-                        matchingApplication.status.eq(EntityStatus.ACTIVE),
                         matchingApplication.member.status.eq(EntityStatus.ACTIVE),
-                        dateFilter(condition.date()),
                         genderFilter(condition.gender()),
-                        keywordFilter(condition.keyword())
+                        dateFilter(condition.date()),
+                        keywordFilter(condition.keyword()),
+                        matchingApplication.status.eq(EntityStatus.ACTIVE)
                 )
                 .orderBy(sortOrder(condition.sort()))
                 .offset(offset)
@@ -44,11 +44,11 @@ public class MatchingQueryDslRepositoryImpl implements MatchingQueryDslRepositor
                 .from(matchingApplication)
                 .innerJoin(matchingApplication.member)
                 .where(
-                        matchingApplication.status.eq(EntityStatus.ACTIVE),
                         matchingApplication.member.status.eq(EntityStatus.ACTIVE),
-                        dateFilter(condition.date()),
                         genderFilter(condition.gender()),
-                        keywordFilter(condition.keyword())
+                        dateFilter(condition.date()),
+                        keywordFilter(condition.keyword()),
+                        matchingApplication.status.eq(EntityStatus.ACTIVE)
                 )
                 .fetchOne();
         return count != null ? count : 0L;

@@ -24,10 +24,10 @@ import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 
 @Table(
         name = "candidate_registration",
-        indexes = @Index(
-                name = "idx_candidate_reg_status",
-                columnList = "registration_status, status"
-        )
+        indexes = {
+                @Index(name = "idx_candidate_reg_status", columnList = "registration_status, status"),
+                @Index(name = "idx_candidate_member_id_reg_status", columnList = "member_id, registration_status, status")
+        }
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
