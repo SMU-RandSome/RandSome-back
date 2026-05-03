@@ -16,6 +16,7 @@ public enum ErrorType {
     FORBIDDEN_ERROR             (HttpStatus.FORBIDDEN, "접근 권한이 없습니다.", LogLevel.WARN),
     NOT_FOUND                   (HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다.", LogLevel.INFO),
     DUPLICATE                   (HttpStatus.CONFLICT, "이미 존재하는 리소스입니다.", LogLevel.INFO),
+    SERVICE_NOT_YET_OPEN        (HttpStatus.FORBIDDEN, "서비스가 아직 오픈되지 않았습니다.", LogLevel.INFO),
     TOO_MANY_MATCHING_REQUESTS  (HttpStatus.TOO_MANY_REQUESTS, "잠시 후 다시 시도해주세요.", LogLevel.INFO),
     CONCURRENT_UPDATE_CONFLICT  (HttpStatus.CONFLICT, "요청하신 데이터가 이미 변경되었습니다. 새로고침 후 다시 시도해 주세요.", LogLevel.WARN),
     LOCK_ACQUISITION_TIMEOUT    (HttpStatus.CONFLICT, "요청이 충돌했습니다. 잠시 후 다시 시도해 주세요.", LogLevel.WARN),
@@ -47,6 +48,8 @@ public enum ErrorType {
     ALREADY_PENDING_CANDIDATE               (HttpStatus.CONFLICT, "이미 후보자 등록 신청 중입니다.", LogLevel.INFO),
 
     // MATCH
+    MATCHING_NOT_YET_OPEN               (HttpStatus.FORBIDDEN, "매칭 서비스는 아직 오픈되지 않았습니다.", LogLevel.INFO),
+    MATCHING_PERIOD_CLOSED              (HttpStatus.FORBIDDEN, "매칭 서비스가 마감되었습니다.", LogLevel.INFO),
     NOT_ALLOW_ALREADY_APPROVED_MATCHING (HttpStatus.BAD_REQUEST, "이미 승인된 매칭은 거절이 불가능합니다.", LogLevel.INFO),
     NOT_FOUND_MATCHING                  (HttpStatus.NOT_FOUND, "존재하지 않는 매칭입니다.", LogLevel.INFO),
     NOT_FOUND_MATCHING_RESULT           (HttpStatus.NOT_FOUND, "매칭된 결과가 존재하지 않습니다.", LogLevel.INFO),

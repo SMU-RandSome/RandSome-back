@@ -36,6 +36,8 @@ public abstract class MatchingControllerDocs {
             ErrorType.UNAUTHORIZED_ERROR,
             ErrorType.NOT_FOUND_MEMBER,
             ErrorType.INVALID_PERSON_COUNT,
+            ErrorType.MATCHING_NOT_YET_OPEN,
+            ErrorType.MATCHING_PERIOD_CLOSED,
             ErrorType.DEFAULT_ERROR
     })
     public abstract ApiResponse<MatchingApplicationResponse> apply(
@@ -54,6 +56,8 @@ public abstract class MatchingControllerDocs {
     )
     @ApiExceptions(values = {
             ErrorType.UNAUTHORIZED_ERROR,
+            ErrorType.MATCHING_NOT_YET_OPEN,
+            ErrorType.MATCHING_PERIOD_CLOSED,
             ErrorType.DEFAULT_ERROR
     })
     public abstract ApiResponse<List<MatchingHistoryItem>> findMatchings(
@@ -74,6 +78,8 @@ public abstract class MatchingControllerDocs {
             ErrorType.UNAUTHORIZED_ERROR,
             ErrorType.NOT_FOUND_MATCHING,
             ErrorType.NOT_FOUND_MATCHING_RESULT,
+            ErrorType.MATCHING_NOT_YET_OPEN,
+            ErrorType.MATCHING_PERIOD_CLOSED,
             ErrorType.DEFAULT_ERROR
     })
     public abstract ApiResponse<List<MatchingResultDetailItem>> findApplication(
