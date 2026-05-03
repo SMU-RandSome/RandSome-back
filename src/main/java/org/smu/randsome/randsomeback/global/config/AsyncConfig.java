@@ -49,6 +49,23 @@ public class AsyncConfig implements AsyncConfigurer {
         return executor;
     }
 
+    @Bean("slackExecutor")
+    public Executor slackExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(3);
+        executor.setQueueCapacity(50);
+        executor.setThreadNamePrefix("slack-");
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(30);
+        executor.setRejectedExecutionHandler(new CallerRunsPolicy());
+
+        executor.setTaskDecorator(new MdcTaskDecorator()); // MDC 전파
+
+        return executor;
+    }
+
     @Bean("notificationExecutor")
     public Executor notificationExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
