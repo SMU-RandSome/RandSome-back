@@ -55,7 +55,7 @@ public class ServicePeriodInterceptor implements HandlerInterceptor {
     }
 
     private boolean isMatchingPath(String uri) {
-        return uri.startsWith(MATCHING_PATH_PREFIX);
+        return uri.equals(MATCHING_PATH_PREFIX) || uri.startsWith(MATCHING_PATH_PREFIX + "/");
     }
 
 }
