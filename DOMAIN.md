@@ -4,7 +4,15 @@
   - `id`: Long
   - `createdAt`: 등록 시각
   - `updatedAt`: 수정 시각
-  - `status`: 엔티티 상태 (`ACTIVE`, `DELETED`)
+  - `deletedAt`: 소프트 삭제 시각
+  - `status`: 엔티티 상태 (`ACTIVE`, `SUSPENDED`, `DELETED`)
+- **행위**
+  - `active()`: 상태를 `ACTIVE`로 변경
+  - `isActive()`: `ACTIVE` 상태 여부 확인
+  - `suspend()`: 상태를 `SUSPENDED`로 변경
+  - `isSuspended()`: `SUSPENDED` 상태 여부 확인
+  - `delete()`: 상태를 `DELETED`로 변경 + `deletedAt` 설정
+  - `isDeleted()`: `DELETED` 상태 여부 확인
 
 ---
 
@@ -33,8 +41,8 @@
   - `revokeRefreshToken()`: 리프레시 토큰 폐기
   - `updateProfile()`: 프로필 수정 (실명, MBTI, 학과, 소셜 프로필)
   - `updatePassword()`: 비밀번호 변경
-  - `withdraw()`: 회원 탈퇴 (소프트 삭제 + 토큰 폐기)
-  - `suspend()`: 회원 정지 (`ROLE_SUSPEND_MEMBER`로 변경 + 토큰 폐기)
+  - `withdraw()`: 회원 탈퇴 (`DELETED` 상태 전환 + `deletedAt` 설정 + 토큰 폐기)
+  - `suspend()`: 회원 정지 (`SUSPENDED` 상태 전환 + `ROLE_SUSPEND_MEMBER`로 변경 + 토큰 폐기)
 - **규칙**
   - `@sangmyung.kr` 형식이 아니면 등록 불가
   - 이메일 중복 불가 (`email` + `status` 유니크 제약)
@@ -117,31 +125,56 @@
   - `member`: Member 참조 (N:1)
   - `matchingType`: ENUM(`RANDOM`, `IDEAL`)
   - `applicationCount`: INT (1~5)
-  - `applicationStatus`: ENUM(`PENDING`, `SUCCESS`, `PARTIAL_MATCH`, `FAILED`, `CANCELLED`)
-  - `preferredPersonalityTags`: Set<PersonalityTag> (ElementCollection, 이상형 매칭용)
-  - `preferredFaceTypeTags`: Set<FaceTypeTag> (ElementCollection, 이상형 매칭용)
-  - `preferredDatingStyleTags`: Set<DatingStyleTag> (ElementCollection, 이상형 매칭용)
-  - `preferredMbtis`: Set<Mbti> (ElementCollection, 이상형 매칭용)
+  - `applicationStatus`: ENUM(`PENDING`, `SUCCESS`, `PARTIAL_MATCH`, `FAILED`)
   - `matchedCount`: INT - 실제 매칭된 수
   - `completedAt`: DateTime
-  - `cancelledAt`: DateTime
   - `version`: Long (낙관적 락)
 - **행위**
-  - `apply(member, matchingType, applicationCount)`: 랜덤 매칭 신청
-  - `apply(member, matchingType, applicationCount, idealTypePreference)`: 이상형 매칭 신청
+  - `apply(member, matchingType, applicationCount)`: 매칭 신청 생성 (`PENDING`)
   - `complete(completedAt, matchedCount)`: 매칭 완료 (결과에 따라 상태 자동 결정)
-  - `cancel(cancelledAt)`: 신청 취소
   - `getTargetGender()`: 신청자 반대 성별 반환
-  - `getIdealTypePreference()`: 이상형 선호 조건 VO 반환
+  - `ApplicationStatus.isCompleted()`: 완료 상태 여부 확인 (`SUCCESS`, `PARTIAL_MATCH`, `FAILED`이면 `true`)
 - **규칙**
   - `applicationCount`는 1~5 범위
-  - 상태 전이: `PENDING` -> `SUCCESS` / `PARTIAL_MATCH` / `FAILED` (완료) 또는 `PENDING` -> `CANCELLED` (취소)
-  - `matchedCount == applicationCount` -> `SUCCESS`
-  - `0 < matchedCount < applicationCount` -> `PARTIAL_MATCH`
-  - `matchedCount == 0` -> `FAILED`
-  - 완료된 신청(`SUCCESS`, `PARTIAL_MATCH`, `FAILED`)은 취소 불가
-  - 이미 `CANCELLED` 상태면 멱등하게 종료
+  - 상태 전이: `PENDING` → `SUCCESS` / `PARTIAL_MATCH` / `FAILED`
+  - `matchedCount == applicationCount` → `SUCCESS`
+  - `0 < matchedCount < applicationCount` → `PARTIAL_MATCH`
+  - `matchedCount == 0` → `FAILED`
+  - 이상형 매칭의 선호 태그는 `MatchingIdealTypeSnapshot`에 별도 스냅샷으로 저장
   - **결제 대신 티켓을 사용** (MatchingType에 따라 RANDOM / IDEAL 티켓 차감)
+
+### 이상형 매칭 스냅샷(`MatchingIdealTypeSnapshot`)
+
+- **속성**
+  - `matchingApplicationId`: Long (unique) - MatchingApplication 참조 ID
+  - `preferredPersonalityTags`: Set<PersonalityTag> (ElementCollection)
+  - `preferredFaceTypeTags`: Set<FaceTypeTag> (ElementCollection)
+  - `preferredDatingStyleTags`: Set<DatingStyleTag> (ElementCollection)
+  - `preferredMbtis`: Set<Mbti> (ElementCollection)
+- **행위**
+  - `create(matchingApplicationId, idealTypePreference)`: 스냅샷 생성
+  - `toVO()`: `IdealTypePreference` VO로 변환
+- **규칙**
+  - 이상형 매칭 신청 시 선택한 선호 태그를 독립적으로 기록
+  - `matchingApplicationId`는 유니크 제약 (1:1 관계)
+  - 매칭 신청 당시의 이상형 조건을 보존 (회원 프로필 변경에 무관)
+  - 태그별 통계 쿼리(선호 태그 분포, 인기 태그 등)의 기반 테이블로 활용
+
+### 이상형 선호 조건(`IdealTypePreference` VO)
+
+- **속성**
+  - `preferredPersonalityTags`: Set<PersonalityTag>
+  - `preferredFaceTypeTags`: Set<FaceTypeTag>
+  - `preferredDatingStyleTags`: Set<DatingStyleTag>
+  - `preferredMbtis`: Set<Mbti>
+- **행위**
+  - `of(personalityTags, faceTypeTags, datingStyleTags, mbtis)`: VO 생성
+  - `scoreAgainst(candidateProfileTag, candidateMbti)`: 이상형 조건 점수 계산 (0~4점)
+- **규칙**
+  - 각 카테고리에서 후보자 태그가 선호 목록에 포함되면 1점 부여
+  - 빈 선호 목록은 해당 카테고리를 무시 (0점, 패널티 없음)
+  - 최대 점수: 4점 (성격 + 얼굴상 + 연애스타일 + MBTI)
+  - 불변 객체 (record)
 
 ### 매칭 결과(`MatchingResult`)
 
@@ -331,10 +364,12 @@
 ### 약관(`Terms`)
 
 - **속성**
-  - `title`: VARCHAR
-  - `content`: TEXT
-  - `version`: VARCHAR
-  - `required`: BOOLEAN
+  - `title`: VARCHAR (not null)
+  - `content`: TEXT (not null)
+  - `version`: VARCHAR (not null)
+  - `required`: BOOLEAN (not null)
+- **행위**
+  - `register(title, content, version, required)`: 약관 등록
 - **규칙**
   - 약관은 버전 단위로 관리
   - 필수 약관(`required=true`) 미동의 시 회원가입/핵심 기능 진행 불가
