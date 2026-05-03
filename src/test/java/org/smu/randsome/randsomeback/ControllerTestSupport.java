@@ -11,6 +11,7 @@ import org.smu.randsome.randsomeback.admin.matching.controller.AdminMatchingCont
 import org.smu.randsome.randsomeback.admin.matching.service.AdminMatchingService;
 import org.smu.randsome.randsomeback.admin.member.controller.MemberAdminController;
 import org.smu.randsome.randsomeback.admin.member.service.MemberAdminService;
+import org.smu.randsome.randsomeback.admin.qr.controller.QrAdminController;
 import org.smu.randsome.randsomeback.admin.qr.service.QrAdminService;
 import org.smu.randsome.randsomeback.admin.report.controller.AdminReportController;
 import org.smu.randsome.randsomeback.admin.report.service.AdminReportService;
@@ -44,6 +45,7 @@ import org.smu.randsome.randsomeback.domain.statistics.controller.StatisticsCont
 import org.smu.randsome.randsomeback.domain.statistics.service.StatisticsService;
 import org.smu.randsome.randsomeback.domain.ticket.controller.TicketController;
 import org.smu.randsome.randsomeback.domain.ticket.service.TicketService;
+import org.smu.randsome.randsomeback.global.support.notification.ErrorNotificationSender;
 import org.smu.randsome.randsomeback.security.TestSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -77,8 +79,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
         AdminReportController.class,
         CandidateAdminController.class,
         AdminMatchingController.class,
-
-        org.smu.randsome.randsomeback.admin.qr.controller.QrAdminController.class
+        QrAdminController.class
 })
 public abstract class ControllerTestSupport {
 
@@ -87,6 +88,9 @@ public abstract class ControllerTestSupport {
 
     @Autowired
     protected ObjectMapper objectMapper;
+
+    @MockitoBean
+    protected ErrorNotificationSender errorNotificationSender;
 
     @MockitoBean
     protected FeedService feedService;
@@ -111,7 +115,6 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected MemberDeviceService memberDeviceService;
-
 
     @MockitoBean
     protected StatisticsAdminService statisticsAdminService;

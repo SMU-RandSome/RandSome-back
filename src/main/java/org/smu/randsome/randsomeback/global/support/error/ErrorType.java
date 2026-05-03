@@ -11,6 +11,7 @@ public enum ErrorType {
 
     // COMMON
     BAD_REQUEST                 (HttpStatus.BAD_REQUEST, "요청 형식이 올바르지 않습니다.", LogLevel.INFO),
+    METHOD_NOT_ALLOWED          (HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다.", LogLevel.WARN),
     UNAUTHORIZED_ERROR          (HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다.", LogLevel.WARN),
     FORBIDDEN_ERROR             (HttpStatus.FORBIDDEN, "접근 권한이 없습니다.", LogLevel.WARN),
     FORBIDDEN_MODIFY            (HttpStatus.FORBIDDEN, "해당 리소스를 수정할 권한이 없습니다.", LogLevel.WARN),

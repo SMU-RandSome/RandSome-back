@@ -3,9 +3,11 @@ spring:
     name: randsome
   profiles:
     active: local
+  mvc:
+    throw-exception-if-no-handler-found: true
   web:
     resources:
-      add-mappings: true
+      add-mappings: false
   jackson:
     time-zone: Asia/Seoul  # JSON 직렬화/역직렬화 시 타임존
 
