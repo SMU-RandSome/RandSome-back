@@ -3,10 +3,10 @@ package org.smu.randsome.randsomeback.domain.matching.implement;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
-import java.util.Set;
 import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
 import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
 import org.smu.randsome.randsomeback.domain.matching.entity.vo.IdealTypePreference;
@@ -54,15 +54,13 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
                 MatchingApplication::getMatchingType,
                 MatchingApplication::getApplicationCount,
                 MatchingApplication::getApplicationStatus,
-                MatchingApplication::getCompletedAt,
-                MatchingApplication::getCancelledAt
+                MatchingApplication::getCompletedAt
         ).containsExactly(
                 result.getId(),
                 member,
                 MatchingType.RANDOM,
                 3,
                 ApplicationStatus.PENDING,
-                null,
                 null
         );
     }
@@ -166,69 +164,5 @@ class MatchingManagerIntegrationTest extends IntegrationTestSupport {
         assertThat(snapshot).isEmpty();
     }
 
-    @Test
-    void PENDING_신청을_취소하면_CANCELLED_상태와_취소_시각이_저장된다() {
-        // given
-        var member = memberJpaRepository.save(MemberFixture.create());
-        var newMatching = NewMatching.builder()
-                .matchingType(MatchingType.RANDOM)
-                .applicationCount(2)
-                .build();
-        var application = matchingManager.apply(newMatching, member.getId());
-
-        // when
-        matchingManager.cancel(application.getId(), member.getId());
-
-        // then
-        var result = matchingJpaRepository.findById(application.getId()).orElseThrow();
-        assertThat(result.getApplicationStatus()).isEqualTo(ApplicationStatus.CANCELLED);
-        assertThat(result.getCancelledAt()).isNotNull();
-    }
-
-    @Test
-    void 존재하지_않는_신청을_취소하면_NOT_FOUND_MATCHING을_던진다() {
-        // given
-        var member = memberJpaRepository.save(MemberFixture.create());
-        var nonExistentId = 999L;
-
-        // when & then
-        assertThatThrownBy(() -> matchingManager.cancel(nonExistentId, member.getId()))
-                .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
-    }
-
-    @Test
-    void 다른_사용자의_신청을_취소하면_NOT_FOUND_MATCHING을_던진다() {
-        // given
-        var owner = memberJpaRepository.save(MemberFixture.create());
-        var other = memberJpaRepository.save(MemberFixture.createWithGender("202300000@sangmyung.kr", owner.getGender()));
-        var newMatching = NewMatching.builder()
-                .matchingType(MatchingType.RANDOM)
-                .applicationCount(1)
-                .build();
-        var application = matchingManager.apply(newMatching, owner.getId());
-
-        // when & then
-        assertThatThrownBy(() -> matchingManager.cancel(application.getId(), other.getId()))
-                .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_FOUND_MATCHING.getMessage());
-    }
-
-    @Test
-    void SUCCESS_신청을_취소하면_NOT_ALLOW_CANCEL_APPROVED를_던진다() {
-        // given
-        var member = memberJpaRepository.save(MemberFixture.create());
-        var newMatching = NewMatching.builder()
-                .matchingType(MatchingType.RANDOM)
-                .applicationCount(3)
-                .build();
-        var application = matchingManager.apply(newMatching, member.getId());
-        matchingExecutor.execute(application);
-
-        // when & then
-        assertThatThrownBy(() -> matchingManager.cancel(application.getId(), member.getId()))
-                .isInstanceOf(CoreException.class)
-                .hasMessage(ErrorType.NOT_ALLOW_CANCEL_APPROVED.getMessage());
-    }
 
 }

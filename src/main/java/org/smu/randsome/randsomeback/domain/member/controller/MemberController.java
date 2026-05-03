@@ -7,6 +7,7 @@ import org.smu.randsome.randsomeback.domain.attendance.service.AttendanceService
 import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
 import org.smu.randsome.randsomeback.domain.candidate.service.CandidateService;
 import org.smu.randsome.randsomeback.domain.matching.service.MatchingService;
+import org.smu.randsome.randsomeback.domain.member.dto.ProfileTags;
 import org.smu.randsome.randsomeback.domain.member.dto.request.DeviceTokenSyncRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberCreateRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.request.MemberUpdateRequest;
@@ -15,7 +16,6 @@ import org.smu.randsome.randsomeback.domain.member.dto.request.WithdrawRequest;
 import org.smu.randsome.randsomeback.domain.member.dto.response.MemberProfileResponse;
 import org.smu.randsome.randsomeback.domain.member.dto.response.MemberStatsResponse;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.member.dto.ProfileTags;
 import org.smu.randsome.randsomeback.domain.member.enums.CandidateRegistrationStatusView;
 import org.smu.randsome.randsomeback.domain.member.service.MemberDeviceService;
 import org.smu.randsome.randsomeback.domain.member.service.MemberService;
