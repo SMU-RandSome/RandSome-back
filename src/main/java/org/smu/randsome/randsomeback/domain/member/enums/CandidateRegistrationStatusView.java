@@ -12,6 +12,7 @@ import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
                 - `APPROVED`: 승인됨
                 - `REJECTED`: 거절됨
                 - `WITHDRAWN`: 철회됨
+                - `SUSPENDED`: 정지됨
                 """
 )
 public enum CandidateRegistrationStatusView {
@@ -20,7 +21,8 @@ public enum CandidateRegistrationStatusView {
     PENDING,
     APPROVED,
     REJECTED,
-    WITHDRAWN;
+    WITHDRAWN,
+    SUSPENDED;
 
     public static CandidateRegistrationStatusView from(Optional<RegistrationStatus> status) {
         return status
@@ -35,6 +37,7 @@ public enum CandidateRegistrationStatusView {
             case REJECTED -> REJECTED;
             case PENDING -> PENDING;
             case WITHDRAWN -> WITHDRAWN;
+            case SUSPENDED -> SUSPENDED;
         };
     }
 
