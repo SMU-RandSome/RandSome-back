@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -16,6 +17,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 /**
  * MDC(Mapped Diagnostic Context)에 요청 컨텍스트 정보를 설정하는 필터
  * - traceId: 요청 추적을 위한 ID
+ * - httpMethod: HTTP 메서드 (GET, POST 등)
+ * - requestUri: 요청 URI
+ * - queryString: 쿼리 파라미터
+ * - clientIp: 클라이언트 IP
  */
 
 @Slf4j
@@ -24,16 +29,23 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class MdcFilter extends OncePerRequestFilter {
 
     private static final String TRACE_ID = "traceId";
+    private static final String HTTP_METHOD = "httpMethod";
+    private static final String REQUEST_URI = "requestUri";
+    private static final String QUERY_STRING = "queryString";
+    private static final String CLIENT_IP = "clientIp";
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         try {
-            String traceId = generateTraceId();
-            MDC.put(TRACE_ID, traceId);
+            MDC.put(TRACE_ID, generateTraceId());
+            MDC.put(HTTP_METHOD, request.getMethod());
+            MDC.put(REQUEST_URI, request.getRequestURI());
+            MDC.put(QUERY_STRING, request.getQueryString() != null ? request.getQueryString() : "");
+            MDC.put(CLIENT_IP, resolveClientIp(request));
 
             filterChain.doFilter(request, response);
         } finally {
@@ -41,8 +53,16 @@ public class MdcFilter extends OncePerRequestFilter {
         }
     }
 
-    private String generateTraceId() {
+    private static String generateTraceId() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+    }
+
+    private static String resolveClientIp(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip != null && !ip.isBlank()) {
+            return ip.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 
 }
