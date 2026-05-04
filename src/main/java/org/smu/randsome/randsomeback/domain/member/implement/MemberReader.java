@@ -34,14 +34,18 @@ public class MemberReader {
     private final PasswordEncoder passwordEncoder;
 
     public Member findByAccount(String loginId, String password) {
-        Member member = memberRepository.findByEmail_AddressAndStatus(loginId, EntityStatus.ACTIVE)
+        Member member = memberRepository.findByEmail_AddressAndStatusNot(loginId, EntityStatus.DELETED)
                 .orElseThrow(() -> new CoreException(ErrorType.INVALID_ACCOUNT));
 
-        if (member.isPasswordCorrect(password, passwordEncoder)) {
-            return member;
+        if (!member.isPasswordCorrect(password, passwordEncoder)) {
+            throw new CoreException(ErrorType.INVALID_ACCOUNT);
         }
 
-        throw new CoreException(ErrorType.INVALID_ACCOUNT);
+        if (member.isSuspended()) {
+            throw new CoreException(ErrorType.SUSPENDED_MEMBER);
+        }
+
+        return member;
     }
 
     public Member find(Long memberId) {
