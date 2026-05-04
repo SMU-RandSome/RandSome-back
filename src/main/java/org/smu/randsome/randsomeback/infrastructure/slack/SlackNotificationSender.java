@@ -28,7 +28,7 @@ public class SlackNotificationSender implements ErrorNotificationSender {
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
             .build();
-    private static final int STACK_TRACE_LINES = 5;
+    private static final int STACK_TRACE_LINES = 10;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String NA = "N/A";
 
