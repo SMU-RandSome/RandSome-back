@@ -36,14 +36,12 @@ public class MdcFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request,
+            @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            FilterChain filterChain
+            @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         try {
-            String traceId = generateTraceId();
-            MDC.put(TRACE_ID, traceId);
-            MDC.put(TRACE_ID, traceId);
+            MDC.put(TRACE_ID, generateTraceId());
             MDC.put(HTTP_METHOD, request.getMethod());
             MDC.put(REQUEST_URI, request.getRequestURI());
             MDC.put(QUERY_STRING, request.getQueryString() != null ? request.getQueryString() : "");
@@ -55,11 +53,11 @@ public class MdcFilter extends OncePerRequestFilter {
         }
     }
 
-    private String generateTraceId() {
+    private static String generateTraceId() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
 
-    private String resolveClientIp(HttpServletRequest request) {
+    private static String resolveClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
         if (ip != null && !ip.isBlank()) {
             return ip.split(",")[0].trim();
