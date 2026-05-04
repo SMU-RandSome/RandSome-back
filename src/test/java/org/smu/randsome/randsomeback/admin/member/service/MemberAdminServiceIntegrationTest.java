@@ -7,9 +7,13 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.IntegrationTestSupport;
+import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
+import org.smu.randsome.randsomeback.domain.candidate.enums.RegistrationStatus;
+import org.smu.randsome.randsomeback.domain.candidate.repository.CandidateJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSearchCondition;
 import org.smu.randsome.randsomeback.domain.member.enums.Gender;
 import org.smu.randsome.randsomeback.domain.member.enums.Role;
+import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
 import org.smu.randsome.randsomeback.domain.member.implement.SuspensionManager;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.domain.member.repository.MemberProfileTagJpaRepository;
@@ -26,10 +30,13 @@ class MemberAdminServiceIntegrationTest extends IntegrationTestSupport {
     final MemberJpaRepository memberJpaRepository;
     final MemberProfileTagJpaRepository memberProfileTagJpaRepository;
     final MemberRestrictionJpaRepository memberRestrictionJpaRepository;
+    final CandidateJpaRepository candidateJpaRepository;
+    final MemberManager memberManager;
     final SuspensionManager suspensionManager;
 
     @AfterEach
     void tearDown() {
+        candidateJpaRepository.deleteAll();
         memberRestrictionJpaRepository.deleteAll();
         memberProfileTagJpaRepository.deleteAll();
         memberJpaRepository.deleteAll();
@@ -178,6 +185,24 @@ class MemberAdminServiceIntegrationTest extends IntegrationTestSupport {
         assertThat(updated.getRole()).isEqualTo(Role.ROLE_SUSPEND_MEMBER);
         assertThat(updated.getRefreshToken()).isNull();
         assertThat(suspensionManager.isSuspended(member.getId())).isTrue();
+    }
+
+    @Test
+    void 후보자_회원_정지_시_후보자_등록_상태가_SUSPENDED로_변경된다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        var registration = candidateJpaRepository.save(CandidateRegistration.apply(member));
+        registration.approve(java.time.LocalDateTime.now());
+        candidateJpaRepository.saveAndFlush(registration);
+        memberManager.updateRole(member, Role.ROLE_CANDIDATE);
+
+        // when
+        memberAdminService.suspendMember(member.getId(), "부적절한 행동");
+
+        // then
+        var updatedRegistration = candidateJpaRepository.findById(registration.getId()).orElseThrow();
+        assertThat(updatedRegistration.getRegistrationStatus()).isEqualTo(RegistrationStatus.SUSPENDED);
+        assertThat(updatedRegistration.getStatus()).isEqualTo(EntityStatus.ACTIVE);
     }
 
     @Test

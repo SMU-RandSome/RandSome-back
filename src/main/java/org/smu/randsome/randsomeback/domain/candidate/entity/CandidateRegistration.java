@@ -137,6 +137,13 @@ public class CandidateRegistration extends BaseEntity {
         }
     }
 
+    public void suspend() {
+        if (isApproved()) {
+            this.registrationStatus = RegistrationStatus.SUSPENDED;
+        }
+        return;
+    }
+
     private void checkCanceled() {
         if (registrationStatus.equals(RegistrationStatus.CANCELED)) {
             throw new CoreException(ErrorType.NOT_ALLOW_ALREADY_CANCELED_REGISTRATION);

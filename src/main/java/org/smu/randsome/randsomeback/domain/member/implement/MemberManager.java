@@ -122,8 +122,8 @@ public class MemberManager {
     public void suspend(Long memberId, String reason) {
         Member member = memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
-
         member.suspend();
+
         memberRestrictionJpaRepository.save(MemberRestriction.create(member, reason));
         suspensionManager.suspend(memberId);
 

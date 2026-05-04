@@ -7,5 +7,6 @@ public enum RegistrationStatus {
     APPROVED,
     REJECTED,
     WITHDRAWN, // 후보자 철회
+    SUSPENDED, // 후보자 등록 일시 정지 (관리자 조치)
     ;
 }

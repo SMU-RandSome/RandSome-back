@@ -2,6 +2,7 @@ package org.smu.randsome.randsomeback.domain.candidate.implement;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
@@ -117,6 +118,18 @@ public class CandidateManager {
                 candidateRegistration.getId(), memberId);
 
         return candidateRegistration;
+    }
+
+    public void suspend(Long memberId) {
+        Optional<CandidateRegistration> candidateRegistration = candidateJpaRepository.findByMemberIdAndRegistrationStatusAndStatus(
+                memberId,
+                RegistrationStatus.APPROVED,
+                EntityStatus.ACTIVE
+        );
+
+        candidateRegistration.ifPresent(CandidateRegistration::suspend);
+
+        log.info("[CandidateManager] 회원 정지에 따른 후보자 등록 정리 완료 - memberId={}, hasCandidateRegistration={}", memberId, candidateRegistration.isPresent());
     }
 
 }
