@@ -1,0 +1,12 @@
+package org.smu.randsome.randsomeback.domain.candidate.enums;
+
+public enum RegistrationStatus {
+
+    CANCELED, // 후보자 등록 취소 (관리자 승인 전)
+    PENDING,
+    APPROVED,
+    REJECTED,
+    WITHDRAWN, // 후보자 철회
+    SUSPENDED, // 후보자 등록 일시 정지 (관리자 조치)
+    ;
+}

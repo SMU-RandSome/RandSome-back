@@ -1,0 +1,403 @@
+package org.smu.randsome.randsomeback.domain.coupon.entity;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.time.LocalDateTime;
+import org.junit.jupiter.api.Test;
+import org.smu.randsome.randsomeback.domain.coupon.enums.CouponEventStatus;
+import org.smu.randsome.randsomeback.fixture.CuponFixture;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+import org.smu.randsome.randsomeback.utils.TestDateTimeUtils;
+
+class CouponEventTest {
+
+    private static final LocalDateTime NOW = TestDateTimeUtils.now();
+    @Test
+    void 이벤트를_생성한다() {
+        // when
+        var event = CuponFixture.createCuponEvent();
+
+        // then
+        assertThat(event).extracting(
+                CouponEvent::getName,
+                CouponEvent::getDescription,
+                CouponEvent::getType,
+                CouponEvent::getTotalQuantity,
+                CouponEvent::getRewardTicketType,
+                CouponEvent::getRewardTicketAmount,
+                CouponEvent::getStartsAt,
+                CouponEvent::getExpiresAt,
+                CouponEvent::getCouponExpiresAt,
+                CouponEvent::getEventStatus
+        ).containsExactly(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT,
+                CouponEventStatus.DRAFT
+        );
+    }
+
+    @Test
+    void 이벤트를_활성화한다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+
+        // when
+        event.activate(NOW);
+
+        // then
+        assertThat(event.getEventStatus()).isEqualTo(CouponEventStatus.ACTIVE);
+    }
+
+    @Test
+    void 이미_만료된_이벤트는_활성화할_수_없다() {
+        // given — expiresAt이 과거인 이벤트
+        var expiredEvent = CouponEvent.create(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                NOW.minusDays(2),
+                NOW.minusDays(1),
+                NOW.plusDays(1)
+        );
+
+        // when & then
+        assertThatThrownBy(() -> expiredEvent.activate(NOW))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_ALREADY_EXPIRED.getMessage());
+    }
+
+    @Test
+    void 이벤트가_비활성화된_상태일때만_활성화_가능하다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+        event.activate(NOW);
+
+        // when & then
+        // 이미 활성화된 이벤트는 다시 활성화할 수 없다.
+        assertThatThrownBy(() -> event.activate(NOW))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+
+        // 이미 종료된 이벤트는 다시 활성화할 수 없다.
+        event.end();
+        assertThatThrownBy(() -> event.activate(NOW))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+    }
+
+    @Test
+    void 이벤트를_소진_상태로_전환한다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+        event.activate(NOW);
+
+        // when
+        event.soldOut();
+
+        // then
+        assertThat(event.getEventStatus()).isEqualTo(CouponEventStatus.SOLD_OUT);
+    }
+
+    @Test
+    void 이벤트가_활성화_상태일때만_소진_가능하다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+
+        // DRAFT 상태에서는 소진 불가
+        assertThatThrownBy(event::soldOut)
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+
+        // SOLD_OUT 상태에서는 소진 불가 (이미 소진)
+        event.activate(NOW);
+        event.soldOut();
+        assertThatThrownBy(event::soldOut)
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+    }
+
+    @Test
+    void 소진된_이벤트는_발급_불가능하다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+        event.activate(NOW);
+        event.soldOut();
+
+        // when & then
+        assertThat(event.isIssuable(CuponFixture.STARTED_AT.plusSeconds(1))).isFalse();
+    }
+
+    @Test
+    void 이벤트를_종료시킨다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+
+        event.activate(NOW);
+        // when
+        event.end();
+
+        // then
+        assertThat(event.getEventStatus()).isEqualTo(CouponEventStatus.ENDED);
+    }
+
+    @Test
+    void 이벤트가_활성화_상태일떄만_종료_가능하다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+
+        // when & then
+        //  아직 활성화되지 않은 이벤트는 종료할 수 없다.
+        assertThatThrownBy(event::end)
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+
+        // 이미 종료된 이벤트는 다시 종료할 수 없다.
+        event.activate(NOW);
+        event.end();
+        assertThatThrownBy(event::end)
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+    }
+
+    @Test
+    void 이벤트가_활성화된_시각인지_확인한다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+        event.activate(NOW);
+
+        // when & then
+        assertThat(event.isIssuable(CuponFixture.STARTED_AT.plusSeconds(1))).isTrue();
+        assertThat(event.isIssuable(CuponFixture.STARTED_AT.minusSeconds(1))).isFalse();
+        assertThat(event.isIssuable(CuponFixture.STARTED_AT.plusWeeks(1))).isFalse();
+    }
+
+    @Test
+    void 이벤트_수정은_비활성화일떄만_가능하다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+
+        // when
+        String name = "업데이트된 이벤트 이름";
+        event.update(
+                name,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT
+        );
+
+        // then
+        assertThat(event.getName()).isEqualTo(name);
+
+        event.activate(NOW);
+        assertThatThrownBy(() -> event.update(
+                name,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+
+        event.end();
+        assertThatThrownBy(() -> event.update(
+                name,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+    }
+
+    @Test
+    void SOLD_OUT_상태에서_수정하면_예외가_발생한다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+        event.activate(NOW);
+        event.soldOut();
+
+        // when & then
+        assertThatThrownBy(() -> event.update(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+    }
+
+    @Test
+    void 시작시간이_종료시간보다_늦으면_생성_시_예외가_발생한다() {
+        assertThatThrownBy(() -> CouponEvent.create(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                NOW.plusDays(2),
+                NOW.plusDays(1),
+                NOW.plusDays(30)
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_TIME.getMessage());
+    }
+
+    @Test
+    void 이벤트_종료시간이_쿠폰_만료시간보다_늦으면_생성_시_예외가_발생한다() {
+        assertThatThrownBy(() -> CouponEvent.create(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                NOW,
+                NOW.plusDays(30),
+                NOW.plusDays(1)
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_TIME.getMessage());
+    }
+
+    @Test
+    void 총_수량이_0이하면_생성_시_예외가_발생한다() {
+        assertThatThrownBy(() -> CouponEvent.create(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                0,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_QUANTITY.getMessage());
+    }
+
+    @Test
+    void 보상_티켓_수량이_0이하면_생성_시_예외가_발생한다() {
+        assertThatThrownBy(() -> CouponEvent.create(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                0,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_QUANTITY.getMessage());
+    }
+
+    @Test
+    void 수정_시_시간_순서가_잘못되면_예외가_발생한다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+
+        // when & then
+        assertThatThrownBy(() -> event.update(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                CuponFixture.CUPON_QUANTITY,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                NOW.plusDays(2),
+                NOW.plusDays(1),
+                NOW.plusDays(30)
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_TIME.getMessage());
+    }
+
+    @Test
+    void 수정_시_수량이_0이하면_예외가_발생한다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+
+        // when & then
+        assertThatThrownBy(() -> event.update(
+                CuponFixture.CUPON_NAME,
+                CuponFixture.CUPON_DESCRIPTION,
+                CuponFixture.Coupon_EVENT_TYPE,
+                0,
+                CuponFixture.REWARD_TICKET_TYPE,
+                CuponFixture.REWARD_TICKET_QUANTITY,
+                CuponFixture.STARTED_AT,
+                CuponFixture.ENDED_AT,
+                CuponFixture.COUPON_EXPIRED_AT
+        )).isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_QUANTITY.getMessage());
+    }
+
+    @Test
+    void SOLD_OUT_상태에서_활성화하면_예외가_발생한다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+        event.activate(NOW);
+        event.soldOut();
+
+        // when & then
+        assertThatThrownBy(() -> event.activate(NOW))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.COUPON_EVENT_INVALID_STATUS.getMessage());
+    }
+
+    @Test
+    void DRAFT_상태에서는_발급_불가능하다() {
+        var event = CuponFixture.createCuponEvent();
+
+        assertThat(event.isIssuable(CuponFixture.STARTED_AT.plusSeconds(1))).isFalse();
+    }
+
+    @Test
+    void ENDED_상태에서는_발급_불가능하다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+        event.activate(NOW);
+        event.end();
+
+        // when & then
+        assertThat(event.isIssuable(CuponFixture.STARTED_AT.plusSeconds(1))).isFalse();
+    }
+
+    @Test
+    void 시작_경계시각에서는_발급_가능하다() {
+        // given
+        var event = CuponFixture.createCuponEvent();
+        event.activate(NOW);
+
+        // when & then — !now.isBefore(startsAt): startsAt 정각도 발급 가능
+        assertThat(event.isIssuable(CuponFixture.STARTED_AT)).isTrue();
+    }
+}

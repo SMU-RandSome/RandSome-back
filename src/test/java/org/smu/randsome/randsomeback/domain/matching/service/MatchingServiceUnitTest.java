@@ -1,0 +1,208 @@
+package org.smu.randsome.randsomeback.domain.matching.service;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.smu.randsome.randsomeback.UnitTestSupport;
+import org.smu.randsome.randsomeback.domain.matching.dto.command.NewMatching;
+import org.smu.randsome.randsomeback.domain.matching.entity.MatchingApplication;
+import org.smu.randsome.randsomeback.domain.matching.enums.MatchingType;
+import org.smu.randsome.randsomeback.domain.matching.implement.MatchingExecutor;
+import org.smu.randsome.randsomeback.domain.matching.implement.MatchingManager;
+import org.smu.randsome.randsomeback.domain.matching.implement.MatchingReader;
+import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
+import org.smu.randsome.randsomeback.global.support.error.CoreException;
+import org.smu.randsome.randsomeback.global.support.error.ErrorType;
+
+class MatchingServiceUnitTest extends UnitTestSupport {
+
+    @InjectMocks
+    MatchingService matchingService;
+
+    @Mock
+    MatchingManager matchingManager;
+
+    @Mock
+    MatchingExecutor matchingExecutor;
+
+    @Mock
+    MatchingReader matchingReader;
+
+    @Mock
+    TicketHandler ticketHandler;
+
+    @Test
+    void 매칭_신청에_성공한다() {
+        // given
+        var memberId = 1L;
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(2)
+                .build();
+
+        var application = mock(MatchingApplication.class);
+        given(application.getApplicationCount()).willReturn(2);
+        given(application.getMatchedCount()).willReturn(2);
+        given(matchingManager.apply(newMatching, memberId)).willReturn(application);
+
+        // when
+        var result = matchingService.apply(newMatching, memberId);
+
+        // then
+        assertThat(result).isEqualTo(application);
+        verify(ticketHandler).deduct(memberId, newMatching);
+        verify(matchingManager).apply(newMatching, memberId);
+        verify(matchingExecutor).execute(eq(application));
+    }
+
+    @Test
+    void 부분_매칭_시_refundForPartialMatch를_호출한다() {
+        // given
+        var memberId = 1L;
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(3)
+                .build();
+
+        var application = mock(MatchingApplication.class);
+        given(application.getApplicationCount()).willReturn(3);
+        given(application.getMatchedCount()).willReturn(1);
+        given(matchingManager.apply(newMatching, memberId)).willReturn(application);
+
+        // when
+        matchingService.apply(newMatching, memberId);
+
+        // then
+        verify(ticketHandler).refundForPartialMatch(memberId, MatchingType.RANDOM, 3, 1);
+    }
+
+    @Test
+    void 완전_매칭_시_refundForPartialMatch를_호출한다() {
+        // given: refundForPartialMatch는 내부에서 refund 필요 여부를 판단하므로 항상 호출됨
+        var memberId = 1L;
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(2)
+                .build();
+
+        var application = mock(MatchingApplication.class);
+        given(application.getApplicationCount()).willReturn(2);
+        given(application.getMatchedCount()).willReturn(2);
+        given(matchingManager.apply(newMatching, memberId)).willReturn(application);
+
+        // when
+        matchingService.apply(newMatching, memberId);
+
+        // then
+        verify(ticketHandler).refundForPartialMatch(memberId, MatchingType.RANDOM, 2, 2);
+    }
+
+    @Test
+    void 티켓이_부족하면_매칭_신청이_생성되지_않는다() {
+        // given
+        var memberId = 1L;
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(5)
+                .build();
+        willThrow(new CoreException(ErrorType.NOT_ENOUGH_TICKETS))
+                .given(ticketHandler).deduct(memberId, newMatching);
+
+        // when & then
+        assertThatThrownBy(() -> matchingService.apply(newMatching, memberId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_ENOUGH_TICKETS.getMessage());
+
+        verify(matchingManager, never()).apply(any(), anyLong());
+    }
+
+    @Test
+    void 실행_순서는_차감_신청_실행_환불_순이다() {
+        // given
+        var memberId = 1L;
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(2)
+                .build();
+
+        var application = mock(MatchingApplication.class);
+        given(application.getApplicationCount()).willReturn(2);
+        given(application.getMatchedCount()).willReturn(2);
+        given(matchingManager.apply(newMatching, memberId)).willReturn(application);
+
+        var order = org.mockito.Mockito.inOrder(ticketHandler, matchingManager, matchingExecutor);
+
+        // when
+        matchingService.apply(newMatching, memberId);
+
+        // then
+        order.verify(ticketHandler).deduct(memberId, newMatching);
+        order.verify(matchingManager).apply(newMatching, memberId);
+        order.verify(matchingExecutor).execute(eq(application));
+        order.verify(ticketHandler).refundForPartialMatch(memberId, MatchingType.RANDOM, 2, 2);
+    }
+
+    @Test
+    void 매칭_신청_생성_실패시_예외가_전파된다() {
+        // given
+        var memberId = 1L;
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(2)
+                .build();
+        willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
+                .given(matchingManager).apply(newMatching, memberId);
+
+        // when & then
+        assertThatThrownBy(() -> matchingService.apply(newMatching, memberId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+
+        verify(ticketHandler).deduct(memberId, newMatching);
+        verify(matchingExecutor, never()).execute(any());
+    }
+
+    @Test
+    void 존재하지_않는_회원이면_예외가_발생한다() {
+        // given
+        var memberId = 999L;
+        var newMatching = NewMatching.builder()
+                .matchingType(MatchingType.RANDOM)
+                .applicationCount(2)
+                .build();
+        willThrow(new CoreException(ErrorType.NOT_FOUND_MEMBER))
+                .given(matchingManager).apply(newMatching, memberId);
+
+        // when & then
+        assertThatThrownBy(() -> matchingService.apply(newMatching, memberId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+    }
+
+    @Test
+    void 승인되지_않은_신청_조회시_예외가_전파된다() {
+        // given
+        var applicationId = 1L;
+        var memberId = 1L;
+        willThrow(new CoreException(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING))
+                .given(matchingReader).findApplication(applicationId, memberId);
+
+        // when & then
+        assertThatThrownBy(() -> matchingService.findApplication(applicationId, memberId))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_ALLOW_ALREADY_APPROVED_MATCHING.getMessage());
+    }
+
+
+}
