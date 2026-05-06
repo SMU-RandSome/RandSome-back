@@ -5,6 +5,7 @@ import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailRespo
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSearchCondition;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberManager;
 import org.smu.randsome.randsomeback.domain.member.implement.MemberReader;
 import org.smu.randsome.randsomeback.global.support.response.OffsetLimit;
@@ -38,6 +39,10 @@ public class MemberAdminService {
 
     public void restoreMember(Long memberId) {
         memberManager.restore(memberId);
+    }
+
+    public void updateRole(Long memberId, Role role) {
+        memberManager.updateRoleById(memberId, role);
     }
 
 }

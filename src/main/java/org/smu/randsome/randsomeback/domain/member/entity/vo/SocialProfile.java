@@ -7,7 +7,7 @@ import jakarta.persistence.Embeddable;
 
 @Embeddable
 public record SocialProfile(
-        @Column(nullable = false, unique = true)
+        @Column(nullable = false)
         String instagramId,
 
         @Column(length = 1000)

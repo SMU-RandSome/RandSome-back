@@ -57,7 +57,7 @@ class MemberManagerUnitTest extends UnitTestSupport {
     @Test
     void 회원을_생성하고_프로필_태그가_함께_생성된다() {
         // given
-        given(memberJpaRepository.existsByEmail_AddressAndStatus(any(String.class), any(EntityStatus.class)))
+        given(memberJpaRepository.existsByEmail_AddressAndStatusNot(any(String.class), any(EntityStatus.class)))
                 .willReturn(false);
         given(passwordEncoder.encode(any())).willReturn("encoded-password");
         given(memberJpaRepository.save(any(Member.class)))
@@ -85,7 +85,7 @@ class MemberManagerUnitTest extends UnitTestSupport {
     @Test
     void 이미_존재하는_이메일이면_예외가_발생한다() {
         // given
-        given(memberJpaRepository.existsByEmail_AddressAndStatus(any(String.class), any(EntityStatus.class)))
+        given(memberJpaRepository.existsByEmail_AddressAndStatusNot(any(String.class), any(EntityStatus.class)))
                 .willReturn(true);
 
         // when // then
@@ -96,6 +96,24 @@ class MemberManagerUnitTest extends UnitTestSupport {
                 MemberFixture.createTagsInfo()))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.DUPLICATE_EMAIL.getMessage());
+    }
+
+    @Test
+    void 이미_존재하는_인스타그램_계정이면_예외가_발생한다() {
+        // given
+        given(memberJpaRepository.existsByEmail_AddressAndStatusNot(any(String.class), any(EntityStatus.class)))
+                .willReturn(false);
+        given(memberJpaRepository.existsBySocialProfile_InstagramIdAndStatusNot(any(String.class), any(EntityStatus.class)))
+                .willReturn(true);
+
+        // when // then
+        assertThatThrownBy(() -> memberManager.create(
+                MemberFixture.createCredentials(),
+                MemberFixture.createBasicInfo(),
+                MemberFixture.createMemberSocialProfile(),
+                MemberFixture.createTagsInfo()))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.DUPLICATE_INSTAGRAM_ID.getMessage());
     }
 
     @Test
@@ -147,6 +165,32 @@ class MemberManagerUnitTest extends UnitTestSupport {
         assertThatThrownBy(() -> memberManager.updateProfile(999L, updateProfile))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+    }
+
+    @Test
+    void 프로필_업데이트_시_다른_회원이_사용_중인_인스타그램_계정이면_예외가_발생한다() {
+        // given
+        Member member = MemberFixture.create();
+        given(memberJpaRepository.findByIdAndStatus(1L, EntityStatus.ACTIVE)).willReturn(Optional.of(member));
+        given(memberJpaRepository.existsBySocialProfile_InstagramIdAndStatusNotAndIdNot("taken_insta", EntityStatus.DELETED, 1L))
+                .willReturn(true);
+
+        var updateProfile = UpdateProfile.builder()
+                .legalName("김철수")
+                .mbti(Mbti.ENFP)
+                .department(Department.ELECTRONICS_ENGINEERING)
+                .instagramId("taken_insta")
+                .selfIntroduction("자기소개")
+                .idealDescription("이상형")
+                .personalityTag(MemberFixture.DEFAULT_PERSONALITY_TAG)
+                .faceTypeTag(MemberFixture.DEFAULT_FACE_TYPE_TAG)
+                .datingStyleTag(MemberFixture.DEFAULT_DATING_STYLE_TAG)
+                .build();
+
+        // when // then
+        assertThatThrownBy(() -> memberManager.updateProfile(1L, updateProfile))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.DUPLICATE_INSTAGRAM_ID.getMessage());
     }
 
     @Test
@@ -261,6 +305,39 @@ class MemberManagerUnitTest extends UnitTestSupport {
 
         // when // then
         assertThatThrownBy(() -> memberManager.suspend(999L, "규칙 위반"))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+    }
+
+    @Test
+    void 회원_역할을_변경한다() {
+        // given
+        var memberId = 1L;
+        var member = MemberFixture.create();
+        given(memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)).willReturn(Optional.of(member));
+
+        // when
+        memberManager.updateRoleById(memberId, Role.ROLE_CANDIDATE);
+
+        // then
+        assertThat(member.getRole()).isEqualTo(Role.ROLE_CANDIDATE);
+    }
+
+    @Test
+    void ROLE_SUSPEND_MEMBER로_역할_변경_시_예외가_발생한다() {
+        // when // then
+        assertThatThrownBy(() -> memberManager.updateRoleById(1L, Role.ROLE_SUSPEND_MEMBER))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.INVALID_ROLE_UPDATE.getMessage());
+    }
+
+    @Test
+    void 역할_변경_대상_회원이_존재하지_않으면_예외가_발생한다() {
+        // given
+        given(memberJpaRepository.findByIdAndStatus(999L, EntityStatus.ACTIVE)).willReturn(Optional.empty());
+
+        // when // then
+        assertThatThrownBy(() -> memberManager.updateRoleById(999L, Role.ROLE_ADMIN))
                 .isInstanceOf(CoreException.class)
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
     }

@@ -40,8 +40,12 @@ public class MemberManager {
             MemberSocialProfile socialProfile,
             MemberTagsInfo tagsInfo
     ) {
-        if (memberJpaRepository.existsByEmail_AddressAndStatus(credentials.email(), EntityStatus.ACTIVE)) {
+        if (memberJpaRepository.existsByEmail_AddressAndStatusNot(credentials.email(), EntityStatus.DELETED)) {
             throw new CoreException(ErrorType.DUPLICATE_EMAIL);
+        }
+
+        if (memberJpaRepository.existsBySocialProfile_InstagramIdAndStatusNot(socialProfile.instagramId(), EntityStatus.DELETED)) {
+            throw new CoreException(ErrorType.DUPLICATE_INSTAGRAM_ID);
         }
 
         Member member = memberJpaRepository.save(Member.create(
@@ -75,6 +79,10 @@ public class MemberManager {
     public void updateProfile(Long memberId, UpdateProfile updateProfile) {
         Member member = memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
+
+        if (memberJpaRepository.existsBySocialProfile_InstagramIdAndStatusNotAndIdNot(updateProfile.instagramId(), EntityStatus.DELETED, memberId)) {
+            throw new CoreException(ErrorType.DUPLICATE_INSTAGRAM_ID);
+        }
 
         member.updateProfile(
                 updateProfile.legalName(),
@@ -119,6 +127,17 @@ public class MemberManager {
     }
 
     @Transactional
+    public void updateRoleById(Long memberId, Role role) {
+        validateRoleForManualUpdate(role);
+
+        Member member = memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
+        member.updateRole(role);
+
+        log.info("[MemberManager] 권한 변경 완료 - memberId={}, newRole={}", memberId, role);
+    }
+
+    @Transactional
     public void suspend(Long memberId, String reason) {
         Member member = memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
@@ -153,6 +172,12 @@ public class MemberManager {
         suspensionManager.restore(memberId);
 
         log.info("[MemberManager] 회원 복구 처리 완료 - memberId = {}", member.getId());
+    }
+
+    private void validateRoleForManualUpdate(Role role) {
+        if (role == Role.ROLE_SUSPEND_MEMBER) {
+            throw new CoreException(ErrorType.INVALID_ROLE_UPDATE);
+        }
     }
 
 }
