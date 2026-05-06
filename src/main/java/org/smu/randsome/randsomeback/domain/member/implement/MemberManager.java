@@ -44,6 +44,10 @@ public class MemberManager {
             throw new CoreException(ErrorType.DUPLICATE_EMAIL);
         }
 
+        if (memberJpaRepository.existsBySocialProfile_InstagramIdAndStatus(socialProfile.instagramId(), EntityStatus.ACTIVE)) {
+            throw new CoreException(ErrorType.DUPLICATE_INSTAGRAM_ID);
+        }
+
         Member member = memberJpaRepository.save(Member.create(
                 credentials.email(),
                 credentials.password(),
@@ -75,6 +79,10 @@ public class MemberManager {
     public void updateProfile(Long memberId, UpdateProfile updateProfile) {
         Member member = memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
+
+        if (memberJpaRepository.existsBySocialProfile_InstagramIdAndStatusAndIdNot(updateProfile.instagramId(), EntityStatus.ACTIVE, memberId)) {
+            throw new CoreException(ErrorType.DUPLICATE_INSTAGRAM_ID);
+        }
 
         member.updateProfile(
                 updateProfile.legalName(),
