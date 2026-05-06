@@ -1,7 +1,9 @@
 package org.smu.randsome.randsomeback.admin.member.controller;
 
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.smu.randsome.randsomeback.admin.member.dto.request.RestrictionRequest;
+import org.smu.randsome.randsomeback.admin.member.dto.request.UpdateRoleRequest;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberAdminResponse;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailResponse;
 import org.smu.randsome.randsomeback.admin.member.service.MemberAdminService;
@@ -12,6 +14,7 @@ import org.smu.randsome.randsomeback.global.support.response.OffsetLimit;
 import org.smu.randsome.randsomeback.global.support.response.PageResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -63,4 +66,11 @@ public class MemberAdminController extends MemberAdminControllerDocs {
         return ApiResponse.success();
     }
 
+    @Override
+    @PatchMapping("/v1/admin/members/{memberId}/roles")
+    public ApiResponse<?> updateRole(@PathVariable Long memberId, @Valid @RequestBody UpdateRoleRequest request) {
+        memberAdminService.updateRole(memberId, request.role());
+
+        return ApiResponse.success();
+    }
 }

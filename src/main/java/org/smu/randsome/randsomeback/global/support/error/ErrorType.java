@@ -34,6 +34,7 @@ public enum ErrorType {
     SUSPENDED_MEMBER                         (HttpStatus.FORBIDDEN, "정지된 회원입니다. 서비스 이용이 제한되었습니다.", LogLevel.WARN),
     ADMIN_CANNOT_WITHDRAW                    (HttpStatus.FORBIDDEN, "관리자 계정은 탈퇴할 수 없습니다.", LogLevel.WARN),
     INCORRECT_PASSWORD                       (HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.", LogLevel.INFO),
+    INVALID_ROLE_UPDATE                      (HttpStatus.BAD_REQUEST, "해당 역할로 변경할 수 없습니다. 전용 API를 사용해주세요.", LogLevel.INFO),
 
     // CANDIDATE
     NOT_ALLOW_WITHDRAW_NON_APPROVED         (HttpStatus.BAD_REQUEST, "승인된 후보자만 철회할 수 있습니다.", LogLevel.INFO),

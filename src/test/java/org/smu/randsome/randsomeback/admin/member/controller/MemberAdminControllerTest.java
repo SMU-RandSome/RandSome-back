@@ -9,11 +9,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.smu.randsome.randsomeback.ControllerTestSupport;
 import org.smu.randsome.randsomeback.admin.member.dto.request.RestrictionRequest;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailResponse;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.support.response.PageResponse;
 import org.smu.randsome.randsomeback.security.annotation.TestAdmin;
@@ -83,6 +85,19 @@ class MemberAdminControllerTest extends ControllerTestSupport {
                 .hasStatusOk();
 
         verify(memberAdminService).restoreMember(1L);
+    }
+
+    @TestAdmin
+    @Test
+    void 관리자가_회원_역할을_변경하면_200을_반환한다() throws JsonProcessingException {
+        // when & then
+        assertThat(mvcTester.patch().uri("/v1/admin/members/{memberId}/roles", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(Map.of("role", "ROLE_CANDIDATE"))))
+                .apply(print())
+                .hasStatusOk();
+
+        verify(memberAdminService).updateRole(1L, Role.ROLE_CANDIDATE);
     }
 
 }
