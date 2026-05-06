@@ -28,7 +28,10 @@ import org.smu.randsome.randsomeback.global.jwt.TokenHasher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Table(
-        uniqueConstraints = @UniqueConstraint(columnNames = {"email", "status"}),
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"email", "status"}),
+                @UniqueConstraint(columnNames = {"instagram_id", "status"})
+        },
         indexes = {
                 @Index(name = "idx_member_candidate_lookup",
                         columnList = "gender, department, role, status")
