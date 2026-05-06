@@ -29,6 +29,9 @@ public record MemberDetailResponse(
         @Schema(description = "회원 역할", example = "ROLE_MEMBER")
         Role role,
 
+        @Schema(description = "학과", example = "컴퓨터공학과")
+        String department,
+
         @Schema(description = "인스타그램 아이디", example = "my_insta")
         String instagramId,
 
@@ -48,6 +51,7 @@ public record MemberDetailResponse(
                 member.getGender(),
                 member.getMbti(),
                 member.getRole(),
+                member.getDepartment().getDisplayName(),
                 member.getSocialProfile().instagramId(),
                 member.getSocialProfile().selfIntroduction(),
                 member.getSocialProfile().idealDescription()
