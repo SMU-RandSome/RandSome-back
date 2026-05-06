@@ -115,7 +115,7 @@ public class MemberManager {
     public void updateRole(Member member, Role role) {
         member.updateRole(role);
 
-        log.info("[MemberManager] 후보자 권한 변경 완료 - memberId={}, newRole={}", member.getId(), role);
+        log.info("[MemberManager] 권한 변경 완료 - memberId={}, newRole={}", member.getId(), role);
     }
 
     @Transactional

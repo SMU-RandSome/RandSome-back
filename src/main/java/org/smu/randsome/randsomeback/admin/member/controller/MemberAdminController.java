@@ -1,13 +1,14 @@
 package org.smu.randsome.randsomeback.admin.member.controller;
 
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.smu.randsome.randsomeback.admin.member.dto.request.RestrictionRequest;
+import org.smu.randsome.randsomeback.admin.member.dto.request.UpdateRoleRequest;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberAdminResponse;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailResponse;
 import org.smu.randsome.randsomeback.admin.member.service.MemberAdminService;
 import org.smu.randsome.randsomeback.domain.member.dto.command.MemberSearchCondition;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
-import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.support.response.OffsetLimit;
 import org.smu.randsome.randsomeback.global.support.response.PageResponse;
@@ -67,10 +68,9 @@ public class MemberAdminController extends MemberAdminControllerDocs {
 
     @Override
     @PatchMapping("/v1/admin/members/{memberId}/roles")
-    public ApiResponse<?> updateRole(@PathVariable Long memberId, @RequestParam Role role) {
-        memberAdminService.updateRole(memberId, role);
+    public ApiResponse<?> updateRole(@PathVariable Long memberId, @Valid @RequestBody UpdateRoleRequest request) {
+        memberAdminService.updateRole(memberId, request.role());
 
         return ApiResponse.success();
-
     }
 }

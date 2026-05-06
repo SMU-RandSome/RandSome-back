@@ -4,9 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.smu.randsome.randsomeback.admin.member.dto.request.RestrictionRequest;
+import org.smu.randsome.randsomeback.admin.member.dto.request.UpdateRoleRequest;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberAdminResponse;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailResponse;
-import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.support.response.PageResponse;
@@ -119,7 +119,7 @@ public abstract class MemberAdminControllerDocs {
                     **요청 경로 파라미터**
                     - memberId : 역할을 변경할 회원의 고유 ID
 
-                    **요청 쿼리 파라미터**
+                    **요청 본문**
                     - role : 변경할 역할 (ROLE_MEMBER, ROLE_CANDIDATE, ROLE_ADMIN)
                     """
     )
@@ -131,8 +131,7 @@ public abstract class MemberAdminControllerDocs {
     public abstract ApiResponse<?> updateRole(
             @Parameter(name = "memberId", description = "역할을 변경할 회원의 고유 ID", required = true)
             Long memberId,
-            @Parameter(name = "role", description = "변경할 역할", required = true)
-            Role role
+            @RequestBody UpdateRoleRequest request
     );
 
 }
