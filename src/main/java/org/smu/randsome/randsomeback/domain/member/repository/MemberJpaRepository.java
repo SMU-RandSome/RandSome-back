@@ -17,9 +17,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface MemberJpaRepository extends JpaRepository<Member, Long> {
 
-    boolean existsByEmail_AddressAndStatus(String email, EntityStatus status);
-    boolean existsBySocialProfile_InstagramIdAndStatus(String instagramId, EntityStatus status);
-    boolean existsBySocialProfile_InstagramIdAndStatusAndIdNot(String instagramId, EntityStatus status, Long id);
+    boolean existsByEmail_AddressAndStatusNot(String email, EntityStatus status);
+    boolean existsBySocialProfile_InstagramIdAndStatusNot(String instagramId, EntityStatus status);
+    boolean existsBySocialProfile_InstagramIdAndStatusNotAndIdNot(String instagramId, EntityStatus status, Long id);
     boolean existsByIdAndStatus(Long id, EntityStatus status);
     Optional<Member> findByEmail_AddressAndStatus(String email, EntityStatus status);
     Optional<Member> findByEmail_AddressAndStatusNot(String email, EntityStatus status);

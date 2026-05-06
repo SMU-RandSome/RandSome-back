@@ -40,11 +40,11 @@ public class MemberManager {
             MemberSocialProfile socialProfile,
             MemberTagsInfo tagsInfo
     ) {
-        if (memberJpaRepository.existsByEmail_AddressAndStatus(credentials.email(), EntityStatus.ACTIVE)) {
+        if (memberJpaRepository.existsByEmail_AddressAndStatusNot(credentials.email(), EntityStatus.DELETED)) {
             throw new CoreException(ErrorType.DUPLICATE_EMAIL);
         }
 
-        if (memberJpaRepository.existsBySocialProfile_InstagramIdAndStatus(socialProfile.instagramId(), EntityStatus.ACTIVE)) {
+        if (memberJpaRepository.existsBySocialProfile_InstagramIdAndStatusNot(socialProfile.instagramId(), EntityStatus.DELETED)) {
             throw new CoreException(ErrorType.DUPLICATE_INSTAGRAM_ID);
         }
 
@@ -80,7 +80,7 @@ public class MemberManager {
         Member member = memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
 
-        if (memberJpaRepository.existsBySocialProfile_InstagramIdAndStatusAndIdNot(updateProfile.instagramId(), EntityStatus.ACTIVE, memberId)) {
+        if (memberJpaRepository.existsBySocialProfile_InstagramIdAndStatusNotAndIdNot(updateProfile.instagramId(), EntityStatus.DELETED, memberId)) {
             throw new CoreException(ErrorType.DUPLICATE_INSTAGRAM_ID);
         }
 

@@ -57,7 +57,7 @@ class MemberManagerUnitTest extends UnitTestSupport {
     @Test
     void 회원을_생성하고_프로필_태그가_함께_생성된다() {
         // given
-        given(memberJpaRepository.existsByEmail_AddressAndStatus(any(String.class), any(EntityStatus.class)))
+        given(memberJpaRepository.existsByEmail_AddressAndStatusNot(any(String.class), any(EntityStatus.class)))
                 .willReturn(false);
         given(passwordEncoder.encode(any())).willReturn("encoded-password");
         given(memberJpaRepository.save(any(Member.class)))
@@ -85,7 +85,7 @@ class MemberManagerUnitTest extends UnitTestSupport {
     @Test
     void 이미_존재하는_이메일이면_예외가_발생한다() {
         // given
-        given(memberJpaRepository.existsByEmail_AddressAndStatus(any(String.class), any(EntityStatus.class)))
+        given(memberJpaRepository.existsByEmail_AddressAndStatusNot(any(String.class), any(EntityStatus.class)))
                 .willReturn(true);
 
         // when // then
@@ -101,9 +101,9 @@ class MemberManagerUnitTest extends UnitTestSupport {
     @Test
     void 이미_존재하는_인스타그램_계정이면_예외가_발생한다() {
         // given
-        given(memberJpaRepository.existsByEmail_AddressAndStatus(any(String.class), any(EntityStatus.class)))
+        given(memberJpaRepository.existsByEmail_AddressAndStatusNot(any(String.class), any(EntityStatus.class)))
                 .willReturn(false);
-        given(memberJpaRepository.existsBySocialProfile_InstagramIdAndStatus(any(String.class), any(EntityStatus.class)))
+        given(memberJpaRepository.existsBySocialProfile_InstagramIdAndStatusNot(any(String.class), any(EntityStatus.class)))
                 .willReturn(true);
 
         // when // then
@@ -172,7 +172,7 @@ class MemberManagerUnitTest extends UnitTestSupport {
         // given
         Member member = MemberFixture.create();
         given(memberJpaRepository.findByIdAndStatus(1L, EntityStatus.ACTIVE)).willReturn(Optional.of(member));
-        given(memberJpaRepository.existsBySocialProfile_InstagramIdAndStatusAndIdNot("taken_insta", EntityStatus.ACTIVE, 1L))
+        given(memberJpaRepository.existsBySocialProfile_InstagramIdAndStatusNotAndIdNot("taken_insta", EntityStatus.DELETED, 1L))
                 .willReturn(true);
 
         var updateProfile = UpdateProfile.builder()
