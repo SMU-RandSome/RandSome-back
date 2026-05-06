@@ -8,7 +8,7 @@ import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 
 @Embeddable
 public record StudentId(
-        @Column(name = "student_id", nullable = false, unique = true)
+        @Column(name = "student_id", nullable = false)
         String number
 ) {
 

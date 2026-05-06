@@ -30,7 +30,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Table(
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"email", "status"}),
-                @UniqueConstraint(columnNames = {"instagram_id", "status"})
+                @UniqueConstraint(columnNames = {"instagram_id", "status"}),
+                @UniqueConstraint(columnNames = {"student_id", "status"})
         },
         indexes = {
                 @Index(name = "idx_member_candidate_lookup",
