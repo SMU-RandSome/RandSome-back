@@ -115,7 +115,18 @@ public class MemberManager {
     public void updateRole(Member member, Role role) {
         member.updateRole(role);
 
-        log.info("[MemberManager] 권한 변경 완료 - memberId={}, newRole={}", member.getId(), role);
+        log.info("[MemberManager] 후보자 권한 변경 완료 - memberId={}, newRole={}", member.getId(), role);
+    }
+
+    @Transactional
+    public void updateRoleById(Long memberId, Role role) {
+        validateRoleForManualUpdate(role);
+
+        Member member = memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_MEMBER));
+        member.updateRole(role);
+
+        log.info("[MemberManager] 권한 변경 완료 - memberId={}, newRole={}", memberId, role);
     }
 
     @Transactional
@@ -153,6 +164,12 @@ public class MemberManager {
         suspensionManager.restore(memberId);
 
         log.info("[MemberManager] 회원 복구 처리 완료 - memberId = {}", member.getId());
+    }
+
+    private void validateRoleForManualUpdate(Role role) {
+        if (role == Role.ROLE_SUSPEND_MEMBER) {
+            throw new CoreException(ErrorType.INVALID_ROLE_UPDATE);
+        }
     }
 
 }

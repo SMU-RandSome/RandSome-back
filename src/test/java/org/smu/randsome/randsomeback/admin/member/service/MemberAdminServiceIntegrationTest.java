@@ -221,4 +221,51 @@ class MemberAdminServiceIntegrationTest extends IntegrationTestSupport {
         assertThat(suspensionManager.isSuspended(member.getId())).isFalse();
     }
 
+    @Test
+    void 회원_역할을_ROLE_CANDIDATE로_변경한다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+
+        // when
+        memberAdminService.updateRole(member.getId(), Role.ROLE_CANDIDATE);
+
+        // then
+        var updated = memberJpaRepository.findById(member.getId()).orElseThrow();
+        assertThat(updated.getRole()).isEqualTo(Role.ROLE_CANDIDATE);
+    }
+
+    @Test
+    void 회원_역할을_ROLE_ADMIN으로_변경한다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+
+        // when
+        memberAdminService.updateRole(member.getId(), Role.ROLE_ADMIN);
+
+        // then
+        var updated = memberJpaRepository.findById(member.getId()).orElseThrow();
+        assertThat(updated.getRole()).isEqualTo(Role.ROLE_ADMIN);
+    }
+
+    @Test
+    void ROLE_SUSPEND_MEMBER로_역할_변경_시_예외가_발생한다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+
+        // when & then
+        assertThatThrownBy(() -> memberAdminService.updateRole(member.getId(), Role.ROLE_SUSPEND_MEMBER))
+                .isInstanceOf(CoreException.class);
+    }
+
+    @Test
+    void 정지된_회원은_역할_변경_시_예외가_발생한다() {
+        // given
+        var member = memberJpaRepository.save(MemberFixture.create());
+        memberAdminService.suspendMember(member.getId(), "테스트 정지");
+
+        // when & then
+        assertThatThrownBy(() -> memberAdminService.updateRole(member.getId(), Role.ROLE_ADMIN))
+                .isInstanceOf(CoreException.class);
+    }
+
 }

@@ -265,4 +265,37 @@ class MemberManagerUnitTest extends UnitTestSupport {
                 .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
     }
 
+    @Test
+    void 회원_역할을_변경한다() {
+        // given
+        var memberId = 1L;
+        var member = MemberFixture.create();
+        given(memberJpaRepository.findByIdAndStatus(memberId, EntityStatus.ACTIVE)).willReturn(Optional.of(member));
+
+        // when
+        memberManager.updateRoleById(memberId, Role.ROLE_CANDIDATE);
+
+        // then
+        assertThat(member.getRole()).isEqualTo(Role.ROLE_CANDIDATE);
+    }
+
+    @Test
+    void ROLE_SUSPEND_MEMBER로_역할_변경_시_예외가_발생한다() {
+        // when // then
+        assertThatThrownBy(() -> memberManager.updateRoleById(1L, Role.ROLE_SUSPEND_MEMBER))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.INVALID_ROLE_UPDATE.getMessage());
+    }
+
+    @Test
+    void 역할_변경_대상_회원이_존재하지_않으면_예외가_발생한다() {
+        // given
+        given(memberJpaRepository.findByIdAndStatus(999L, EntityStatus.ACTIVE)).willReturn(Optional.empty());
+
+        // when // then
+        assertThatThrownBy(() -> memberManager.updateRoleById(999L, Role.ROLE_ADMIN))
+                .isInstanceOf(CoreException.class)
+                .hasMessage(ErrorType.NOT_FOUND_MEMBER.getMessage());
+    }
+
 }

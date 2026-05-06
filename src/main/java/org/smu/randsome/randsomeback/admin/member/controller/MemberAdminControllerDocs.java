@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.smu.randsome.randsomeback.admin.member.dto.request.RestrictionRequest;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberAdminResponse;
 import org.smu.randsome.randsomeback.admin.member.dto.response.MemberDetailResponse;
+import org.smu.randsome.randsomeback.domain.member.enums.Role;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.smu.randsome.randsomeback.global.support.response.ApiResponse;
 import org.smu.randsome.randsomeback.global.support.response.PageResponse;
@@ -106,6 +107,32 @@ public abstract class MemberAdminControllerDocs {
     public abstract ApiResponse<?> restoreMember(
             @Parameter(name = "memberId", description = "복구할 회원의 고유 ID", required = true)
             Long memberId
+    );
+
+    @Operation(
+            summary = "회원 역할 변경",
+            description = """
+                    #### 관리자 회원 역할 변경 API입니다.
+                    - 특정 회원의 역할(Role)을 변경합니다.
+                    - ROLE_SUSPEND_MEMBER로의 변경은 불가합니다. (정지는 전용 API를 사용하세요)
+
+                    **요청 경로 파라미터**
+                    - memberId : 역할을 변경할 회원의 고유 ID
+
+                    **요청 쿼리 파라미터**
+                    - role : 변경할 역할 (ROLE_MEMBER, ROLE_CANDIDATE, ROLE_ADMIN)
+                    """
+    )
+    @ApiExceptions(values = {
+            ErrorType.NOT_FOUND_MEMBER,
+            ErrorType.INVALID_ROLE_UPDATE,
+            ErrorType.DEFAULT_ERROR
+    })
+    public abstract ApiResponse<?> updateRole(
+            @Parameter(name = "memberId", description = "역할을 변경할 회원의 고유 ID", required = true)
+            Long memberId,
+            @Parameter(name = "role", description = "변경할 역할", required = true)
+            Role role
     );
 
 }
