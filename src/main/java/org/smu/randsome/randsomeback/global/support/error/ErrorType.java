@@ -31,6 +31,7 @@ public enum ErrorType {
     NOT_FOUND_MEMBER                         (HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다.", LogLevel.INFO),
     NOT_FOUND_ACTIVE_MEMBER_BY_REFRESH_TOKEN (HttpStatus.NOT_FOUND, "요청하신 Refresh Token 으로 활성화 된 회원을 찾을 수 없습니다.", LogLevel.INFO),
     DUPLICATE_EMAIL                          (HttpStatus.CONFLICT, "이미 사용 중인 Email 입니다.", LogLevel.INFO),
+    DUPLICATE_INSTAGRAM_ID                   (HttpStatus.CONFLICT, "이미 사용 중인 인스타그램 계정입니다.", LogLevel.INFO),
     SUSPENDED_MEMBER                         (HttpStatus.FORBIDDEN, "정지된 회원입니다. 서비스 이용이 제한되었습니다.", LogLevel.WARN),
     ADMIN_CANNOT_WITHDRAW                    (HttpStatus.FORBIDDEN, "관리자 계정은 탈퇴할 수 없습니다.", LogLevel.WARN),
     INCORRECT_PASSWORD                       (HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.", LogLevel.INFO),
