@@ -1,5 +1,6 @@
 package org.smu.randsome.randsomeback.domain.candidate.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistration;
@@ -40,4 +41,6 @@ public interface CandidateJpaRepository extends JpaRepository<CandidateRegistrat
     List<CandidateRegistration> findAllByMemberIdAndStatus(Long memberId, EntityStatus status);
 
     Optional<CandidateRegistration> findByMemberIdAndRegistrationStatusAndStatus(Long memberId, RegistrationStatus registrationStatus, EntityStatus status);
+
+    boolean existsByMemberIdAndRegistrationStatusInAndStatus(Long memberId, Collection<RegistrationStatus> registrationStatuses, EntityStatus status);
 }

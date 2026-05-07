@@ -21,6 +21,10 @@ import org.smu.randsome.randsomeback.domain.member.repository.MemberDeviceJpaRep
 import org.smu.randsome.randsomeback.domain.member.repository.MemberJpaRepository;
 import org.smu.randsome.randsomeback.domain.notification.entity.Notification;
 import org.smu.randsome.randsomeback.domain.notification.repository.NotificationJpaRepository;
+import org.smu.randsome.randsomeback.domain.ticket.entity.Ticket;
+import org.smu.randsome.randsomeback.domain.ticket.enums.TicketType;
+import org.smu.randsome.randsomeback.domain.ticket.repository.TicketHistoryJpaRepository;
+import org.smu.randsome.randsomeback.domain.ticket.repository.TicketJpaRepository;
 import org.smu.randsome.randsomeback.fixture.MemberFixture;
 import org.smu.randsome.randsomeback.global.entity.EntityStatus;
 
@@ -33,12 +37,16 @@ class CandidateAdminServiceIntegrationTest extends IntegrationTestSupport {
     final CandidateAdminService candidateAdminService;
     final NotificationJpaRepository notificationJpaRepository;
     final MemberDeviceJpaRepository memberDeviceJpaRepository;
+    final TicketHistoryJpaRepository ticketHistoryJpaRepository;
+    final TicketJpaRepository ticketJpaRepository;
 
     @AfterEach
     void tearDown() {
         notificationJpaRepository.deleteAll();
         memberDeviceJpaRepository.deleteAll();
         matchingFeedEventRepository.deleteAll();
+        ticketHistoryJpaRepository.deleteAll();
+        ticketJpaRepository.deleteAll();
         candidateJpaRepository.deleteAll();
         memberJpaRepository.deleteAll();
     }
@@ -52,6 +60,9 @@ class CandidateAdminServiceIntegrationTest extends IntegrationTestSupport {
         var device = MemberDevice.register(member, "test-fcm-token", LocalDateTime.now());
         memberDeviceJpaRepository.save(device);
 
+        ticketJpaRepository.save(Ticket.create(member, TicketType.RANDOM, TicketType.RANDOM.getDefaultQuantity()));
+        ticketJpaRepository.save(Ticket.create(member, TicketType.IDEAL, TicketType.IDEAL.getDefaultQuantity()));
+
         var registration = CandidateRegistration.apply(member);
         candidateJpaRepository.save(registration);
         var registrationId = registration.getId();
@@ -59,11 +70,16 @@ class CandidateAdminServiceIntegrationTest extends IntegrationTestSupport {
         // when
         candidateAdminService.approve(registrationId);
 
-        // then - 피드 (동기, REQUIRES_NEW로 즉시 저장)
-        assertThat(matchingFeedEventRepository.findAll())
-                .hasSize(1)
-                .extracting(MatchingFeedEvent::getNickname)
-                .contains(member.getNickname());
+        // then - 피드 (비동기, REQUIRES_NEW로 저장)
+        await()
+                .atMost(Duration.ofSeconds(5))
+                .pollInterval(Duration.ofMillis(100))
+                .untilAsserted(() ->
+                        assertThat(matchingFeedEventRepository.findAll())
+                                .hasSize(1)
+                                .extracting(MatchingFeedEvent::getNickname)
+                                .contains(member.getNickname())
+                );
 
         // then - 알림 (비동기, Awaitility로 조건 충족까지 대기)
         await()
