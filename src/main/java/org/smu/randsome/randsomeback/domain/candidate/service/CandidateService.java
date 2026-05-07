@@ -37,7 +37,7 @@ public class CandidateService {
      * 회원이 매칭 후보자 등록을 철회하는 서비스 메서드입니다.
      * 후보자 에서 일반 회원으로 역할이 변경됩니다.
      * 최초 승인 시 지급된 보상 티켓(RANDOM 3장 + IDEAL 3장)이 차감됩니다.
-     * 티켓 잔액이 부족하면 철회가 불가합니다.
+     * 티켓 잔액이 차감 개수 보다 부족한 경우, 회원은 보유한 티켓을 모두 차감합니다.
      * */
     @Transactional
     public void withdraw(Long memberId) {
