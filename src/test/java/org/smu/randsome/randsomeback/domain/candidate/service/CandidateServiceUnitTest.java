@@ -17,6 +17,7 @@ import org.smu.randsome.randsomeback.domain.candidate.event.CandidateAppliedEven
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateReader;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateValidator;
+import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
 import org.smu.randsome.randsomeback.global.support.error.CoreException;
 import org.smu.randsome.randsomeback.global.support.error.ErrorType;
 import org.springframework.context.ApplicationEventPublisher;
@@ -34,6 +35,9 @@ class CandidateServiceUnitTest extends UnitTestSupport {
 
     @Mock
     CandidateReader candidateReader;
+
+    @Mock
+    TicketHandler ticketHandler;
 
     @Mock
     ApplicationEventPublisher eventPublisher;
@@ -93,6 +97,7 @@ class CandidateServiceUnitTest extends UnitTestSupport {
         candidateService.withdraw(memberId);
 
         // then
+        verify(ticketHandler).deductForCandidateWithdrawal(memberId);
         verify(candidateManager).withdraw(memberId);
     }
 

@@ -64,6 +64,12 @@ public class Ticket extends BaseEntity {
         this.quantity = this.quantity.minus(amount);
     }
 
+    public int useUpTo(int amount) {
+        int before = this.quantity.value();
+        this.quantity = this.quantity.minusUpTo(amount);
+        return before - this.quantity.value();
+    }
+
     public int getQuantityValue() {
         return quantity.value();
     }

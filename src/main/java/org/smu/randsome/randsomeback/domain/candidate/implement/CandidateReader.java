@@ -43,13 +43,17 @@ public class CandidateReader {
         return CursorSlice.of(items, nextCursor, hasNext);
     }
 
-    public long countPending() {
-        return candidateRepository.countByRegistrationStatusAndStatus(RegistrationStatus.PENDING, EntityStatus.ACTIVE);
-    }
-
     public CandidateRegistration findWithMember(Long candidateRegistrationId) {
         return candidateRepository.findByIdAndStatusWithMember(candidateRegistrationId, EntityStatus.ACTIVE)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND_CANDIDATE_REGISTRATION));
+    }
+
+    public boolean hasApprovalHistory(Long memberId) {
+        return candidateRepository.existsByMemberIdAndRegistrationStatusInAndStatus(
+                memberId,
+                List.of(RegistrationStatus.WITHDRAWN, RegistrationStatus.SUSPENDED),
+                EntityStatus.ACTIVE
+        );
     }
 
 }

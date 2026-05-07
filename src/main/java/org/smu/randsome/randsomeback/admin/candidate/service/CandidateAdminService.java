@@ -7,6 +7,7 @@ import org.smu.randsome.randsomeback.domain.candidate.event.CandidateRegistratio
 import org.smu.randsome.randsomeback.domain.candidate.event.CandidateRegistrationNotificationEvent;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateReader;
+import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 import org.smu.randsome.randsomeback.global.support.response.Cursor;
 import org.smu.randsome.randsomeback.global.support.response.CursorSlice;
@@ -20,17 +21,25 @@ public class CandidateAdminService {
 
     private final CandidateManager candidateManager;
     private final CandidateReader candidateReader;
+    private final TicketHandler ticketHandler;
     private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 후보자 등록 승인 <br>
      * 승인된 후보자 등록은 매칭 대상이 됨 <br>
+     * 최초 승인 시 보상 티켓(RANDOM 3장 + IDEAL 3장)이 지급됨 (회원당 1회 한정) <br>
      * 승인 시 후보자 등록 승인 이벤트가 발행되어 관련된 후속 작업이 트리거됨 (예: 승인 알림 발송 등) <br>
      * @param candidateRegistrationId 승인할 후보자 등록 ID
      * */
     @Transactional
     public void approve(Long candidateRegistrationId) {
         CandidateRegistration candidateRegistration = candidateManager.approve(candidateRegistrationId);
+        Long memberId = candidateRegistration.getMember().getId();
+
+        // 최초 승인 시 보상 티켓 지급 (회원당 1회)
+        if (!candidateReader.hasApprovalHistory(memberId)) {
+            ticketHandler.issueForCandidateApproval(memberId);
+        }
 
         eventPublisher.publishEvent(new CandidateRegistrationNotificationEvent(candidateRegistration.getId(), NotificationType.CANDIDATE_APPROVED));
         eventPublisher.publishEvent(new CandidateRegistrationApprovedEvent(candidateRegistration.getMember().getNickname()));

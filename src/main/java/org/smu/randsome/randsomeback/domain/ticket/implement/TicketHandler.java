@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 public class TicketHandler {
 
     private static final int ATTENDANCE_REWARD_AMOUNT = 1;
+    private static final int CANDIDATE_APPROVAL_REWARD_RANDOM = 3;
+    private static final int CANDIDATE_APPROVAL_REWARD_IDEAL = 3;
 
     private final TicketManager ticketManager;
     private final MemberReader memberReader;
@@ -149,6 +151,63 @@ public class TicketHandler {
         }
         TicketSource ticketSource = matchedCount == 0 ? TicketSource.NO_MATCH_REFUND : TicketSource.PARTIAL_MATCH_REFUND;
         refund(memberId, TicketType.from(matchingType), refundedTickets, ticketSource);
+    }
+
+    /**
+     * 후보자 등록 승인 보상으로 티켓을 지급한다.
+     * @param memberId 회원 식별자
+     */
+    public void issueForCandidateApproval(Long memberId) {
+        ticketManager.earn(memberId, TicketType.RANDOM, CANDIDATE_APPROVAL_REWARD_RANDOM);
+        ticketManager.earn(memberId, TicketType.IDEAL, CANDIDATE_APPROVAL_REWARD_IDEAL);
+
+        eventPublisher.publishEvent(new TicketHistoryRegisterEvent(
+                memberId,
+                TicketType.RANDOM,
+                TicketActionType.EARN,
+                TicketSource.CANDIDATE_APPROVAL,
+                CANDIDATE_APPROVAL_REWARD_RANDOM,
+                TicketSource.CANDIDATE_APPROVAL.getDescription()
+        ));
+        eventPublisher.publishEvent(new TicketHistoryRegisterEvent(
+                memberId,
+                TicketType.IDEAL,
+                TicketActionType.EARN,
+                TicketSource.CANDIDATE_APPROVAL,
+                CANDIDATE_APPROVAL_REWARD_IDEAL,
+                TicketSource.CANDIDATE_APPROVAL.getDescription()
+        ));
+
+        log.info("[TicketHandler] 후보자 승인 보상 티켓 지급 완료 - memberId={}", memberId);
+    }
+
+    /**
+     * 후보자 철회 시 보상 티켓을 차감한다.
+     * 잔액이 보상 수량보다 적으면 남은 만큼만 차감한다.
+     * @param memberId 회원 식별자
+     */
+    public void deductForCandidateWithdrawal(Long memberId) {
+        deductTicketForWithdrawal(memberId, TicketType.RANDOM, CANDIDATE_APPROVAL_REWARD_RANDOM);
+        deductTicketForWithdrawal(memberId, TicketType.IDEAL, CANDIDATE_APPROVAL_REWARD_IDEAL);
+
+        log.info("[TicketHandler] 후보자 철회 티켓 차감 완료 - memberId={}", memberId);
+    }
+
+    private void deductTicketForWithdrawal(Long memberId, TicketType ticketType, int rewardAmount) {
+        int deducted = ticketManager.useUpTo(memberId, ticketType, rewardAmount);
+
+        if (deducted <= 0) {
+            return;
+        }
+
+        eventPublisher.publishEvent(new TicketHistoryRegisterEvent(
+                memberId,
+                ticketType,
+                TicketActionType.USE,
+                TicketSource.CANDIDATE_WITHDRAWAL,
+                deducted,
+                TicketSource.CANDIDATE_WITHDRAWAL.getDescription()
+        ));
     }
 
     private void refund(Long memberId, TicketType ticketType, int amount, TicketSource ticketSource) {
