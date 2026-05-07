@@ -113,11 +113,12 @@ public class TicketHandler {
 
     /**
      * 관리자에 의한 티켓 지급
-     * @param memberId   회원 식별자
-     * @param ticketType 지급할 티켓 종류
-     * @param amount     지급할 티켓 수량
+     * @param memberId    회원 식별자
+     * @param ticketType  지급할 티켓 종류
+     * @param amount      지급할 티켓 수량
+     * @param description 지급 사유
      **/
-    public void issueForAdmin(Long memberId, TicketType ticketType, int amount) {
+    public void issueForAdmin(Long memberId, TicketType ticketType, int amount, String description) {
         // 회원이 존재하는지 확인 (예외 발생 시 티켓 지급 중단)
         memberReader.find(memberId);
 
@@ -129,10 +130,34 @@ public class TicketHandler {
                 TicketActionType.EARN,
                 TicketSource.ADMIN,
                 amount,
-                "소프트웨어 부스 이용으로 인한 티켓 지급"
+                description
         ));
 
         log.info("[TicketHandler] 관리자에 의한 티켓 지급 완료 - memberId={}, ticketType={}, amount={}", memberId, ticketType, amount);
+    }
+
+    /**
+     * 관리자에 의한 티켓 차감
+     * @param memberId    회원 식별자
+     * @param ticketType  차감할 티켓 종류
+     * @param amount      차감할 티켓 수량
+     * @param description 차감 사유
+     **/
+    public void deductForAdmin(Long memberId, TicketType ticketType, int amount, String description) {
+        memberReader.find(memberId);
+
+        ticketManager.use(memberId, ticketType, amount);
+
+        eventPublisher.publishEvent(new TicketHistoryRegisterEvent(
+                memberId,
+                ticketType,
+                TicketActionType.USE,
+                TicketSource.ADMIN,
+                amount,
+                description
+        ));
+
+        log.info("[TicketHandler] 관리자에 의한 티켓 차감 완료 - memberId={}, ticketType={}, amount={}", memberId, ticketType, amount);
     }
 
     /**

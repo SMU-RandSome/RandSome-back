@@ -21,7 +21,7 @@ public class QrAdminService {
     public void verifyQrAndIssueTicket(String qrToken, TicketType ticketType) {
         Long memberId = qrVerificationManager.verifyAndGetMemberId(qrToken);
 
-        ticketHandler.issueForAdmin(memberId, ticketType, ticketType.getDefaultQuantity());
+        ticketHandler.issueForAdmin(memberId, ticketType, ticketType.getDefaultQuantity(), "소프트웨어 부스 이용으로 인한 티켓 지급");
     }
 
 }
