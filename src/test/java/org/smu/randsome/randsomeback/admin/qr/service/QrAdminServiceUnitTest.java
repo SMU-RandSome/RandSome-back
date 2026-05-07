@@ -44,7 +44,7 @@ class QrAdminServiceUnitTest {
 
         // then
         then(qrVerificationManager).should().verifyAndGetMemberId(qrToken);
-        then(ticketHandler).should().issueForAdmin(memberId, TicketType.IDEAL, TicketType.IDEAL.getDefaultQuantity());
+        then(ticketHandler).should().issueForAdmin(memberId, TicketType.IDEAL, TicketType.IDEAL.getDefaultQuantity(), "소프트웨어 부스 이용으로 인한 티켓 지급");
     }
 
     @Test
@@ -59,7 +59,7 @@ class QrAdminServiceUnitTest {
         qrAdminService.verifyQrAndIssueTicket(qrToken, TicketType.RANDOM);
 
         // then
-        then(ticketHandler).should().issueForAdmin(memberId, TicketType.RANDOM, TicketType.RANDOM.getDefaultQuantity());
+        then(ticketHandler).should().issueForAdmin(memberId, TicketType.RANDOM, TicketType.RANDOM.getDefaultQuantity(), "소프트웨어 부스 이용으로 인한 티켓 지급");
     }
 
     @Test
@@ -73,7 +73,7 @@ class QrAdminServiceUnitTest {
         assertThatThrownBy(() -> qrAdminService.verifyQrAndIssueTicket(qrToken, TicketType.IDEAL))
                 .isInstanceOf(CoreException.class);
 
-        then(ticketHandler).should(never()).issueForAdmin(anyLong(), any(), anyInt());
+        then(ticketHandler).should(never()).issueForAdmin(anyLong(), any(), anyInt(), any());
     }
 
 }
