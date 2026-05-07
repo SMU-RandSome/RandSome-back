@@ -40,6 +40,14 @@ public record TicketQuantity(
         return new TicketQuantity(this.value - amount);
     }
 
+    public TicketQuantity minusUpTo(int amount) {
+        if (amount <= 0) {
+            throw new CoreException(ErrorType.INVALID_TICKET_AMOUNT);
+        }
+        int deducted = Math.min(this.value, amount);
+        return new TicketQuantity(this.value - deducted);
+    }
+
     public boolean isZero() {
         return this.value == 0;
     }

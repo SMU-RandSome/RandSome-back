@@ -14,7 +14,9 @@ import org.smu.randsome.randsomeback.domain.candidate.entity.CandidateRegistrati
 import org.smu.randsome.randsomeback.domain.candidate.event.CandidateRegistrationApprovedEvent;
 import org.smu.randsome.randsomeback.domain.candidate.event.CandidateRegistrationNotificationEvent;
 import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateManager;
+import org.smu.randsome.randsomeback.domain.candidate.implement.CandidateReader;
 import org.smu.randsome.randsomeback.domain.member.entity.Member;
+import org.smu.randsome.randsomeback.domain.ticket.implement.TicketHandler;
 import org.smu.randsome.randsomeback.global.support.notification.NotificationType;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -27,6 +29,12 @@ class CandidateAdminServiceUnitTest extends UnitTestSupport {
     CandidateManager candidateManager;
 
     @Mock
+    CandidateReader candidateReader;
+
+    @Mock
+    TicketHandler ticketHandler;
+
+    @Mock
     ApplicationEventPublisher eventPublisher;
 
     @Test
@@ -36,6 +44,7 @@ class CandidateAdminServiceUnitTest extends UnitTestSupport {
         String nickname = "테스트유저";
 
         var member = mock(Member.class);
+        given(member.getId()).willReturn(1L);
         given(member.getNickname()).willReturn(nickname);
 
         var registration = mock(CandidateRegistration.class);
